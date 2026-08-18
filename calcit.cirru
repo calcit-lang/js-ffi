@@ -2,12 +2,15 @@
 {} (:about "|Machine-generated snapshot. Do not edit directly — changes will be overwritten. Use `cr query` to inspect and `cr edit`/`cr tree` to modify. Run `cr docs agents --full` first. Manual edits must follow format and schema conventions, then run `cr edit format`.") (:package |js-ffi) (:version |0.1.0)
   :entries $ {}
     :browser $ {} (:description |) (:init-fn 'js-ffi.browser-test/main!) (:mode :js) (:reload-fn 'js-ffi.browser-test/reload!)
+      :feature-policy $ {} (:js-ffi :error)
       :modules $ []
       :type-slots $ {}
     :default $ {} (:description |) (:init-fn 'js-ffi.node-test/main!) (:mode :native) (:reload-fn 'js-ffi.node-test/reload!)
+      :feature-policy $ {} (:js-ffi :error)
       :modules $ []
       :type-slots $ {}
     :node $ {} (:description |) (:init-fn 'js-ffi.node-test/main!) (:mode :native) (:reload-fn 'js-ffi.node-test/reload!)
+      :feature-policy $ {} (:js-ffi :error)
       :modules $ []
       :type-slots $ {}
   :files $ {}
