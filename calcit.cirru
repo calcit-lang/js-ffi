@@ -1,5 +1,5 @@
 
-{} (:about "|Machine-generated snapshot. Do not edit directly — changes will be overwritten. Use `cr query` to inspect and `cr edit`/`cr tree` to modify. Run `cr docs agents --full` first. Manual edits must follow format and schema conventions, then run `cr edit format`.") (:package |js-ffi) (:version |0.1.5)
+{} (:about "|Machine-generated snapshot. Do not edit directly — changes will be overwritten. Use `cr query` to inspect and `cr edit`/`cr tree` to modify. Run `cr docs agents --full` first. Manual edits must follow format and schema conventions, then run `cr edit format`.") (:package |js-ffi) (:version |0.1.6)
   :entries $ {}
     :browser $ {} (:description |) (:init-fn 'js-ffi.browser-test/main!) (:mode :js) (:reload-fn 'js-ffi.browser-test/reload!) (:target :browser)
       :feature-policy $ {} (:js-ffi :error)
@@ -281,7 +281,11 @@
               :features $ #{} :js-ffi
         |append-child! $ %{} 'CodeEntry (:doc "|Appends one typed DOM host element to another and returns the child. This keeps DOM insertion inside the browser FFI boundary.")
           :code $ quote
-            defn append-child! (parent child) (parent .append-child! child)
+            defn append-child! (parent child)
+              let
+                  parent-host $ unsafe-coerce parent 'DomElementHost
+                  child-host $ unsafe-coerce child 'DomElementHost
+                unsafe-coerce (parent-host .append-child! child-host) DomElementHost
           :examples $ []
           :schema $ :: 'Fn
             {} (:return 'js-ffi.browser/DomElementHost)
