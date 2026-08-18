@@ -1,5 +1,5 @@
 
-{} (:about "|Machine-generated snapshot. Do not edit directly — changes will be overwritten. Use `cr query` to inspect and `cr edit`/`cr tree` to modify. Run `cr docs agents --full` first. Manual edits must follow format and schema conventions, then run `cr edit format`.") (:package |js-ffi) (:version |0.1.1)
+{} (:about "|Machine-generated snapshot. Do not edit directly — changes will be overwritten. Use `cr query` to inspect and `cr edit`/`cr tree` to modify. Run `cr docs agents --full` first. Manual edits must follow format and schema conventions, then run `cr edit format`.") (:package |js-ffi) (:version |0.1.3)
   :entries $ {}
     :browser $ {} (:description |) (:init-fn 'js-ffi.browser-test/main!) (:mode :js) (:reload-fn 'js-ffi.browser-test/reload!) (:target :browser)
       :feature-policy $ {} (:js-ffi :error)
@@ -49,6 +49,8 @@
             deftrait DomElementHost (:id 'String) (:class-name 'String)
               :text-content $ :: 'JsNullish 'String
               :child-element-count 'Number
+              :dataset 'JsObject
+              :style 'JsObject
               .matches? $ :: 'Fn
                 {}
                   :args $ [] 'js-ffi.browser/DomElementHost 'String
@@ -358,6 +360,13 @@
             {} (:return 'String)
               :args $ []
               :features $ #{} :js-ffi
+        |element-dataset $ %{} 'CodeEntry (:doc "|Returns the DOM element dataset object through the browser host contract. Use with js-set/js-delete for data-* attributes.")
+          :code $ quote
+            defn element-dataset (element) (element :dataset)
+          :examples $ []
+          :schema $ :: 'Fn
+            {} (:return 'JsObject)
+              :args $ [] 'js-ffi.browser/DomElementHost
         |element-snapshot $ %{} 'CodeEntry (:doc "|Copy a typed DOM element into ElementSnapshot, converting nullish textContent to Option<String>.")
           :code $ quote
             defn element-snapshot (element)
@@ -369,6 +378,13 @@
             {} (:return 'js-ffi.browser/ElementSnapshot)
               :args $ [] 'js-ffi.browser/DomElementHost
               :features $ #{} :js-ffi
+        |element-style $ %{} 'CodeEntry (:doc "|Returns the DOM element style declaration through the browser host contract. Use with aset for normalized CSS property names.")
+          :code $ quote
+            defn element-style (element) (element :style)
+          :examples $ []
+          :schema $ :: 'Fn
+            {} (:return 'JsObject)
+              :args $ [] 'js-ffi.browser/DomElementHost
         |local-storage-available? $ %{} 'CodeEntry (:doc "|Return whether localStorage is available. Browsers may deny storage in privacy or sandboxed modes, so callers should branch on this Boolean. Example: (local-storage-available?) => true")
           :code $ quote
             defn local-storage-available? () $ js-present? js/localStorage
