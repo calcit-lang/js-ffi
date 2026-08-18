@@ -1,14 +1,14 @@
 {}
   :schema-version 1
   :feature 'typed-js-host-model
-  :doc "|Shared-first nominal data and explicit external-object capabilities for JavaScript FFI. Data-definition CodeEntry schemas stay Dynamic for current JS codegen compatibility; field, variant, member, and function schemas carry the concrete contracts."
+  :doc "|Shared-first nominal data and explicit external-object capabilities for JavaScript FFI. Data-definition CodeEntry schemas use StructDef, EnumDef, Trait, or Impl markers; field, variant, member, and function schemas carry the concrete contracts."
   :roots $ #{} 'js-ffi.shared/date-now-snapshot 'js-ffi.browser/viewport 'js-ffi.browser/element-snapshot
   :definitions $ {}
     'js-ffi.shared/Runtime $ {}
       :mode :ensure
       :kind :data
       :doc "|Runtime identity normalized as a Calcit enum instead of an open String."
-      :schema $ :: 'Dynamic
+      :schema $ :: 'EnumDef
       :code $ quote
         defenum Runtime (:browser) (:node) (:unknown 'String)
       :examples $ []
@@ -18,7 +18,7 @@
       :mode :ensure
       :kind :data
       :doc "|Stable error categories shared by browser and Node adapters; unknown host names retain their String payload."
-      :schema $ :: 'Dynamic
+      :schema $ :: 'EnumDef
       :code $ quote
         defenum JsErrorKind (:type-error) (:range-error) (:permission) (:quota) (:network) (:abort) (:unknown 'String)
       :examples $ []
@@ -28,7 +28,7 @@
       :mode :ensure
       :kind :data
       :doc "|Normalized JavaScript exception data. Stack is optional because hosts may omit it."
-      :schema $ :: 'Dynamic
+      :schema $ :: 'StructDef
       :code $ quote
         defstruct JsError
           :kind 'js-ffi.shared/JsErrorKind
@@ -41,7 +41,7 @@
       :mode :ensure
       :kind :data
       :doc "|Immutable normalized view of a host Date with epoch milliseconds and ISO text."
-      :schema $ :: 'Dynamic
+      :schema $ :: 'StructDef
       :code $ quote
         defstruct DateSnapshot (:timestamp 'Number) (:iso 'String)
       :examples $ []
@@ -50,7 +50,7 @@
       :mode :ensure
       :kind :data
       :doc "|Immutable URL fields copied out of a host URL or Location object."
-      :schema $ :: 'Dynamic
+      :schema $ :: 'StructDef
       :code $ quote
         defstruct UrlSnapshot
           :href 'String
@@ -67,7 +67,7 @@
       :mode :ensure
       :kind :data
       :doc "|Closed HTTP method set used by typed request options; custom methods remain an explicit adapter concern."
-      :schema $ :: 'Dynamic
+      :schema $ :: 'EnumDef
       :code $ quote
         defenum HttpMethod (:get) (:post) (:put) (:patch) (:delete) (:head) (:options)
       :examples $ []
@@ -77,7 +77,7 @@
       :mode :ensure
       :kind :data
       :doc "|Calcit-owned request configuration converted to a JavaScript object only inside an adapter."
-      :schema $ :: 'Dynamic
+      :schema $ :: 'StructDef
       :code $ quote
         defstruct RequestOptions
           :method 'js-ffi.shared/HttpMethod
@@ -89,7 +89,7 @@
       :mode :ensure
       :kind :data
       :doc "|Normalized response metadata after a host Response has been inspected and its headers copied."
-      :schema $ :: 'Dynamic
+      :schema $ :: 'StructDef
       :code $ quote
         defstruct ResponseSnapshot
           :status 'Number
@@ -104,7 +104,7 @@
       :mode :ensure
       :kind :data
       :doc "|External console capability shared by browser and Node. Methods intentionally accept one String to avoid modeling host varargs."
-      :schema $ :: 'Dynamic
+      :schema $ :: 'Trait
       :tags $ #{} :ffi :js-host
       :code $ quote
         deftrait ConsoleHost
@@ -126,7 +126,7 @@
       :mode :ensure
       :kind :data
       :doc "|External JavaScript Date capability exposing only stable read methods needed for normalization."
-      :schema $ :: 'Dynamic
+      :schema $ :: 'Trait
       :tags $ #{} :ffi :js-host
       :code $ quote
         deftrait DateHost
@@ -144,7 +144,7 @@
       :mode :ensure
       :kind :data
       :doc "|External URL-like capability shared by URL and browser Location objects. Fields are read-only in this contract."
-      :schema $ :: 'Dynamic
+      :schema $ :: 'Trait
       :tags $ #{} :ffi :js-host
       :code $ quote
         deftrait UrlHost
@@ -166,7 +166,7 @@
       :mode :ensure
       :kind :data
       :doc "|External URLSearchParams capability. Nullable lookup remains JsNullish<String> until an adapter converts it to Option."
-      :schema $ :: 'Dynamic
+      :schema $ :: 'Trait
       :tags $ #{} :ffi :js-host
       :code $ quote
         deftrait UrlSearchParamsHost
@@ -197,7 +197,7 @@
       :mode :ensure
       :kind :data
       :doc "|External AbortSignal capability. Reason stays an opaque nullable host object because JavaScript permits arbitrary values."
-      :schema $ :: 'Dynamic
+      :schema $ :: 'Trait
       :tags $ #{} :ffi :js-host
       :code $ quote
         deftrait AbortSignalHost
@@ -213,7 +213,7 @@
       :mode :ensure
       :kind :data
       :doc "|External AbortController capability with a typed signal and parameterless abort wrapper contract."
-      :schema $ :: 'Dynamic
+      :schema $ :: 'Trait
       :tags $ #{} :ffi :js-host
       :code $ quote
         deftrait AbortControllerHost
@@ -228,7 +228,7 @@
       :mode :ensure
       :kind :data
       :doc "|External Headers capability with typed String keys and values; iteration is deliberately normalized elsewhere."
-      :schema $ :: 'Dynamic
+      :schema $ :: 'Trait
       :tags $ #{} :ffi :js-host
       :code $ quote
         deftrait HeadersHost
@@ -258,7 +258,7 @@
       :mode :ensure
       :kind :data
       :doc "|External Response metadata capability. Async body readers are omitted until adapters normalize their Promise results."
-      :schema $ :: 'Dynamic
+      :schema $ :: 'Trait
       :tags $ #{} :ffi :js-host
       :code $ quote
         deftrait ResponseHost
@@ -432,7 +432,7 @@
       :mode :ensure
       :kind :data
       :doc "|Normalized viewport dimensions and device pixel ratio copied from Window."
-      :schema $ :: 'Dynamic
+      :schema $ :: 'StructDef
       :code $ quote
         defstruct Viewport (:width 'Number) (:height 'Number) (:device-pixel-ratio 'Number)
       :examples $ []
@@ -441,7 +441,7 @@
       :mode :ensure
       :kind :data
       :doc "|Typed browser smoke result replacing the former heterogeneous Map<Dynamic>."
-      :schema $ :: 'Dynamic
+      :schema $ :: 'StructDef
       :code $ quote
         defstruct BrowserProbe
           :runtime 'js-ffi.shared/Runtime
@@ -454,7 +454,7 @@
       :mode :ensure
       :kind :data
       :doc "|Calcit-owned subset of DOM element data suitable for business code without retaining host identity."
-      :schema $ :: 'Dynamic
+      :schema $ :: 'StructDef
       :code $ quote
         defstruct ElementSnapshot
           :id 'String
@@ -467,7 +467,7 @@
       :mode :ensure
       :kind :data
       :doc "|Normalized keyboard or pointer modifier state shared by event adapters."
-      :schema $ :: 'Dynamic
+      :schema $ :: 'StructDef
       :code $ quote
         defstruct KeyModifiers (:alt? 'Bool) (:ctrl? 'Bool) (:meta? 'Bool) (:shift? 'Bool)
       :examples $ []
@@ -476,7 +476,7 @@
       :mode :ensure
       :kind :data
       :doc "|Normalized pointer coordinates and button index copied from a MouseEvent-like object."
-      :schema $ :: 'Dynamic
+      :schema $ :: 'StructDef
       :code $ quote
         defstruct PointerPosition (:client-x 'Number) (:client-y 'Number) (:button 'Number)
       :examples $ []
@@ -485,7 +485,7 @@
       :mode :ensure
       :kind :data
       :doc "|Typed document.readyState values with an unknown String variant for forward compatibility."
-      :schema $ :: 'Dynamic
+      :schema $ :: 'EnumDef
       :code $ quote
         defenum DocumentReadyState (:loading) (:interactive) (:complete) (:unknown 'String)
       :examples $ []
@@ -494,7 +494,7 @@
       :mode :ensure
       :kind :data
       :doc "|Typed document.visibilityState values with an unknown String variant."
-      :schema $ :: 'Dynamic
+      :schema $ :: 'EnumDef
       :code $ quote
         defenum VisibilityState (:visible) (:hidden) (:prerender) (:unknown 'String)
       :examples $ []
@@ -503,7 +503,7 @@
       :mode :ensure
       :kind :data
       :doc "|External browser Window capability restricted to stable viewport fields and matchMedia."
-      :schema $ :: 'Dynamic
+      :schema $ :: 'Trait
       :tags $ #{} :ffi :js-host
       :code $ quote
         deftrait WindowHost
@@ -520,7 +520,7 @@
       :mode :ensure
       :kind :data
       :doc "|External Document capability with typed state, title, and small selector/creation surface."
-      :schema $ :: 'Dynamic
+      :schema $ :: 'Trait
       :tags $ #{} :ffi :js-host
       :code $ quote
         deftrait DocumentHost
@@ -541,7 +541,7 @@
       :mode :ensure
       :kind :data
       :doc "|External browser Location capability. Navigation methods are explicit effects; URL fields are readable."
-      :schema $ :: 'Dynamic
+      :schema $ :: 'Trait
       :tags $ #{} :ffi :js-host
       :code $ quote
         deftrait LocationHost
@@ -571,7 +571,7 @@
       :mode :ensure
       :kind :data
       :doc "|External Web Storage capability with nullish lookup and explicit String mutation methods."
-      :schema $ :: 'Dynamic
+      :schema $ :: 'Trait
       :tags $ #{} :ffi :js-host
       :code $ quote
         deftrait StorageHost
@@ -602,7 +602,7 @@
       :mode :ensure
       :kind :data
       :doc "|External DOM Element capability with stable fields, selector methods, attributes, and focus effects."
-      :schema $ :: 'Dynamic
+      :schema $ :: 'Trait
       :tags $ #{} :ffi :js-host
       :code $ quote
         deftrait DomElementHost
@@ -644,7 +644,7 @@
       :mode :ensure
       :kind :data
       :doc "|External HTML input capability. Mutable fields are declared in FFI metadata, not in the core trait type."
-      :schema $ :: 'Dynamic
+      :schema $ :: 'Trait
       :tags $ #{} :ffi :js-host
       :code $ quote
         deftrait DomInputHost
@@ -667,7 +667,7 @@
       :mode :ensure
       :kind :data
       :doc "|External Event capability. Targets stay nullable opaque objects unless a specific adapter narrows them."
-      :schema $ :: 'Dynamic
+      :schema $ :: 'Trait
       :tags $ #{} :ffi :js-host
       :code $ quote
         deftrait EventHost
@@ -690,7 +690,7 @@
       :mode :ensure
       :kind :data
       :doc "|External KeyboardEvent capability without trait inheritance; adapters normalize keys and modifiers into Calcit data."
-      :schema $ :: 'Dynamic
+      :schema $ :: 'Trait
       :tags $ #{} :ffi :js-host
       :code $ quote
         deftrait KeyboardEventHost
@@ -711,7 +711,7 @@
       :mode :ensure
       :kind :data
       :doc "|External MouseEvent capability exposing coordinates, button, and modifier fields used by adapters."
-      :schema $ :: 'Dynamic
+      :schema $ :: 'Trait
       :tags $ #{} :ffi :js-host
       :code $ quote
         deftrait MouseEventHost
@@ -732,7 +732,7 @@
       :mode :ensure
       :kind :data
       :doc "|External matchMedia result with stable media and matches fields. Listener APIs remain adapter-specific."
-      :schema $ :: 'Dynamic
+      :schema $ :: 'Trait
       :tags $ #{} :ffi :js-host
       :code $ quote
         deftrait MediaQueryListHost (:media 'String) (:matches? 'Bool)
@@ -887,7 +887,7 @@
       :mode :ensure
       :kind :data
       :doc "|Typed Node smoke result replacing the former heterogeneous Map<Dynamic>."
-      :schema $ :: 'Dynamic
+      :schema $ :: 'StructDef
       :code $ quote
         defstruct NodeProbe (:runtime 'js-ffi.shared/Runtime) (:cwd 'String) (:argv-count 'Number)
       :examples $ []

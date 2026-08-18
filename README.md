@@ -86,8 +86,8 @@ where its own body crosses the JavaScript boundary. Inline Calcit examples are
 kept for target-independent helpers; examples that require a live browser or
 Node host are exercised by the corresponding smoke runs. Struct fields, Enum
 payloads, and external trait members carry concrete types. Data-definition
-CodeEntry schemas remain unset for compatibility with current Calcit JS codegen;
-this does not erase their field/member definitions.
+CodeEntry schemas use Calcit’s explicit `StructDef`, `EnumDef`, `Trait`, or
+`Impl` marker, so definition roots do not inflate Dynamic-type hygiene counts.
 
 ## Checks and smoke runs
 

@@ -21,7 +21,7 @@
             defstruct BrowserProbe (:runtime 'js-ffi.shared/Runtime) (:document? 'Bool) (:storage 'String) (:viewport 'js-ffi.browser/Viewport)
           :examples $ []
             quote $ &%{} BrowserProbe :runtime (%:: shared/Runtime :browser) :document? true :storage |ok :viewport (&%{} Viewport :width 1024 :height 768 :device-pixel-ratio 2)
-          :schema $ :: 'Dynamic
+          :schema $ :: 'StructDef
         |DocumentHost $ %{} 'CodeEntry (:doc "|External Document capability with typed state, title, and small selector/creation surface.")
           :code $ quote
             deftrait DocumentHost (:title 'String) (:ready-state 'String) (:visibility-state 'String)
@@ -36,14 +36,14 @@
           :examples $ [] (quote DocumentHost)
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
             :names $ {} (:create-element |createElement) (:query-selector |querySelector) (:ready-state |readyState) (:visibility-state |visibilityState)
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
         |DocumentReadyState $ %{} 'CodeEntry (:doc "|Typed document.readyState values with an unknown String variant for forward compatibility.")
           :code $ quote
             defenum DocumentReadyState (:loading) (:interactive) (:complete) (:unknown 'String)
           :examples $ []
             quote $ %:: DocumentReadyState :complete
-          :schema $ :: 'Dynamic
+          :schema $ :: 'EnumDef
         |DomElementHost $ %{} 'CodeEntry (:doc "|External DOM Element capability with stable fields, selector methods, attributes, and focus effects.")
           :code $ quote
             deftrait DomElementHost (:id 'String) (:class-name 'String)
@@ -87,7 +87,7 @@
           :examples $ [] (quote DomElementHost)
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
             :names $ {}
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
         |DomInputHost $ %{} 'CodeEntry (:doc "|External HTML input capability. Mutable fields are declared in FFI metadata, not in the core trait type.")
           :code $ quote
@@ -104,7 +104,7 @@
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
             :names $ {} (:blur! |blur) (:focus! |focus) (:input-type |type)
             :writable $ #{} :checked :disabled :input-type :name :value
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
         |ElementSnapshot $ %{} 'CodeEntry (:doc "|Calcit-owned subset of DOM element data suitable for business code without retaining host identity.")
           :code $ quote
@@ -113,7 +113,7 @@
               :child-count 'Number
           :examples $ []
             quote $ &%{} ElementSnapshot :id |main :class-name |panel :text-content (%some |Ready) :child-count 1
-          :schema $ :: 'Dynamic
+          :schema $ :: 'StructDef
         |EventHost $ %{} 'CodeEntry (:doc "|External Event capability. Targets stay nullable opaque objects unless a specific adapter narrows them.")
           :code $ quote
             deftrait EventHost (:event-type 'String)
@@ -132,14 +132,14 @@
           :examples $ [] (quote EventHost)
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
             :names $ {} (:current-target |currentTarget) (:default-prevented? |defaultPrevented) (:event-phase |eventPhase) (:event-type |type) (:prevent-default! |preventDefault) (:stop-propagation! |stopPropagation)
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
         |KeyModifiers $ %{} 'CodeEntry (:doc "|Normalized keyboard or pointer modifier state shared by event adapters.")
           :code $ quote
             defstruct KeyModifiers (:alt? 'Bool) (:ctrl? 'Bool) (:meta? 'Bool) (:shift? 'Bool)
           :examples $ []
             quote $ &%{} KeyModifiers :alt? false :ctrl? true :meta? false :shift? false
-          :schema $ :: 'Dynamic
+          :schema $ :: 'StructDef
         |KeyboardEventHost $ %{} 'CodeEntry (:doc "|External KeyboardEvent capability without trait inheritance; adapters normalize keys and modifiers into Calcit data.")
           :code $ quote
             deftrait KeyboardEventHost (:key 'String) (:code 'String) (:repeat? 'Bool) (:alt-key? 'Bool) (:ctrl-key? 'Bool) (:meta-key? 'Bool) (:shift-key? 'Bool)
@@ -150,7 +150,7 @@
           :examples $ [] (quote KeyboardEventHost)
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
             :names $ {} (:alt-key? |altKey) (:ctrl-key? |ctrlKey) (:meta-key? |metaKey) (:prevent-default! |preventDefault) (:repeat? |repeat) (:shift-key? |shiftKey)
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
         |LocationHost $ %{} 'CodeEntry (:doc "|External browser Location capability. Navigation methods are explicit effects; URL fields are readable.")
           :code $ quote
@@ -170,7 +170,7 @@
           :examples $ [] (quote LocationHost)
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
             :names $ {} (:assign! |assign) (:reload! |reload) (:replace! |replace)
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
         |MediaQueryListHost $ %{} 'CodeEntry (:doc "|External matchMedia result with stable media and matches fields. Listener APIs remain adapter-specific.")
           :code $ quote
@@ -178,7 +178,7 @@
           :examples $ [] (quote MediaQueryListHost)
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
             :names $ {} (:matches? |matches)
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
         |MouseEventHost $ %{} 'CodeEntry (:doc "|External MouseEvent capability exposing coordinates, button, and modifier fields used by adapters.")
           :code $ quote
@@ -190,14 +190,14 @@
           :examples $ [] (quote MouseEventHost)
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
             :names $ {} (:alt-key? |altKey) (:client-x |clientX) (:client-y |clientY) (:ctrl-key? |ctrlKey) (:meta-key? |metaKey) (:prevent-default! |preventDefault) (:shift-key? |shiftKey)
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
         |PointerPosition $ %{} 'CodeEntry (:doc "|Normalized pointer coordinates and button index copied from a MouseEvent-like object.")
           :code $ quote
             defstruct PointerPosition (:client-x 'Number) (:client-y 'Number) (:button 'Number)
           :examples $ []
             quote $ &%{} PointerPosition :client-x 20 :client-y 30 :button 0
-          :schema $ :: 'Dynamic
+          :schema $ :: 'StructDef
         |StorageHost $ %{} 'CodeEntry (:doc "|External Web Storage capability with nullish lookup and explicit String mutation methods.")
           :code $ quote
             deftrait StorageHost (:length 'Number)
@@ -224,20 +224,20 @@
           :examples $ [] (quote StorageHost)
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
             :names $ {} (:clear! |clear) (:get-item |getItem) (:key-at |key) (:remove-item! |removeItem) (:set-item! |setItem)
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
         |Viewport $ %{} 'CodeEntry (:doc "|Normalized viewport dimensions and device pixel ratio copied from Window.")
           :code $ quote
             defstruct Viewport (:width 'Number) (:height 'Number) (:device-pixel-ratio 'Number)
           :examples $ []
             quote $ &%{} Viewport :width 1024 :height 768 :device-pixel-ratio 2
-          :schema $ :: 'Dynamic
+          :schema $ :: 'StructDef
         |VisibilityState $ %{} 'CodeEntry (:doc "|Typed document.visibilityState values with an unknown String variant.")
           :code $ quote
             defenum VisibilityState (:visible) (:hidden) (:prerender) (:unknown 'String)
           :examples $ []
             quote $ %:: VisibilityState :visible
-          :schema $ :: 'Dynamic
+          :schema $ :: 'EnumDef
         |WindowHost $ %{} 'CodeEntry (:doc "||External browser Window capability restricted to stable viewport fields, matchMedia, and typed global event listeners.")
           :code $ quote
             deftrait WindowHost (:inner-width 'Number) (:inner-height 'Number) (:device-pixel-ratio 'Number)
@@ -262,7 +262,7 @@
           :examples $ [] (quote WindowHost)
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
             :names $ {} (:add-event-listener! |addEventListener) (:device-pixel-ratio |devicePixelRatio) (:inner-height |innerHeight) (:inner-width |innerWidth) (:match-media |matchMedia) (:remove-event-listener! |removeEventListener)
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
         |add-event-listener! $ %{} 'CodeEntry (:doc "|Register a typed browser window event listener. The callback receives an EventHost and the wrapper returns Unit.")
           :code $ quote
@@ -682,7 +682,7 @@
             defstruct NodeProbe (:runtime 'js-ffi.shared/Runtime) (:cwd 'String) (:argv-count 'Number)
           :examples $ []
             quote $ &%{} NodeProbe :runtime (%:: shared/Runtime :node) :cwd |/tmp :argv-count 2
-          :schema $ :: 'Dynamic
+          :schema $ :: 'StructDef
         |argv-count $ %{} 'CodeEntry (:doc "|Return process.argv.length as Number. This deliberately narrows the host array at the boundary. Example: (argv-count) => 3")
           :code $ quote
             defn argv-count () $ let
@@ -810,7 +810,7 @@
           :examples $ [] (quote AbortControllerHost)
           :ffi $ {} (:backend :js) (:kind :external-object)
             :names $ {} (:abort! |abort)
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
         |AbortSignalHost $ %{} 'CodeEntry (:doc "|External AbortSignal capability. Reason stays an opaque nullable host object because JavaScript permits arbitrary values.")
           :code $ quote
@@ -823,7 +823,7 @@
           :examples $ [] (quote AbortSignalHost)
           :ffi $ {} (:backend :js) (:kind :external-object)
             :names $ {} (:throw-if-aborted! |throwIfAborted)
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
         |ConsoleHost $ %{} 'CodeEntry (:doc "|External console capability shared by browser and Node. Methods intentionally accept one String to avoid modeling host varargs.")
           :code $ quote
@@ -843,7 +843,7 @@
           :examples $ [] (quote ConsoleHost)
           :ffi $ {} (:backend :js) (:kind :external-object)
             :names $ {} (:error! |error) (:log! |log) (:warn! |warn)
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
         |DateHost $ %{} 'CodeEntry (:doc "|External JavaScript Date capability exposing only stable read methods needed for normalization.")
           :code $ quote
@@ -859,14 +859,14 @@
           :examples $ [] (quote DateHost)
           :ffi $ {} (:backend :js) (:kind :external-object)
             :names $ {} (:get-time |getTime) (:to-iso-string |toISOString)
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
         |DateSnapshot $ %{} 'CodeEntry (:doc "|Immutable normalized view of a host Date with epoch milliseconds and ISO text.")
           :code $ quote
             defstruct DateSnapshot (:timestamp 'Number) (:iso 'String)
           :examples $ []
             quote $ &%{} DateSnapshot :timestamp 0 :iso |1970-01-01T00:00:00.000Z
-          :schema $ :: 'Dynamic
+          :schema $ :: 'StructDef
         |HeadersHost $ %{} 'CodeEntry (:doc "|External Headers capability with typed String keys and values; iteration is deliberately normalized elsewhere.")
           :code $ quote
             deftrait HeadersHost
@@ -893,7 +893,7 @@
           :examples $ [] (quote HeadersHost)
           :ffi $ {} (:backend :js) (:kind :external-object)
             :names $ {} (:append! |append) (:delete! |delete) (:get |get) (:has? |has) (:set! |set)
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
         |HttpMethod $ %{} 'CodeEntry (:doc "|Closed HTTP method set used by typed request options; custom methods remain an explicit adapter concern.")
           :code $ quote
@@ -901,21 +901,21 @@
           :examples $ []
             quote $ %:: HttpMethod :get
             quote $ %:: HttpMethod :post
-          :schema $ :: 'Dynamic
+          :schema $ :: 'EnumDef
         |JsError $ %{} 'CodeEntry (:doc "|Normalized JavaScript exception data. Stack is optional because hosts may omit it.")
           :code $ quote
             defstruct JsError (:kind 'js-ffi.shared/JsErrorKind) (:name 'String) (:message 'String)
               :stack $ :: 'Option 'String
           :examples $ []
             quote $ &%{} JsError :kind (%:: JsErrorKind :type-error) :name |TypeError :message |invalid
-          :schema $ :: 'Dynamic
+          :schema $ :: 'StructDef
         |JsErrorKind $ %{} 'CodeEntry (:doc "|Stable error categories shared by browser and Node adapters; unknown host names retain their String payload.")
           :code $ quote
             defenum JsErrorKind (:type-error) (:range-error) (:permission) (:quota) (:network) (:abort) (:unknown 'String)
           :examples $ []
             quote $ %:: JsErrorKind :network
             quote $ %:: JsErrorKind :unknown |DataCloneError
-          :schema $ :: 'Dynamic
+          :schema $ :: 'EnumDef
         |RequestOptions $ %{} 'CodeEntry (:doc "|Calcit-owned request configuration converted to a JavaScript object only inside an adapter.")
           :code $ quote
             defstruct RequestOptions (:method 'js-ffi.shared/HttpMethod)
@@ -923,14 +923,14 @@
               :body $ :: 'Option 'String
           :examples $ []
             quote $ &%{} RequestOptions :method (%:: HttpMethod :get) :headers ({})
-          :schema $ :: 'Dynamic
+          :schema $ :: 'StructDef
         |ResponseHost $ %{} 'CodeEntry (:doc "|External Response metadata capability. Async body readers are omitted until adapters normalize their Promise results.")
           :code $ quote
             deftrait ResponseHost (:status 'Number) (:status-text 'String) (:ok? 'Bool) (:url 'String) (:redirected? 'Bool) (:headers 'js-ffi.shared/HeadersHost) (:body-used? 'Bool)
           :examples $ [] (quote ResponseHost)
           :ffi $ {} (:backend :js) (:kind :external-object)
             :names $ {} (:body-used? |bodyUsed) (:ok? |ok) (:redirected? |redirected) (:status-text |statusText)
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
         |ResponseSnapshot $ %{} 'CodeEntry (:doc "|Normalized response metadata after a host Response has been inspected and its headers copied.")
           :code $ quote
@@ -938,14 +938,14 @@
               :headers $ :: 'Map 'String 'String
           :examples $ []
             quote $ &%{} ResponseSnapshot :status 200 :status-text |OK :ok? true :url |https://example.test :redirected? false :headers ({})
-          :schema $ :: 'Dynamic
+          :schema $ :: 'StructDef
         |Runtime $ %{} 'CodeEntry (:doc "|Runtime identity normalized as a Calcit enum instead of an open String.")
           :code $ quote
             defenum Runtime (:browser) (:node) (:unknown 'String)
           :examples $ []
             quote $ %:: Runtime :browser
             quote $ %:: Runtime :unknown |worker
-          :schema $ :: 'Dynamic
+          :schema $ :: 'EnumDef
         |UrlHost $ %{} 'CodeEntry (:doc "|External URL-like capability shared by URL and browser Location objects. Fields are read-only in this contract.")
           :code $ quote
             deftrait UrlHost (:href 'String) (:protocol 'String) (:host 'String) (:hostname 'String) (:port 'String) (:pathname 'String) (:search 'String) (:hash 'String)
@@ -956,7 +956,7 @@
           :examples $ [] (quote UrlHost)
           :ffi $ {} (:backend :js) (:kind :external-object)
             :names $ {} (:to-string |toString)
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
         |UrlSearchParamsHost $ %{} 'CodeEntry (:doc "|External URLSearchParams capability. Nullable lookup remains JsNullish<String> until an adapter converts it to Option.")
           :code $ quote
@@ -984,14 +984,14 @@
           :examples $ [] (quote UrlSearchParamsHost)
           :ffi $ {} (:backend :js) (:kind :external-object)
             :names $ {} (:delete! |delete) (:get |get) (:has? |has) (:set! |set) (:to-string |toString)
-          :schema $ :: 'Dynamic
+          :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
         |UrlSnapshot $ %{} 'CodeEntry (:doc "|Immutable URL fields copied out of a host URL or Location object.")
           :code $ quote
             defstruct UrlSnapshot (:href 'String) (:protocol 'String) (:host 'String) (:hostname 'String) (:port 'String) (:pathname 'String) (:search 'String) (:hash 'String)
           :examples $ []
             quote $ &%{} UrlSnapshot :href |https://example.test/a :protocol |https: :host |example.test :hostname |example.test :port | :pathname |/a :search | :hash |
-          :schema $ :: 'Dynamic
+          :schema $ :: 'StructDef
         |console-error! $ %{} 'CodeEntry (:doc "|Write one error String to the host console and return Unit in browser or Node.")
           :code $ quote
             defn console-error! (message)
