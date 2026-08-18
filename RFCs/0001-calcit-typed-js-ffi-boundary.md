@@ -204,6 +204,509 @@ defstruct NodeProbe
 timer registration 等只有副作用的 wrapper 应显式以 `nil` 收尾并声明返回 `Unit`，不因
 JavaScript 返回 `undefined` 就暴露 `Dynamic`。
 
+## 类型表达案例目录
+
+本节把常见 JavaScript API 分成三种视图：
+
+| 层次 | 目的 | 可以出现的类型 |
+| --- | --- | --- |
+| raw boundary | 如实表示宿主不确定性 | `JsObject`、`JsNullish<T>`、external trait |
+| typed host API | 保留宿主 identity，同时提供成员类型 | external trait、`Option<Trait>`、typed `Fn` |
+| normalized API | 供普通 Calcit 业务代码使用 | Struct、Enum、List、Map、Option、Result、Unit |
+
+不是每个 API 都必须同时提供三层。默认优先提供 normalized API；只有调用者确实需要继续
+操作宿主对象时，才公开 typed host API。
+
+### 案例 1：确定的 primitive 返回值
+
+例如 `window.innerWidth` 的宿主契约明确是 number。raw adapter 在一个位置完成断言：
+
+```cirru.no-check
+defn viewport-width ()
+  unsafe-coerce js/window.innerWidth Number
+```
+
+对应 schema：
+
+```cirru.no-check
+:: 'Fn $ {}
+  :args $ []
+  :return 'Number
+  :features $ #{} :js-ffi
+```
+
+公共函数可以继续返回 `Number`。调用者不需要 `:js-ffi`，因为 raw property access 已封装
+在 adapter 内。相同规则适用于可靠的 `Bool`、`String` 和 `Buffer` 返回值。
+
+如果宿主值可能为 `null`/`undefined`，不能直接断言 primitive，应先使用
+`JsNullish<Primitive>`，再转换为 Option 或 Result。
+
+### 案例 2：JavaScript nullish 与业务缺失
+
+`document.querySelector` 的原始结果是宿主 nullish：
+
+```cirru.no-check
+:: 'Fn $ {}
+  :args $ [] 'String
+  :return $ :: 'JsNullish 'js-ffi.browser/DomElement
+  :features $ #{} :js-ffi
+```
+
+低层 typed host wrapper 可以转换为：
+
+```cirru.no-check
+:: 'Fn $ {}
+  :args $ [] 'String
+  :return $ :: 'Option 'js-ffi.browser/DomElement
+  :features $ #{} :js-ffi
+```
+
+这里 Option 中仍然装着宿主对象。调用者若继续读取 external field 或调用 external method，
+该访问所在函数仍需要 `:js-ffi`。
+
+完全 normalized 的版本应复制所需数据：
+
+```cirru
+defstruct ElementSnapshot
+  :id 'String
+  :text 'String
+  :visible? 'Bool
+```
+
+```cirru.no-check
+:: 'Fn $ {}
+  :args $ [] 'String
+  :return $ :: 'Option 'js-ffi.browser/ElementSnapshot
+  :features $ #{} :js-ffi
+```
+
+业务层拿到 `Option<ElementSnapshot>` 后只处理 Calcit 数据，不再依赖宿主 identity。
+
+### 案例 3：错误、异常与 Result
+
+不要把可能抛异常的 API 仅表示为返回值。例如 localStorage 在隐私模式或 quota 满时可能
+抛出异常。先定义 normalized error：
+
+```cirru
+defenum JsErrorKind
+  (:exception)
+  (:type-error)
+  (:range-error)
+  (:permission)
+  (:quota)
+  (:unknown)
+
+defstruct JsError
+  :kind 'js-ffi.types/JsErrorKind
+  :name 'String
+  :message 'String
+  :stack $ :: 'Option 'String
+```
+
+Storage read 的公共类型应为：
+
+```cirru.no-check
+:: 'Fn $ {}
+  :args $ [] 'String
+  :return $ :: 'Result
+    :: 'Option 'String
+    , 'js-ffi.types/JsError
+  :features $ #{} :js-ffi
+```
+
+三层语义分别为：
+
+- key 不存在：`Result.ok Option.none`；
+- key 存在：`Result.ok (Option.some value)`；
+- host exception：`Result.err JsError`。
+
+不能用空字符串同时表示“不存在”和“读取失败”。
+
+### 案例 4：只有副作用的 API
+
+`console.log`、`localStorage.setItem`、`removeItem`、`focus` 和 `process.exit` 不应因为
+JavaScript 返回 `undefined` 而声明为 `Dynamic`。wrapper 应显式以 `nil` 收尾并返回
+`Unit`：
+
+```cirru.no-check
+defn console-log! (message)
+  js/console.log message
+  , nil
+```
+
+```cirru.no-check
+:: 'Fn $ {}
+  :args $ [] 'String
+  :return 'Unit
+  :features $ #{} :js-ffi
+```
+
+如果 effect 可能失败，则使用 `Result<Unit, JsError>`。
+
+### 案例 5：external field 与 method
+
+DOM input 不建模为 Struct，因为对象仍由浏览器拥有。使用 capability trait：
+
+```cirru.no-check
+deftrait DomInput
+  :value 'String
+  :checked 'Bool
+  :disabled 'Bool
+  .focus! $ :: 'Fn
+    {}
+      :args $ [] 'js-ffi.browser/DomInput
+      :return 'Unit
+```
+
+对应 lowering metadata：
+
+```cirru.no-check
+:ffi $ {}
+  :backend :js
+  :kind :external-object
+  :names $ {}
+    :focus! |focus
+  :writable $ #{} :value :checked :disabled
+```
+
+类型行为：
+
+```cirru.no-check
+input :value
+; => String
+
+input .focus!
+; => Unit
+
+js-get input :value
+; => JsNullish<String>, because raw property semantics still admit absence
+
+js-set input :value |next
+; => String or Unit according to the chosen set operation contract
+```
+
+`:value` 的普通 typed tag access 使用可信 external trait 契约；`js-get` 保留 raw
+JavaScript nullish 语义。两者不应混成同一个推断规则。
+
+### 案例 6：事件与 callback target
+
+直接公开宿主事件时，事件和 target 都使用 external trait：
+
+```cirru.no-check
+deftrait ClickEvent
+  :target $ :: 'JsNullish 'js-ffi.browser/DomElement
+  :meta-key 'Bool
+  :ctrl-key 'Bool
+  :shift-key 'Bool
+  .prevent-default! $ :: 'Fn
+    {}
+      :args $ [] 'js-ffi.browser/ClickEvent
+      :return 'Unit
+```
+
+低层 listener schema：
+
+```cirru.no-check
+:: 'Fn $ {}
+  :args $ []
+    'js-ffi.browser/DomElement
+    :: 'Fn $ {}
+      :args $ [] 'js-ffi.browser/ClickEvent
+      :return 'Unit
+      :features $ #{} :js-ffi
+  :return 'Unit
+  :features $ #{} :js-ffi
+```
+
+如果业务 callback 不需要宿主操作，应先转换事件：
+
+```cirru
+defstruct ClickInfo
+  :target-id $ :: 'Option 'String
+  :meta? 'Bool
+  :ctrl? 'Bool
+  :shift? 'Bool
+```
+
+然后暴露纯 callback：
+
+```cirru.no-check
+:: 'Fn $ {}
+  :args $ []
+    'js-ffi.browser/DomElement
+    :: 'Fn $ {}
+      :args $ [] 'js-ffi.browser/ClickInfo
+      :return 'Unit
+  :return 'Unit
+  :features $ #{} :js-ffi
+```
+
+event name 与 event type 的关联不使用 dependent string type。分别提供 `on-click!`、
+`on-input!`、`on-keydown!` 等 wrapper；共享配置使用 Enum。
+
+### 案例 7：字符串常量、状态与 union
+
+JavaScript API 常返回有限字符串，例如 document ready state。使用 Enum：
+
+```cirru
+defenum DocumentReadyState
+  (:loading)
+  (:interactive)
+  (:complete)
+  (:unknown 'String)
+```
+
+raw adapter 先得到 String，decoder 再返回
+`Result<DocumentReadyState, JsError>`，或在未来兼容未知值时使用 `:unknown String`。
+
+`"GET" | "POST" | "PUT"` 同样定义 `HttpMethod` Enum。进入 fetch adapter 时转换为 JS
+string；不要给业务函数暴露任意 String 后再依赖运行时约定。
+
+### 案例 8：数组、iterable 与同质集合
+
+原始 JavaScript Array 首先是 `JsObject`。若 adapter 会遍历并验证元素，应返回：
+
+```cirru.no-check
+:: 'Fn $ {}
+  :generics $ [] 'T
+  :args $ []
+    'JsObject
+    :: 'Fn $ {}
+      :args $ [] 'JsObject
+      :return $ :: 'Result 'T 'js-ffi.types/JsError
+  :return $ :: 'Result
+    :: 'List 'T
+    , 'js-ffi.types/JsError
+  :features $ #{} :js-ffi
+```
+
+这保留了 decoder input/output 的类型关系。不要用裸 `List` 或 `List<Dynamic>`。
+
+需要 lazy/async host iteration 时，未来使用参数化 external trait：
+
+```cirru.no-check
+JsIterator<T>
+JsAsyncIterator<T>
+```
+
+在 generic external trait 实现前，优先在 adapter 内消费 iterable，再返回 `List<T>` 或
+通过明确的 typed callback 推送已验证 item。
+
+### 案例 9：JavaScript dictionary 与 Calcit Map
+
+动态 key 的 host object 不能因为“看起来像 map”就声明为 Calcit Map。
+
+- 仍由宿主持有、通过 `aget` 访问：`JsObject`；
+- 读取时可能缺失：`JsNullish<T>`；
+- 已复制并验证所有 key/value：`Map<K, V>`；
+- 固定字段集合：Struct；
+- 有方法或 identity：external trait。
+
+例如 `process.env` 的公共读取 API：
+
+```cirru.no-check
+:: 'Fn $ {}
+  :args $ [] 'String
+  :return $ :: 'Option 'String
+  :features $ #{} :js-ffi
+```
+
+只有需要快照所有环境变量时才返回 `Map<String, String>`；不要暴露
+`Map<String, JsNullish<JsObject>>` 给普通业务层。
+
+### 案例 10：ES module function import
+
+npm named export 在 import 点首先是 opaque host value。adapter 一次性断言完整 Fn
+schema：
+
+```cirru.no-check
+defn make-id (size)
+  let
+      generate $ unsafe-coerce nanoid $ :: 'Fn
+        {}
+          :args $ [] 'Number
+          :return 'String
+    generate size
+```
+
+`make-id` 自身的 schema：
+
+```cirru.no-check
+:: 'Fn $ {}
+  :args $ [] 'Number
+  :return 'String
+  :features $ #{} :js-ffi
+```
+
+业务层只看到 `Number -> String`。如果 module export 是带 receiver 的对象方法，应定义
+external trait method，不能把 method 取出来后当作普通 function，以免丢失 JavaScript
+`this`。
+
+### 案例 11：Promise 与 async
+
+当前可实现的推荐 API是在 adapter 内 await 并捕获 rejection：
+
+```cirru.no-check
+:: 'Fn $ {}
+  :args $ [] 'String
+  :return $ :: 'Result 'String 'js-ffi.types/JsError
+  :features $ #{} :js-ffi :async
+```
+
+如果返回值在 JavaScript backend 上仍然是 Promise，`:async`/lowering metadata 负责调用
+约定；逻辑返回类型描述 await 后的 Calcit value，不再暴露无类型 `JsObject`。
+
+只有调用者需要组合未 await 的 Promise 时，才引入提议中的：
+
+```cirru.no-check
+JsPromise<T>
+```
+
+`JsPromise<T>` 必须是参数化 external trait。裸 `JsObject` 或没有 T 的 `JsPromise` 不能
+表达 `.then` callback 的输入类型。
+
+### 案例 12：Node process 与 filesystem
+
+Node API 经过 adapter 后应使用普通 Calcit 类型：
+
+| JavaScript API | raw boundary | 公共类型 |
+| --- | --- | --- |
+| `process.cwd()` | trusted host String | `String` |
+| `process.argv` | host Array | `List<String>` |
+| `process.env[key]` | nullish host String | `Option<String>` |
+| `fs.existsSync(path)` | trusted Bool | `Bool` |
+| `fs.readFile` | callback/Promise + Buffer | `Result<Buffer, FsError>` |
+| `process.exit(code)` | non-returning effect | `Unit`，未来可增加 `Never` |
+
+Filesystem error 使用 Enum + Struct，而不是 String：
+
+```cirru
+defenum FsErrorKind
+  (:not-found)
+  (:permission)
+  (:already-exists)
+  (:invalid-path)
+  (:io)
+  (:unknown 'String)
+
+defstruct FsError
+  :kind 'js-ffi.node/FsErrorKind
+  :message 'String
+  :path $ :: 'Option 'String
+  :code $ :: 'Option 'String
+```
+
+### 案例 13：constructor 与有 identity 的实例
+
+`new js/Date` 的结果不是 Calcit Struct。低层使用 external trait：
+
+```cirru
+deftrait DateHost
+  .timestamp $ :: 'Fn
+    {}
+      :args $ [] 'js-ffi.shared/DateHost
+      :return 'Number
+  .to-iso-string $ :: 'Fn
+    {}
+      :args $ [] 'js-ffi.shared/DateHost
+      :return 'String
+```
+
+若业务只需要不可变数据，转换为：
+
+```cirru
+defstruct DateSnapshot
+  :timestamp 'Number
+  :iso 'String
+```
+
+同样适用于 URL、Request、Response、AbortController 和 Node class instances。
+
+### 案例 14：timer handle 的 target 差异
+
+浏览器 `setTimeout` 常返回 number，Node 返回 object。不能为了共享 API 把二者都声明为
+`Number` 或 `Dynamic`。
+
+建议低层分开：
+
+```cirru.no-check
+js-ffi.browser/BrowserTimerId
+js-ffi.node/NodeTimerHandle
+```
+
+browser 与 Node namespace 各自提供匹配的 `set-timeout!`/`clear-timeout!`。共享代码若不
+需要取消 timer，就不返回 handle；若必须共享，使用 entry type slot 或未来 nominal opaque
+newtype 绑定具体 handle，而不是暴露 backend representation。
+
+### 案例 15：重载与配置对象
+
+对于 JavaScript overload：
+
+```text
+fetch(url)
+fetch(url, options)
+fetch(request)
+```
+
+Calcit adapter 提供多个明确函数：
+
+```cirru.no-check
+fetch-text url
+fetch-text-with url options
+fetch-request request
+```
+
+配置使用 Struct，有限选项使用 Enum：
+
+```cirru
+defstruct FetchOptions
+  :method 'js-ffi.http/HttpMethod
+  :headers $ :: 'Map 'String 'String
+  :body $ :: 'Option 'String
+  :timeout-ms $ :: 'Option 'Number
+```
+
+adapter 负责把 FetchOptions 转成 JS object。不要直接把开放 `JsObject` options 传播到
+业务层，也不需要在类型系统中实现 JavaScript overload resolution。
+
+### 案例 16：动态 escape hatch
+
+确实无法静态描述的 plugin/global object 可以保留：
+
+```cirru.no-check
+:: 'Fn $ {}
+  :args $ [] 'String
+  :return $ :: 'JsNullish 'JsObject
+  :features $ #{} :js-ffi
+```
+
+约束是：
+
+- 只存在于 adapter namespace；
+- 每次离开 adapter 前尽量 decode；
+- literal key access 在 `--warn-dyn-method` 下可见；
+- 不把 `Dynamic` 当作 `JsObject` 的别名；
+- 不允许 raw host value 静默满足 Struct、Enum 或 external trait。
+
+### 类型选择速查
+
+| 遇到的宿主值 | 首选表达 |
+| --- | --- |
+| 明确 primitive | `String` / `Number` / `Bool` / `Buffer` |
+| 可能 null/undefined 的宿主值 | `JsNullish<T>` |
+| 已转换的业务缺失 | `Option<T>` |
+| 可能异常/reject/decode 失败 | `Result<T, E>` |
+| 固定数据字段 | Struct |
+| 有限状态或分支 | Enum |
+| 有 identity、字段和方法的宿主对象 | external-object trait |
+| 同质 JS Array 已完成验证 | `List<T>` |
+| 动态 dictionary 已完成复制验证 | `Map<K, V>` |
+| 未知宿主对象 | `JsObject` |
+| 回调 | 完整 `Fn`，包含参数、返回值和必要 features |
+| Promise/Iterator/Event 类型关系 | generic external trait；实现前由 adapter 消费 |
+| 纯副作用 | `Unit` |
+| 跨 target handle | target-specific external trait 或 type slot |
+
 ## 编译器调整
 
 ### 统一 host operation 分类
