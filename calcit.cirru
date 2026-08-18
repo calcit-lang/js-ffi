@@ -1,5 +1,5 @@
 
-{} (:about "|Machine-generated snapshot. Do not edit directly — changes will be overwritten. Use `cr query` to inspect and `cr edit`/`cr tree` to modify. Run `cr docs agents --full` first. Manual edits must follow format and schema conventions, then run `cr edit format`.") (:package |js-ffi) (:version |0.1.0)
+{} (:about "|Machine-generated snapshot. Do not edit directly — changes will be overwritten. Use `cr query` to inspect and `cr edit`/`cr tree` to modify. Run `cr docs agents --full` first. Manual edits must follow format and schema conventions, then run `cr edit format`.") (:package |js-ffi) (:version |0.1.1)
   :entries $ {}
     :browser $ {} (:description |) (:init-fn 'js-ffi.browser-test/main!) (:mode :js) (:reload-fn 'js-ffi.browser-test/reload!) (:target :browser)
       :feature-policy $ {} (:js-ffi :error)
@@ -238,11 +238,34 @@
                 {}
                   :args $ [] 'js-ffi.browser/WindowHost 'String
                   :return 'js-ffi.browser/MediaQueryListHost
+              .add-event-listener! $ :: 'Fn
+                {}
+                  :args $ [] 'js-ffi.browser/WindowHost 'String
+                    :: 'Fn $ {}
+                      :args $ [] 'js-ffi.browser/EventHost
+                      :return 'Unit
+                  :return 'Unit
           :examples $ [] (quote WindowHost)
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
-            :names $ {} (:device-pixel-ratio |devicePixelRatio) (:inner-height |innerHeight) (:inner-width |innerWidth) (:match-media |matchMedia)
+            :names $ {} (:add-event-listener! |addEventListener) (:device-pixel-ratio |devicePixelRatio) (:inner-height |innerHeight) (:inner-width |innerWidth) (:match-media |matchMedia)
           :schema $ :: 'Dynamic
           :tags $ #{} :ffi :js-host
+        |add-event-listener! $ %{} 'CodeEntry (:doc "|Register a typed browser window event listener. The callback receives an EventHost and the wrapper returns Unit.")
+          :code $ quote
+            defn add-event-listener! (event-name callback)
+              let
+                  host-window $ unsafe-coerce js/window WindowHost
+                host-window .add-event-listener! event-name callback
+          :examples $ []
+            quote $ add-event-listener! |visibilitychange
+            quote $ add-event-listener! |beforeunload
+              fn (event) nil
+          :schema $ :: 'Fn
+            {} (:return 'Unit)
+              :args $ [] 'String
+                :: 'Fn $ {} (:return 'Unit)
+                  :args $ [] 'js-ffi.browser/EventHost
+              :features $ #{} :js-ffi
         |console-error! $ %{} 'CodeEntry (:doc "|Compatibility wrapper for shared/console-error!. It accepts one String and returns Unit.")
           :code $ quote
             defn console-error! (message) (shared/console-error! message)
@@ -356,6 +379,20 @@
           :schema $ :: 'Fn
             {} (:return 'js-ffi.browser/BrowserProbe)
               :args $ []
+        |query-selector $ %{} 'CodeEntry (:doc "|Query document for a selector and normalize a missing element into Option<DomElementHost>.")
+          :code $ quote
+            defn query-selector (selector)
+              let
+                  host-document $ unsafe-coerce js/document DocumentHost
+                js-nullish->option $ host-document .query-selector selector
+          :examples $ []
+            quote $ query-selector |.app
+            quote $ option:unwrap-or (query-selector |#main) nil
+          :schema $ :: 'Fn
+            {}
+              :args $ [] 'String
+              :features $ #{} :js-ffi
+              :return $ :: 'Option 'js-ffi.browser/DomElementHost
         |random $ %{} 'CodeEntry (:doc "|Return a browser-compatible random number in the range 0 inclusive to 1 exclusive. The concrete return type is Number. Example: (random) => 0.42")
           :code $ quote
             defn random () $ unsafe-coerce (js/Math.random) Number
@@ -380,6 +417,21 @@
           :schema $ :: 'Fn
             {} (:return 'String)
               :args $ []
+        |set-interval! $ %{} 'CodeEntry (:doc "|Schedule a repeated browser callback and return the numeric timer identifier. The callback receives no arguments and returns Unit.")
+          :code $ quote
+            defn set-interval! (callback delay)
+              unsafe-coerce (js/setInterval callback delay) Number
+          :examples $ []
+            quote $ set-interval!
+              fn () $ console-log! |heartbeat
+              , 60000
+          :schema $ :: 'Fn
+            {} (:return 'Number)
+              :args $ []
+                :: 'Fn $ {} (:return 'Unit)
+                  :args $ []
+                , 'Number
+              :features $ #{} :js-ffi
         |set-timeout! $ %{} 'CodeEntry (:doc "|Schedule a Unit callback and return the browser numeric timer id. Node timer handles intentionally use a separate contract.")
           :code $ quote
             defn set-timeout! (callback delay)
