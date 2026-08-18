@@ -1,0 +1,50 @@
+name: Check
+
+on:
+  push:
+    branches:
+      - master
+      - main
+  pull_request: {}
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Enable Yarn
+        run: corepack enable && corepack prepare yarn@4.12.0 --activate
+
+      - uses: calcit-lang/setup-cr@0.0.9
+
+      - name: Install dependencies
+        run: yarn install --immutable
+
+      - name: Check Calcit version and formatting
+        run: |
+          test "$(cr --version)" = "0.13.20"
+          cr calcit.cirru edit format
+          git diff --exit-code -- calcit.cirru
+
+      - name: Check shared definitions
+        run: yarn check
+
+      - name: Check Node entry
+        run: yarn check:node
+
+      - name: Check browser entry
+        run: yarn check:browser
+
+      - name: Run Node smoke test
+        run: yarn run:node
+
+      - name: Build browser smoke app
+        run: yarn build:browser
