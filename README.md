@@ -76,6 +76,7 @@ browser probe checks `document` and performs a localStorage round trip.
 
 ## Design RFC
 
-The proposed type model, complete `:js-ffi` capability gate, external trait
-extensions, and migration stages are documented in
-[RFC 0001](RFCs/0001-calcit-typed-js-ffi-boundary.md).
+The proposed type model, complete `:js-ffi` capability gate, isolated
+capability validation, and compiler migration stages are documented in the
+Calcit compiler repository's
+[typed JavaScript FFI boundary RFC](https://github.com/calcit-lang/calcit/blob/main/RFCs/08-18-calcit-typed-js-ffi-boundary-rfc.md).
