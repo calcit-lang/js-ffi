@@ -1,15 +1,15 @@
 
 {} (:about "|Machine-generated snapshot. Do not edit directly — changes will be overwritten. Use `cr query` to inspect and `cr edit`/`cr tree` to modify. Run `cr docs agents --full` first. Manual edits must follow format and schema conventions, then run `cr edit format`.") (:package |js-ffi) (:version |0.1.0)
   :entries $ {}
-    :browser $ {} (:description |) (:init-fn 'js-ffi.browser-test/main!) (:mode :js) (:reload-fn 'js-ffi.browser-test/reload!)
+    :browser $ {} (:description |) (:init-fn 'js-ffi.browser-test/main!) (:mode :js) (:reload-fn 'js-ffi.browser-test/reload!) (:target :browser)
       :feature-policy $ {} (:js-ffi :error)
       :modules $ []
       :type-slots $ {}
-    :default $ {} (:description |) (:init-fn 'js-ffi.node-test/main!) (:mode :native) (:reload-fn 'js-ffi.node-test/reload!)
+    :default $ {} (:description |) (:init-fn 'js-ffi.node-test/main!) (:mode :native) (:reload-fn 'js-ffi.node-test/reload!) (:target :node)
       :feature-policy $ {} (:js-ffi :error)
       :modules $ []
       :type-slots $ {}
-    :node $ {} (:description |) (:init-fn 'js-ffi.node-test/main!) (:mode :native) (:reload-fn 'js-ffi.node-test/reload!)
+    :node $ {} (:description |) (:init-fn 'js-ffi.node-test/main!) (:mode :native) (:reload-fn 'js-ffi.node-test/reload!) (:target :node)
       :feature-policy $ {} (:js-ffi :error)
       :modules $ []
       :type-slots $ {}
@@ -34,7 +34,7 @@
                   :args $ [] 'js-ffi.browser/DocumentHost 'String
                   :return 'js-ffi.browser/DomElementHost
           :examples $ [] (quote DocumentHost)
-          :ffi $ {} (:backend :js) (:kind :external-object)
+          :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
             :names $ {} (:create-element |createElement) (:query-selector |querySelector) (:ready-state |readyState) (:visibility-state |visibilityState)
           :schema $ :: 'Dynamic
           :tags $ #{} :ffi :js-host
@@ -78,7 +78,7 @@
                   :args $ [] 'js-ffi.browser/DomElementHost
                   :return 'Unit
           :examples $ [] (quote DomElementHost)
-          :ffi $ {} (:backend :js) (:kind :external-object)
+          :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
             :names $ {} (:blur! |blur) (:child-element-count |childElementCount) (:class-name |className) (:focus! |focus) (:get-attribute |getAttribute) (:matches? |matches) (:query-selector |querySelector) (:remove-attribute! |removeAttribute) (:set-attribute! |setAttribute) (:text-content |textContent)
           :schema $ :: 'Dynamic
           :tags $ #{} :ffi :js-host
@@ -94,7 +94,7 @@
                   :args $ [] 'js-ffi.browser/DomInputHost
                   :return 'Unit
           :examples $ [] (quote DomInputHost)
-          :ffi $ {} (:backend :js) (:kind :external-object)
+          :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
             :names $ {} (:blur! |blur) (:focus! |focus) (:input-type |type)
             :writable $ #{} :checked :disabled :input-type :name :value
           :schema $ :: 'Dynamic
@@ -123,7 +123,7 @@
                   :args $ [] 'js-ffi.browser/EventHost
                   :return 'Unit
           :examples $ [] (quote EventHost)
-          :ffi $ {} (:backend :js) (:kind :external-object)
+          :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
             :names $ {} (:current-target |currentTarget) (:default-prevented? |defaultPrevented) (:event-phase |eventPhase) (:event-type |type) (:prevent-default! |preventDefault) (:stop-propagation! |stopPropagation)
           :schema $ :: 'Dynamic
           :tags $ #{} :ffi :js-host
@@ -141,7 +141,7 @@
                   :args $ [] 'js-ffi.browser/KeyboardEventHost
                   :return 'Unit
           :examples $ [] (quote KeyboardEventHost)
-          :ffi $ {} (:backend :js) (:kind :external-object)
+          :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
             :names $ {} (:alt-key? |altKey) (:ctrl-key? |ctrlKey) (:meta-key? |metaKey) (:prevent-default! |preventDefault) (:repeat? |repeat) (:shift-key? |shiftKey)
           :schema $ :: 'Dynamic
           :tags $ #{} :ffi :js-host
@@ -161,7 +161,7 @@
                   :args $ [] 'js-ffi.browser/LocationHost
                   :return 'Unit
           :examples $ [] (quote LocationHost)
-          :ffi $ {} (:backend :js) (:kind :external-object)
+          :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
             :names $ {} (:assign! |assign) (:reload! |reload) (:replace! |replace)
           :schema $ :: 'Dynamic
           :tags $ #{} :ffi :js-host
@@ -169,7 +169,7 @@
           :code $ quote
             deftrait MediaQueryListHost (:media 'String) (:matches? 'Bool)
           :examples $ [] (quote MediaQueryListHost)
-          :ffi $ {} (:backend :js) (:kind :external-object)
+          :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
             :names $ {} (:matches? |matches)
           :schema $ :: 'Dynamic
           :tags $ #{} :ffi :js-host
@@ -181,7 +181,7 @@
                   :args $ [] 'js-ffi.browser/MouseEventHost
                   :return 'Unit
           :examples $ [] (quote MouseEventHost)
-          :ffi $ {} (:backend :js) (:kind :external-object)
+          :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
             :names $ {} (:alt-key? |altKey) (:client-x |clientX) (:client-y |clientY) (:ctrl-key? |ctrlKey) (:meta-key? |metaKey) (:prevent-default! |preventDefault) (:shift-key? |shiftKey)
           :schema $ :: 'Dynamic
           :tags $ #{} :ffi :js-host
@@ -215,7 +215,7 @@
                   :args $ [] 'js-ffi.browser/StorageHost
                   :return 'Unit
           :examples $ [] (quote StorageHost)
-          :ffi $ {} (:backend :js) (:kind :external-object)
+          :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
             :names $ {} (:clear! |clear) (:get-item |getItem) (:key-at |key) (:remove-item! |removeItem) (:set-item! |setItem)
           :schema $ :: 'Dynamic
           :tags $ #{} :ffi :js-host
@@ -239,7 +239,7 @@
                   :args $ [] 'js-ffi.browser/WindowHost 'String
                   :return 'js-ffi.browser/MediaQueryListHost
           :examples $ [] (quote WindowHost)
-          :ffi $ {} (:backend :js) (:kind :external-object)
+          :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
             :names $ {} (:device-pixel-ratio |devicePixelRatio) (:inner-height |innerHeight) (:inner-width |innerWidth) (:match-media |matchMedia)
           :schema $ :: 'Dynamic
           :tags $ #{} :ffi :js-host
@@ -288,6 +288,7 @@
           :code $ quote
             defn document-available? () $ js-present? js/document
           :examples $ [] (quote "(document-available?)")
+          :ffi $ {} (:backend :js) (:target :browser)
           :schema $ :: 'Fn
             {} (:return 'Bool)
               :args $ []
@@ -331,6 +332,7 @@
           :code $ quote
             defn local-storage-available? () $ js-present? js/localStorage
           :examples $ [] (quote "(local-storage-available?)")
+          :ffi $ {} (:backend :js) (:target :browser)
           :schema $ :: 'Fn
             {} (:return 'Bool)
               :args $ []
@@ -358,6 +360,7 @@
           :code $ quote
             defn random () $ unsafe-coerce (js/Math.random) Number
           :examples $ [] (quote "(random)")
+          :ffi $ {} (:backend :js) (:target :browser)
           :schema $ :: 'Fn
             {} (:return 'Number)
               :args $ []
@@ -385,6 +388,7 @@
             quote $ set-timeout!
               fn () nil
               , 10
+          :ffi $ {} (:backend :js) (:target :browser)
           :schema $ :: 'Fn
             {} (:return 'Number)
               :args $ []
@@ -549,6 +553,7 @@
                 argv $ unsafe-coerce js/process.argv JsObject
               unsafe-coerce (.-length argv) Number
           :examples $ [] (quote "(argv-count)")
+          :ffi $ {} (:backend :js) (:target :node)
           :schema $ :: 'Fn
             {} (:return 'Number)
               :args $ []
@@ -557,6 +562,7 @@
           :code $ quote
             defn cwd () $ unsafe-coerce (js/process.cwd) String
           :examples $ [] (quote "(cwd)")
+          :ffi $ {} (:backend :js) (:target :node)
           :schema $ :: 'Fn
             {} (:return 'String)
               :args $ []
@@ -569,6 +575,7 @@
                   raw $ aget env key
                 if (js-present? raw) (unsafe-coerce raw String) fallback
           :examples $ [] (quote "(env-or |NODE_ENV |development)")
+          :ffi $ {} (:backend :js) (:target :node)
           :schema $ :: 'Fn
             {} (:return 'String)
               :args $ [] 'String 'String
@@ -577,6 +584,7 @@
           :code $ quote
             defn exit! (code) (js/process.exit code)
           :examples $ [] (quote "(exit! 1)")
+          :ffi $ {} (:backend :js) (:target :node)
           :schema $ :: 'Fn
             {} (:return 'Dynamic)
               :args $ [] 'Number
@@ -585,6 +593,7 @@
           :code $ quote
             defn file-exists? (file-path) (fs/existsSync file-path)
           :examples $ [] (quote "(file-exists? |package.json)")
+          :ffi $ {} (:backend :js) (:target :node)
           :schema $ :: 'Fn
             {} (:return 'Bool)
               :args $ [] 'String
@@ -593,6 +602,7 @@
           :code $ quote
             defn path-join (base child) (path/join base child)
           :examples $ [] (quote "(path-join |src |index.js)")
+          :ffi $ {} (:backend :js) (:target :node)
           :schema $ :: 'Fn
             {} (:return 'String)
               :args $ [] 'String 'String
