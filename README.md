@@ -32,32 +32,51 @@ the browser smoke page. The Calcit and package versions are recorded in
 
 Node.js code can use typed helpers without touching raw JavaScript globals:
 
-```cirru.no-check
-(node/cwd)                       ; String
-(node/argv-count)                ; Number
-(node/env-or |NODE_ENV |dev)     ; String with fallback
-(node/path-join |src |index.js)  ; String
-(node/file-exists? |package.json); Bool
-(node/runtime)                    ; shared/Runtime :node
+```cirru
+; String
+node/cwd
+; Number
+node/argv-count
+; String with fallback
+node/env-or |NODE_ENV |dev
+; String
+node/path-join |src |index.js
+; Bool
+node/file-exists? |package.json
+; shared/Runtime :node
+node/runtime
 ```
 
 Browser code can guard capabilities and keep nullable host results out of the
 rest of the application:
 
-```cirru.no-check
-(when (browser/document-available?)
-  (browser/console-log! (browser/document-title)))
-(browser/storage-get-or |theme |light) ; String
-(browser/viewport-width)               ; Number
-(browser/viewport)                     ; browser/Viewport
-(browser/storage-get |theme)           ; Option<String>
-(browser/document-ready-state)         ; browser/DocumentReadyState
-(browser/set-timeout! (fn [] (browser/console-log! |ready)) 10)
-(browser/create-element |section)      ; browser/DomElementHost
-(browser/add-event-listener! |resize on-resize)
-(browser/remove-event-listener! |resize on-resize)
-(browser/set-before-unload! (fn (event) (persist!)))
-(shared/queue-microtask! (fn [] (flush-render!)))
+```cirru
+when browser/document-available?
+  browser/console-log! $ browser/document-title
+; String
+browser/storage-get-or |theme |light
+; Number
+browser/viewport-width
+; browser/Viewport
+browser/viewport
+; Option<String>
+browser/storage-get |theme
+; browser/DocumentReadyState
+browser/document-ready-state
+browser/set-timeout!
+  fn ()
+    browser/console-log! |ready
+  10
+; browser/DomElementHost
+browser/create-element |section
+browser/add-event-listener! |resize on-resize
+browser/remove-event-listener! |resize on-resize
+browser/set-before-unload!
+  fn (event)
+    persist!
+shared/queue-microtask!
+  fn ()
+    flush-render!
 ```
 
 The listener passed to `remove-event-listener!` must be the same function
@@ -68,11 +87,14 @@ expanding the shared browser host type.
 
 Shared adapters and normalized data work in either JavaScript target:
 
-```cirru.no-check
-(shared/console-log! |ready)       ; Unit
-(shared/date-now-snapshot)         ; shared/DateSnapshot
-(shared/runtime-label
-  (%:: shared/Runtime :browser))   ; String
+```cirru
+; Unit
+shared/console-log! |ready
+; shared/DateSnapshot
+shared/date-now-snapshot
+; String
+shared/runtime-label
+  %:: shared/Runtime :browser
 ```
 
 Host identity can be retained only when needed through contracts such as
