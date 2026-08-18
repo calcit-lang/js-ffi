@@ -73,3 +73,9 @@ printed local URL and inspect the browser console for the runtime probe. The
 browser probe checks `document` and performs a localStorage round trip.
 
 `yarn format` applies Calcit's canonical formatting to `calcit.cirru`.
+
+## Design RFC
+
+The proposed type model, complete `:js-ffi` capability gate, external trait
+extensions, and migration stages are documented in
+[RFC 0001](RFCs/0001-calcit-typed-js-ffi-boundary.md).
