@@ -1,5 +1,5 @@
 
-{} (:about "|Machine-generated snapshot. Do not edit directly — changes will be overwritten. Use `cr query` to inspect and `cr edit`/`cr tree` to modify. Run `cr docs agents --full` first. Manual edits must follow format and schema conventions, then run `cr edit format`.") (:package |js-ffi) (:version |0.1.9)
+{} (:about "|Machine-generated snapshot. Do not edit directly — changes will be overwritten. Use `cr query` to inspect and `cr edit`/`cr tree` to modify. Run `cr docs agents --full` first. Manual edits must follow format and schema conventions, then run `cr edit format`.") (:package |js-ffi)
   :entries $ {}
     :browser $ {} (:description |) (:init-fn 'js-ffi.browser-test/main!) (:mode :js) (:reload-fn 'js-ffi.browser-test/reload!) (:target :browser)
       :feature-policy $ {} (:js-ffi :error)
@@ -21,7 +21,7 @@
             defstruct BrowserProbe (:runtime 'js-ffi.shared/Runtime) (:document? 'Bool) (:storage 'String) (:viewport 'js-ffi.browser/Viewport)
           :examples $ []
             quote $ &%{} BrowserProbe :runtime (%:: shared/Runtime :browser) :document? true :storage |ok :viewport (&%{} Viewport :width 1024 :height 768 :device-pixel-ratio 2)
-          :schema $ :: 'StructDef
+          :schema $ :: 'Enum
         |DocumentHost $ %{} 'CodeEntry (:doc "|External Document capability with typed state, title, and small selector/creation surface.")
           :code $ quote
             deftrait DocumentHost (:title 'String) (:ready-state 'String) (:visibility-state 'String)
@@ -43,7 +43,7 @@
             defenum DocumentReadyState (:loading) (:interactive) (:complete) (:unknown 'String)
           :examples $ []
             quote $ %:: DocumentReadyState :complete
-          :schema $ :: 'EnumDef
+          :schema $ :: 'Enum
         |DomElementHost $ %{} 'CodeEntry (:doc "|External DOM Element capability with stable fields, selector methods, attributes, and focus effects.")
           :code $ quote
             deftrait DomElementHost (:id 'String) (:class-name 'String)
@@ -113,7 +113,7 @@
               :child-count 'Number
           :examples $ []
             quote $ &%{} ElementSnapshot :id |main :class-name |panel :text-content (%some |Ready) :child-count 1
-          :schema $ :: 'StructDef
+          :schema $ :: 'Enum
         |EventHost $ %{} 'CodeEntry (:doc "|External Event capability. Targets stay nullable opaque objects unless a specific adapter narrows them.")
           :code $ quote
             deftrait EventHost (:event-type 'String)
@@ -139,7 +139,7 @@
             defstruct KeyModifiers (:alt? 'Bool) (:ctrl? 'Bool) (:meta? 'Bool) (:shift? 'Bool)
           :examples $ []
             quote $ &%{} KeyModifiers :alt? false :ctrl? true :meta? false :shift? false
-          :schema $ :: 'StructDef
+          :schema $ :: 'Enum
         |KeyboardEventHost $ %{} 'CodeEntry (:doc "|External KeyboardEvent capability without trait inheritance; adapters normalize keys and modifiers into Calcit data.")
           :code $ quote
             deftrait KeyboardEventHost (:key 'String) (:code 'String) (:repeat? 'Bool) (:alt-key? 'Bool) (:ctrl-key? 'Bool) (:meta-key? 'Bool) (:shift-key? 'Bool)
@@ -197,7 +197,7 @@
             defstruct PointerPosition (:client-x 'Number) (:client-y 'Number) (:button 'Number)
           :examples $ []
             quote $ &%{} PointerPosition :client-x 20 :client-y 30 :button 0
-          :schema $ :: 'StructDef
+          :schema $ :: 'Enum
         |StorageHost $ %{} 'CodeEntry (:doc "|External Web Storage capability with nullish lookup and explicit String mutation methods.")
           :code $ quote
             deftrait StorageHost (:length 'Number)
@@ -231,13 +231,13 @@
             defstruct Viewport (:width 'Number) (:height 'Number) (:device-pixel-ratio 'Number)
           :examples $ []
             quote $ &%{} Viewport :width 1024 :height 768 :device-pixel-ratio 2
-          :schema $ :: 'StructDef
+          :schema $ :: 'Enum
         |VisibilityState $ %{} 'CodeEntry (:doc "|Typed document.visibilityState values with an unknown String variant.")
           :code $ quote
             defenum VisibilityState (:visible) (:hidden) (:prerender) (:unknown 'String)
           :examples $ []
             quote $ %:: VisibilityState :visible
-          :schema $ :: 'EnumDef
+          :schema $ :: 'Enum
         |WindowHost $ %{} 'CodeEntry (:doc "||External browser Window capability restricted to stable viewport fields, matchMedia, and typed global event listeners.")
           :code $ quote
             deftrait WindowHost (:inner-width 'Number) (:inner-height 'Number) (:device-pixel-ratio 'Number)
@@ -682,7 +682,7 @@
             defstruct NodeProbe (:runtime 'js-ffi.shared/Runtime) (:cwd 'String) (:argv-count 'Number)
           :examples $ []
             quote $ &%{} NodeProbe :runtime (%:: shared/Runtime :node) :cwd |/tmp :argv-count 2
-          :schema $ :: 'StructDef
+          :schema $ :: 'Enum
         |argv-count $ %{} 'CodeEntry (:doc "|Return process.argv.length as Number. This deliberately narrows the host array at the boundary. Example: (argv-count) => 3")
           :code $ quote
             defn argv-count () $ let
@@ -866,7 +866,7 @@
             defstruct DateSnapshot (:timestamp 'Number) (:iso 'String)
           :examples $ []
             quote $ &%{} DateSnapshot :timestamp 0 :iso |1970-01-01T00:00:00.000Z
-          :schema $ :: 'StructDef
+          :schema $ :: 'Enum
         |HeadersHost $ %{} 'CodeEntry (:doc "|External Headers capability with typed String keys and values; iteration is deliberately normalized elsewhere.")
           :code $ quote
             deftrait HeadersHost
@@ -901,21 +901,21 @@
           :examples $ []
             quote $ %:: HttpMethod :get
             quote $ %:: HttpMethod :post
-          :schema $ :: 'EnumDef
+          :schema $ :: 'Enum
         |JsError $ %{} 'CodeEntry (:doc "|Normalized JavaScript exception data. Stack is optional because hosts may omit it.")
           :code $ quote
             defstruct JsError (:kind 'js-ffi.shared/JsErrorKind) (:name 'String) (:message 'String)
               :stack $ :: 'Option 'String
           :examples $ []
             quote $ &%{} JsError :kind (%:: JsErrorKind :type-error) :name |TypeError :message |invalid
-          :schema $ :: 'StructDef
+          :schema $ :: 'Enum
         |JsErrorKind $ %{} 'CodeEntry (:doc "|Stable error categories shared by browser and Node adapters; unknown host names retain their String payload.")
           :code $ quote
             defenum JsErrorKind (:type-error) (:range-error) (:permission) (:quota) (:network) (:abort) (:unknown 'String)
           :examples $ []
             quote $ %:: JsErrorKind :network
             quote $ %:: JsErrorKind :unknown |DataCloneError
-          :schema $ :: 'EnumDef
+          :schema $ :: 'Enum
         |RequestOptions $ %{} 'CodeEntry (:doc "|Calcit-owned request configuration converted to a JavaScript object only inside an adapter.")
           :code $ quote
             defstruct RequestOptions (:method 'js-ffi.shared/HttpMethod)
@@ -923,7 +923,7 @@
               :body $ :: 'Option 'String
           :examples $ []
             quote $ &%{} RequestOptions :method (%:: HttpMethod :get) :headers ({})
-          :schema $ :: 'StructDef
+          :schema $ :: 'Enum
         |ResponseHost $ %{} 'CodeEntry (:doc "|External Response metadata capability. Async body readers are omitted until adapters normalize their Promise results.")
           :code $ quote
             deftrait ResponseHost (:status 'Number) (:status-text 'String) (:ok? 'Bool) (:url 'String) (:redirected? 'Bool) (:headers 'js-ffi.shared/HeadersHost) (:body-used? 'Bool)
@@ -938,14 +938,14 @@
               :headers $ :: 'Map 'String 'String
           :examples $ []
             quote $ &%{} ResponseSnapshot :status 200 :status-text |OK :ok? true :url |https://example.test :redirected? false :headers ({})
-          :schema $ :: 'StructDef
+          :schema $ :: 'Enum
         |Runtime $ %{} 'CodeEntry (:doc "|Runtime identity normalized as a Calcit enum instead of an open String.")
           :code $ quote
             defenum Runtime (:browser) (:node) (:unknown 'String)
           :examples $ []
             quote $ %:: Runtime :browser
             quote $ %:: Runtime :unknown |worker
-          :schema $ :: 'EnumDef
+          :schema $ :: 'Enum
         |UrlHost $ %{} 'CodeEntry (:doc "|External URL-like capability shared by URL and browser Location objects. Fields are read-only in this contract.")
           :code $ quote
             deftrait UrlHost (:href 'String) (:protocol 'String) (:host 'String) (:hostname 'String) (:port 'String) (:pathname 'String) (:search 'String) (:hash 'String)
@@ -991,7 +991,7 @@
             defstruct UrlSnapshot (:href 'String) (:protocol 'String) (:host 'String) (:hostname 'String) (:port 'String) (:pathname 'String) (:search 'String) (:hash 'String)
           :examples $ []
             quote $ &%{} UrlSnapshot :href |https://example.test/a :protocol |https: :host |example.test :hostname |example.test :port | :pathname |/a :search | :hash |
-          :schema $ :: 'StructDef
+          :schema $ :: 'Enum
         |console-error! $ %{} 'CodeEntry (:doc "|Write one error String to the host console and return Unit in browser or Node.")
           :code $ quote
             defn console-error! (message)
