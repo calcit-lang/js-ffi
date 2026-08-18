@@ -231,7 +231,7 @@
           :examples $ []
             quote $ %:: VisibilityState :visible
           :schema $ :: 'Dynamic
-        |WindowHost $ %{} 'CodeEntry (:doc "|External browser Window capability restricted to stable viewport fields and matchMedia.")
+        |WindowHost $ %{} 'CodeEntry (:doc "||External browser Window capability restricted to stable viewport fields, matchMedia, and typed global event listeners.")
           :code $ quote
             deftrait WindowHost (:inner-width 'Number) (:inner-height 'Number) (:device-pixel-ratio 'Number)
               .match-media $ :: 'Fn
@@ -245,9 +245,16 @@
                       :args $ [] 'js-ffi.browser/EventHost
                       :return 'Unit
                   :return 'Unit
+              .remove-event-listener! $ :: 'Fn
+                {}
+                  :args $ [] 'js-ffi.browser/WindowHost 'String
+                    :: 'Fn $ {}
+                      :args $ [] 'js-ffi.browser/EventHost
+                      :return 'Unit
+                  :return 'Unit
           :examples $ [] (quote WindowHost)
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
-            :names $ {} (:add-event-listener! |addEventListener) (:device-pixel-ratio |devicePixelRatio) (:inner-height |innerHeight) (:inner-width |innerWidth) (:match-media |matchMedia)
+            :names $ {} (:add-event-listener! |addEventListener) (:device-pixel-ratio |devicePixelRatio) (:inner-height |innerHeight) (:inner-width |innerWidth) (:match-media |matchMedia) (:remove-event-listener! |removeEventListener)
           :schema $ :: 'Dynamic
           :tags $ #{} :ffi :js-host
         |add-event-listener! $ %{} 'CodeEntry (:doc "|Register a typed browser window event listener. The callback receives an EventHost and the wrapper returns Unit.")
@@ -282,6 +289,17 @@
           :schema $ :: 'Fn
             {} (:return 'Unit)
               :args $ [] 'String
+        |create-element $ %{} 'CodeEntry (:doc "|Create a DOM element through DocumentHost and return its typed host capability.")
+          :code $ quote
+            defn create-element (tag-name)
+              let
+                  host-document $ unsafe-coerce js/document DocumentHost
+                host-document .create-element tag-name
+          :examples $ []
+          :schema $ :: 'Fn
+            {} (:return 'js-ffi.browser/DomElementHost)
+              :args $ [] 'String
+              :features $ #{} :js-ffi
         |decode-document-ready-state $ %{} 'CodeEntry (:doc "|Decode document.readyState String to DocumentReadyState while preserving unknown values.")
           :code $ quote
             defn decode-document-ready-state (raw)
@@ -402,6 +420,20 @@
             {} (:return 'Number)
               :args $ []
               :features $ #{} :js-ffi
+        |remove-event-listener! $ %{} 'CodeEntry (:doc "|Remove a previously registered typed browser window listener.")
+          :code $ quote
+            defn remove-event-listener! (event-name callback)
+              let
+                  host-window $ unsafe-coerce js/window WindowHost
+                host-window .remove-event-listener! event-name callback
+                , nil
+          :examples $ []
+          :schema $ :: 'Fn
+            {} (:return 'Unit)
+              :args $ [] 'String
+                :: 'Fn $ {} (:return 'Unit)
+                  :args $ [] 'js-ffi.browser/EventHost
+              :features $ #{} :js-ffi
         |runtime $ %{} 'CodeEntry (:doc "|Return the normalized Runtime browser enum variant.")
           :code $ quote
             defn runtime () $ %:: shared/Runtime :browser
@@ -417,6 +449,20 @@
           :schema $ :: 'Fn
             {} (:return 'String)
               :args $ []
+        |set-before-unload! $ %{} 'CodeEntry (:doc "|Install a typed browser beforeunload callback.")
+          :code $ quote
+            defn set-before-unload! (callback)
+              let
+                  host-window $ unsafe-coerce js/window JsObject
+                aset host-window |onbeforeunload callback
+                , nil
+          :examples $ []
+          :schema $ :: 'Fn
+            {} (:return 'Unit)
+              :args $ []
+                :: 'Fn $ {} (:return 'Unit)
+                  :args $ [] 'js-ffi.browser/EventHost
+              :features $ #{} :js-ffi
         |set-interval! $ %{} 'CodeEntry (:doc "|Schedule a repeated browser callback and return the numeric timer identifier. The callback receives no arguments and returns Unit.")
           :code $ quote
             defn set-interval! (callback delay)
@@ -555,7 +601,14 @@
           :code $ quote
             defn main! () $ let
                 result $ browser/probe
+                element $ browser/create-element |div
+                on-resize $ fn (event) nil
               assert-type result js-ffi.browser/BrowserProbe
+              assert-type element js-ffi.browser/DomElementHost
+              browser/add-event-listener! |resize on-resize
+              browser/remove-event-listener! |resize on-resize
+              browser/set-before-unload! $ fn (event) nil
+              shared/queue-microtask! $ fn () (shared/console-log! |js-ffi-browser-microtask-passed)
               shared/console-log! |js-ffi-browser-smoke
               if
                 contract/valid-runtime? (%:: shared/Runtime :browser) (:runtime result)
@@ -983,6 +1036,17 @@
           :schema $ :: 'Fn
             {} (:return 'String)
               :args $ [] 'js-ffi.shared/HttpMethod
+        |queue-microtask! $ %{} 'CodeEntry (:doc "|Queue a Unit callback in the JavaScript microtask queue.")
+          :code $ quote
+            defn queue-microtask! (callback)
+              do (js/queueMicrotask callback) nil
+          :examples $ []
+          :schema $ :: 'Fn
+            {} (:return 'Unit)
+              :args $ []
+                :: 'Fn $ {} (:return 'Unit)
+                  :args $ []
+              :features $ #{} :js-ffi
         |runtime-label $ %{} 'CodeEntry (:doc "|Convert Runtime to the stable host label used in logs and compatibility checks.")
           :code $ quote
             defn runtime-label (runtime)

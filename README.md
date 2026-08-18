@@ -53,7 +53,18 @@ rest of the application:
 (browser/storage-get |theme)           ; Option<String>
 (browser/document-ready-state)         ; browser/DocumentReadyState
 (browser/set-timeout! (fn [] (browser/console-log! |ready)) 10)
+(browser/create-element |section)      ; browser/DomElementHost
+(browser/add-event-listener! |resize on-resize)
+(browser/remove-event-listener! |resize on-resize)
+(browser/set-before-unload! (fn (event) (persist!)))
+(shared/queue-microtask! (fn [] (flush-render!)))
 ```
+
+The listener passed to `remove-event-listener!` must be the same function
+value registered by `add-event-listener!`. `create-element` intentionally
+returns the small `DomElementHost` contract; a renderer that needs a richer
+element contract should narrow it once at its own adapter boundary rather than
+expanding the shared browser host type.
 
 Shared adapters and normalized data work in either JavaScript target:
 
@@ -70,11 +81,13 @@ Host identity can be retained only when needed through contracts such as
 small member sets and JavaScript name mappings; they do not introduce a second
 trait solver or TypeScript-style structural types.
 
-Every public function in `calcit.cirru` has a schema, a runtime feature marker
-where its own body crosses the JavaScript boundary, and a doc/example entry.
-Struct fields, Enum payloads, and external trait members carry concrete types.
-Data-definition CodeEntry schemas remain unset for compatibility with current
-Calcit JS codegen; this does not erase their field/member definitions.
+Every public adapter in `calcit.cirru` has a schema and a runtime feature marker
+where its own body crosses the JavaScript boundary. Inline Calcit examples are
+kept for target-independent helpers; examples that require a live browser or
+Node host are exercised by the corresponding smoke runs. Struct fields, Enum
+payloads, and external trait members carry concrete types. Data-definition
+CodeEntry schemas remain unset for compatibility with current Calcit JS codegen;
+this does not erase their field/member definitions.
 
 ## Checks and smoke runs
 
