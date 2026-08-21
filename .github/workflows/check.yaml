@@ -43,11 +43,14 @@ jobs:
       - name: Check browser entry
         run: yarn check:browser
 
+      - name: Compile Node smoke tests
+        run: yarn compile:node
+
       - name: Run Node smoke test
-        run: yarn run:node
+        run: node node.mjs
 
       - name: Run Node FFI contract test
-        run: yarn test:contract:node
+        run: node node-contract.mjs
 
       - name: Build browser smoke app
         run: yarn build:browser

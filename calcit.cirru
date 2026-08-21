@@ -664,13 +664,13 @@
           ns js-ffi.browser-test $ :require (js-ffi.browser :as browser) (js-ffi.contract :as contract) (js-ffi.shared :as shared)
     |js-ffi.contract $ %{} 'FileEntry
       :defs $ {}
-        |expect-string $ %{} 'CodeEntry (:doc "|Decode an opaque JavaScript value as String after a runtime typeof check. Raises a stable JS FFI contract violation when the host value has another shape.")
+        |expect-string $ %{} 'CodeEntry (:doc "|Decode an opaque JavaScript value as String after a runtime kind check. Null and undefined are reported as nullish; other mismatches raise a stable JS FFI contract violation.")
           :code $ quote
             defn expect-string (label value)
-              if
-                = |string $ js/typeof value
-                unsafe-coerce value String
-                raise $ str "|JS FFI contract violation: " label "| expected String, got " (js/typeof value)
+              let
+                  kind $ if (js-nullish? value) |nullish (js/typeof value)
+                if (= |string kind) (unsafe-coerce value String)
+                  raise $ str "|JS FFI contract violation: " label "| expected String, got " kind
           :examples $ []
           :schema $ :: 'Fn
             {} (:return 'String)
