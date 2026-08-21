@@ -30,7 +30,7 @@ jobs:
 
       - name: Check Calcit version and formatting
         run: |
-          test "$(cr --version)" = "0.13.21"
+          test "$(cr --version)" = "0.13.27"
           cr calcit.cirru edit format
           git diff --exit-code -- calcit.cirru
 
