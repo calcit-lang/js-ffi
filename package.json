@@ -10,16 +10,16 @@
     "vite": "^8.0.12"
   },
   "scripts": {
-    "check": "cr calcit.cirru --check-only",
-    "check:node": "cr --entry node calcit.cirru --check-only",
-    "check:browser": "cr --entry browser calcit.cirru --check-only",
-    "compile:node": "cr --entry node calcit.cirru js",
+    "check": "calcit calcit.cirru --check-only",
+    "check:node": "calcit --entry node calcit.cirru --check-only",
+    "check:browser": "calcit --entry browser calcit.cirru --check-only",
+    "compile:node": "calcit --entry node calcit.cirru js",
     "run:node": "yarn compile:node && node node.mjs",
     "test:contract:node": "yarn compile:node && node node-contract.mjs",
-    "compile:browser": "cr --entry browser calcit.cirru js",
+    "compile:browser": "calcit --entry browser calcit.cirru js",
     "build:browser": "yarn compile:browser && yarn vite build --base=./",
     "serve:browser": "yarn vite --host 127.0.0.1",
     "run:browser": "yarn compile:browser && yarn vite --host 127.0.0.1",
-    "format": "cr calcit.cirru edit format"
+    "format": "calcit calcit.cirru edit format"
   }
 }

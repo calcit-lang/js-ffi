@@ -139,9 +139,10 @@ CodeEntry schemas use Calcit’s explicit `StructDef`, `EnumDef`, `Trait`, or
 `Impl` marker, so definition roots do not inflate Dynamic-type hygiene counts.
 
 At an untrusted host-value boundary, an adapter must decode the value before it
-returns a concrete Calcit type. `contract/expect-string`, `expect-number`,
-`expect-bool`, `expect-object`, `expect-function`, and `object-field` provide shallow primitive
-and capability guards with a stable failure identity. For example, `node/cwd`
+returns a concrete Calcit type. `contract/expect-string`,
+`contract/expect-number`, `contract/expect-bool`, `contract/expect-object`,
+`contract/expect-function`, and `contract/object-field` provide shallow
+primitive and capability guards with a stable failure identity. For example, `node/cwd`
 and `node/argv-count` decode the opaque host results before returning `String`
 or `Number`; a mismatched host value fails with a `JS FFI contract violation`
 instead of escaping as an incorrectly typed value. Object and function guards
