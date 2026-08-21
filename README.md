@@ -35,16 +35,27 @@ Node.js code can use typed helpers without touching raw JavaScript globals:
 
 ```cirru
 ; String
+
 node/cwd
+
 ; Number
+
 node/argv-count
+
 ; String with fallback
+
 node/env-or |NODE_ENV |dev
+
 ; String
+
 node/path-join |src |index.js
+
 ; Bool
+
 node/file-exists? |package.json
+
 ; shared/Runtime :node
+
 node/runtime
 ```
 
@@ -52,32 +63,43 @@ Browser code can guard capabilities and keep nullable host results out of the
 rest of the application:
 
 ```cirru
-when browser/document-available?
-  browser/console-log! $ browser/document-title
+when browser/document-available? $ browser/console-log! (browser/document-title)
+
 ; String
+
 browser/storage-get-or |theme |light
+
 ; Number
+
 browser/viewport-width
+
 ; browser/Viewport
+
 browser/viewport
+
 ; Option<String>
+
 browser/storage-get |theme
+
 ; browser/DocumentReadyState
+
 browser/document-ready-state
+
 browser/set-timeout!
-  fn ()
-    browser/console-log! |ready
+  fn () $ browser/console-log! |ready
   10
+
 ; browser/DomElementHost
+
 browser/create-element |section
+
 browser/add-event-listener! |resize on-resize
+
 browser/remove-event-listener! |resize on-resize
-browser/set-before-unload!
-  fn (event)
-    persist!
-shared/queue-microtask!
-  fn ()
-    flush-render!
+
+browser/set-before-unload! $ fn (event) (persist!)
+
+shared/queue-microtask! $ fn () (flush-render!)
 ```
 
 The listener passed to `remove-event-listener!` must be the same function
@@ -90,12 +112,16 @@ Shared adapters and normalized data work in either JavaScript target:
 
 ```cirru
 ; Unit
+
 shared/console-log! |ready
+
 ; shared/DateSnapshot
+
 shared/date-now-snapshot
+
 ; String
-shared/runtime-label
-  %:: shared/Runtime :browser
+
+shared/runtime-label $ %:: shared/Runtime :browser
 ```
 
 Host identity can be retained only when needed through contracts such as
@@ -122,11 +148,19 @@ for the decoder and capability policy.
 
 ## Checks and smoke runs
 
+This module adopts the RFC quality levels through Q3: its CI validates the
+Snapshot and zero-tolerance static quality, then runs Node and browser-host
+contracts. Calcit is installed from `deps.cirru` with
+[`calcit-lang/setup-calcit@v1`](https://github.com/calcit-lang/setup-calcit).
+The static gate does not replace the host smoke tests below.
+
 The commands assume `cr` and Yarn are available on `PATH`:
 
 ```bash
 yarn install
-yarn check
+caps --ci
+cr calcit.cirru --check-only
+cr calcit.cirru analyze quality --format json
 yarn check:node
 yarn check:browser
 yarn run:node

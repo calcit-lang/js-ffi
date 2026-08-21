@@ -728,13 +728,14 @@
             {} (:return 'String)
               :args $ [] 'String 'String
               :features $ #{} :js-ffi
-        |exit! $ %{} 'CodeEntry (:doc "|Terminate the Node.js process with a numeric exit code. This is an effectful escape hatch and returns Dynamic. Example: (exit! 1)")
+        |exit! $ %{} 'CodeEntry (:doc "|Terminate the Node.js process with a numeric exit code. This effectful escape hatch has the Unit contract because it has no business result. Example: (exit! 1)")
           :code $ quote
-            defn exit! (code) (js/process.exit code)
+            defn exit! (code)
+              do (js/process.exit code) nil
           :examples $ [] (quote "(exit! 1)")
           :ffi $ {} (:backend :js) (:target :node)
           :schema $ :: 'Fn
-            {} (:return 'Dynamic)
+            {} (:return 'Unit)
               :args $ [] 'Number
               :features $ #{} :js-ffi
         |file-exists? $ %{} 'CodeEntry (:doc "|Return whether a local filesystem path exists as Bool. The fs module is kept behind the Node namespace. Example: (file-exists? |package.json) => true")
