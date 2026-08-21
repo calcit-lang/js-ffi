@@ -140,7 +140,7 @@ CodeEntry schemas use Calcit’s explicit `StructDef`, `EnumDef`, `Trait`, or
 
 At an untrusted host-value boundary, an adapter must decode the value before it
 returns a concrete Calcit type. `contract/expect-string`, `expect-number`,
-`expect-bool`, `expect-object`, and `expect-function` provide shallow primitive
+`expect-bool`, `expect-object`, `expect-function`, and `object-field` provide shallow primitive
 and capability guards with a stable failure identity. For example, `node/cwd`
 and `node/argv-count` decode the opaque host results before returning `String`
 or `Number`; a mismatched host value fails with a `JS FFI contract violation`

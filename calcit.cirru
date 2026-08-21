@@ -724,6 +724,16 @@
             {} (:return 'String)
               :args $ [] 'String (:: 'JsNullish 'JsObject)
               :features $ #{} :js-ffi
+        |object-field $ %{} 'CodeEntry (:doc "|Read one named field from an opaque JavaScript object after checking the receiver. The result remains JsNullish<JsObject>; pass it through an expect primitive guard or explicitly normalize absence before returning concrete data.")
+          :code $ quote
+            defn object-field (label object key)
+              aget (expect-object label object) key
+          :examples $ []
+          :schema $ :: 'Fn
+            {}
+              :args $ [] 'String (:: 'JsNullish 'JsObject) 'String
+              :features $ #{} :js-ffi
+              :return $ :: 'JsNullish 'JsObject
         |valid-runtime? $ %{} 'CodeEntry (:doc "|Compare two normalized Runtime values without relying on open String identifiers.")
           :code $ quote
             defn valid-runtime? (expected actual) (= expected actual)
