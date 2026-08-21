@@ -159,6 +159,11 @@ contracts. Calcit is installed from `deps.cirru` with
 [`calcit-lang/setup-calcit@v1`](https://github.com/calcit-lang/setup-calcit).
 The static gate does not replace the host smoke tests below.
 
+The checked-in v1 baseline preserves this package's zero budgets for the
+published Calcit 0.13.28 protocol. Once the next Calcit release contains the
+versioned `unsafeCoerce` quality metric, regenerate this file as a reviewed v2
+baseline to ratchet the existing adapter inventory per definition.
+
 The commands assume `cr` and Yarn are available on `PATH`:
 
 ```bash
