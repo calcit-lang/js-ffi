@@ -46,5 +46,8 @@ jobs:
       - name: Run Node smoke test
         run: yarn run:node
 
+      - name: Run Node FFI contract test
+        run: yarn test:contract:node
+
       - name: Build browser smoke app
         run: yarn build:browser

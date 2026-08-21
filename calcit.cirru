@@ -664,6 +664,18 @@
           ns js-ffi.browser-test $ :require (js-ffi.browser :as browser) (js-ffi.contract :as contract) (js-ffi.shared :as shared)
     |js-ffi.contract $ %{} 'FileEntry
       :defs $ {}
+        |expect-string $ %{} 'CodeEntry (:doc "|Decode an opaque JavaScript value as String after a runtime typeof check. Raises a stable JS FFI contract violation when the host value has another shape.")
+          :code $ quote
+            defn expect-string (label value)
+              if
+                = |string $ js/typeof value
+                unsafe-coerce value String
+                raise $ str "|JS FFI contract violation: " label "| expected String, got " (js/typeof value)
+          :examples $ []
+          :schema $ :: 'Fn
+            {} (:return 'String)
+              :args $ [] 'String (:: 'JsNullish 'JsObject)
+              :features $ #{} :js-ffi
         |valid-runtime? $ %{} 'CodeEntry (:doc "|Compare two normalized Runtime values without relying on open String identifiers.")
           :code $ quote
             defn valid-runtime? (expected actual) (= expected actual)
@@ -696,7 +708,7 @@
               :features $ #{} :js-ffi
         |cwd $ %{} 'CodeEntry (:doc "|Return process.cwd() as String. This is a Node-only API and is emitted through the node entry. Example: (cwd) => |/workspace/project")
           :code $ quote
-            defn cwd () $ unsafe-coerce (js/process.cwd) String
+            defn cwd () $ contract/expect-string |process.cwd (js/process.cwd)
           :examples $ [] (quote "(cwd)")
           :ffi $ {} (:backend :js) (:target :node)
           :schema $ :: 'Fn
@@ -768,7 +780,7 @@
               :args $ []
       :ns $ %{} 'NsEntry (:doc "|Typed Node.js JavaScript FFI. Node-only modules remain isolated while runtime identity and cross-runtime host contracts come from js-ffi.shared.")
         :code $ quote
-          ns js-ffi.node $ :require (|node:fs :as fs) (|node:path :as path) (js-ffi.shared :as shared)
+          ns js-ffi.node $ :require (|node:fs :as fs) (|node:path :as path) (js-ffi.contract :as contract) (js-ffi.shared :as shared)
     |js-ffi.node-test $ %{} 'FileEntry
       :defs $ {}
         |main! $ %{} 'CodeEntry (:doc "|Run the typed Node smoke probe and verify its Runtime enum.")

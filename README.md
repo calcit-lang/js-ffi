@@ -14,7 +14,8 @@ The public API is split by runtime:
 - `js-ffi.browser` contains DOM, URL, storage, viewport, console, timer, and
   browser-global helpers.
 - `js-ffi.node` contains `process`, filesystem, and path helpers.
-- `js-ffi.contract` contains runtime-independent checks shared by smoke tests.
+- `js-ffi.contract` contains runtime-independent checks and boundary decoders
+  shared by smoke tests and host adapters.
 
 Browser and Node namespaces should not be imported into each other; both may
 depend on `js-ffi.shared`. A project
@@ -111,6 +112,14 @@ payloads, and external trait members carry concrete types. Data-definition
 CodeEntry schemas use Calcit’s explicit `StructDef`, `EnumDef`, `Trait`, or
 `Impl` marker, so definition roots do not inflate Dynamic-type hygiene counts.
 
+At an untrusted host-value boundary, an adapter must decode the value before it
+returns a concrete Calcit type. For example, `node/cwd` passes the opaque result
+of `process.cwd()` through `contract/expect-string`; a mismatched host value
+fails with a stable `JS FFI contract violation` message instead of escaping as
+an incorrectly typed `String`. See the compiler's
+[JavaScript interop guide](https://github.com/calcit-lang/calcit/blob/main/docs/features/js-interop.md)
+for the decoder and capability policy.
+
 ## Checks and smoke runs
 
 The commands assume `cr` and Yarn are available on `PATH`:
@@ -121,11 +130,17 @@ yarn check
 yarn check:node
 yarn check:browser
 yarn run:node
+yarn test:contract:node
 yarn build:browser
 ```
 
 `yarn run:node` compiles the `node` entry and runs a real Node.js probe. It
 checks `process.cwd()`, `process.argv`, and the runtime contract.
+
+`yarn test:contract:node` replaces `process.cwd()` with an invalid JavaScript
+value and verifies that the boundary decoder rejects it with the documented
+contract error. This is intentionally separate from the smoke run: static
+schemas alone cannot prove a host API continues to honour its runtime shape.
 
 `yarn run:browser` starts Vite after compiling the `browser` entry. Open the
 printed local URL and inspect the browser console for the runtime probe. The
