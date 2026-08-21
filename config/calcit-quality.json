@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "scope": {
+    "namespace": null,
+    "namespacePrefix": null,
+    "includeDependencies": false
+  },
+  "metrics": {
+    "typeNone": 0,
+    "typeNotFull": 0,
+    "schemaDynamic": 0,
+    "codeDynamic": 0,
+    "codeNil": 0,
+    "unresolved": 0,
+    "declaredOptional": 0,
+    "deprecatedCalls": 0
+  },
+  "definitions": {}
+}
