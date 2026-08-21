@@ -1,5 +1,5 @@
 
-{} (:about "|Machine-generated snapshot. Do not edit directly — changes will be overwritten. Use `cr query` to inspect and `cr edit`/`cr tree` to modify. Run `cr docs agents --full` first. Manual edits must follow format and schema conventions, then run `cr edit format`.") (:package |js-ffi)
+{} (:about "|Machine-generated snapshot. Do not edit directly — changes will be overwritten. Use `calcit query` to inspect and `calcit edit`/`calcit tree` to modify. Run `calcit docs agents --full` first. Manual edits must follow format and schema conventions, then run `calcit edit format`.") (:package |js-ffi)
   :entries $ {}
     :browser $ {} (:description |) (:init-fn 'js-ffi.browser-test/main!) (:mode :js) (:reload-fn 'js-ffi.browser-test/reload!) (:target :browser)
       :feature-policy $ {} (:js-ffi :error)
@@ -664,6 +664,54 @@
           ns js-ffi.browser-test $ :require (js-ffi.browser :as browser) (js-ffi.contract :as contract) (js-ffi.shared :as shared)
     |js-ffi.contract $ %{} 'FileEntry
       :defs $ {}
+        |expect-bool $ %{} 'CodeEntry (:doc "|Decode an opaque JavaScript value as Bool after a runtime kind check. Null and undefined are reported as nullish; other mismatches raise a stable JS FFI contract violation.")
+          :code $ quote
+            defn expect-bool (label value)
+              let
+                  kind $ if (js-nullish? value) |nullish (js/typeof value)
+                if (= |boolean kind) (unsafe-coerce value Bool)
+                  raise $ str "|JS FFI contract violation: " label "| expected Bool, got " kind
+          :examples $ []
+          :schema $ :: 'Fn
+            {} (:return 'Bool)
+              :args $ [] 'String (:: 'JsNullish 'JsObject)
+              :features $ #{} :js-ffi
+        |expect-function $ %{} 'CodeEntry (:doc "|Validate that an opaque JavaScript value is a non-null JavaScript function and return its opaque host identity. Use a small typed adapter for its call schema and receiver contract.")
+          :code $ quote
+            defn expect-function (label value)
+              let
+                  kind $ if (js-nullish? value) |nullish (js/typeof value)
+                if (= |function kind) (unsafe-coerce value JsObject)
+                  raise $ str "|JS FFI contract violation: " label "| expected Function, got " kind
+          :examples $ []
+          :schema $ :: 'Fn
+            {} (:return 'JsObject)
+              :args $ [] 'String (:: 'JsNullish 'JsObject)
+              :features $ #{} :js-ffi
+        |expect-number $ %{} 'CodeEntry (:doc "|Decode an opaque JavaScript value as Number after a runtime kind check. Null and undefined are reported as nullish; other mismatches raise a stable JS FFI contract violation.")
+          :code $ quote
+            defn expect-number (label value)
+              let
+                  kind $ if (js-nullish? value) |nullish (js/typeof value)
+                if (= |number kind) (unsafe-coerce value Number)
+                  raise $ str "|JS FFI contract violation: " label "| expected Number, got " kind
+          :examples $ []
+          :schema $ :: 'Fn
+            {} (:return 'Number)
+              :args $ [] 'String (:: 'JsNullish 'JsObject)
+              :features $ #{} :js-ffi
+        |expect-object $ %{} 'CodeEntry (:doc "|Validate that an opaque JavaScript value is a non-null object and return it as JsObject. This proves only the shallow host kind; decode or check members before exposing concrete data.")
+          :code $ quote
+            defn expect-object (label value)
+              let
+                  kind $ if (js-nullish? value) |nullish (js/typeof value)
+                if (= |object kind) (unsafe-coerce value JsObject)
+                  raise $ str "|JS FFI contract violation: " label "| expected Object, got " kind
+          :examples $ []
+          :schema $ :: 'Fn
+            {} (:return 'JsObject)
+              :args $ [] 'String (:: 'JsNullish 'JsObject)
+              :features $ #{} :js-ffi
         |expect-string $ %{} 'CodeEntry (:doc "|Decode an opaque JavaScript value as String after a runtime kind check. Null and undefined are reported as nullish; other mismatches raise a stable JS FFI contract violation.")
           :code $ quote
             defn expect-string (label value)
@@ -699,7 +747,7 @@
           :code $ quote
             defn argv-count () $ let
                 argv $ unsafe-coerce js/process.argv JsObject
-              unsafe-coerce (.-length argv) Number
+              contract/expect-number |process.argv.length $ .-length argv
           :examples $ [] (quote "(argv-count)")
           :ffi $ {} (:backend :js) (:target :node)
           :schema $ :: 'Fn
@@ -721,7 +769,9 @@
               let
                   env $ unsafe-coerce js/process.env JsObject
                   raw $ aget env key
-                if (js-present? raw) (unsafe-coerce raw String) fallback
+                if (js-present? raw)
+                  contract/expect-string (str |process.env[ key |]) raw
+                  , fallback
           :examples $ [] (quote "(env-or |NODE_ENV |development)")
           :ffi $ {} (:backend :js) (:target :node)
           :schema $ :: 'Fn

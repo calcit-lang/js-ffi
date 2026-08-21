@@ -139,10 +139,15 @@ CodeEntry schemas use Calcit’s explicit `StructDef`, `EnumDef`, `Trait`, or
 `Impl` marker, so definition roots do not inflate Dynamic-type hygiene counts.
 
 At an untrusted host-value boundary, an adapter must decode the value before it
-returns a concrete Calcit type. For example, `node/cwd` passes the opaque result
-of `process.cwd()` through `contract/expect-string`; a mismatched host value
-fails with a stable `JS FFI contract violation` message instead of escaping as
-an incorrectly typed `String`. See the compiler's
+returns a concrete Calcit type. `contract/expect-string`, `expect-number`,
+`expect-bool`, `expect-object`, and `expect-function` provide shallow primitive
+and capability guards with a stable failure identity. For example, `node/cwd`
+and `node/argv-count` decode the opaque host results before returning `String`
+or `Number`; a mismatched host value fails with a `JS FFI contract violation`
+instead of escaping as an incorrectly typed value. Object and function guards
+only prove the immediate host kind: adapters must still validate required
+members, receiver behavior, and copy stable data into Calcit-owned structures.
+See the compiler's
 [JavaScript interop guide](https://github.com/calcit-lang/calcit/blob/main/docs/features/js-interop.md)
 for the decoder and capability policy.
 
@@ -160,7 +165,7 @@ The commands assume `cr` and Yarn are available on `PATH`:
 yarn install
 caps --ci
 cr calcit.cirru --check-only
-cr calcit.cirru analyze quality --format json
+cr calcit.cirru analyze quality --baseline config/calcit-quality.json --format json
 yarn check:node
 yarn check:browser
 yarn run:node
