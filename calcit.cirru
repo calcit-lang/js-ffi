@@ -664,6 +664,18 @@
           ns js-ffi.browser-test $ :require (js-ffi.browser :as browser) (js-ffi.contract :as contract) (js-ffi.shared :as shared)
     |js-ffi.contract $ %{} 'FileEntry
       :defs $ {}
+        |expect-string $ %{} 'CodeEntry (:doc "|Decode an opaque JavaScript value as String after a runtime kind check. Null and undefined are reported as nullish; other mismatches raise a stable JS FFI contract violation.")
+          :code $ quote
+            defn expect-string (label value)
+              let
+                  kind $ if (js-nullish? value) |nullish (js/typeof value)
+                if (= |string kind) (unsafe-coerce value String)
+                  raise $ str "|JS FFI contract violation: " label "| expected String, got " kind
+          :examples $ []
+          :schema $ :: 'Fn
+            {} (:return 'String)
+              :args $ [] 'String (:: 'JsNullish 'JsObject)
+              :features $ #{} :js-ffi
         |valid-runtime? $ %{} 'CodeEntry (:doc "|Compare two normalized Runtime values without relying on open String identifiers.")
           :code $ quote
             defn valid-runtime? (expected actual) (= expected actual)
@@ -696,7 +708,7 @@
               :features $ #{} :js-ffi
         |cwd $ %{} 'CodeEntry (:doc "|Return process.cwd() as String. This is a Node-only API and is emitted through the node entry. Example: (cwd) => |/workspace/project")
           :code $ quote
-            defn cwd () $ unsafe-coerce (js/process.cwd) String
+            defn cwd () $ contract/expect-string |process.cwd (js/process.cwd)
           :examples $ [] (quote "(cwd)")
           :ffi $ {} (:backend :js) (:target :node)
           :schema $ :: 'Fn
@@ -716,13 +728,14 @@
             {} (:return 'String)
               :args $ [] 'String 'String
               :features $ #{} :js-ffi
-        |exit! $ %{} 'CodeEntry (:doc "|Terminate the Node.js process with a numeric exit code. This is an effectful escape hatch and returns Dynamic. Example: (exit! 1)")
+        |exit! $ %{} 'CodeEntry (:doc "|Terminate the Node.js process with a numeric exit code. This effectful escape hatch has the Unit contract because it has no business result. Example: (exit! 1)")
           :code $ quote
-            defn exit! (code) (js/process.exit code)
+            defn exit! (code)
+              do (js/process.exit code) nil
           :examples $ [] (quote "(exit! 1)")
           :ffi $ {} (:backend :js) (:target :node)
           :schema $ :: 'Fn
-            {} (:return 'Dynamic)
+            {} (:return 'Unit)
               :args $ [] 'Number
               :features $ #{} :js-ffi
         |file-exists? $ %{} 'CodeEntry (:doc "|Return whether a local filesystem path exists as Bool. The fs module is kept behind the Node namespace. Example: (file-exists? |package.json) => true")
@@ -768,7 +781,7 @@
               :args $ []
       :ns $ %{} 'NsEntry (:doc "|Typed Node.js JavaScript FFI. Node-only modules remain isolated while runtime identity and cross-runtime host contracts come from js-ffi.shared.")
         :code $ quote
-          ns js-ffi.node $ :require (|node:fs :as fs) (|node:path :as path) (js-ffi.shared :as shared)
+          ns js-ffi.node $ :require (|node:fs :as fs) (|node:path :as path) (js-ffi.contract :as contract) (js-ffi.shared :as shared)
     |js-ffi.node-test $ %{} 'FileEntry
       :defs $ {}
         |main! $ %{} 'CodeEntry (:doc "|Run the typed Node smoke probe and verify its Runtime enum.")

@@ -23,19 +23,18 @@ jobs:
       - name: Enable Yarn
         run: corepack enable && corepack prepare yarn@4.12.0 --activate
 
-      - uses: calcit-lang/setup-cr@0.0.9
+      - uses: calcit-lang/setup-calcit@v1
 
       - name: Install dependencies
         run: yarn install --immutable
 
-      - name: Check Calcit version and formatting
+      - name: Validate Calcit snapshot and types
         run: |
-          test "$(cr --version)" = "0.13.27"
+          caps --ci
           cr calcit.cirru edit format
           git diff --exit-code -- calcit.cirru
-
-      - name: Check shared definitions
-        run: yarn check
+          cr calcit.cirru --check-only
+          cr calcit.cirru analyze quality --format json
 
       - name: Check Node entry
         run: yarn check:node
@@ -43,8 +42,14 @@ jobs:
       - name: Check browser entry
         run: yarn check:browser
 
+      - name: Compile Node smoke tests
+        run: yarn compile:node
+
       - name: Run Node smoke test
-        run: yarn run:node
+        run: node node.mjs
+
+      - name: Run Node FFI contract test
+        run: node node-contract.mjs
 
       - name: Build browser smoke app
         run: yarn build:browser
