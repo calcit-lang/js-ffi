@@ -342,7 +342,7 @@
               :args $ [] 'String
         |document-available? $ %{} 'CodeEntry (:doc "|Return whether document is present. Use this guard before touching DOM objects so shared code can be checked in both Node.js and browsers. Example: (document-available?) => true")
           :code $ quote
-            defn document-available? () $ js-present? js/document
+            defn document-available? () $ exists? js/document
           :examples $ [] (quote "(document-available?)")
           :ffi $ {} (:backend :js) (:target :browser)
           :schema $ :: 'Fn
@@ -402,7 +402,7 @@
               :args $ [] 'js-ffi.browser/DomElementHost
         |local-storage-available? $ %{} 'CodeEntry (:doc "|Return whether localStorage is available. Browsers may deny storage in privacy or sandboxed modes, so callers should branch on this Boolean. Example: (local-storage-available?) => true")
           :code $ quote
-            defn local-storage-available? () $ js-present? js/localStorage
+            defn local-storage-available? () $ exists? js/localStorage
           :examples $ [] (quote "(local-storage-available?)")
           :ffi $ {} (:backend :js) (:target :browser)
           :schema $ :: 'Fn
@@ -457,7 +457,7 @@
               let
                   host-window $ unsafe-coerce js/window WindowHost
                 host-window .remove-event-listener! event-name callback
-                , nil
+                , &unit
           :examples $ []
           :schema $ :: 'Fn
             {} (:return 'Unit)
@@ -486,7 +486,7 @@
               let
                   host-window $ unsafe-coerce js/window JsObject
                 aset host-window |onbeforeunload callback
-                , nil
+                , &unit
           :examples $ []
           :schema $ :: 'Fn
             {} (:return 'Unit)
@@ -554,7 +554,7 @@
                 let
                     storage $ unsafe-coerce js/localStorage StorageHost
                   storage .remove-item! key
-              , nil
+              , &unit
           :examples $ []
             quote $ storage-remove! |js-ffi-smoke
           :schema $ :: 'Fn
@@ -563,7 +563,7 @@
               :features $ #{} :js-ffi
         |storage-roundtrip! $ %{} 'CodeEntry (:doc "|Exercise localStorage with a deterministic String result for smoke tests. It writes |ok, reads it back, and returns |unavailable when storage is missing. Example: (storage-roundtrip!) => |ok")
           :code $ quote
-            defn storage-roundtrip! () $ if (js-present? js/localStorage)
+            defn storage-roundtrip! () $ if (local-storage-available?)
               do (storage-set! |js-ffi-smoke |ok) (storage-get-or |js-ffi-smoke |unavailable)
               , |unavailable
           :examples $ [] (quote "(storage-roundtrip!)")
@@ -578,7 +578,7 @@
                 let
                     storage $ unsafe-coerce js/localStorage StorageHost
                   storage .set-item! key value
-              , nil
+              , &unit
           :examples $ []
             quote $ storage-set! |theme |dark
           :schema $ :: 'Fn
@@ -633,19 +633,19 @@
             defn main! () $ let
                 result $ browser/probe
                 element $ browser/create-element |div
-                on-resize $ fn (event) nil
+                on-resize $ fn (event) &unit
               assert-type result js-ffi.browser/BrowserProbe
               assert-type element js-ffi.browser/DomElementHost
               browser/add-event-listener! |resize on-resize
               browser/remove-event-listener! |resize on-resize
-              browser/set-before-unload! $ fn (event) nil
+              browser/set-before-unload! $ fn (event) &unit
               shared/queue-microtask! $ fn () (shared/console-log! |js-ffi-browser-microtask-passed)
               shared/console-log! |js-ffi-browser-smoke
               if
                 contract/valid-runtime? (%:: shared/Runtime :browser) (:runtime result)
                 shared/console-log! |js-ffi-browser-smoke-passed
                 shared/console-error! |js-ffi-browser-smoke-failed
-              , nil
+              , &unit
           :examples $ []
             quote $ main!
           :schema $ :: 'Fn
@@ -653,7 +653,7 @@
               :args $ []
         |reload! $ %{} 'CodeEntry (:doc "|No-op browser reload hook returning Unit.")
           :code $ quote
-            defn reload! () nil
+            defn reload! () &unit
           :examples $ []
             quote $ reload!
           :schema $ :: 'Fn
@@ -791,7 +791,7 @@
         |exit! $ %{} 'CodeEntry (:doc "|Terminate the Node.js process with a numeric exit code. This effectful escape hatch has the Unit contract because it has no business result. Example: (exit! 1)")
           :code $ quote
             defn exit! (code)
-              do (js/process.exit code) nil
+              do (js/process.exit code) &unit
           :examples $ [] (quote "(exit! 1)")
           :ffi $ {} (:backend :js) (:target :node)
           :schema $ :: 'Fn
@@ -854,7 +854,7 @@
                 contract/valid-runtime? (%:: shared/Runtime :node) (:runtime result)
                 shared/console-log! |js-ffi-node-smoke-passed
                 do (shared/console-error! |js-ffi-node-smoke-failed) (node/exit! 1)
-              , nil
+              , &unit
           :examples $ []
             quote $ main!
           :schema $ :: 'Fn
@@ -862,7 +862,7 @@
               :args $ []
         |reload! $ %{} 'CodeEntry (:doc "|No-op Node reload hook returning Unit.")
           :code $ quote
-            defn reload! () nil
+            defn reload! () &unit
           :examples $ []
             quote $ reload!
           :schema $ :: 'Fn
@@ -1071,7 +1071,7 @@
               let
                   host-console $ unsafe-coerce js/console ConsoleHost
                 host-console .error! message
-                , nil
+                , &unit
           :examples $ []
             quote $ console-error! |failed
           :schema $ :: 'Fn
@@ -1084,7 +1084,7 @@
               let
                   host-console $ unsafe-coerce js/console ConsoleHost
                 host-console .log! message
-                , nil
+                , &unit
           :examples $ []
             quote $ console-log! |ready
           :schema $ :: 'Fn
@@ -1097,7 +1097,7 @@
               let
                   host-console $ unsafe-coerce js/console ConsoleHost
                 host-console .warn! message
-                , nil
+                , &unit
           :examples $ []
             quote $ console-warn! |deprecated
           :schema $ :: 'Fn
@@ -1143,7 +1143,7 @@
         |queue-microtask! $ %{} 'CodeEntry (:doc "|Queue a Unit callback in the JavaScript microtask queue.")
           :code $ quote
             defn queue-microtask! (callback)
-              do (js/queueMicrotask callback) nil
+              do (js/queueMicrotask callback) &unit
           :examples $ []
           :schema $ :: 'Fn
             {} (:return 'Unit)
