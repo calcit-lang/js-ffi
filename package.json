@@ -4,7 +4,7 @@
   "version": "0.1.9",
   "packageManager": "yarn@4.12.0",
   "dependencies": {
-    "@calcit/procs": "^0.13.28"
+    "@calcit/procs": "^0.13.44"
   },
   "devDependencies": {
     "vite": "^8.0.12"
@@ -16,6 +16,7 @@
     "compile:node": "calcit --entry node calcit.cirru js",
     "run:node": "yarn compile:node && node node.mjs",
     "test:contract:node": "yarn compile:node && node node-contract.mjs",
+    "test:contract:browser-node": "yarn compile:browser && node browser-node-contract.mjs",
     "compile:browser": "calcit --entry browser calcit.cirru js",
     "build:browser": "yarn compile:browser && yarn vite build --base=./",
     "serve:browser": "yarn vite --host 127.0.0.1",
