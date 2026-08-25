@@ -51,5 +51,8 @@ jobs:
       - name: Run Node FFI contract test
         run: node node-contract.mjs
 
+      - name: Run browser global contract test in Node
+        run: yarn test:contract:browser-node
+
       - name: Build browser smoke app
         run: yarn build:browser
