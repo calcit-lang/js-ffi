@@ -29,6 +29,11 @@ Calcit compiler/runtime support package, and Vite is a development tool for
 the browser smoke page. The Calcit and package versions are recorded in
 `deps.cirru` and `package.json`.
 
+See [Typed JavaScript host boundary](docs/typed-host-boundary.md) for the
+runtime split, decoding policy, and guidance for keeping host effects outside
+pure application logic. The page is indexed for `calcit docs read` and
+`calcit docs search` when this module is installed.
+
 ## API examples
 
 Node.js code can use typed helpers without touching raw JavaScript globals:
