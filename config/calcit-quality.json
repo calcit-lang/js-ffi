@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "scope": {
     "namespace": null,
     "namespacePrefix": null,
@@ -13,7 +13,339 @@
     "codeNil": 0,
     "unresolved": 0,
     "declaredOptional": 0,
-    "deprecatedCalls": 0
+    "deprecatedCalls": 0,
+    "unsafeCoerce": 30
   },
-  "definitions": {}
+  "definitions": {
+    "js-ffi.browser/add-event-listener!": {
+      "typeNone": 0,
+      "typeNotFull": 0,
+      "schemaDynamic": 0,
+      "codeDynamic": 0,
+      "codeNil": 0,
+      "unresolved": 0,
+      "declaredOptional": 0,
+      "deprecatedCalls": 0,
+      "unsafeCoerce": 1
+    },
+    "js-ffi.browser/append-child!": {
+      "typeNone": 0,
+      "typeNotFull": 0,
+      "schemaDynamic": 0,
+      "codeDynamic": 0,
+      "codeNil": 0,
+      "unresolved": 0,
+      "declaredOptional": 0,
+      "deprecatedCalls": 0,
+      "unsafeCoerce": 1
+    },
+    "js-ffi.browser/create-element": {
+      "typeNone": 0,
+      "typeNotFull": 0,
+      "schemaDynamic": 0,
+      "codeDynamic": 0,
+      "codeNil": 0,
+      "unresolved": 0,
+      "declaredOptional": 0,
+      "deprecatedCalls": 0,
+      "unsafeCoerce": 1
+    },
+    "js-ffi.browser/document-ready-state": {
+      "typeNone": 0,
+      "typeNotFull": 0,
+      "schemaDynamic": 0,
+      "codeDynamic": 0,
+      "codeNil": 0,
+      "unresolved": 0,
+      "declaredOptional": 0,
+      "deprecatedCalls": 0,
+      "unsafeCoerce": 1
+    },
+    "js-ffi.browser/document-title": {
+      "typeNone": 0,
+      "typeNotFull": 0,
+      "schemaDynamic": 0,
+      "codeDynamic": 0,
+      "codeNil": 0,
+      "unresolved": 0,
+      "declaredOptional": 0,
+      "deprecatedCalls": 0,
+      "unsafeCoerce": 1
+    },
+    "js-ffi.browser/element-dataset": {
+      "typeNone": 0,
+      "typeNotFull": 0,
+      "schemaDynamic": 0,
+      "codeDynamic": 0,
+      "codeNil": 0,
+      "unresolved": 0,
+      "declaredOptional": 0,
+      "deprecatedCalls": 0,
+      "unsafeCoerce": 1
+    },
+    "js-ffi.browser/element-style": {
+      "typeNone": 0,
+      "typeNotFull": 0,
+      "schemaDynamic": 0,
+      "codeDynamic": 0,
+      "codeNil": 0,
+      "unresolved": 0,
+      "declaredOptional": 0,
+      "deprecatedCalls": 0,
+      "unsafeCoerce": 1
+    },
+    "js-ffi.browser/location-href": {
+      "typeNone": 0,
+      "typeNotFull": 0,
+      "schemaDynamic": 0,
+      "codeDynamic": 0,
+      "codeNil": 0,
+      "unresolved": 0,
+      "declaredOptional": 0,
+      "deprecatedCalls": 0,
+      "unsafeCoerce": 1
+    },
+    "js-ffi.browser/query-selector": {
+      "typeNone": 0,
+      "typeNotFull": 0,
+      "schemaDynamic": 0,
+      "codeDynamic": 0,
+      "codeNil": 0,
+      "unresolved": 0,
+      "declaredOptional": 0,
+      "deprecatedCalls": 0,
+      "unsafeCoerce": 1
+    },
+    "js-ffi.browser/random": {
+      "typeNone": 0,
+      "typeNotFull": 0,
+      "schemaDynamic": 0,
+      "codeDynamic": 0,
+      "codeNil": 0,
+      "unresolved": 0,
+      "declaredOptional": 0,
+      "deprecatedCalls": 0,
+      "unsafeCoerce": 1
+    },
+    "js-ffi.browser/remove-event-listener!": {
+      "typeNone": 0,
+      "typeNotFull": 0,
+      "schemaDynamic": 0,
+      "codeDynamic": 0,
+      "codeNil": 0,
+      "unresolved": 0,
+      "declaredOptional": 0,
+      "deprecatedCalls": 0,
+      "unsafeCoerce": 1
+    },
+    "js-ffi.browser/set-before-unload!": {
+      "typeNone": 0,
+      "typeNotFull": 0,
+      "schemaDynamic": 0,
+      "codeDynamic": 0,
+      "codeNil": 0,
+      "unresolved": 0,
+      "declaredOptional": 0,
+      "deprecatedCalls": 0,
+      "unsafeCoerce": 1
+    },
+    "js-ffi.browser/set-interval!": {
+      "typeNone": 0,
+      "typeNotFull": 0,
+      "schemaDynamic": 0,
+      "codeDynamic": 0,
+      "codeNil": 0,
+      "unresolved": 0,
+      "declaredOptional": 0,
+      "deprecatedCalls": 0,
+      "unsafeCoerce": 1
+    },
+    "js-ffi.browser/set-timeout!": {
+      "typeNone": 0,
+      "typeNotFull": 0,
+      "schemaDynamic": 0,
+      "codeDynamic": 0,
+      "codeNil": 0,
+      "unresolved": 0,
+      "declaredOptional": 0,
+      "deprecatedCalls": 0,
+      "unsafeCoerce": 1
+    },
+    "js-ffi.browser/storage-get": {
+      "typeNone": 0,
+      "typeNotFull": 0,
+      "schemaDynamic": 0,
+      "codeDynamic": 0,
+      "codeNil": 0,
+      "unresolved": 0,
+      "declaredOptional": 0,
+      "deprecatedCalls": 0,
+      "unsafeCoerce": 1
+    },
+    "js-ffi.browser/storage-remove!": {
+      "typeNone": 0,
+      "typeNotFull": 0,
+      "schemaDynamic": 0,
+      "codeDynamic": 0,
+      "codeNil": 0,
+      "unresolved": 0,
+      "declaredOptional": 0,
+      "deprecatedCalls": 0,
+      "unsafeCoerce": 1
+    },
+    "js-ffi.browser/storage-set!": {
+      "typeNone": 0,
+      "typeNotFull": 0,
+      "schemaDynamic": 0,
+      "codeDynamic": 0,
+      "codeNil": 0,
+      "unresolved": 0,
+      "declaredOptional": 0,
+      "deprecatedCalls": 0,
+      "unsafeCoerce": 1
+    },
+    "js-ffi.browser/viewport": {
+      "typeNone": 0,
+      "typeNotFull": 0,
+      "schemaDynamic": 0,
+      "codeDynamic": 0,
+      "codeNil": 0,
+      "unresolved": 0,
+      "declaredOptional": 0,
+      "deprecatedCalls": 0,
+      "unsafeCoerce": 1
+    },
+    "js-ffi.browser/visibility-state": {
+      "typeNone": 0,
+      "typeNotFull": 0,
+      "schemaDynamic": 0,
+      "codeDynamic": 0,
+      "codeNil": 0,
+      "unresolved": 0,
+      "declaredOptional": 0,
+      "deprecatedCalls": 0,
+      "unsafeCoerce": 1
+    },
+    "js-ffi.contract/expect-bool": {
+      "typeNone": 0,
+      "typeNotFull": 0,
+      "schemaDynamic": 0,
+      "codeDynamic": 0,
+      "codeNil": 0,
+      "unresolved": 0,
+      "declaredOptional": 0,
+      "deprecatedCalls": 0,
+      "unsafeCoerce": 1
+    },
+    "js-ffi.contract/expect-function": {
+      "typeNone": 0,
+      "typeNotFull": 0,
+      "schemaDynamic": 0,
+      "codeDynamic": 0,
+      "codeNil": 0,
+      "unresolved": 0,
+      "declaredOptional": 0,
+      "deprecatedCalls": 0,
+      "unsafeCoerce": 1
+    },
+    "js-ffi.contract/expect-number": {
+      "typeNone": 0,
+      "typeNotFull": 0,
+      "schemaDynamic": 0,
+      "codeDynamic": 0,
+      "codeNil": 0,
+      "unresolved": 0,
+      "declaredOptional": 0,
+      "deprecatedCalls": 0,
+      "unsafeCoerce": 1
+    },
+    "js-ffi.contract/expect-object": {
+      "typeNone": 0,
+      "typeNotFull": 0,
+      "schemaDynamic": 0,
+      "codeDynamic": 0,
+      "codeNil": 0,
+      "unresolved": 0,
+      "declaredOptional": 0,
+      "deprecatedCalls": 0,
+      "unsafeCoerce": 1
+    },
+    "js-ffi.contract/expect-string": {
+      "typeNone": 0,
+      "typeNotFull": 0,
+      "schemaDynamic": 0,
+      "codeDynamic": 0,
+      "codeNil": 0,
+      "unresolved": 0,
+      "declaredOptional": 0,
+      "deprecatedCalls": 0,
+      "unsafeCoerce": 1
+    },
+    "js-ffi.node/argv-count": {
+      "typeNone": 0,
+      "typeNotFull": 0,
+      "schemaDynamic": 0,
+      "codeDynamic": 0,
+      "codeNil": 0,
+      "unresolved": 0,
+      "declaredOptional": 0,
+      "deprecatedCalls": 0,
+      "unsafeCoerce": 1
+    },
+    "js-ffi.node/env-or": {
+      "typeNone": 0,
+      "typeNotFull": 0,
+      "schemaDynamic": 0,
+      "codeDynamic": 0,
+      "codeNil": 0,
+      "unresolved": 0,
+      "declaredOptional": 0,
+      "deprecatedCalls": 0,
+      "unsafeCoerce": 1
+    },
+    "js-ffi.shared/console-error!": {
+      "typeNone": 0,
+      "typeNotFull": 0,
+      "schemaDynamic": 0,
+      "codeDynamic": 0,
+      "codeNil": 0,
+      "unresolved": 0,
+      "declaredOptional": 0,
+      "deprecatedCalls": 0,
+      "unsafeCoerce": 1
+    },
+    "js-ffi.shared/console-log!": {
+      "typeNone": 0,
+      "typeNotFull": 0,
+      "schemaDynamic": 0,
+      "codeDynamic": 0,
+      "codeNil": 0,
+      "unresolved": 0,
+      "declaredOptional": 0,
+      "deprecatedCalls": 0,
+      "unsafeCoerce": 1
+    },
+    "js-ffi.shared/console-warn!": {
+      "typeNone": 0,
+      "typeNotFull": 0,
+      "schemaDynamic": 0,
+      "codeDynamic": 0,
+      "codeNil": 0,
+      "unresolved": 0,
+      "declaredOptional": 0,
+      "deprecatedCalls": 0,
+      "unsafeCoerce": 1
+    },
+    "js-ffi.shared/date-now-snapshot": {
+      "typeNone": 0,
+      "typeNotFull": 0,
+      "schemaDynamic": 0,
+      "codeDynamic": 0,
+      "codeNil": 0,
+      "unresolved": 0,
+      "declaredOptional": 0,
+      "deprecatedCalls": 0,
+      "unsafeCoerce": 1
+    }
+  }
 }

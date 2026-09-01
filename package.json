@@ -4,13 +4,15 @@
   "version": "0.1.10",
   "packageManager": "yarn@4.12.0",
   "dependencies": {
-    "@calcit/procs": "0.13.64"
+    "@calcit/procs": "0.13.72"
   },
   "devDependencies": {
     "vite": "^8.0.12"
   },
   "scripts": {
     "check": "calcit calcit.cirru --check-only",
+    "check:quality": "calcit calcit.cirru analyze quality --baseline config/calcit-quality.json --format json",
+    "audit:unsafe": "calcit calcit.cirru analyze weak-types --only unsafe-coerce --intent explicit-unsafe --format json",
     "check:node": "calcit --entry node calcit.cirru --check-only",
     "check:browser": "calcit --entry browser calcit.cirru --check-only",
     "compile:node": "calcit --entry node calcit.cirru js",

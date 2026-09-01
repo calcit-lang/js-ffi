@@ -288,6 +288,7 @@
           :schema $ :: 'Fn
             {} (:return 'js-ffi.browser/DomElementHost)
               :args $ [] 'js-ffi.browser/DomElementHost 'js-ffi.browser/DomElementHost
+              :features $ #{} :js-ffi
         'console-error! $ %{} 'CodeEntry (:doc "|Compatibility wrapper for shared/console-error!. It accepts one String and returns Unit.")
           :code $ quote
             defn console-error! (message) (shared/console-error! message)
@@ -381,6 +382,7 @@
           :schema $ :: 'Fn
             {} (:return 'JsObject)
               :args $ [] 'js-ffi.browser/DomElementHost
+              :features $ #{} :js-ffi
         'element-snapshot $ %{} 'CodeEntry (:doc "|Copy a typed DOM element into ElementSnapshot, converting nullish textContent to Option<String>.")
           :code $ quote
             defn element-snapshot (element)
@@ -400,6 +402,7 @@
           :schema $ :: 'Fn
             {} (:return 'JsObject)
               :args $ [] 'js-ffi.browser/DomElementHost
+              :features $ #{} :js-ffi
         'local-storage-available? $ %{} 'CodeEntry (:doc "|Return whether localStorage is available. Browsers may deny storage in privacy or sandboxed modes, so callers should branch on this Boolean. Example: (local-storage-available?) => true")
           :code $ quote
             defn local-storage-available? () $ exists? js/localStorage
