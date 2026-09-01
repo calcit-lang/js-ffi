@@ -1,10 +1,10 @@
 {
   "name": "@calcit/js-ffi",
   "private": true,
-  "version": "0.1.10",
+  "version": "0.1.11",
   "packageManager": "yarn@4.12.0",
   "dependencies": {
-    "@calcit/procs": "0.13.72"
+    "@calcit/procs": "0.13.73"
   },
   "devDependencies": {
     "vite": "^8.0.12"
