@@ -48,6 +48,17 @@ def current-directory $ fn ()
 
 Use `contract/expect-string`, `expect-number`, `expect-bool`, `expect-object`, `expect-function`, and `object-field` when adding a new adapter. A failed contract reports `JS FFI contract violation` at the boundary instead of allowing an incorrectly typed value into business code.
 
+Keep `JsNullish<T>` on external trait members whose JavaScript contract permits
+`null` or `undefined`. Normalize it immediately with `js-nullish->option`, or
+decode it through an `expect-*` guard when absence is itself a contract error.
+Do not translate a host nullish value into Calcit `nil`, and do not let opaque
+`JsObject` values flow into application state.
+
+Any function containing a host operation or `unsafe-coerce` must declare
+`:features $ #{} :js-ffi`. The quality baseline records every reviewed
+assertion per definition, while runtime contract tests cover both accepted and
+rejected host shapes.
+
 ## Realtime application placement
 
 Browser event listeners, timers, storage, and network callbacks are asynchronous inputs. Decode them into typed operations or messages, dispatch them through the application's bounded event path, and let the serial updater own state transitions. Keep listener identity so teardown can remove the exact callback that was registered.

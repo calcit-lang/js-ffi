@@ -165,10 +165,12 @@ contracts. Calcit is installed from `deps.cirru` with
 [`calcit-lang/setup-calcit@v1`](https://github.com/calcit-lang/setup-calcit).
 The static gate does not replace the host smoke tests below.
 
-The checked-in v1 baseline preserves this package's zero budgets for the
-published Calcit 0.13.28 protocol. Once the next Calcit release contains the
-versioned `unsafeCoerce` quality metric, regenerate this file as a reviewed v2
-baseline to ratchet the existing adapter inventory per definition.
+The checked-in v2 baseline keeps Dynamic, nil, unresolved types, and incomplete
+schemas at zero. It also records the 30 reviewed `unsafe-coerce` sites per
+definition. These assertions are expected only inside small host adapters; a
+new assertion or moving one into another definition fails the quality gate and
+requires an explicit review. Run `yarn audit:unsafe` to inspect their runtime
+contract evidence.
 
 The commands assume `cr` and Yarn are available on `PATH`:
 
@@ -176,7 +178,8 @@ The commands assume `cr` and Yarn are available on `PATH`:
 yarn install
 caps --ci
 cr calcit.cirru --check-only
-cr calcit.cirru analyze quality --baseline config/calcit-quality.json --format json
+yarn check:quality
+yarn audit:unsafe
 yarn check:node
 yarn check:browser
 yarn run:node
@@ -197,6 +200,11 @@ printed local URL and inspect the browser console for the runtime probe. The
 browser probe checks `document` and performs a localStorage round trip.
 
 `yarn format` applies Calcit's canonical formatting to `calcit.cirru`.
+
+Every function that performs a host operation or `unsafe-coerce` declares
+`:features $ #{} :js-ffi`. `JsNullish<T>` stays at the host trait boundary and
+is normalized with `js-nullish->option` or a checked `contract/expect-*`
+decoder before ordinary application code sees a concrete value.
 
 ## Design RFC
 
