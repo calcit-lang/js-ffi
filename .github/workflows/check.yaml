@@ -34,7 +34,7 @@ jobs:
           calcit calcit.cirru edit format
           git diff --exit-code -- calcit.cirru
           calcit calcit.cirru --check-only
-          calcit calcit.cirru analyze quality --baseline config/calcit-quality.json --format json
+          calcit calcit.cirru analyze quality --baseline config/calcit-quality.cirru --format json
 
       - name: Check Node entry
         run: yarn check:node

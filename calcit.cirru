@@ -44,6 +44,18 @@
           :examples $ []
             quote $ %:: DocumentReadyState :complete
           :schema $ :: 'Enum
+        'DomChildrenHost $ %{} 'CodeEntry (:doc "|External DOM children collection with typed length and nullable indexed element lookup.")
+          :code $ quote
+            deftrait DomChildrenHost (:length 'Number)
+              .item $ :: 'Fn
+                {}
+                  :args $ [] 'js-ffi.browser/DomChildrenHost 'Number
+                  :return $ :: 'JsNullish 'js-ffi.browser/DomElementHost
+          :examples $ []
+          :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
+            :names $ {}
+          :schema $ :: 'Trait
+          :tags $ #{} :ffi :js-host
         'DomElementHost $ %{} 'CodeEntry (:doc "|External DOM Element capability with stable fields, selector methods, attributes, and focus effects.")
           :code $ quote
             deftrait DomElementHost (:id 'String) (:class-name 'String)
@@ -84,6 +96,9 @@
                 {}
                   :args $ [] 'js-ffi.browser/DomElementHost
                   :return 'Unit
+              :children 'js-ffi.browser/DomChildrenHost
+              :inner-html 'String
+              :local-name 'String
           :examples $ [] (quote DomElementHost)
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
             :names $ {}
@@ -289,6 +304,16 @@
             {} (:return 'js-ffi.browser/DomElementHost)
               :args $ [] 'js-ffi.browser/DomElementHost 'js-ffi.browser/DomElementHost
               :features $ #{} :js-ffi
+        'child-element-at $ %{} 'CodeEntry (:doc "|Return the indexed child element as Option, normalizing the host nullish result.")
+          :code $ quote
+            defn child-element-at (children idx)
+              js-nullish->option $ children .item idx
+          :examples $ []
+          :schema $ :: 'Fn
+            {}
+              :args $ [] 'js-ffi.browser/DomChildrenHost 'Number
+              :features $ #{} :js-ffi
+              :return $ :: 'Option 'js-ffi.browser/DomElementHost
         'console-error! $ %{} 'CodeEntry (:doc "|Compatibility wrapper for shared/console-error!. It accepts one String and returns Unit.")
           :code $ quote
             defn console-error! (message) (shared/console-error! message)
@@ -373,6 +398,14 @@
           :schema $ :: 'Fn
             {} (:return 'String)
               :args $ []
+              :features $ #{} :js-ffi
+        'dom-element-host $ %{} 'CodeEntry (:doc "|Attach the audited DomElementHost contract to a raw browser Element at the adapter boundary.")
+          :code $ quote
+            defn dom-element-host (element) (unsafe-coerce element 'DomElementHost)
+          :examples $ []
+          :schema $ :: 'Fn
+            {} (:return 'js-ffi.browser/DomElementHost)
+              :args $ [] 'JsObject
               :features $ #{} :js-ffi
         'element-dataset $ %{} 'CodeEntry (:doc "|Returns the DOM element dataset object through the browser host contract. Use with js-set/js-delete for data-* attributes.")
           :code $ quote
