@@ -101,7 +101,7 @@
               :local-name 'String
           :examples $ [] (quote DomElementHost)
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
-            :names $ {}
+            :names $ {} (:inner-html |innerHTML)
           :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
         'DomInputHost $ %{} 'CodeEntry (:doc "|External HTML input capability. Mutable fields are declared in FFI metadata, not in the core trait type.")
@@ -399,7 +399,7 @@
             {} (:return 'String)
               :args $ []
               :features $ #{} :js-ffi
-        'dom-element-host $ %{} 'CodeEntry (:doc "|Attach the audited DomElementHost contract to a raw browser Element at the adapter boundary.")
+        'dom-element-host $ %{} 'CodeEntry (:doc "|Attach the declared static DomElementHost contract to a raw browser Element without runtime validation.")
           :code $ quote
             defn dom-element-host (element) (unsafe-coerce element 'DomElementHost)
           :examples $ []
