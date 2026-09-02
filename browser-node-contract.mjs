@@ -1,6 +1,14 @@
 import assert from "node:assert/strict";
 
-import { document_available_$q_ } from "./js-out/js-ffi.browser.mjs";
+import {
+  child_element_at,
+  document_available_$q_,
+} from "./js-out/js-ffi.browser.mjs";
+import {
+  option_$o_none_$q_,
+  option_$o_some_$q_,
+  option_$o_unwrap,
+} from "./js-out/calcit.core.mjs";
 
 const originalDocument = Object.getOwnPropertyDescriptor(globalThis, "document");
 
@@ -14,6 +22,18 @@ try {
     value: {},
   });
   assert.equal(document_available_$q_(), true);
+
+  const child = { localName: "span" };
+  const children = {
+    length: 1,
+    item(index) {
+      return index === 0 ? child : null;
+    },
+  };
+  const found = child_element_at(children, 0);
+  assert.equal(option_$o_some_$q_(found), true);
+  assert.equal(option_$o_unwrap(found), child);
+  assert.equal(option_$o_none_$q_(child_element_at(children, 1)), true);
 } finally {
   if (originalDocument === undefined) {
     Reflect.deleteProperty(globalThis, "document");

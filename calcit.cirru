@@ -44,6 +44,18 @@
           :examples $ []
             quote $ %:: DocumentReadyState :complete
           :schema $ :: 'Enum
+        'DomChildrenHost $ %{} 'CodeEntry (:doc "|External DOM children collection with typed length and nullable indexed element lookup.")
+          :code $ quote
+            deftrait DomChildrenHost (:length 'Number)
+              .item $ :: 'Fn
+                {}
+                  :args $ [] 'js-ffi.browser/DomChildrenHost 'Number
+                  :return $ :: 'JsNullish 'js-ffi.browser/DomElementHost
+          :examples $ []
+          :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
+            :names $ {}
+          :schema $ :: 'Trait
+          :tags $ #{} :ffi :js-host
         'DomElementHost $ %{} 'CodeEntry (:doc "|External DOM Element capability with stable fields, selector methods, attributes, and focus effects.")
           :code $ quote
             deftrait DomElementHost (:id 'String) (:class-name 'String)
@@ -84,9 +96,12 @@
                 {}
                   :args $ [] 'js-ffi.browser/DomElementHost
                   :return 'Unit
+              :children 'js-ffi.browser/DomChildrenHost
+              :inner-html 'String
+              :local-name 'String
           :examples $ [] (quote DomElementHost)
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
-            :names $ {}
+            :names $ {} (:inner-html |innerHTML)
           :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
         'DomInputHost $ %{} 'CodeEntry (:doc "|External HTML input capability. Mutable fields are declared in FFI metadata, not in the core trait type.")
@@ -289,6 +304,16 @@
             {} (:return 'js-ffi.browser/DomElementHost)
               :args $ [] 'js-ffi.browser/DomElementHost 'js-ffi.browser/DomElementHost
               :features $ #{} :js-ffi
+        'child-element-at $ %{} 'CodeEntry (:doc "|Return the indexed child element as Option, normalizing the host nullish result.")
+          :code $ quote
+            defn child-element-at (children idx)
+              js-nullish->option $ children .item idx
+          :examples $ []
+          :schema $ :: 'Fn
+            {}
+              :args $ [] 'js-ffi.browser/DomChildrenHost 'Number
+              :features $ #{} :js-ffi
+              :return $ :: 'Option 'js-ffi.browser/DomElementHost
         'console-error! $ %{} 'CodeEntry (:doc "|Compatibility wrapper for shared/console-error!. It accepts one String and returns Unit.")
           :code $ quote
             defn console-error! (message) (shared/console-error! message)
