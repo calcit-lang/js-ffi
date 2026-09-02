@@ -3,7 +3,6 @@ import assert from "node:assert/strict";
 import {
   child_element_at,
   document_available_$q_,
-  dom_element_host,
 } from "./js-out/js-ffi.browser.mjs";
 import {
   option_$o_none_$q_,
@@ -31,14 +30,6 @@ try {
       return index === 0 ? child : null;
     },
   };
-  const element = {
-    children,
-    childElementCount: 1,
-    innerHTML: "<span></span>",
-    localName: "div",
-  };
-
-  assert.equal(dom_element_host(element), element);
   const found = child_element_at(children, 0);
   assert.equal(option_$o_some_$q_(found), true);
   assert.equal(option_$o_unwrap(found), child);

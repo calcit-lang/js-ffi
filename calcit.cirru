@@ -399,14 +399,6 @@
             {} (:return 'String)
               :args $ []
               :features $ #{} :js-ffi
-        'dom-element-host $ %{} 'CodeEntry (:doc "|Attach the declared static DomElementHost contract to a raw browser Element without runtime validation.")
-          :code $ quote
-            defn dom-element-host (element) (unsafe-coerce element 'DomElementHost)
-          :examples $ []
-          :schema $ :: 'Fn
-            {} (:return 'js-ffi.browser/DomElementHost)
-              :args $ [] 'JsObject
-              :features $ #{} :js-ffi
         'element-dataset $ %{} 'CodeEntry (:doc "|Returns the DOM element dataset object through the browser host contract. Use with js-set/js-delete for data-* attributes.")
           :code $ quote
             defn element-dataset (element)
