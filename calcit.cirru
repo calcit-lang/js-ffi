@@ -781,7 +781,7 @@
           :examples $ []
             quote $ &%{} NodeProbe :runtime (%:: shared/Runtime :node) :cwd |/tmp :argv-count 2
           :schema $ :: 'Enum
-        'ProcessArgvHost $ %{} 'CodeEntry (:doc "|External process.argv capability exposing only the typed length needed by argv-count.")
+        'ProcessArgvHost $ %{} 'CodeEntry (:doc "|External process.argv capability exposing only an opaque/nullish length that argv-count validates at runtime.")
           :code $ quote
             deftrait ProcessArgvHost $ :length (:: 'JsNullish 'JsObject)
           :examples $ [] (quote ProcessArgvHost)
