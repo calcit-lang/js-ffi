@@ -135,6 +135,11 @@ Host identity can be retained only when needed through contracts such as
 small member sets and JavaScript name mappings; they do not introduce a second
 trait solver or TypeScript-style structural types.
 
+The Node adapter applies the same rule to `process.argv`: `ProcessArgvHost`
+exposes only its opaque/nullish `length`, so `node/argv-count` can read a declared
+member and then validate it with `contract/expect-number` instead of performing
+a literal access on a bare `JsObject` or trusting an unchecked numeric value.
+
 Every public adapter in `calcit.cirru` has a schema and a runtime feature marker
 where its own body crosses the JavaScript boundary. Inline Calcit examples are
 kept for target-independent helpers; examples that require a live browser or

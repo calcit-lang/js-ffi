@@ -781,10 +781,18 @@
           :examples $ []
             quote $ &%{} NodeProbe :runtime (%:: shared/Runtime :node) :cwd |/tmp :argv-count 2
           :schema $ :: 'Enum
+        'ProcessArgvHost $ %{} 'CodeEntry (:doc "|External process.argv capability exposing only an opaque/nullish length that argv-count validates at runtime.")
+          :code $ quote
+            deftrait ProcessArgvHost $ :length (:: 'JsNullish 'JsObject)
+          :examples $ [] (quote ProcessArgvHost)
+          :ffi $ {} (:backend :js) (:kind :external-object) (:target :node)
+            :names $ {}
+          :schema $ :: 'Trait
+          :tags $ #{} :ffi :js-host
         'argv-count $ %{} 'CodeEntry (:doc "|Return process.argv.length as Number. This deliberately narrows the host array at the boundary. Example: (argv-count) => 3")
           :code $ quote
             defn argv-count () $ let
-                argv $ unsafe-coerce js/process.argv JsObject
+                argv $ unsafe-coerce js/process.argv ProcessArgvHost
               contract/expect-number |process.argv.length $ .-length argv
           :examples $ [] (quote "(argv-count)")
           :ffi $ {} (:backend :js) (:target :node)
