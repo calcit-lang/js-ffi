@@ -65,6 +65,11 @@ Browser event listeners, timers, storage, and network callbacks are asynchronous
 
 On the Node side, treat process and filesystem access as system capabilities. Convert failures and nullable results before they cross into persistent state or protocol messages. JavaScript callbacks are not durable state and must not bypass revision, acknowledgement, or resynchronization rules.
 
+Even small built-in objects should expose a named capability when a literal
+member is used. For example, `ProcessArgvHost` declares only an opaque/nullish
+`:length`; `node/argv-count` coerces `process.argv` to that trait inside its
+adapter, reads the declared member, and validates it with `expect-number`.
+
 ## Validation layers
 
 Static schemas prove the Calcit-facing API. Node and browser smoke tests prove that real host objects still satisfy the declared contracts. Run both: a concrete return schema cannot by itself prove the runtime shape of a JavaScript global.
