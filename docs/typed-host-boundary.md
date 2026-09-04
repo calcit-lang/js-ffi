@@ -68,7 +68,7 @@ On the Node side, treat process and filesystem access as system capabilities. Co
 Even small built-in objects should expose a named capability when a literal
 member is used. For example, `ProcessArgvHost` declares only an opaque/nullish
 `:length`; `node/argv-count` coerces `process.argv` to that trait inside its
-adapter, reads the declared member, and validates it with `expect-number`.
+adapter, reads the declared member, and validates it with `contract/expect-number`.
 
 ## Validation layers
 

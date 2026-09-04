@@ -136,7 +136,7 @@ small member sets and JavaScript name mappings; they do not introduce a second
 trait solver or TypeScript-style structural types.
 
 The Node adapter applies the same rule to `process.argv`: `ProcessArgvHost`
-exposes only its opaque/nullish `length`, so `argv-count` can read a declared
+exposes only its opaque/nullish `length`, so `node/argv-count` can read a declared
 member and then validate it with `contract/expect-number` instead of performing
 a literal access on a bare `JsObject` or trusting an unchecked numeric value.
 
