@@ -1,1 +1,4 @@
 config/calcit-quality.cirru text -diff linguist-generated
+docs/api.json linguist-generated
+docs/api.md linguist-generated
+docs/recipes.md linguist-generated

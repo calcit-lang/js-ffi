@@ -1,3 +1,5 @@
+import { query_string } from '../js-out/js-ffi.query-example.mjs';
+import { listen } from '../js-out/js-ffi.listen-example.mjs';
 import * as browser from '../js-out/js-ffi.browser.mjs';
 import { option_$o_none_$q_ as isNone, option_$o_unwrap as unwrap } from '../js-out/calcit.core.mjs';
 import { assertions, testShared } from './shared.mjs';
@@ -6,6 +8,14 @@ import { assertions, testShared } from './shared.mjs';
 export async function run() {
   const a = assertions();
   await testShared(a);
+  a.equal(query_string('中文 +&'), 'page=1&q=%E4%B8%AD%E6%96%87+%2B%26');
+  let recipeEvents = 0;
+  const cleanup = listen('js-ffi-recipe', () => { recipeEvents++; });
+  try { window.dispatchEvent(new Event('js-ffi-recipe')); }
+  finally { a.equal(cleanup(), undefined); }
+  window.dispatchEvent(new Event('js-ffi-recipe'));
+  a.equal(recipeEvents, 1);
+  a.equal(cleanup(), undefined);
   a.equal(browser.document_available_$q_(), true);
   const parent = browser.create_element('section');
   const input = browser.create_element('input');

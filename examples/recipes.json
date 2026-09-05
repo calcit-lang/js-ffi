@@ -1,0 +1,35 @@
+[
+  {
+    "name": "query-string",
+    "namespace": "js-ffi.query-example",
+    "title": "Encode a search query without manual URL escaping",
+    "runtimes": ["browser", "node"],
+    "source": "examples/query-string.cirru",
+    "imports": ["js-ffi.shared :as shared"],
+    "schema": ":: 'Fn $ {} (:args $ [] 'String) (:return 'String)",
+    "apis": ["js-ffi.shared/search-params-create", "js-ffi.shared/search-params-set!", "js-ffi.shared/search-params-string"],
+    "validation": "tests/recipes.mjs"
+  },
+  {
+    "name": "text-file",
+    "namespace": "js-ffi.file-example",
+    "title": "Write and read a UTF-8 file in a caller-owned directory",
+    "runtimes": ["node"],
+    "source": "examples/text-file.cirru",
+    "imports": ["js-ffi.node :as node"],
+    "schema": ":: 'Fn $ {} (:args $ [] 'String 'String) (:return 'String)",
+    "apis": ["js-ffi.node/path-join", "js-ffi.node/write-text!", "js-ffi.node/read-text!"],
+    "validation": "tests/recipes.mjs"
+  },
+  {
+    "name": "listen",
+    "namespace": "js-ffi.listen-example",
+    "title": "Register a browser event listener and return its cleanup function",
+    "runtimes": ["browser"],
+    "source": "examples/listen.cirru",
+    "imports": ["js-ffi.browser :as browser"],
+    "schema": ":: 'Fn $ {} (:args $ [] 'String (:: 'Fn ({} (:args $ [] 'js-ffi.browser/EventHost) (:return 'Unit)))) (:return $ :: 'Fn $ {} (:args $ []) (:return 'Unit))",
+    "apis": ["js-ffi.browser/add-event-listener!", "js-ffi.browser/remove-event-listener!"],
+    "validation": "tests/browser.mjs"
+  }
+]
