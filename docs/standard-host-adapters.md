@@ -105,8 +105,9 @@ identity, and the tests exercise the consumed members in both environments.
 The baseline allows one assertion in each constructor and preserves every
 zero-tolerance metric.
 
-`check-api!` in both test namespaces makes every new adapter reachable during
-entry preprocessing without running filesystem or browser effects. Runtime
+`yarn check:api` automatically discovers all public definitions and makes them
+reachable in temporary check snapshots without running filesystem or browser
+effects. No per-function reference list is maintained by hand. Runtime
 tests call the compiled adapters and check native effects, nullish lookup,
 Unicode, exception propagation, callback identity and cancellation. Negative
 consumer fixtures ensure four invalid calls fail type checking.

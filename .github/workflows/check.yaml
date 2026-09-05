@@ -41,6 +41,12 @@ jobs:
           calcit calcit.cirru analyze quality --baseline config/calcit-quality.cirru --format json
           yarn audit:unsafe
 
+      - name: Verify public API catalog and all definitions
+        run: |
+          yarn api:check
+          yarn check:api
+          yarn test:tooling
+
       - name: Check Node entry
         run: yarn check:node
 
@@ -60,7 +66,7 @@ jobs:
         run: node node-contract.mjs
 
       - name: Run extended Node and shared API tests
-        run: node --test tests/node.mjs
+        run: node --test tests/node.mjs tests/recipes.mjs
 
       - name: Install Chromium
         run: yarn playwright install --with-deps chromium

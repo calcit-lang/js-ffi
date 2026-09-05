@@ -253,7 +253,7 @@
           :examples $ []
             quote $ %:: VisibilityState :visible
           :schema $ :: 'Enum
-        'WindowHost $ %{} 'CodeEntry (:doc "||External browser Window capability restricted to stable viewport fields, matchMedia, and typed global event listeners.")
+        'WindowHost $ %{} 'CodeEntry (:doc "|External browser Window capability restricted to stable viewport fields, matchMedia, and typed global event listeners.")
           :code $ quote
             deftrait WindowHost (:inner-width 'Number) (:inner-height 'Number) (:device-pixel-ratio 'Number)
               .match-media $ :: 'Fn
@@ -769,32 +769,24 @@
           ns js-ffi.browser $ :require (js-ffi.shared :as shared) (js-ffi.contract :as contract)
     'js-ffi.browser-test $ %{} 'FileEntry
       :defs $ {}
-        'check-api! $ %{} 'CodeEntry (:doc "|Keep all added adapters reachable for entry preprocessing without executing host effects.")
-          :code $ quote
-            defn check-api! () $ do shared/url-create shared/search-params-create shared/headers-create shared/abort-controller-create shared/search-params-get shared/search-params-has? shared/search-params-set! shared/search-params-delete! shared/headers-get shared/headers-has? shared/headers-set! shared/headers-delete! shared/search-params-string shared/search-params-size shared/headers-append! shared/abort-signal shared/abort! shared/aborted? shared/encode-uri-component shared/decode-uri-component shared/now-ms shared/performance-now browser/element-get-attribute browser/element-set-attribute! browser/element-remove-attribute! browser/element-matches? browser/element-query-selector browser/element-focus! browser/element-blur! browser/clear-timeout! browser/clear-interval! browser/cancel-animation-frame! browser/request-animation-frame! &unit
-          :examples $ []
-          :schema $ :: 'Fn
-            {} (:return 'Unit)
-              :args $ []
         'main! $ %{} 'CodeEntry (:doc "|Run the typed browser smoke probe and verify its Runtime enum.")
           :code $ quote
-            defn main! () (check-api!)
-              let
-                  result $ browser/probe
-                  element $ browser/create-element |div
-                  on-resize $ fn (event) &unit
-                assert-type result js-ffi.browser/BrowserProbe
-                assert-type element js-ffi.browser/DomElementHost
-                browser/add-event-listener! |resize on-resize
-                browser/remove-event-listener! |resize on-resize
-                browser/set-before-unload! $ fn (event) &unit
-                shared/queue-microtask! $ fn () (shared/console-log! |js-ffi-browser-microtask-passed)
-                shared/console-log! |js-ffi-browser-smoke
-                if
-                  contract/valid-runtime? (%:: shared/Runtime :browser) (:runtime result)
-                  shared/console-log! |js-ffi-browser-smoke-passed
-                  shared/console-error! |js-ffi-browser-smoke-failed
-                , &unit
+            defn main! () $ let
+                result $ browser/probe
+                element $ browser/create-element |div
+                on-resize $ fn (event) &unit
+              assert-type result js-ffi.browser/BrowserProbe
+              assert-type element js-ffi.browser/DomElementHost
+              browser/add-event-listener! |resize on-resize
+              browser/remove-event-listener! |resize on-resize
+              browser/set-before-unload! $ fn (event) &unit
+              shared/queue-microtask! $ fn () (shared/console-log! |js-ffi-browser-microtask-passed)
+              shared/console-log! |js-ffi-browser-smoke
+              if
+                contract/valid-runtime? (%:: shared/Runtime :browser) (:runtime result)
+                shared/console-log! |js-ffi-browser-smoke-passed
+                shared/console-error! |js-ffi-browser-smoke-failed
+              , &unit
           :examples $ []
             quote $ main!
           :schema $ :: 'Fn
@@ -1207,25 +1199,17 @@
           ns js-ffi.node $ :require (|node:fs :as fs) (|node:path :as path) (js-ffi.contract :as contract) (js-ffi.shared :as shared)
     'js-ffi.node-test $ %{} 'FileEntry
       :defs $ {}
-        'check-api! $ %{} 'CodeEntry (:doc "|Keep all added adapters reachable for entry preprocessing without executing host effects.")
-          :code $ quote
-            defn check-api! () $ do shared/url-create shared/search-params-create shared/headers-create shared/abort-controller-create shared/search-params-get shared/search-params-has? shared/search-params-set! shared/search-params-delete! shared/headers-get shared/headers-has? shared/headers-set! shared/headers-delete! shared/search-params-string shared/search-params-size shared/headers-append! shared/abort-signal shared/abort! shared/aborted? shared/encode-uri-component shared/decode-uri-component shared/now-ms shared/performance-now node/path-basename node/path-dirname node/path-extname node/path-normalize node/path-resolve node/path-relative node/path-absolute? node/read-text! node/write-text! node/append-text! node/copy-file! node/rename! node/unlink! node/mkdir! node/rmdir! node/make-temp-dir! node/real-path! node/pid node/platform node/node-version node/uptime &unit
-          :examples $ []
-          :schema $ :: 'Fn
-            {} (:return 'Unit)
-              :args $ []
         'main! $ %{} 'CodeEntry (:doc "|Run the typed Node smoke probe and verify its Runtime enum.")
           :code $ quote
-            defn main! () (check-api!)
-              let
-                  result $ node/probe
-                assert-type result js-ffi.node/NodeProbe
-                shared/console-log! |js-ffi-node-smoke
-                if
-                  contract/valid-runtime? (%:: shared/Runtime :node) (:runtime result)
-                  shared/console-log! |js-ffi-node-smoke-passed
-                  do (shared/console-error! |js-ffi-node-smoke-failed) (node/exit! 1)
-                , &unit
+            defn main! () $ let
+                result $ node/probe
+              assert-type result js-ffi.node/NodeProbe
+              shared/console-log! |js-ffi-node-smoke
+              if
+                contract/valid-runtime? (%:: shared/Runtime :node) (:runtime result)
+                shared/console-log! |js-ffi-node-smoke-passed
+                do (shared/console-error! |js-ffi-node-smoke-failed) (node/exit! 1)
+              , &unit
           :examples $ []
             quote $ main!
           :schema $ :: 'Fn

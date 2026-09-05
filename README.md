@@ -37,6 +37,19 @@ See [Standard host adapters](docs/standard-host-adapters.md) for 54 additional
 URL, query string, headers, cancellation, DOM, timer, process, path and UTF-8
 filesystem adapters with signatures and exception semantics.
 
+## Find APIs and runnable examples
+
+- `yarn api:generate` builds the complete API catalog in `.calcit/api/`
+  (`api.md` and `api.json`); these reproducible files are not committed.
+- [Executable Calcit recipes](docs/recipes.md) demonstrate URL query encoding,
+  UTF-8 file access, and browser event cleanup.
+- Search by runtime with `yarn api:search storage browser`.
+- `yarn check:api` preprocesses every public definition; `yarn api:check`
+  validates catalog generation and checks the committed recipe guide for drift.
+
+See [API tooling](docs/api-tooling.md) for the editing workflow and upstream
+Calcit requests. After API changes, run `yarn api:generate` before `yarn test`.
+
 ## API examples
 
 Node.js code can use typed helpers without touching raw JavaScript globals:
