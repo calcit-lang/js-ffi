@@ -14,7 +14,7 @@ try {
   page.on('console', message => {
     if (message.type() === 'error') errors.push(message.text());
   });
-  await page.goto(server.resolvedUrls.local[0], { waitUntil: 'networkidle', timeout: 30000 });
+  await page.goto(server.resolvedUrls.local[0], { waitUntil: 'load', timeout: 30000 });
   const result = await Promise.race([
     page.evaluate(async () => (await import('/tests/browser.mjs')).run()),
     new Promise((_, reject) => {

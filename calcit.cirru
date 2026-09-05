@@ -1006,7 +1006,7 @@
               :features $ #{} :js-ffi
         'node-version $ %{} 'CodeEntry (:doc "|Read and validate Node process metadata.")
           :code $ quote
-            defn node-version () $ contract/expect-string |process.node-version js/process.version
+            defn node-version () $ contract/expect-string |process.version js/process.version
           :examples $ []
           :ffi $ {} (:backend :js) (:target :node)
           :schema $ :: 'Fn

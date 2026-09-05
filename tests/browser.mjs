@@ -2,6 +2,7 @@ import * as browser from '../js-out/js-ffi.browser.mjs';
 import { option_$o_none_$q_ as isNone, option_$o_unwrap as unwrap } from '../js-out/calcit.core.mjs';
 import { assertions, testShared } from './shared.mjs';
 
+/** Exercise shared and browser adapters in a real page and return the test summary. */
 export async function run() {
   const a = assertions();
   await testShared(a);

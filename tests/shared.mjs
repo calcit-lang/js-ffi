@@ -1,6 +1,7 @@
 import * as shared from '../js-out/js-ffi.shared.mjs';
 import { option_$o_none_$q_ as isNone, option_$o_unwrap as unwrap } from '../js-out/calcit.core.mjs';
 
+/** Create browser-compatible equality/exception assertions with a running count. */
 export function assertions() {
   let count = 0;
   return {
@@ -20,6 +21,7 @@ export function assertions() {
   };
 }
 
+/** Verify compiled shared adapters against native Web APIs in either runtime. */
 export async function testShared(a) {
   const url = shared.url_create('../路径?q=a%20b#part', 'https://example.com/base/index');
   a.equal(url.href, 'https://example.com/%E8%B7%AF%E5%BE%84?q=a%20b#part');

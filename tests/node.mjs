@@ -18,9 +18,9 @@ test('Node paths, process, UTF-8 files and error boundaries', () => {
   a.equal(node.path_dirname('/work/file.txt'), '/work');
   a.equal(node.path_extname('archive.tar.gz'), '.gz');
   a.equal(node.path_extname('.env'), '');
-  a.equal(node.path_normalize('/work/../data/./x'), '/data/x');
-  a.equal(node.path_resolve('/work', '../data'), '/data');
-  a.equal(node.path_relative('/work', '/work/data/file'), 'data/file');
+  a.equal(node.path_normalize('/work/../data/./x'), path.normalize('/work/../data/./x'));
+  a.equal(node.path_resolve('/work', '../data'), path.resolve('/work', '../data'));
+  a.equal(node.path_relative('/work', '/work/data/file'), path.relative('/work', '/work/data/file'));
   a.equal(node.path_absolute_$q_('/work'), true);
   a.equal(node.path_absolute_$q_('work'), false);
   a.equal(node.pid(), process.pid);
@@ -62,4 +62,15 @@ test('Node paths, process, UTF-8 files and error boundaries', () => {
     syncBuiltinESMExports();
   }
   console.log(`Node: ${a.count} assertions`);
+});
+
+test('node-version reports the actual host member on invalid data', () => {
+  const a = assertions();
+  const descriptor = Object.getOwnPropertyDescriptor(process, 'version');
+  try {
+    Object.defineProperty(process, 'version', { ...descriptor, value: 42 });
+    a.throws(() => node.node_version(), /JS FFI contract violation: process\.version expected String, got number/);
+  } finally {
+    Object.defineProperty(process, 'version', descriptor);
+  }
 });
