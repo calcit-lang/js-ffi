@@ -14,27 +14,30 @@ jobs:
   check:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.4.0
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v6.5.0
         with:
           node-version: 24
 
       - name: Enable Yarn
         run: corepack enable && corepack prepare yarn@4.12.0 --activate
 
-      - uses: calcit-lang/setup-calcit@v1
+      - uses: calcit-lang/setup-calcit@v1.4.0
 
       - name: Install dependencies
-        run: yarn install --immutable
+        run: |
+          caps --strict --ci
+          yarn install --immutable
+          caps verify --toolchain
 
       - name: Validate Calcit snapshot and types
         run: |
-          caps --ci
           calcit calcit.cirru edit format
           git diff --exit-code -- calcit.cirru
           calcit calcit.cirru --check-only
           calcit calcit.cirru analyze quality --baseline config/calcit-quality.cirru --format json
+          yarn audit:unsafe
 
       - name: Check Node entry
         run: yarn check:node
