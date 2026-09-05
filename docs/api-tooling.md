@@ -12,8 +12,10 @@ aliases:
 
 # Discover and validate the public API
 
-Start with [the API catalog](api.md), [machine-readable records](api.json), or
-[executable recipes](recipes.md). The catalog includes every definition in the
+Start with [executable recipes](recipes.md) or `yarn api:search`. Run
+`yarn api:generate` to build `.calcit/api/api.md` and `.calcit/api/api.json`
+locally. These full catalogs are reproducible caches, excluded by the existing
+`.calcit/` ignore rule. The catalog includes every definition in the
 four public namespaces: browser, node, shared and contract. Test namespaces are
 excluded. New definitions in those namespaces are discovered automatically;
 adding a new public namespace requires an explicit update to `publicNamespaces`
@@ -26,7 +28,9 @@ and its runtime policy in `scripts/api-lib.mjs`.
    full Calcit schema, documentation, runtime policy, host metadata and any
    associated recipes. Use `node scripts/api-catalog.mjs search storage browser`
    when a caller requires stdout to contain only JSON without package-manager
-   output. Search reads the committed catalog and does not invoke Calcit.
+   output. Search builds a missing or stale cache automatically using local
+   Calcit, then reuses it while the source fingerprint matches. A warm cache
+   requires no Calcit invocation and no network access.
 2. Inspect an exact definition using the record's `inspect` command, or use
    `calcit query context js-ffi.browser/storage-get --format json` for semantic
    context. Read exception behavior before using a host effect.
@@ -35,8 +39,11 @@ and its runtime policy in `scripts/api-lib.mjs`.
    recipe manifest supplies the schema and imports. This is ordinary Calcit
    syntax, not a new FFI type language.
 4. After editing definitions or recipes, run `yarn api:generate`,
-   `yarn check:api`, and `yarn test`. Commit the generated catalog with its
-   source changes. CI's `yarn api:check` rejects stale generated files.
+   `yarn check:api`, and `yarn test`. Commit source changes and any changes to
+   the short `docs/recipes.md` guide. This guide stays in Git for direct GitHub
+   reading and is marked `text linguist-generated` in `.gitattributes`.
+   CI's `yarn api:check` regenerates local catalogs and rejects a stale recipe
+   guide; it does not compare or commit the full catalogs.
 
 ## What the checks prove
 
@@ -80,6 +87,9 @@ retain the complete field and method AST. JSON consumers should check
   snapshot via `calcit cirru parse-edn` instead of parsing that preview.
 
 The tooling is pinned to the repository's Calcit 0.13.77 JSON conventions.
-The CLI EDN parser currently takes source text as a command argument; very large
-snapshots may eventually require a file/stdin-capable parser interface. Generation
-fails on parser errors rather than emitting an incomplete catalog.
+The CLI EDN parser currently takes source text as a command argument. Catalog
+generation for this snapshot exceeds the Windows command-line limit and requires
+WSL, Linux or macOS until a file/stdin parser interface is available. The tool
+reports this limitation explicitly instead of failing with an opaque process
+launch error. Generation fails on parser errors rather than emitting an
+incomplete catalog.

@@ -39,13 +39,13 @@ filesystem adapters with signatures and exception semantics.
 
 ## Find APIs and runnable examples
 
-- [Public API catalog](docs/api.md) and [JSON records](docs/api.json) include
-  every public function, host trait and data type.
+- `yarn api:generate` builds the complete API catalog in `.calcit/api/`
+  (`api.md` and `api.json`); these reproducible files are not committed.
 - [Executable Calcit recipes](docs/recipes.md) demonstrate URL query encoding,
   UTF-8 file access, and browser event cleanup.
 - Search by runtime with `yarn api:search storage browser`.
 - `yarn check:api` preprocesses every public definition; `yarn api:check`
-  checks generated documentation for drift.
+  validates catalog generation and checks the committed recipe guide for drift.
 
 See [API tooling](docs/api-tooling.md) for the editing workflow and upstream
 Calcit requests. After API changes, run `yarn api:generate` before `yarn test`.

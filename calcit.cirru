@@ -253,7 +253,7 @@
           :examples $ []
             quote $ %:: VisibilityState :visible
           :schema $ :: 'Enum
-        'WindowHost $ %{} 'CodeEntry (:doc "||External browser Window capability restricted to stable viewport fields, matchMedia, and typed global event listeners.")
+        'WindowHost $ %{} 'CodeEntry (:doc "|External browser Window capability restricted to stable viewport fields, matchMedia, and typed global event listeners.")
           :code $ quote
             deftrait WindowHost (:inner-width 'Number) (:inner-height 'Number) (:device-pixel-ratio 'Number)
               .match-media $ :: 'Fn

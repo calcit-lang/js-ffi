@@ -27,3 +27,10 @@ Calcit requests were filed without modifying the compiler:
 The metadata generator works around truncated query-def FFI strings by using
 Calcit's own EDN parser on the authoritative snapshot. Toolchain remains 0.13.77;
 no additional npm dependency or new FFI type syntax was introduced.
+
+Follow-up: removed the full JSON and API Markdown catalogs from Git (12,738
+lines). They now live under ignored `.calcit/api/` and are rebuilt on first
+search or a source-fingerprint mismatch. Only the 90-line recipe guide remains
+committed, explicitly marked `text linguist-generated`. Regression tests cover
+cold/stale cache behavior. Related review fixes pin test cwd, clean the WindowHost
+docstring, and explain the current Windows parser argument-length limitation.
