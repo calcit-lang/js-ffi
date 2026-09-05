@@ -7,6 +7,7 @@
     "@calcit/procs": "0.13.77"
   },
   "devDependencies": {
+    "playwright": "1.62.1",
     "vite": "^8.0.12"
   },
   "scripts": {
@@ -23,6 +24,13 @@
     "build:browser": "yarn compile:browser && yarn vite build --base=./",
     "serve:browser": "yarn vite --host 127.0.0.1",
     "run:browser": "yarn compile:browser && yarn vite --host 127.0.0.1",
-    "format": "calcit calcit.cirru edit format"
+    "format": "calcit calcit.cirru edit format",
+    "test": "yarn check && yarn check:node && yarn check:browser && yarn check:quality && yarn test:types && yarn test:node && yarn test:browser",
+    "test:types": "node tests/type-contract.mjs",
+    "test:node": "yarn compile:node && node node.mjs && node node-contract.mjs && node --test tests/node.mjs",
+    "test:browser": "yarn compile:browser && node browser-node-contract.mjs && node tests/run-browser.mjs"
+  },
+  "engines": {
+    "node": ">=22.12.0"
   }
 }

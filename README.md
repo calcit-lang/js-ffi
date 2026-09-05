@@ -1,7 +1,6 @@
 # js-ffi
 
-Typed JavaScript FFI definitions for Calcit. This package is intentionally
-small and independent: it exists to make the boundary between Calcit and host
+Typed JavaScript FFI definitions for Calcit. This package is independent: it exists to make the boundary between Calcit and host
 JavaScript explicit, checkable, and reusable across Calcit projects.
 
 ## Design
@@ -33,6 +32,10 @@ See [Typed JavaScript host boundary](docs/typed-host-boundary.md) for the
 runtime split, decoding policy, and guidance for keeping host effects outside
 pure application logic. The page is indexed for `calcit docs read` and
 `calcit docs search` when this module is installed.
+
+See [Standard host adapters](docs/standard-host-adapters.md) for 54 additional
+URL, query string, headers, cancellation, DOM, timer, process, path and UTF-8
+filesystem adapters with signatures and exception semantics.
 
 ## API examples
 
@@ -168,21 +171,23 @@ This module adopts the RFC quality levels through Q3: its CI validates the
 Snapshot and zero-tolerance static quality, then runs Node and browser-host
 contracts. Calcit is installed from `deps.cirru` with
 [`calcit-lang/setup-calcit@v1`](https://github.com/calcit-lang/setup-calcit).
-The static gate does not replace the host smoke tests below.
+The static gate does not replace the host smoke tests below. CI also runs
+real Chromium tests, synchronous filesystem tests, shared Web API tests,
+and invalid-consumer type checks.
 
 The checked-in v2 baseline keeps Dynamic, nil, unresolved types, and incomplete
-schemas at zero. It also records the 30 reviewed `unsafe-coerce` sites per
+schemas at zero. It also records the 34 reviewed `unsafe-coerce` sites per
 definition. These assertions are expected only inside small host adapters; a
 new assertion or moving one into another definition fails the quality gate and
 requires an explicit review. Run `yarn audit:unsafe` to inspect their runtime
 contract evidence.
 
-The commands assume `cr` and Yarn are available on `PATH`:
+The commands assume Calcit 0.13.77, Node.js 24 and Yarn are available on `PATH`:
 
 ```bash
 yarn install
 caps --ci
-cr calcit.cirru --check-only
+calcit calcit.cirru --check-only
 yarn check:quality
 yarn audit:unsafe
 yarn check:node
@@ -190,6 +195,8 @@ yarn check:browser
 yarn run:node
 yarn test:contract:node
 yarn build:browser
+yarn playwright install chromium
+yarn test
 ```
 
 `yarn run:node` compiles the `node` entry and runs a real Node.js probe. It
@@ -203,6 +210,10 @@ schemas alone cannot prove a host API continues to honour its runtime shape.
 `yarn run:browser` starts Vite after compiling the `browser` entry. Open the
 printed local URL and inspect the browser console for the runtime probe. The
 browser probe checks `document` and performs a localStorage round trip.
+
+`yarn test:node` runs the extended Node and shared tests. `yarn test:browser`
+launches real Chromium and verifies shared APIs, DOM, storage, events, timers
+and animation frames. `yarn test:types` verifies invalid consumers are rejected.
 
 `yarn format` applies Calcit's canonical formatting to `calcit.cirru`.
 
