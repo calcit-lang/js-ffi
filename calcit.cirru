@@ -101,7 +101,7 @@
               :local-name 'String
           :examples $ [] (quote DomElementHost)
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
-            :names $ {} (:inner-html |innerHTML)
+            :names $ {} (:append-child! |appendChild) (:blur! |blur) (:child-element-count |childElementCount) (:class-name |className) (:focus! |focus) (:get-attribute |getAttribute) (:inner-html |innerHTML) (:local-name |localName) (:matches? |matches) (:query-selector |querySelector) (:remove-attribute! |removeAttribute) (:set-attribute! |setAttribute) (:text-content |textContent)
           :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
         'DomInputHost $ %{} 'CodeEntry (:doc "|External HTML input capability. Mutable fields are declared in FFI metadata, not in the core trait type.")
@@ -304,6 +304,16 @@
             {} (:return 'js-ffi.browser/DomElementHost)
               :args $ [] 'js-ffi.browser/DomElementHost 'js-ffi.browser/DomElementHost
               :features $ #{} :js-ffi
+        'cancel-animation-frame! $ %{} 'CodeEntry (:doc "|Cancel a browser numeric handle; unknown handles are harmless.")
+          :code $ quote
+            defn cancel-animation-frame! (handle)
+              do (js/cancelAnimationFrame handle) &unit
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :browser)
+          :schema $ :: 'Fn
+            {} (:return 'Unit)
+              :args $ [] 'Number
+              :features $ #{} :js-ffi
         'child-element-at $ %{} 'CodeEntry (:doc "|Return the indexed child element as Option, normalizing the host nullish result.")
           :code $ quote
             defn child-element-at (children idx)
@@ -314,6 +324,26 @@
               :args $ [] 'js-ffi.browser/DomChildrenHost 'Number
               :features $ #{} :js-ffi
               :return $ :: 'Option 'js-ffi.browser/DomElementHost
+        'clear-interval! $ %{} 'CodeEntry (:doc "|Cancel a browser numeric handle; unknown handles are harmless.")
+          :code $ quote
+            defn clear-interval! (handle)
+              do (js/clearInterval handle) &unit
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :browser)
+          :schema $ :: 'Fn
+            {} (:return 'Unit)
+              :args $ [] 'Number
+              :features $ #{} :js-ffi
+        'clear-timeout! $ %{} 'CodeEntry (:doc "|Cancel a browser numeric handle; unknown handles are harmless.")
+          :code $ quote
+            defn clear-timeout! (handle)
+              do (js/clearTimeout handle) &unit
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :browser)
+          :schema $ :: 'Fn
+            {} (:return 'Unit)
+              :args $ [] 'Number
+              :features $ #{} :js-ffi
         'console-error! $ %{} 'CodeEntry (:doc "|Compatibility wrapper for shared/console-error!. It accepts one String and returns Unit.")
           :code $ quote
             defn console-error! (message) (shared/console-error! message)
@@ -399,6 +429,16 @@
             {} (:return 'String)
               :args $ []
               :features $ #{} :js-ffi
+        'element-blur! $ %{} 'CodeEntry (:doc "|Blur an HTML element with blur capability.")
+          :code $ quote
+            defn element-blur! (element)
+              do (element .blur!) &unit
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :browser)
+          :schema $ :: 'Fn
+            {} (:return 'Unit)
+              :args $ [] 'js-ffi.browser/DomElementHost
+              :features $ #{} :js-ffi
         'element-dataset $ %{} 'CodeEntry (:doc "|Returns the DOM element dataset object through the browser host contract. Use with js-set/js-delete for data-* attributes.")
           :code $ quote
             defn element-dataset (element)
@@ -407,6 +447,67 @@
           :schema $ :: 'Fn
             {} (:return 'JsObject)
               :args $ [] 'js-ffi.browser/DomElementHost
+              :features $ #{} :js-ffi
+        'element-focus! $ %{} 'CodeEntry (:doc "|Focus an HTML element with focus capability.")
+          :code $ quote
+            defn element-focus! (element)
+              do (element .focus!) &unit
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :browser)
+          :schema $ :: 'Fn
+            {} (:return 'Unit)
+              :args $ [] 'js-ffi.browser/DomElementHost
+              :features $ #{} :js-ffi
+        'element-get-attribute $ %{} 'CodeEntry (:doc "|Read a DOM attribute as Option<String>.")
+          :code $ quote
+            defn element-get-attribute (element key)
+              js-nullish->option $ element .get-attribute key
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :browser)
+          :schema $ :: 'Fn
+            {}
+              :args $ [] 'js-ffi.browser/DomElementHost 'String
+              :features $ #{} :js-ffi
+              :return $ :: 'Option 'String
+        'element-matches? $ %{} 'CodeEntry (:doc "|Match a CSS selector; invalid selectors raise DOMException.")
+          :code $ quote
+            defn element-matches? (element selector) (element .matches? selector)
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :browser)
+          :schema $ :: 'Fn
+            {} (:return 'Bool)
+              :args $ [] 'js-ffi.browser/DomElementHost 'String
+              :features $ #{} :js-ffi
+        'element-query-selector $ %{} 'CodeEntry (:doc "|Find a descendant or return Option.none.")
+          :code $ quote
+            defn element-query-selector (element selector)
+              js-nullish->option $ element .query-selector selector
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :browser)
+          :schema $ :: 'Fn
+            {}
+              :args $ [] 'js-ffi.browser/DomElementHost 'String
+              :features $ #{} :js-ffi
+              :return $ :: 'Option 'js-ffi.browser/DomElementHost
+        'element-remove-attribute! $ %{} 'CodeEntry (:doc "|Remove a DOM attribute.")
+          :code $ quote
+            defn element-remove-attribute! (element key)
+              do (element .remove-attribute! key) &unit
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :browser)
+          :schema $ :: 'Fn
+            {} (:return 'Unit)
+              :args $ [] 'js-ffi.browser/DomElementHost 'String
+              :features $ #{} :js-ffi
+        'element-set-attribute! $ %{} 'CodeEntry (:doc "|Set a DOM attribute.")
+          :code $ quote
+            defn element-set-attribute! (element key text)
+              do (element .set-attribute! key text) &unit
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :browser)
+          :schema $ :: 'Fn
+            {} (:return 'Unit)
+              :args $ [] 'js-ffi.browser/DomElementHost 'String 'String
               :features $ #{} :js-ffi
         'element-snapshot $ %{} 'CodeEntry (:doc "|Copy a typed DOM element into ElementSnapshot, converting nullish textContent to Option<String>.")
           :code $ quote
@@ -492,6 +593,18 @@
               :args $ [] 'String
                 :: 'Fn $ {} (:return 'Unit)
                   :args $ [] 'js-ffi.browser/EventHost
+              :features $ #{} :js-ffi
+        'request-animation-frame! $ %{} 'CodeEntry (:doc "|Schedule a frame callback receiving a timestamp; returns a cancellable numeric handle.")
+          :code $ quote
+            defn request-animation-frame! (callback)
+              contract/expect-number |requestAnimationFrame $ js/requestAnimationFrame callback
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :browser)
+          :schema $ :: 'Fn
+            {} (:return 'Number)
+              :args $ []
+                :: 'Fn $ {} (:return 'Unit)
+                  :args $ [] 'Number
               :features $ #{} :js-ffi
         'runtime $ %{} 'CodeEntry (:doc "|Return the normalized Runtime browser enum variant.")
           :code $ quote
@@ -653,27 +766,35 @@
               :features $ #{} :js-ffi
       :ns $ %{} 'NsEntry (:doc "|Typed browser JavaScript FFI with normalized Struct/Enum results and explicit external-object contracts for Window, Document, Location, Storage, DOM elements, and events.")
         :code $ quote
-          ns js-ffi.browser $ :require (js-ffi.shared :as shared)
+          ns js-ffi.browser $ :require (js-ffi.shared :as shared) (js-ffi.contract :as contract)
     'js-ffi.browser-test $ %{} 'FileEntry
       :defs $ {}
+        'check-api! $ %{} 'CodeEntry (:doc "|Keep all added adapters reachable for entry preprocessing without executing host effects.")
+          :code $ quote
+            defn check-api! () $ do shared/url-create shared/search-params-create shared/headers-create shared/abort-controller-create shared/search-params-get shared/search-params-has? shared/search-params-set! shared/search-params-delete! shared/headers-get shared/headers-has? shared/headers-set! shared/headers-delete! shared/search-params-string shared/search-params-size shared/headers-append! shared/abort-signal shared/abort! shared/aborted? shared/encode-uri-component shared/decode-uri-component shared/now-ms shared/performance-now browser/element-get-attribute browser/element-set-attribute! browser/element-remove-attribute! browser/element-matches? browser/element-query-selector browser/element-focus! browser/element-blur! browser/clear-timeout! browser/clear-interval! browser/cancel-animation-frame! browser/request-animation-frame! &unit
+          :examples $ []
+          :schema $ :: 'Fn
+            {} (:return 'Unit)
+              :args $ []
         'main! $ %{} 'CodeEntry (:doc "|Run the typed browser smoke probe and verify its Runtime enum.")
           :code $ quote
-            defn main! () $ let
-                result $ browser/probe
-                element $ browser/create-element |div
-                on-resize $ fn (event) &unit
-              assert-type result js-ffi.browser/BrowserProbe
-              assert-type element js-ffi.browser/DomElementHost
-              browser/add-event-listener! |resize on-resize
-              browser/remove-event-listener! |resize on-resize
-              browser/set-before-unload! $ fn (event) &unit
-              shared/queue-microtask! $ fn () (shared/console-log! |js-ffi-browser-microtask-passed)
-              shared/console-log! |js-ffi-browser-smoke
-              if
-                contract/valid-runtime? (%:: shared/Runtime :browser) (:runtime result)
-                shared/console-log! |js-ffi-browser-smoke-passed
-                shared/console-error! |js-ffi-browser-smoke-failed
-              , &unit
+            defn main! () (check-api!)
+              let
+                  result $ browser/probe
+                  element $ browser/create-element |div
+                  on-resize $ fn (event) &unit
+                assert-type result js-ffi.browser/BrowserProbe
+                assert-type element js-ffi.browser/DomElementHost
+                browser/add-event-listener! |resize on-resize
+                browser/remove-event-listener! |resize on-resize
+                browser/set-before-unload! $ fn (event) &unit
+                shared/queue-microtask! $ fn () (shared/console-log! |js-ffi-browser-microtask-passed)
+                shared/console-log! |js-ffi-browser-smoke
+                if
+                  contract/valid-runtime? (%:: shared/Runtime :browser) (:runtime result)
+                  shared/console-log! |js-ffi-browser-smoke-passed
+                  shared/console-error! |js-ffi-browser-smoke-failed
+                , &unit
           :examples $ []
             quote $ main!
           :schema $ :: 'Fn
@@ -789,6 +910,16 @@
             :names $ {}
           :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
+        'append-text! $ %{} 'CodeEntry (:doc "|Synchronous node:fs.appendFileSync adapter. Text uses UTF-8; filesystem failures raise the original host exception. No recursive deletion.")
+          :code $ quote
+            defn append-text! (file-path text)
+              do (fs/appendFileSync file-path text |utf8) &unit
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :node)
+          :schema $ :: 'Fn
+            {} (:return 'Unit)
+              :args $ [] 'String 'String
+              :features $ #{} :js-ffi
         'argv-count $ %{} 'CodeEntry (:doc "|Return process.argv.length as Number. This deliberately narrows the host array at the boundary. Example: (argv-count) => 3")
           :code $ quote
             defn argv-count () $ let
@@ -799,6 +930,16 @@
           :schema $ :: 'Fn
             {} (:return 'Number)
               :args $ []
+              :features $ #{} :js-ffi
+        'copy-file! $ %{} 'CodeEntry (:doc "|Synchronous node:fs.copyFileSync adapter. Text uses UTF-8; filesystem failures raise the original host exception. No recursive deletion.")
+          :code $ quote
+            defn copy-file! (source destination)
+              do (fs/copyFileSync source destination) &unit
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :node)
+          :schema $ :: 'Fn
+            {} (:return 'Unit)
+              :args $ [] 'String 'String
               :features $ #{} :js-ffi
         'cwd $ %{} 'CodeEntry (:doc "|Return process.cwd() as String. This is a Node-only API and is emitted through the node entry. Example: (cwd) => |/workspace/project")
           :code $ quote
@@ -843,6 +984,75 @@
             {} (:return 'Bool)
               :args $ [] 'String
               :features $ #{} :js-ffi
+        'make-temp-dir! $ %{} 'CodeEntry (:doc "|Synchronous node:fs.mkdtempSync adapter. Text uses UTF-8; filesystem failures raise the original host exception. No recursive deletion.")
+          :code $ quote
+            defn make-temp-dir! (prefix)
+              contract/expect-string |fs.mkdtempSync $ fs/mkdtempSync prefix
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :node)
+          :schema $ :: 'Fn
+            {} (:return 'String)
+              :args $ [] 'String
+              :features $ #{} :js-ffi
+        'mkdir! $ %{} 'CodeEntry (:doc "|Synchronous node:fs.mkdirSync adapter. Text uses UTF-8; filesystem failures raise the original host exception. No recursive deletion.")
+          :code $ quote
+            defn mkdir! (directory)
+              do (fs/mkdirSync directory) &unit
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :node)
+          :schema $ :: 'Fn
+            {} (:return 'Unit)
+              :args $ [] 'String
+              :features $ #{} :js-ffi
+        'node-version $ %{} 'CodeEntry (:doc "|Read and validate Node process metadata.")
+          :code $ quote
+            defn node-version () $ contract/expect-string |process.node-version js/process.version
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :node)
+          :schema $ :: 'Fn
+            {} (:return 'String)
+              :args $ []
+              :features $ #{} :js-ffi
+        'path-absolute? $ %{} 'CodeEntry (:doc "|Call node:path.isAbsolute using native platform path rules and validate its result.")
+          :code $ quote
+            defn path-absolute? (value)
+              contract/expect-bool |path.isAbsolute $ path/isAbsolute value
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :node)
+          :schema $ :: 'Fn
+            {} (:return 'Bool)
+              :args $ [] 'String
+              :features $ #{} :js-ffi
+        'path-basename $ %{} 'CodeEntry (:doc "|Call node:path.basename using native platform path rules and validate its result.")
+          :code $ quote
+            defn path-basename (value)
+              contract/expect-string |path.basename $ path/basename value
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :node)
+          :schema $ :: 'Fn
+            {} (:return 'String)
+              :args $ [] 'String
+              :features $ #{} :js-ffi
+        'path-dirname $ %{} 'CodeEntry (:doc "|Call node:path.dirname using native platform path rules and validate its result.")
+          :code $ quote
+            defn path-dirname (value)
+              contract/expect-string |path.dirname $ path/dirname value
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :node)
+          :schema $ :: 'Fn
+            {} (:return 'String)
+              :args $ [] 'String
+              :features $ #{} :js-ffi
+        'path-extname $ %{} 'CodeEntry (:doc "|Call node:path.extname using native platform path rules and validate its result.")
+          :code $ quote
+            defn path-extname (value)
+              contract/expect-string |path.extname $ path/extname value
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :node)
+          :schema $ :: 'Fn
+            {} (:return 'String)
+              :args $ [] 'String
+              :features $ #{} :js-ffi
         'path-join $ %{} 'CodeEntry (:doc "|Join two path segments using node:path and return String. Example: (path-join |src |index.js) => |src/index.js")
           :code $ quote
             defn path-join (base child) (path/join base child)
@@ -852,6 +1062,54 @@
             {} (:return 'String)
               :args $ [] 'String 'String
               :features $ #{} :js-ffi
+        'path-normalize $ %{} 'CodeEntry (:doc "|Call node:path.normalize using native platform path rules and validate its result.")
+          :code $ quote
+            defn path-normalize (value)
+              contract/expect-string |path.normalize $ path/normalize value
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :node)
+          :schema $ :: 'Fn
+            {} (:return 'String)
+              :args $ [] 'String
+              :features $ #{} :js-ffi
+        'path-relative $ %{} 'CodeEntry (:doc "|Call node:path.relative using native platform path rules and validate its result.")
+          :code $ quote
+            defn path-relative (base child)
+              contract/expect-string |path.relative $ path/relative base child
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :node)
+          :schema $ :: 'Fn
+            {} (:return 'String)
+              :args $ [] 'String 'String
+              :features $ #{} :js-ffi
+        'path-resolve $ %{} 'CodeEntry (:doc "|Call node:path.resolve using native platform path rules and validate its result.")
+          :code $ quote
+            defn path-resolve (base child)
+              contract/expect-string |path.resolve $ path/resolve base child
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :node)
+          :schema $ :: 'Fn
+            {} (:return 'String)
+              :args $ [] 'String 'String
+              :features $ #{} :js-ffi
+        'pid $ %{} 'CodeEntry (:doc "|Read and validate Node process metadata.")
+          :code $ quote
+            defn pid () $ contract/expect-number |process.pid js/process.pid
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :node)
+          :schema $ :: 'Fn
+            {} (:return 'Number)
+              :args $ []
+              :features $ #{} :js-ffi
+        'platform $ %{} 'CodeEntry (:doc "|Read and validate Node process metadata.")
+          :code $ quote
+            defn platform () $ contract/expect-string |process.platform js/process.platform
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :node)
+          :schema $ :: 'Fn
+            {} (:return 'String)
+              :args $ []
+              :features $ #{} :js-ffi
         'probe $ %{} 'CodeEntry (:doc "|Run the Node capability smoke probe and return typed NodeProbe data.")
           :code $ quote
             defn probe () $ &%{} NodeProbe :runtime (runtime) :cwd (cwd) :argv-count (argv-count)
@@ -860,6 +1118,46 @@
           :schema $ :: 'Fn
             {} (:return 'js-ffi.node/NodeProbe)
               :args $ []
+        'read-text! $ %{} 'CodeEntry (:doc "|Synchronous node:fs.readFileSync adapter. Text uses UTF-8; filesystem failures raise the original host exception. No recursive deletion.")
+          :code $ quote
+            defn read-text! (file-path)
+              contract/expect-string |fs.readFileSync $ fs/readFileSync file-path |utf8
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :node)
+          :schema $ :: 'Fn
+            {} (:return 'String)
+              :args $ [] 'String
+              :features $ #{} :js-ffi
+        'real-path! $ %{} 'CodeEntry (:doc "|Synchronous node:fs.realpathSync adapter. Text uses UTF-8; filesystem failures raise the original host exception. No recursive deletion.")
+          :code $ quote
+            defn real-path! (file-path)
+              contract/expect-string |fs.realpathSync $ fs/realpathSync file-path
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :node)
+          :schema $ :: 'Fn
+            {} (:return 'String)
+              :args $ [] 'String
+              :features $ #{} :js-ffi
+        'rename! $ %{} 'CodeEntry (:doc "|Synchronous node:fs.renameSync adapter. Text uses UTF-8; filesystem failures raise the original host exception. No recursive deletion.")
+          :code $ quote
+            defn rename! (source destination)
+              do (fs/renameSync source destination) &unit
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :node)
+          :schema $ :: 'Fn
+            {} (:return 'Unit)
+              :args $ [] 'String 'String
+              :features $ #{} :js-ffi
+        'rmdir! $ %{} 'CodeEntry (:doc "|Synchronous node:fs.rmdirSync adapter. Text uses UTF-8; filesystem failures raise the original host exception. No recursive deletion.")
+          :code $ quote
+            defn rmdir! (directory)
+              do (fs/rmdirSync directory) &unit
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :node)
+          :schema $ :: 'Fn
+            {} (:return 'Unit)
+              :args $ [] 'String
+              :features $ #{} :js-ffi
         'runtime $ %{} 'CodeEntry (:doc "|Return the normalized Runtime node enum variant.")
           :code $ quote
             defn runtime () $ %:: shared/Runtime :node
@@ -875,22 +1173,59 @@
           :schema $ :: 'Fn
             {} (:return 'String)
               :args $ []
+        'unlink! $ %{} 'CodeEntry (:doc "|Synchronous node:fs.unlinkSync adapter. Text uses UTF-8; filesystem failures raise the original host exception. No recursive deletion.")
+          :code $ quote
+            defn unlink! (file-path)
+              do (fs/unlinkSync file-path) &unit
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :node)
+          :schema $ :: 'Fn
+            {} (:return 'Unit)
+              :args $ [] 'String
+              :features $ #{} :js-ffi
+        'uptime $ %{} 'CodeEntry (:doc "|Read and validate Node process metadata.")
+          :code $ quote
+            defn uptime () $ contract/expect-number |process.uptime (js/process.uptime)
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :node)
+          :schema $ :: 'Fn
+            {} (:return 'Number)
+              :args $ []
+              :features $ #{} :js-ffi
+        'write-text! $ %{} 'CodeEntry (:doc "|Synchronous node:fs.writeFileSync adapter. Text uses UTF-8; filesystem failures raise the original host exception. No recursive deletion.")
+          :code $ quote
+            defn write-text! (file-path text)
+              do (fs/writeFileSync file-path text |utf8) &unit
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :node)
+          :schema $ :: 'Fn
+            {} (:return 'Unit)
+              :args $ [] 'String 'String
+              :features $ #{} :js-ffi
       :ns $ %{} 'NsEntry (:doc "|Typed Node.js JavaScript FFI. Node-only modules remain isolated while runtime identity and cross-runtime host contracts come from js-ffi.shared.")
         :code $ quote
           ns js-ffi.node $ :require (|node:fs :as fs) (|node:path :as path) (js-ffi.contract :as contract) (js-ffi.shared :as shared)
     'js-ffi.node-test $ %{} 'FileEntry
       :defs $ {}
+        'check-api! $ %{} 'CodeEntry (:doc "|Keep all added adapters reachable for entry preprocessing without executing host effects.")
+          :code $ quote
+            defn check-api! () $ do shared/url-create shared/search-params-create shared/headers-create shared/abort-controller-create shared/search-params-get shared/search-params-has? shared/search-params-set! shared/search-params-delete! shared/headers-get shared/headers-has? shared/headers-set! shared/headers-delete! shared/search-params-string shared/search-params-size shared/headers-append! shared/abort-signal shared/abort! shared/aborted? shared/encode-uri-component shared/decode-uri-component shared/now-ms shared/performance-now node/path-basename node/path-dirname node/path-extname node/path-normalize node/path-resolve node/path-relative node/path-absolute? node/read-text! node/write-text! node/append-text! node/copy-file! node/rename! node/unlink! node/mkdir! node/rmdir! node/make-temp-dir! node/real-path! node/pid node/platform node/node-version node/uptime &unit
+          :examples $ []
+          :schema $ :: 'Fn
+            {} (:return 'Unit)
+              :args $ []
         'main! $ %{} 'CodeEntry (:doc "|Run the typed Node smoke probe and verify its Runtime enum.")
           :code $ quote
-            defn main! () $ let
-                result $ node/probe
-              assert-type result js-ffi.node/NodeProbe
-              shared/console-log! |js-ffi-node-smoke
-              if
-                contract/valid-runtime? (%:: shared/Runtime :node) (:runtime result)
-                shared/console-log! |js-ffi-node-smoke-passed
-                do (shared/console-error! |js-ffi-node-smoke-failed) (node/exit! 1)
-              , &unit
+            defn main! () (check-api!)
+              let
+                  result $ node/probe
+                assert-type result js-ffi.node/NodeProbe
+                shared/console-log! |js-ffi-node-smoke
+                if
+                  contract/valid-runtime? (%:: shared/Runtime :node) (:runtime result)
+                  shared/console-log! |js-ffi-node-smoke-passed
+                  do (shared/console-error! |js-ffi-node-smoke-failed) (node/exit! 1)
+                , &unit
           :examples $ []
             quote $ main!
           :schema $ :: 'Fn
@@ -1101,6 +1436,49 @@
           :examples $ []
             quote $ &%{} UrlSnapshot :href |https://example.test/a :protocol |https: :host |example.test :hostname |example.test :port | :pathname |/a :search | :hash |
           :schema $ :: 'Enum
+        'abort! $ %{} 'CodeEntry (:doc "|Abort the controller. Repeated aborts are safe.")
+          :code $ quote
+            defn abort! (controller)
+              do (controller .abort!) &unit
+          :examples $ []
+          :ffi $ {} (:backend :js)
+          :schema $ :: 'Fn
+            {} (:return 'Unit)
+              :args $ [] 'js-ffi.shared/AbortControllerHost
+              :features $ #{} :js-ffi
+        'abort-controller-create $ %{} 'CodeEntry (:doc "|Construct a native AbortController and retain its typed host identity. Invalid constructor inputs raise host exceptions.")
+          :code $ quote
+            defn abort-controller-create () $ unsafe-coerce (new js/AbortController) AbortControllerHost
+          :examples $ []
+          :ffi $ {} (:backend :js)
+          :schema $ :: 'Fn
+            {} (:return 'js-ffi.shared/AbortControllerHost)
+              :args $ []
+              :features $ #{} :js-ffi
+        'abort-signal $ %{} 'CodeEntry (:doc "|Return the controller signal, preserving identity.")
+          :code $ quote
+            defn abort-signal (controller)
+              let
+                  result $ controller :signal
+                , result
+          :examples $ []
+          :ffi $ {} (:backend :js)
+          :schema $ :: 'Fn
+            {} (:return 'js-ffi.shared/AbortSignalHost)
+              :args $ [] 'js-ffi.shared/AbortControllerHost
+              :features $ #{} :js-ffi
+        'aborted? $ %{} 'CodeEntry (:doc "|Read whether a signal has been aborted.")
+          :code $ quote
+            defn aborted? (signal)
+              let
+                  result $ signal :aborted
+                , result
+          :examples $ []
+          :ffi $ {} (:backend :js)
+          :schema $ :: 'Fn
+            {} (:return 'Bool)
+              :args $ [] 'js-ffi.shared/AbortSignalHost
+              :features $ #{} :js-ffi
         'console-error! $ %{} 'CodeEntry (:doc "|Write one error String to the host console and return Unit in browser or Node.")
           :code $ quote
             defn console-error! (message)
@@ -1160,6 +1538,85 @@
             {} (:return 'js-ffi.shared/DateSnapshot)
               :args $ [] 'js-ffi.shared/DateHost
               :features $ #{} :js-ffi
+        'decode-uri-component $ %{} 'CodeEntry (:doc "|Read the native result through a checked primitive boundary. Invalid input may raise a host exception.")
+          :code $ quote
+            defn decode-uri-component (text)
+              contract/expect-string |decode-uri-component $ js/decodeURIComponent text
+          :examples $ []
+          :ffi $ {} (:backend :js)
+          :schema $ :: 'Fn
+            {} (:return 'String)
+              :args $ [] 'String
+              :features $ #{} :js-ffi
+        'encode-uri-component $ %{} 'CodeEntry (:doc "|Read the native result through a checked primitive boundary. Invalid input may raise a host exception.")
+          :code $ quote
+            defn encode-uri-component (text)
+              contract/expect-string |encode-uri-component $ js/encodeURIComponent text
+          :examples $ []
+          :ffi $ {} (:backend :js)
+          :schema $ :: 'Fn
+            {} (:return 'String)
+              :args $ [] 'String
+              :features $ #{} :js-ffi
+        'headers-append! $ %{} 'CodeEntry (:doc "|Append a header value using native Headers normalization.")
+          :code $ quote
+            defn headers-append! (value key text)
+              do (value .append! key text) &unit
+          :examples $ []
+          :ffi $ {} (:backend :js)
+          :schema $ :: 'Fn
+            {} (:return 'Unit)
+              :args $ [] 'js-ffi.shared/HeadersHost 'String 'String
+              :features $ #{} :js-ffi
+        'headers-create $ %{} 'CodeEntry (:doc "|Construct a native Headers and retain its typed host identity. Invalid constructor inputs raise host exceptions.")
+          :code $ quote
+            defn headers-create () $ unsafe-coerce (new js/Headers) HeadersHost
+          :examples $ []
+          :ffi $ {} (:backend :js)
+          :schema $ :: 'Fn
+            {} (:return 'js-ffi.shared/HeadersHost)
+              :args $ []
+              :features $ #{} :js-ffi
+        'headers-delete! $ %{} 'CodeEntry (:doc "|Remove a key and return Unit.")
+          :code $ quote
+            defn headers-delete! (value key)
+              do (value .delete! key) &unit
+          :examples $ []
+          :ffi $ {} (:backend :js)
+          :schema $ :: 'Fn
+            {} (:return 'Unit)
+              :args $ [] 'js-ffi.shared/HeadersHost 'String
+              :features $ #{} :js-ffi
+        'headers-get $ %{} 'CodeEntry (:doc "|Lookup a key; missing values become Option.none.")
+          :code $ quote
+            defn headers-get (value key)
+              js-nullish->option $ value .get key
+          :examples $ []
+          :ffi $ {} (:backend :js)
+          :schema $ :: 'Fn
+            {}
+              :args $ [] 'js-ffi.shared/HeadersHost 'String
+              :features $ #{} :js-ffi
+              :return $ :: 'Option 'String
+        'headers-has? $ %{} 'CodeEntry (:doc "|Check whether a key exists.")
+          :code $ quote
+            defn headers-has? (value key) (value .has? key)
+          :examples $ []
+          :ffi $ {} (:backend :js)
+          :schema $ :: 'Fn
+            {} (:return 'Bool)
+              :args $ [] 'js-ffi.shared/HeadersHost 'String
+              :features $ #{} :js-ffi
+        'headers-set! $ %{} 'CodeEntry (:doc "|Replace the values for a key.")
+          :code $ quote
+            defn headers-set! (value key text)
+              do (value .set! key text) &unit
+          :examples $ []
+          :ffi $ {} (:backend :js)
+          :schema $ :: 'Fn
+            {} (:return 'Unit)
+              :args $ [] 'js-ffi.shared/HeadersHost 'String 'String
+              :features $ #{} :js-ffi
         'http-method-label $ %{} 'CodeEntry (:doc "|Convert HttpMethod to the uppercase token expected by JavaScript request APIs.")
           :code $ quote
             defn http-method-label (method)
@@ -1176,6 +1633,24 @@
           :schema $ :: 'Fn
             {} (:return 'String)
               :args $ [] 'js-ffi.shared/HttpMethod
+        'now-ms $ %{} 'CodeEntry (:doc "|Read the native result through a checked primitive boundary. Invalid input may raise a host exception.")
+          :code $ quote
+            defn now-ms () $ contract/expect-number |now-ms (js/Date.now)
+          :examples $ []
+          :ffi $ {} (:backend :js)
+          :schema $ :: 'Fn
+            {} (:return 'Number)
+              :args $ []
+              :features $ #{} :js-ffi
+        'performance-now $ %{} 'CodeEntry (:doc "|Read the native result through a checked primitive boundary. Invalid input may raise a host exception.")
+          :code $ quote
+            defn performance-now () $ contract/expect-number |performance-now (js/performance.now)
+          :examples $ []
+          :ffi $ {} (:backend :js)
+          :schema $ :: 'Fn
+            {} (:return 'Number)
+              :args $ []
+              :features $ #{} :js-ffi
         'queue-microtask! $ %{} 'CodeEntry (:doc "|Queue a Unit callback in the JavaScript microtask queue.")
           :code $ quote
             defn queue-microtask! (callback)
@@ -1199,6 +1674,87 @@
           :schema $ :: 'Fn
             {} (:return 'String)
               :args $ [] 'js-ffi.shared/Runtime
+        'search-params-create $ %{} 'CodeEntry (:doc "|Construct a native URLSearchParams and retain its typed host identity. Invalid constructor inputs raise host exceptions.")
+          :code $ quote
+            defn search-params-create (query)
+              unsafe-coerce (new js/URLSearchParams query) UrlSearchParamsHost
+          :examples $ []
+          :ffi $ {} (:backend :js)
+          :schema $ :: 'Fn
+            {} (:return 'js-ffi.shared/UrlSearchParamsHost)
+              :args $ [] 'String
+              :features $ #{} :js-ffi
+        'search-params-delete! $ %{} 'CodeEntry (:doc "|Remove a key and return Unit.")
+          :code $ quote
+            defn search-params-delete! (value key)
+              do (value .delete! key) &unit
+          :examples $ []
+          :ffi $ {} (:backend :js)
+          :schema $ :: 'Fn
+            {} (:return 'Unit)
+              :args $ [] 'js-ffi.shared/UrlSearchParamsHost 'String
+              :features $ #{} :js-ffi
+        'search-params-get $ %{} 'CodeEntry (:doc "|Lookup a key; missing values become Option.none.")
+          :code $ quote
+            defn search-params-get (value key)
+              js-nullish->option $ value .get key
+          :examples $ []
+          :ffi $ {} (:backend :js)
+          :schema $ :: 'Fn
+            {}
+              :args $ [] 'js-ffi.shared/UrlSearchParamsHost 'String
+              :features $ #{} :js-ffi
+              :return $ :: 'Option 'String
+        'search-params-has? $ %{} 'CodeEntry (:doc "|Check whether a key exists.")
+          :code $ quote
+            defn search-params-has? (value key) (value .has? key)
+          :examples $ []
+          :ffi $ {} (:backend :js)
+          :schema $ :: 'Fn
+            {} (:return 'Bool)
+              :args $ [] 'js-ffi.shared/UrlSearchParamsHost 'String
+              :features $ #{} :js-ffi
+        'search-params-set! $ %{} 'CodeEntry (:doc "|Replace the values for a key.")
+          :code $ quote
+            defn search-params-set! (value key text)
+              do (value .set! key text) &unit
+          :examples $ []
+          :ffi $ {} (:backend :js)
+          :schema $ :: 'Fn
+            {} (:return 'Unit)
+              :args $ [] 'js-ffi.shared/UrlSearchParamsHost 'String 'String
+              :features $ #{} :js-ffi
+        'search-params-size $ %{} 'CodeEntry (:doc "|Count query entries, including duplicate keys.")
+          :code $ quote
+            defn search-params-size (value)
+              let
+                  result $ value :size
+                , result
+          :examples $ []
+          :ffi $ {} (:backend :js)
+          :schema $ :: 'Fn
+            {} (:return 'Number)
+              :args $ [] 'js-ffi.shared/UrlSearchParamsHost
+              :features $ #{} :js-ffi
+        'search-params-string $ %{} 'CodeEntry (:doc "|Serialize query parameters with standard percent encoding.")
+          :code $ quote
+            defn search-params-string (value) (value .to-string)
+          :examples $ []
+          :ffi $ {} (:backend :js)
+          :schema $ :: 'Fn
+            {} (:return 'String)
+              :args $ [] 'js-ffi.shared/UrlSearchParamsHost
+              :features $ #{} :js-ffi
+        'url-create $ %{} 'CodeEntry (:doc "|Construct a native URL and retain its typed host identity. Invalid constructor inputs raise host exceptions.")
+          :code $ quote
+            defn url-create (input base)
+              unsafe-coerce (new js/URL input base) UrlHost
+          :examples $ []
+          :ffi $ {} (:backend :js)
+          :schema $ :: 'Fn
+            {} (:return 'js-ffi.shared/UrlHost)
+              :args $ [] 'String 'String
+              :features $ #{} :js-ffi
         'url-snapshot $ %{} 'CodeEntry (:doc "|Copy a URL-like host object into immutable UrlSnapshot data without retaining host identity.")
           :code $ quote
             defn url-snapshot (url)
@@ -1209,4 +1765,5 @@
               :args $ [] 'js-ffi.shared/UrlHost
               :features $ #{} :js-ffi
       :ns $ %{} 'NsEntry (:doc "|Shared JavaScript FFI data types, normalized snapshots, and explicit external-object capabilities that work in browser and Node targets.")
-        :code $ quote (ns js-ffi.shared)
+        :code $ quote
+          ns js-ffi.shared $ :require (js-ffi.contract :as contract)
