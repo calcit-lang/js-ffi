@@ -83,7 +83,11 @@ Source: [examples/listen.cirru](../examples/listen.cirru)
 ```text
 quote $ defn listen (event-name callback)
   browser/add-event-listener! event-name callback
-  fn () $ browser/remove-event-listener! event-name callback
+  fn ()
+    hint-fn $ {}
+      :args $ []
+      :return 'Unit
+    browser/remove-event-listener! event-name callback
 ```
 
 Runtime verification: [tests/browser.mjs](../tests/browser.mjs).

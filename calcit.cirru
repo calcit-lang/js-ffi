@@ -256,6 +256,9 @@
         'WindowHost $ %{} 'CodeEntry (:doc "|External browser Window capability restricted to stable viewport fields, matchMedia, and typed global event listeners.")
           :code $ quote
             deftrait WindowHost (:inner-width 'Number) (:inner-height 'Number) (:device-pixel-ratio 'Number)
+              :on-before-unload $ :: 'Fn
+                {} (:return 'Unit)
+                  :args $ [] 'js-ffi.browser/EventHost
               .match-media $ :: 'Fn
                 {}
                   :args $ [] 'js-ffi.browser/WindowHost 'String
@@ -276,7 +279,8 @@
                   :return 'Unit
           :examples $ [] (quote WindowHost)
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
-            :names $ {} (:add-event-listener! |addEventListener) (:device-pixel-ratio |devicePixelRatio) (:inner-height |innerHeight) (:inner-width |innerWidth) (:match-media |matchMedia) (:remove-event-listener! |removeEventListener)
+            :names $ {} (:add-event-listener! |addEventListener) (:device-pixel-ratio |devicePixelRatio) (:inner-height |innerHeight) (:inner-width |innerWidth) (:match-media |matchMedia) (:on-before-unload |onbeforeunload) (:remove-event-listener! |removeEventListener)
+            :writable $ #{} :on-before-unload
           :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
         'add-event-listener! $ %{} 'CodeEntry (:doc "|Register a typed browser window event listener. The callback receives an EventHost and the wrapper returns Unit.")
@@ -625,8 +629,8 @@
           :code $ quote
             defn set-before-unload! (callback)
               let
-                  host-window $ unsafe-coerce js/window JsObject
-                aset host-window |onbeforeunload callback
+                  host-window $ unsafe-coerce js/window WindowHost
+                aset host-window :on-before-unload callback
                 , &unit
           :examples $ []
           :schema $ :: 'Fn
@@ -774,13 +778,25 @@
             defn main! () $ let
                 result $ browser/probe
                 element $ browser/create-element |div
-                on-resize $ fn (event) &unit
+                on-resize $ fn (event)
+                  hint-fn $ {}
+                    :args $ [] 'js-ffi.browser/EventHost
+                    :return 'Unit
+                  , &unit
               assert-type result js-ffi.browser/BrowserProbe
               assert-type element js-ffi.browser/DomElementHost
               browser/add-event-listener! |resize on-resize
               browser/remove-event-listener! |resize on-resize
-              browser/set-before-unload! $ fn (event) &unit
-              shared/queue-microtask! $ fn () (shared/console-log! |js-ffi-browser-microtask-passed)
+              browser/set-before-unload! $ fn (event)
+                hint-fn $ {}
+                  :args $ [] 'js-ffi.browser/EventHost
+                  :return 'Unit
+                , &unit
+              shared/queue-microtask! $ fn ()
+                hint-fn $ {}
+                  :args $ []
+                  :return 'Unit
+                shared/console-log! |js-ffi-browser-microtask-passed
               shared/console-log! |js-ffi-browser-smoke
               if
                 contract/valid-runtime? (%:: shared/Runtime :browser) (:runtime result)
