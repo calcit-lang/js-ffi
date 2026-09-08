@@ -2,7 +2,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { join } from 'node:path';
-import { calcit, definition, inventory, publicNamespaces, root, runtimes } from './api-lib.mjs';
+import { calcit, decodeEdnJson, definition, inventory, publicNamespaces, root, runtimes } from './api-lib.mjs';
 
 const command = process.argv[2];
 if (!['generate', 'check', 'search', 'cache'].includes(command)) throw new Error('Usage: api-catalog.mjs generate|check|search [query] [browser|node]');
@@ -38,21 +38,14 @@ if (command === 'search') {
     readFileSync(join(root, recipe.source));
     readFileSync(join(root, recipe.validation));
   }
-  // query def --json truncates long FFI metadata in Calcit 0.13.77, even with --raw.
-  // Decode the authoritative snapshot through Calcit instead of using that display string.
+  // Persisted schemaData is not part of query.def and remains sourced from the
+  // authoritative Snapshot. FFI metadata comes from the supported query envelope.
   const snapshotSource = readFileSync(join(root, 'calcit.cirru'), 'utf8');
-  // 0.13.77 parse-edn has no file/stdin input; leave room for executable and quoting.
+  // parse-edn has no file/stdin input; leave room for executable and quoting.
   if (process.platform === 'win32' && snapshotSource.length > 24000) {
-    throw new Error('Catalog generation needs Calcit parse-edn file/stdin support for this snapshot on Windows (command-line length limit). Generate the local cache under WSL, Linux or macOS; see Calcit issue #875.');
+    throw new Error('Catalog generation needs Calcit parse-edn file/stdin support for this snapshot on Windows (command-line length limit). Generate the local cache under WSL, Linux or macOS.');
   }
   const snapshot = JSON.parse(calcit(['cirru', 'parse-edn', snapshotSource]));
-  const decode = value => {
-    if (Array.isArray(value)) return value.map(decode);
-    if (!value || typeof value !== 'object') return value;
-    if ('__edn_tag' in value) return value.__edn_tag;
-    if ('__edn_set' in value) return value.__edn_set.map(decode).sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b), 'en'));
-    return Object.fromEntries(Object.entries(value).map(([key, item]) => [key.replace(/^:/, ''), decode(item)]));
-  };
   const records = defs.map(def => {
     const metadata = definition(def.id);
     if (!metadata.schema || !metadata.doc) throw new Error(`Missing schema/documentation: ${def.id}`);
@@ -61,13 +54,13 @@ if (command === 'search') {
       id: def.id, namespace: def.namespace, name: def.name, kind: def.data_type ?? def.kind,
       runtimes: runtimes(def.namespace), import: `${def.namespace} :as ${def.namespace.split('.')[1]}`,
       schema: metadata.schema, doc: metadata.doc, tags: [...metadata.tags].sort(),
-      ffi: source.ffi ? decode(source.ffi) : null,
+      ffi: metadata.ffi ? decodeEdnJson(metadata.ffi) : null,
       schemaData: source.schema,
       // Data declarations retain all field and method schemas, including external traits.
       declaration: def.kind === 'data' ? metadata.code : null,
       examples: metadata.examples,
       recipes: recipes.filter(recipe => recipe.apis.includes(def.id)).map(recipe => ({ source: recipe.source, validation: recipe.validation })),
-      inspect: `calcit query def ${def.id} --raw --json`,
+      inspect: `calcit query def ${def.id} --format json`,
     };
   });
   const catalog = { schemaVersion: 1, sourceFingerprint, calcitVersion: calcit(['--version']).trim(), packageVersion: JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')).version, publicNamespaces, definitions: records };
