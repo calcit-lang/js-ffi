@@ -1,7 +1,7 @@
 import { copyFileSync, mkdtempSync, mkdirSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, dirname, resolve } from 'node:path';
-import { calcit, inventory, root, runtimes } from './api-lib.mjs';
+import { calcit, checkPublic, inventory, root, runtimes } from './api-lib.mjs';
 
 const args = process.argv.slice(2);
 let compile;
@@ -12,9 +12,17 @@ while (args.length) {
   else if (flag === '--snapshot' && args[0]) sourceSnapshot = resolve(args.shift());
   else throw new Error('Usage: check-api.mjs [--compile node|browser] [--snapshot path]');
 }
+if (!compile) {
+  for (const runtime of ['node', 'browser']) {
+    const report = checkPublic(runtime, sourceSnapshot);
+    console.log(`${runtime}: ${report.data.summary.definitions_checked} public definitions checked without execution`);
+  }
+  process.exit(0);
+}
+
 const definitions = inventory(sourceSnapshot);
 const recipes = JSON.parse(readFileSync(join(root, 'examples/recipes.json'), 'utf8'));
-for (const runtime of compile ? [compile] : ['node', 'browser']) {
+for (const runtime of [compile]) {
   const dir = mkdtempSync(join(tmpdir(), 'js-ffi-api-'));
   try {
     const snapshot = join(dir, 'calcit.cirru');
@@ -36,12 +44,8 @@ for (const runtime of compile ? [compile] : ['node', 'browser']) {
       edit(['edit', 'add-import', `js-ffi.${runtime}-test`, '--code', `quote $ ${recipe.namespace} :refer $ ${recipe.name}`]);
       edit(['tree', 'insert-before', `js-ffi.${runtime}-test/main!`, '--path', '@3', '--code', `quote ${recipe.name}`]);
     }
-    if (compile) {
-      mkdirSync(join(root, 'js-out'), { recursive: true });
-      edit(['--entry', runtime, '--emit-path', join(root, 'js-out'), 'js']);
-    } else {
-      edit(['--entry', runtime, '--check-only']);
-    }
-    console.log(`${runtime}: ${selected.length} public definitions and consumer recipes ${compile ? 'compiled' : 'type-checked'}`);
+    mkdirSync(join(root, 'js-out'), { recursive: true });
+    edit(['--entry', runtime, '--emit-path', join(root, 'js-out'), 'js']);
+    console.log(`${runtime}: ${selected.length} public definitions and consumer recipes compiled`);
   } finally { rmSync(dir, { recursive: true, force: true }); }
 }

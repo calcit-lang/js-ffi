@@ -22,6 +22,49 @@ export function inventory(snapshot = resolve(root, 'calcit.cirru')) {
   return report.data.definitions.filter(def => publicNamespaces.includes(def.namespace)).sort((a, b) => a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
 }
 
+/** Return the public namespaces admitted for one host target. */
+export function publicNamespacesForRuntime(runtime) {
+  return publicNamespaces.filter(namespace => runtimes(namespace).includes(runtime));
+}
+
+/** Validate a target-aware public-check envelope and its complete coverage. */
+export function parsePublicCheckReport(runtime, namespaces, output) {
+  const report = JSON.parse(output);
+  if (report.schema_version !== 1 || report.command !== 'analyze.check-public') {
+    throw new Error(`Unsupported Calcit public-check envelope for ${runtime}`);
+  }
+  if (report.data?.target !== runtime) throw new Error(`Calcit public check returned target ${report.data?.target ?? 'none'} for ${runtime}`);
+  if (report.data?.summary?.complete !== true || report.data?.summary?.passed !== true) {
+    throw new Error(`Calcit public check did not complete successfully for ${runtime}`);
+  }
+  const actualNamespaces = report.data?.filters?.namespaces ?? [];
+  if (JSON.stringify(actualNamespaces) !== JSON.stringify([...namespaces].sort())) {
+    throw new Error(`Calcit public check returned an unexpected namespace scope for ${runtime}`);
+  }
+  const checkedIds = report.data?.checked_definition_ids;
+  const definitions = report.data?.definitions;
+  const selectedIds = Array.isArray(definitions) ? definitions.map(definition => definition.id) : null;
+  const uniqueCheckedIds = Array.isArray(checkedIds) ? new Set(checkedIds) : new Set();
+  const uniqueSelectedIds = Array.isArray(selectedIds) ? new Set(selectedIds) : new Set();
+  if (!Array.isArray(checkedIds) || !Array.isArray(selectedIds)
+    || checkedIds.length !== report.data.summary.definitions_selected
+    || selectedIds.length !== report.data.summary.definitions_selected
+    || uniqueCheckedIds.size !== checkedIds.length
+    || uniqueSelectedIds.size !== selectedIds.length
+    || JSON.stringify([...uniqueCheckedIds].sort()) !== JSON.stringify([...uniqueSelectedIds].sort())) {
+    throw new Error(`Calcit public check returned incomplete definition IDs for ${runtime}`);
+  }
+  return report;
+}
+
+/** Check every public definition admitted for one host target without executing it. */
+export function checkPublic(runtime, snapshot = resolve(root, 'calcit.cirru')) {
+  const namespaces = publicNamespacesForRuntime(runtime);
+  const namespaceArgs = namespaces.flatMap(namespace => ['--ns', namespace]);
+  const output = calcit(['--entry', runtime, snapshot, 'analyze', 'check-public', ...namespaceArgs, '--format', 'json']);
+  return parsePublicCheckReport(runtime, namespaces, output);
+}
+
 /** Decode the tagged JSON representation used by Calcit machine-query fields. */
 export function decodeEdnJson(value) {
   if (Array.isArray(value)) return value.map(decodeEdnJson);

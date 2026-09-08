@@ -47,19 +47,22 @@ and its runtime policy in `scripts/api-lib.mjs`.
 
 ## What the checks prove
 
-`yarn check:api` uses structured `analyze check-types` output to enumerate all
-public definitions, including data definitions and external traits. It then
-copies the snapshot and pinned deps into a temporary directory and uses
-Calcit's edit/tree commands to inject a complete reference root. Node checks
-node/shared/contract; browser checks browser/shared/contract. Preprocessing
-validates the function bodies even when normal smoke entries never use them.
-No host effects execute, and the original snapshot is not rewritten.
+`yarn check:api` calls `calcit analyze check-public` separately for the Node and
+browser entries. Node checks node/shared/contract; browser checks
+browser/webgpu/shared/contract. The command discovers definitions directly, so
+new public functions require no symbol list or synthetic reference root. It
+checks 92 Node definitions and 137 browser definitions in the current snapshot,
+including data definitions and external traits. Preprocessing validates bodies
+that normal smoke entries never use, no host effects execute, and the snapshot
+is not copied or rewritten.
 
-Both compile scripts use the same temporary-root process, so runtime tests
-exercise compiled recipes and the full public API surface. Generated modules
-remain in ignored `js-out/`. The checker intentionally fails when a namespace
-contains an invalid unused definition; `tests/api-tooling.mjs` verifies this by
-inserting a broken function into a separate test snapshot.
+Compile commands retain their separate temporary-root process because recipe
+definitions and imports must still be added to the generated program. Runtime
+tests therefore continue to exercise compiled recipes and the full public API
+surface, while checking no longer depends on that generation path. Generated
+modules remain in ignored `js-out/`. The tooling tests verify complete checked
+IDs, target isolation, data declarations, and rejection of an invalid unused
+definition without mutating the source snapshot.
 
 The catalog is an inventory of declarations. It does not certify arbitrary
 JavaScript values, validate external services, or claim every API has an
@@ -80,9 +83,10 @@ retain the complete field and method AST. JSON consumers should check
   logical type. `fetch-response`, `response-text`, `read-text-async!`, and
   `write-text-async!` consume that contract; see the
   [checked async migration](checked-async-adapters.md).
-- [Calcit #874](https://github.com/calcit-lang/calcit/issues/874): provide a
-  supported target-aware all-public-definition check. Temporary roots are the
-  local workaround; no hand-maintained per-function list is retained.
+- [Calcit #874](https://github.com/calcit-lang/calcit/issues/874) provides the
+  supported target-aware all-public-definition check. This migration uses the
+  released [Calcit 0.14.5](https://github.com/calcit-lang/calcit/releases/tag/0.14.5)
+  toolchain.
 - [Calcit #875](https://github.com/calcit-lang/calcit/issues/875) provides the
   versioned `query def --format json` envelope consumed by the catalog. Its
   structured `data.ffi` field is lossless even for large host traits. Snapshot

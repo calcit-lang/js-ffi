@@ -48,7 +48,8 @@ path and UTF-8 filesystem adapters with signatures and error semantics. The
 - [Executable Calcit recipes](docs/recipes.md) demonstrate URL query encoding,
   UTF-8 file access, and browser event cleanup.
 - Search by runtime with `yarn api:search storage browser`.
-- `yarn check:api` preprocesses every public definition; `yarn api:check`
+- `yarn check:api` uses Calcit's target-aware public checker to preprocess every
+  public definition without executing host effects; `yarn api:check`
   validates catalog generation and checks the committed recipe guide for drift.
 
 See [API tooling](docs/api-tooling.md) for the editing workflow and upstream
@@ -199,7 +200,9 @@ new assertion or moving one into another definition fails the quality gate and
 requires an explicit review. Run `yarn audit:unsafe` to inspect their runtime
 contract evidence.
 
-The commands assume Calcit 0.13.77, Node.js 24 and Yarn are available on `PATH`:
+The commands assume the released Calcit 0.14.5 toolchain, Node.js 24 and Yarn
+are available on `PATH`. CI installs the exact Calcit version declared in
+`deps.cirru`:
 
 ```bash
 yarn install
