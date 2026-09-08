@@ -45,12 +45,10 @@ failure (including a second read), and filesystem rejection become
 `Result.err<JsError>`; no adapter retries. Synchronous `read-text!` and
 `write-text!` remain available with their native throw behavior.
 
-Candidate validation used Calcit PR #924 head
-`8a26fe854d654c5b44e0f70eb3befed753f20e50` (merged to main as
-`79b51b8b930059979d4184bf0f44319cd3c86a92`) against js-ffi main
-`072f7a48c5cfdeea8c3e089b215718a081118c83`. The candidate CLI still reports
-0.14.3; final dependency pins are intentionally deferred until Calcit 0.14.4
-and the matching `@calcit/procs` package are published.
+Validation uses the released Calcit 0.14.4 CLI and matching
+`@calcit/procs` 0.14.4 package. The release is built from
+`383917609c3adeeb575c7eb3f55aa37926619df4`; the async invocation fixes were
+completed by Calcit PR #924.
 
 Runtime evidence uses a local HTTP server, Vite on a random loopback port,
 Playwright Chromium, and temporary files. It covers Node and browser success,

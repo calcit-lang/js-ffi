@@ -21,5 +21,10 @@ Candidate verification used Calcit PR #924 head
 invalid consumers rejected, 12 async Node assertions, and 165 Chromium
 assertions. Static quality remains zero for Dynamic, nil, unresolved, and
 other strict metrics; one validated Response host narrowing raises the audited
-explicit-unsafe total from 39 to 40. Final Calcit and `@calcit/procs` 0.14.4
-pins remain deferred until those artifacts are published.
+explicit-unsafe total from 39 to 40.
+
+Final verification pins the released Calcit 0.14.4 CLI and
+`@calcit/procs` 0.14.4 package, built from
+`383917609c3adeeb575c7eb3f55aa37926619df4` after the core release workflow,
+crates.io publication, npm `latest` publication, and release manifest all
+completed successfully.
