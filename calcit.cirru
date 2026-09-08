@@ -1700,10 +1700,16 @@
             defn normalize-error (error)
               let
                   name $ try
-                    contract/expect-string |Error.name $ js/String (contract/object-field |Error error |name)
+                    let
+                        raw-name $ contract/object-field |Error error |name
+                      if (js-nullish? raw-name) |Error $ contract/expect-string |Error.name raw-name
                     fn (_) |Error
                   message $ try
-                    contract/expect-string |Error.message $ js/String (contract/object-field |Error error |message)
+                    let
+                        raw-message $ contract/object-field |Error error |message
+                      if (js-nullish? raw-message)
+                        contract/expect-string |Error $ js/String error
+                        contract/expect-string |Error.message raw-message
                     fn (_)
                       contract/expect-string |Error $ js/String error
                   kind $ case-default name (%:: JsErrorKind :unknown name)
@@ -1755,7 +1761,19 @@
             defn response-host (value)
               let
                   object $ contract/expect-object |Response value
+                  headers $ contract/expect-object |Response.headers (contract/object-field |Response object |headers)
+                contract/expect-number |Response.status $ contract/object-field |Response object |status
+                contract/expect-string |Response.statusText $ contract/object-field |Response object |statusText
+                contract/expect-bool |Response.ok $ contract/object-field |Response object |ok
+                contract/expect-string |Response.url $ contract/object-field |Response object |url
+                contract/expect-bool |Response.redirected $ contract/object-field |Response object |redirected
+                contract/expect-bool |Response.bodyUsed $ contract/object-field |Response object |bodyUsed
                 contract/expect-function |Response.text $ contract/object-field |Response object |text
+                contract/expect-function |Response.headers.get $ contract/object-field |Response.headers headers |get
+                contract/expect-function |Response.headers.has $ contract/object-field |Response.headers headers |has
+                contract/expect-function |Response.headers.set $ contract/object-field |Response.headers headers |set
+                contract/expect-function |Response.headers.append $ contract/object-field |Response.headers headers |append
+                contract/expect-function |Response.headers.delete $ contract/object-field |Response.headers headers |delete
                 unsafe-coerce object ResponseHost
           :examples $ []
           :ffi $ {} (:backend :js)

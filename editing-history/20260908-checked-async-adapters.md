@@ -12,6 +12,9 @@
 - Exercise local HTTP, consumed/synchronous/rejected body readers, temporary
   UTF-8 files, ENOENT, network rejection, and unhandled-rejection cleanup in
   Node and real Chromium.
+- Validate all concrete Response and Headers members before coercion, preserve
+  documented error-name/message fallbacks, and guarantee process-wide rejection
+  listener cleanup even when a test assertion or server close fails.
 
 Candidate verification used Calcit PR #924 head
 `8a26fe854d654c5b44e0f70eb3befed753f20e50`, merged to main as

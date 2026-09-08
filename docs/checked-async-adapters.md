@@ -45,6 +45,10 @@ failure (including a second read), and filesystem rejection become
 `Result.err<JsError>`; no adapter retries. Synchronous `read-text!` and
 `write-text!` remain available with their native throw behavior.
 
+`response-host` checks every concrete `ResponseHost` member, including the
+Headers method capability, before exposing the typed host value. Error objects
+with absent names use `Error`; absent messages fall back to `String(error)`.
+
 Validation uses the released Calcit 0.14.4 CLI and matching
 `@calcit/procs` 0.14.4 package. The release is built from
 `383917609c3adeeb575c7eb3f55aa37926619df4`; the async invocation fixes were

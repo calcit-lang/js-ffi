@@ -47,7 +47,7 @@ URLSearchParams.size, Headers, AbortController, performance and requestAnimation
 | `decode-uri-component` | String → String | Decode one component; malformed escapes raise URIError. |
 | `now-ms` | () → Number | Epoch milliseconds from Date.now. |
 | `performance-now` | () → Number | Monotonic milliseconds relative to the host time origin. |
-| `response-host` | JsObject → ResponseHost | Validate a host Response and its async text reader. |
+| `response-host` | JsObject → ResponseHost | Validate Response metadata, Headers methods, and its async text reader. |
 | `fetch-response` | String → async Result<ResponseHost, JsError> | Await one fetch; normalize throw/rejection. |
 | `response-text` | ResponseHost → async Result<String, JsError> | Await one body read; repeated/failed reads are errors. |
 | `normalize-error` | JsObject → JsError | Normalize a caught host failure. |
