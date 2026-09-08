@@ -27,14 +27,6 @@ jobs:
 
       - uses: calcit-lang/setup-calcit@v1.4.0
 
-      # Temporary candidate pin for calcit-lang/calcit#874. Replace this with
-      # the released 0.14.5 toolchain before merging the consumer migration.
-      - name: Install Calcit 0.14.5 public-check candidate
-        run: |
-          cargo install --git https://github.com/calcit-lang/calcit.git --rev e5141efaf75492ed60474d8202580143dae82893 --locked --force
-          echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
-          "$HOME/.cargo/bin/calcit" analyze check-public --help
-
       - name: Install dependencies
         run: |
           caps --strict --ci

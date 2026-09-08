@@ -200,9 +200,9 @@ new assertion or moving one into another definition fails the quality gate and
 requires an explicit review. Run `yarn audit:unsafe` to inspect their runtime
 contract evidence.
 
-The commands assume the Calcit 0.14.5 public-check candidate, Node.js 24 and
-Yarn are available on `PATH`. Until 0.14.5 is published, CI builds the candidate
-from calcit commit `e5141efaf75492ed60474d8202580143dae82893`:
+The commands assume the released Calcit 0.14.5 toolchain, Node.js 24 and Yarn
+are available on `PATH`. CI installs the exact Calcit version declared in
+`deps.cirru`:
 
 ```bash
 yarn install

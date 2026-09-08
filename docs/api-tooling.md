@@ -84,10 +84,9 @@ retain the complete field and method AST. JSON consumers should check
   `write-text-async!` consume that contract; see the
   [checked async migration](checked-async-adapters.md).
 - [Calcit #874](https://github.com/calcit-lang/calcit/issues/874) provides the
-  supported target-aware all-public-definition check. This migration is first
-  validated against unreleased commit
-  `e5141efaf75492ed60474d8202580143dae82893`; CI will switch to the published
-  0.14.5 toolchain before this consumer change merges.
+  supported target-aware all-public-definition check. This migration uses the
+  released [Calcit 0.14.5](https://github.com/calcit-lang/calcit/releases/tag/0.14.5)
+  toolchain.
 - [Calcit #875](https://github.com/calcit-lang/calcit/issues/875) provides the
   versioned `query def --format json` envelope consumed by the catalog. Its
   structured `data.ffi` field is lossless even for large host traits. Snapshot
