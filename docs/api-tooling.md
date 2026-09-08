@@ -75,9 +75,11 @@ retain the complete field and method AST. JSON consumers should check
 
 ## Upstream requests and remaining workarounds
 
-- [Calcit #873](https://github.com/calcit-lang/calcit/issues/873): enforce async
-  invocation contracts before an unawaited result is treated as its logical type.
-  Async networking is deferred here until the calling convention is reliable.
+- [Calcit #873](https://github.com/calcit-lang/calcit/issues/873) now enforces
+  async invocation contracts before an unawaited result is treated as its
+  logical type. `fetch-response`, `response-text`, `read-text-async!`, and
+  `write-text-async!` consume that contract; see the
+  [checked async migration](checked-async-adapters.md).
 - [Calcit #874](https://github.com/calcit-lang/calcit/issues/874): provide a
   supported target-aware all-public-definition check. Temporary roots are the
   local workaround; no hand-maintained per-function list is retained.

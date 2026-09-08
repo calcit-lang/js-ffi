@@ -257,7 +257,7 @@
     'js-ffi.shared/ResponseHost $ {}
       :mode :ensure
       :kind :data
-      :doc "|External Response metadata capability. Async body readers are omitted until adapters normalize their Promise results."
+      :doc "|External Response capability with metadata and an opaque Promise-like text-body reader consumed by response-text."
       :schema $ :: 'Trait
       :tags $ #{} :ffi :js-host
       :code $ quote
@@ -269,6 +269,7 @@
           :redirected? 'Bool
           :headers 'js-ffi.shared/HeadersHost
           :body-used? 'Bool
+          .text $ :: 'Fn $ {} (:args $ [] 'js-ffi.shared/ResponseHost) (:return 'JsObject)
       :examples $ []
         quote ResponseHost
     'js-ffi.shared/runtime-label $ {}

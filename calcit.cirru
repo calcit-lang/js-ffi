@@ -1136,6 +1136,25 @@
             {} (:return 'String)
               :args $ [] 'String
               :features $ #{} :js-ffi
+        'read-text-async! $ %{} 'CodeEntry (:doc "|Await node:fs/promises.readFile exactly once and return UTF-8 text or normalized JsError.")
+          :code $ quote
+            defn read-text-async! (file-path)
+              hint-fn $ {} (:async true)
+                :args $ [] 'String
+                :features $ #{} :js-ffi
+                :return $ :: 'Result 'String 'js-ffi.shared/JsError
+              try
+                %:: Result :ok $ contract/expect-string |fs.promises.readFile
+                  js-await $ fs-promises/readFile file-path |utf8
+                fn (error)
+                  %:: Result :err $ shared/normalize-error error
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :node)
+          :schema $ :: 'Fn
+            {}
+              :args $ [] 'String
+              :features $ #{} :js-ffi
+              :return $ :: 'Result 'String 'js-ffi.shared/JsError
         'real-path! $ %{} 'CodeEntry (:doc "|Synchronous node:fs.realpathSync adapter. Text uses UTF-8; filesystem failures raise the original host exception. No recursive deletion.")
           :code $ quote
             defn real-path! (file-path)
@@ -1210,9 +1229,29 @@
             {} (:return 'Unit)
               :args $ [] 'String 'String
               :features $ #{} :js-ffi
+        'write-text-async! $ %{} 'CodeEntry (:doc "|Await node:fs/promises.writeFile exactly once and return Unit or normalized JsError.")
+          :code $ quote
+            defn write-text-async! (file-path text)
+              hint-fn $ {} (:async true)
+                :args $ [] 'String 'String
+                :features $ #{} :js-ffi
+                :return $ :: 'Result 'Unit 'js-ffi.shared/JsError
+              try
+                do
+                  js-await $ fs-promises/writeFile file-path text |utf8
+                  %:: Result :ok &unit
+                fn (error)
+                  %:: Result :err $ shared/normalize-error error
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :node)
+          :schema $ :: 'Fn
+            {}
+              :args $ [] 'String 'String
+              :features $ #{} :js-ffi
+              :return $ :: 'Result 'Unit 'js-ffi.shared/JsError
       :ns $ %{} 'NsEntry (:doc "|Typed Node.js JavaScript FFI. Node-only modules remain isolated while runtime identity and cross-runtime host contracts come from js-ffi.shared.")
         :code $ quote
-          ns js-ffi.node $ :require (|node:fs :as fs) (|node:path :as path) (js-ffi.contract :as contract) (js-ffi.shared :as shared)
+          ns js-ffi.node $ :require (|node:fs :as fs) (|node:path :as path) (js-ffi.contract :as contract) (js-ffi.shared :as shared) (|node:fs/promises :as fs-promises)
     'js-ffi.node-test $ %{} 'FileEntry
       :defs $ {}
         'main! $ %{} 'CodeEntry (:doc "|Run the typed Node smoke probe and verify its Runtime enum.")
@@ -1368,9 +1407,13 @@
           :examples $ []
             quote $ &%{} RequestOptions :method (%:: HttpMethod :get) :headers ({})
           :schema $ :: 'Enum
-        'ResponseHost $ %{} 'CodeEntry (:doc "|External Response metadata capability. Async body readers are omitted until adapters normalize their Promise results.")
+        'ResponseHost $ %{} 'CodeEntry (:doc "|External Response capability with metadata and an opaque Promise-like text-body reader consumed by response-text.")
           :code $ quote
             deftrait ResponseHost (:status 'Number) (:status-text 'String) (:ok? 'Bool) (:url 'String) (:redirected? 'Bool) (:headers 'js-ffi.shared/HeadersHost) (:body-used? 'Bool)
+              .text $ :: 'Fn
+                {}
+                  :args $ [] 'js-ffi.shared/ResponseHost
+                  :return 'JsObject
           :examples $ [] (quote ResponseHost)
           :ffi $ {} (:backend :js) (:kind :external-object)
             :names $ {} (:body-used? |bodyUsed) (:ok? |ok) (:redirected? |redirected) (:status-text |statusText)
@@ -1558,6 +1601,25 @@
             {} (:return 'String)
               :args $ [] 'String
               :features $ #{} :js-ffi
+        'fetch-response $ %{} 'CodeEntry (:doc "|Await fetch exactly once and normalize synchronous throws or Promise rejections as Result.err.")
+          :code $ quote
+            defn fetch-response (url)
+              hint-fn $ {} (:async true)
+                :args $ [] 'String
+                :features $ #{} :js-ffi
+                :return $ :: 'Result 'js-ffi.shared/ResponseHost 'js-ffi.shared/JsError
+              try
+                %:: Result :ok $ response-host
+                  js-await $ js/fetch url
+                fn (error)
+                  %:: Result :err $ normalize-error error
+          :examples $ []
+          :ffi $ {} (:backend :js)
+          :schema $ :: 'Fn
+            {}
+              :args $ [] 'String
+              :features $ #{} :js-ffi
+              :return $ :: 'Result 'js-ffi.shared/ResponseHost 'js-ffi.shared/JsError
         'headers-append! $ %{} 'CodeEntry (:doc "|Append a header value using native Headers normalization.")
           :code $ quote
             defn headers-append! (value key text)
@@ -1633,6 +1695,32 @@
           :schema $ :: 'Fn
             {} (:return 'String)
               :args $ [] 'js-ffi.shared/HttpMethod
+        'normalize-error $ %{} 'CodeEntry (:doc "|Normalize a synchronous throw or Promise rejection into JsError.")
+          :code $ quote
+            defn normalize-error (error)
+              let
+                  name $ try
+                    contract/expect-string |Error.name $ js/String (contract/object-field |Error error |name)
+                    fn (_) |Error
+                  message $ try
+                    contract/expect-string |Error.message $ js/String (contract/object-field |Error error |message)
+                    fn (_)
+                      contract/expect-string |Error $ js/String error
+                  kind $ case-default name (%:: JsErrorKind :unknown name)
+                    |TypeError $ %:: JsErrorKind :type-error
+                    |RangeError $ %:: JsErrorKind :range-error
+                    |NotAllowedError $ %:: JsErrorKind :permission
+                    |SecurityError $ %:: JsErrorKind :permission
+                    |QuotaExceededError $ %:: JsErrorKind :quota
+                    |NetworkError $ %:: JsErrorKind :network
+                    |AbortError $ %:: JsErrorKind :abort
+                %{} JsError (:kind kind) (:name name) (:message message)
+                  :stack $ %none
+          :examples $ []
+          :schema $ :: 'Fn
+            {} (:return 'js-ffi.shared/JsError)
+              :args $ [] (:: 'JsNullish 'JsObject)
+              :features $ #{} :js-ffi
         'now-ms $ %{} 'CodeEntry (:doc "|Read the native result through a checked primitive boundary. Invalid input may raise a host exception.")
           :code $ quote
             defn now-ms () $ contract/expect-number |now-ms (js/Date.now)
@@ -1662,6 +1750,38 @@
                 :: 'Fn $ {} (:return 'Unit)
                   :args $ []
               :features $ #{} :js-ffi
+        'response-host $ %{} 'CodeEntry (:doc "|Validate a host Response object and expose its typed capability.")
+          :code $ quote
+            defn response-host (value)
+              let
+                  object $ contract/expect-object |Response value
+                contract/expect-function |Response.text $ contract/object-field |Response object |text
+                unsafe-coerce object ResponseHost
+          :examples $ []
+          :ffi $ {} (:backend :js)
+          :schema $ :: 'Fn
+            {} (:return 'js-ffi.shared/ResponseHost)
+              :args $ [] (:: 'JsNullish 'JsObject)
+              :features $ #{} :js-ffi
+        'response-text $ %{} 'CodeEntry (:doc "|Await Response.text exactly once and normalize synchronous throws or Promise rejections as Result.err.")
+          :code $ quote
+            defn response-text (response)
+              hint-fn $ {} (:async true)
+                :args $ [] 'js-ffi.shared/ResponseHost
+                :features $ #{} :js-ffi
+                :return $ :: 'Result 'String 'js-ffi.shared/JsError
+              try
+                %:: Result :ok $ contract/expect-string |Response.text
+                  js-await $ response .text
+                fn (error)
+                  %:: Result :err $ normalize-error error
+          :examples $ []
+          :ffi $ {} (:backend :js)
+          :schema $ :: 'Fn
+            {}
+              :args $ [] 'js-ffi.shared/ResponseHost
+              :features $ #{} :js-ffi
+              :return $ :: 'Result 'String 'js-ffi.shared/JsError
         'runtime-label $ %{} 'CodeEntry (:doc "|Convert Runtime to the stable host label used in logs and compatibility checks.")
           :code $ quote
             defn runtime-label (runtime)

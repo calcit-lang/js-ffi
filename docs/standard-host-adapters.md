@@ -1,6 +1,6 @@
 ---
 title: "Standard host adapters"
-summary: "Typed URL, Headers, abort, DOM, timers, process, paths and synchronous UTF-8 filesystem adapters"
+summary: "Typed URL, fetch/Response, Headers, abort, DOM, timers, process, paths and UTF-8 filesystem adapters"
 scope: "module"
 kind: "reference"
 category: "ffi"
@@ -12,7 +12,7 @@ entry_for:
 
 # Standard host adapters
 
-These 54 adapters extend the existing host contracts. Import `js-ffi.shared`
+These 60 adapters extend the existing host contracts. Import `js-ffi.shared`
 with either `js-ffi.browser` or `js-ffi.node`. The package retains no native
 objects in application state automatically; constructors explicitly return
 named host capabilities, and missing lookups return `Option`.
@@ -21,7 +21,7 @@ Development and CI use Node.js 24 (Vite requires Node.js >=22.12 here) and
 Playwright Chromium. Runtime helpers use standard APIs; the browser needs
 URLSearchParams.size, Headers, AbortController, performance and requestAnimationFrame.
 
-## Shared APIs (22 adapters)
+## Shared APIs (26 adapters)
 
 | Function | Parameters → result | Behavior |
 | --- | --- | --- |
@@ -47,6 +47,10 @@ URLSearchParams.size, Headers, AbortController, performance and requestAnimation
 | `decode-uri-component` | String → String | Decode one component; malformed escapes raise URIError. |
 | `now-ms` | () → Number | Epoch milliseconds from Date.now. |
 | `performance-now` | () → Number | Monotonic milliseconds relative to the host time origin. |
+| `response-host` | JsObject → ResponseHost | Validate a host Response and its async text reader. |
+| `fetch-response` | String → async Result<ResponseHost, JsError> | Await one fetch; normalize throw/rejection. |
+| `response-text` | ResponseHost → async Result<String, JsError> | Await one body read; repeated/failed reads are errors. |
+| `normalize-error` | JsObject → JsError | Normalize a caught host failure. |
 
 ## Browser APIs (11 adapters)
 
@@ -69,7 +73,7 @@ Missing attributes and selector results become none; invalid CSS selectors
 raise the native DOMException. Keep timer/frame handles and cancel them during
 teardown. Browser handles are numeric and must not be used as Node timer handles.
 
-## Node APIs (21 adapters)
+## Node APIs (23 adapters)
 
 | Function | Parameters → result |
 | --- | --- |
@@ -78,6 +82,8 @@ teardown. Browser handles are numeric and must not be used as Node timer handles
 | `path-absolute?` | String path → Bool |
 | `read-text!` | String path → String |
 | `write-text!`, `append-text!` | String path, String text → Unit |
+| `read-text-async!` | String path → async Result<String, JsError> |
+| `write-text-async!` | String path, String text → async Result<Unit, JsError> |
 | `copy-file!`, `rename!` | String source, String destination → Unit |
 | `unlink!` | String file path → Unit |
 | `mkdir!`, `rmdir!` | String directory → Unit |
@@ -86,21 +92,24 @@ teardown. Browser handles are numeric and must not be used as Node timer handles
 | `pid`, `uptime` | () → Number |
 | `platform`, `node-version` | () → String |
 
-Filesystem calls are synchronous and use UTF-8 for text. They preserve native
+The original filesystem calls are synchronous and use UTF-8 for text. They preserve native
 exceptions (including ENOENT and ENOTEMPTY). `write-text!` overwrites existing
 files; `copy-file!` follows Node's default overwrite behavior. `mkdir!` creates
 one directory and `rmdir!` removes only empty directories. `unlink!` unlinks a
 file or symlink. No adapter performs recursive deletion. `make-temp-dir!`
 appends a random suffix to its prefix; join the system temporary directory
 with a filename prefix first. Path operations follow the running platform's rules.
+The two async text adapters await `node:fs/promises` exactly once and normalize
+both synchronous throws and Promise rejections into `Result.err<JsError>`.
 
 ## Boundary and validation policy
 
 Primitive values from untyped globals and Node module functions pass through
 `contract/expect-*`. Typed trait members rely on the declared host capability;
 they do not turn arbitrary caller-provided JavaScript objects into validated
-objects. Only the four constructors add `unsafe-coerce`: URL, URLSearchParams,
-Headers and AbortController. Their native constructors establish the host
+objects. Only five small boundary adapters add `unsafe-coerce`: URL,
+URLSearchParams, Headers, AbortController and Response. Their native values
+establish the host
 identity, and the tests exercise the consumed members in both environments.
 The baseline allows one assertion in each constructor and preserves every
 zero-tolerance metric.
@@ -110,7 +119,9 @@ reachable in temporary check snapshots without running filesystem or browser
 effects. No per-function reference list is maintained by hand. Runtime
 tests call the compiled adapters and check native effects, nullish lookup,
 Unicode, exception propagation, callback identity and cancellation. Negative
-consumer fixtures ensure four invalid calls fail type checking.
+consumer fixtures ensure direct and aliased missing-await calls, an
+async-to-sync callback mismatch, and the existing invalid host calls fail type
+checking.
 
 Run all checks with `yarn test`. Install Chromium once using
 `yarn playwright install chromium` (`--with-deps` on Linux CI). Individual

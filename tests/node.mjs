@@ -2,8 +2,11 @@ import { test } from 'node:test';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { createServer } from 'node:http';
 import { syncBuiltinESMExports } from 'node:module';
 import * as node from '../js-out/js-ffi.node.mjs';
+import * as shared from '../js-out/js-ffi.shared.mjs';
+import { result_$o_err_$q_ as isErr, result_$o_ok_$q_ as isOk } from '../js-out/calcit.core.mjs';
 import { assertions, testShared } from './shared.mjs';
 
 test('shared Web API adapters on Node', async () => {
@@ -73,4 +76,52 @@ test('node-version reports the actual host member on invalid data', () => {
   } finally {
     Object.defineProperty(process, 'version', descriptor);
   }
+});
+
+test('checked async fetch, Response body and filesystem adapters', async () => {
+  const a = assertions();
+  const unhandled = [];
+  const onUnhandled = reason => unhandled.push(reason);
+  process.on('unhandledRejection', onUnhandled);
+  const server = createServer((_request, response) => {
+    response.writeHead(200, { 'content-type': 'text/plain; charset=utf-8' });
+    response.end('本地响应\n');
+  });
+  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+  const address = server.address();
+  const url = `http://127.0.0.1:${address.port}/body`;
+  try {
+    const fetched = await shared.fetch_response(url);
+    a.equal(isOk(fetched), true);
+    const response = fetched.extra[0];
+    const body = await shared.response_text(response);
+    a.equal(isOk(body), true);
+    a.equal(body.extra[0], '本地响应\n');
+    const consumed = await shared.response_text(response);
+    a.equal(isErr(consumed), true);
+
+    const syncThrow = await shared.response_text({ text() { throw new Error('sync body failure'); } });
+    a.equal(isErr(syncThrow), true);
+    const rejected = await shared.response_text({ text() { return Promise.reject(new Error('async body failure')); } });
+    a.equal(isErr(rejected), true);
+
+    const root = node.make_temp_dir_$x_(path.join(os.tmpdir(), 'js-ffi-async-'));
+    try {
+      const file = path.join(root, 'text.txt');
+      a.equal(isOk(await node.write_text_async_$x_(file, '异步文件\n')), true);
+      const read = await node.read_text_async_$x_(file);
+      a.equal(isOk(read), true);
+      a.equal(read.extra[0], '异步文件\n');
+      a.equal(isErr(await node.read_text_async_$x_(path.join(root, 'missing.txt'))), true);
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  } finally {
+    await new Promise((resolve, reject) => server.close(error => error ? reject(error) : resolve()));
+  }
+  a.equal(isErr(await shared.fetch_response(url)), true);
+  await new Promise(resolve => setImmediate(resolve));
+  process.off('unhandledRejection', onUnhandled);
+  a.equal(unhandled.length, 0);
+  console.log(`Async Node: ${a.count} assertions`);
 });
