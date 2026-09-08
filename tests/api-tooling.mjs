@@ -4,7 +4,20 @@ import { copyFileSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from '
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { calcit, decodeEdnJson, definition, parseDefinitionReport, root } from '../scripts/api-lib.mjs';
+import {
+  calcit,
+  checkPublic,
+  decodeEdnJson,
+  definition,
+  inventory,
+  parseDefinitionReport,
+  parsePublicCheckReport,
+  publicNamespacesForRuntime,
+  root,
+  runtimes,
+} from '../scripts/api-lib.mjs';
+
+const calcitBin = process.env.CALCIT_BIN ?? 'calcit';
 
 test('definition query consumes one complete versioned JSON envelope', () => {
   const element = definition('js-ffi.browser/DomElementHost');
@@ -58,13 +71,59 @@ test('API check discovers an unused new definition and rejects its invalid call'
     calcit([snapshot, 'edit', 'def', 'js-ffi.node/unused-invalid', '--code', 'quote $ defn unused-invalid () $ path-basename 42'], dir);
     calcit([snapshot, 'edit', 'schema', 'js-ffi.node/unused-invalid', '--code', "quote $ :: 'Fn $ {} (:args $ []) (:return 'String)"], dir);
     const before = readFileSync(snapshot, 'utf8');
-    const result = spawnSync(process.execPath, [join(root, 'scripts/check-api.mjs'), '--snapshot', snapshot], { cwd: root, encoding: 'utf8' });
+    const namespaces = publicNamespacesForRuntime('node');
+    const result = spawnSync(
+      calcitBin,
+      ['--entry', 'node', snapshot, 'analyze', 'check-public', ...namespaces.flatMap(namespace => ['--ns', namespace]), '--format', 'json'],
+      { cwd: root, encoding: 'utf8' },
+    );
     assert.ifError(result.error);
     assert.notEqual(result.status, 0);
-    assert.match(result.stderr, /W_FN_ARG_TYPE_MISMATCH/);
-    assert.match(result.stderr, /unused-invalid/);
+    const report = JSON.parse(result.stdout);
+    assert.ok(report.diagnostics.some(diagnostic => diagnostic.code === 'W_FN_ARG_TYPE_MISMATCH'));
+    assert.match(JSON.stringify(report.diagnostics), /unused-invalid/);
     assert.equal(readFileSync(snapshot, 'utf8'), before, 'Checking must leave the input snapshot unchanged');
   } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('target-aware API checks cover every admitted definition and data declaration', () => {
+  const definitions = inventory();
+  for (const runtime of ['node', 'browser']) {
+    const report = checkPublic(runtime);
+    const expectedIds = definitions.filter(definition => runtimes(definition.namespace).includes(runtime)).map(definition => definition.id);
+    assert.deepEqual(report.data.checked_definition_ids, expectedIds);
+    assert.ok(report.data.definitions.some(definition => definition.kind === 'data'), `${runtime} check must include data and trait declarations`);
+  }
+});
+
+test('public check rejects a wrong-target namespace before checking any definition', () => {
+  const namespaces = ['js-ffi.browser'];
+  const args = ['--entry', 'node', join(root, 'calcit.cirru'), 'analyze', 'check-public', '--ns', namespaces[0], '--format', 'json'];
+  const result = spawnSync(calcitBin, args, { cwd: root, encoding: 'utf8' });
+  assert.ifError(result.error);
+  assert.notEqual(result.status, 0);
+  const report = JSON.parse(result.stdout);
+  assert.equal(report.data.summary.definitions_checked, 0);
+  assert.equal(report.data.summary.complete, false);
+  assert.ok(report.diagnostics.some(diagnostic => diagnostic.code === 'E_JS_FFI_TARGET_MISMATCH'));
+  assert.ok(report.data.definitions.some(definition => definition.kind === 'data' && definition.status === 'rejected'));
+});
+
+test('public-check envelope parser rejects incomplete or mismatched reports', () => {
+  const namespaces = publicNamespacesForRuntime('node');
+  const valid = checkPublic('node');
+  assert.throws(
+    () => parsePublicCheckReport('node', namespaces, JSON.stringify({ ...valid, schema_version: 2 })),
+    /Unsupported Calcit public-check envelope/,
+  );
+  assert.throws(
+    () => parsePublicCheckReport('browser', publicNamespacesForRuntime('browser'), JSON.stringify(valid)),
+    /returned target node for browser/,
+  );
+  assert.throws(
+    () => parsePublicCheckReport('node', namespaces, JSON.stringify({ ...valid, data: { ...valid.data, summary: { ...valid.data.summary, complete: false } } })),
+    /did not complete successfully/,
+  );
 });
 
 test('catalog builds on first search, refreshes stale data, and preserves host metadata', () => {
