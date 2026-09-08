@@ -27,6 +27,13 @@ success-value decoding failures are delivered there. Synchronous host throws
 and malformed Promise capabilities throw synchronously. Callbacks must return
 `Unit` and must not throw; a thrown success callback is routed to `failed!`,
 but a throwing failure callback can cause an unhandled rejected Promise.
+If a rejection value cannot be converted to a string, `failed!` receives the
+stable fallback `WebGPU.error-unprintable`.
+
+The buffer lifecycle recipe releases its buffer on both successful reads and
+size-read failures. A read failure is reported as
+`WebGPU.buffer-lifecycle.failed-to-read-size` after cleanup; cleanup errors
+themselves propagate and are not retried.
 
 Only default adapter/device options are supported in this first slice. Request
 a device once per adapter. Observe `device.lost` with `watch-device-lost!`;

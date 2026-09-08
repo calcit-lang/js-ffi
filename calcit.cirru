@@ -2062,7 +2062,9 @@
         'error-message $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defn error-message (value)
-              contract/expect-string |WebGPU.error $ js/String value
+              try
+                contract/expect-string |WebGPU.error $ js/String value
+                fn (error) |WebGPU.error-unprintable
           :examples $ []
           :schema $ :: 'Fn
             {} (:return 'String)
