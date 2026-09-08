@@ -16,7 +16,7 @@ Start with [executable recipes](recipes.md) or `yarn api:search`. Run
 `yarn api:generate` to build `.calcit/api/api.md` and `.calcit/api/api.json`
 locally. These full catalogs are reproducible caches, excluded by the existing
 `.calcit/` ignore rule. The catalog includes every definition in the
-four public namespaces: browser, node, shared and contract. Test namespaces are
+five public namespaces: browser, WebGPU, node, shared and contract. Test namespaces are
 excluded. New definitions in those namespaces are discovered automatically;
 adding a new public namespace requires an explicit update to `publicNamespaces`
 and its runtime policy in `scripts/api-lib.mjs`.
