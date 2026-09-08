@@ -818,7 +818,7 @@
               :args $ []
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote
-          ns js-ffi.browser-test $ :require (js-ffi.browser :as browser) (js-ffi.contract :as contract) (js-ffi.shared :as shared)
+          ns js-ffi.browser-test $ :require (js-ffi.browser :as browser) (js-ffi.contract :as contract) (js-ffi.shared :as shared) (js-ffi.webgpu :as webgpu)
     'js-ffi.contract $ %{} 'FileEntry
       :defs $ {}
         'expect-bool $ %{} 'CodeEntry (:doc "|Decode an opaque JavaScript value as Bool after a runtime kind check. Null and undefined are reported as nullish; other mismatches raise a stable JS FFI contract violation.")
@@ -1767,3 +1767,354 @@
       :ns $ %{} 'NsEntry (:doc "|Shared JavaScript FFI data types, normalized snapshots, and explicit external-object capabilities that work in browser and Node targets.")
         :code $ quote
           ns js-ffi.shared $ :require (js-ffi.contract :as contract)
+    'js-ffi.webgpu $ %{} 'FileEntry
+      :defs $ {}
+        'AdapterHost $ %{} 'CodeEntry (:doc "|Small browser WebGPU host capability; use the checked public adapters to acquire it.")
+          :code $ quote
+            deftrait AdapterHost $ .request-device
+              :: 'Fn $ {}
+                :args $ [] 'js-ffi.webgpu/AdapterHost 'JsObject
+                :return $ :: 'JsNullish 'JsObject
+          :examples $ []
+          :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
+            :names $ {} (:request-device |requestDevice)
+          :schema $ :: 'Trait
+        'BufferHost $ %{} 'CodeEntry (:doc "|Small browser WebGPU host capability; use the checked public adapters to acquire it.")
+          :code $ quote
+            deftrait BufferHost
+              :size $ :: 'JsNullish 'JsObject
+              :usage $ :: 'JsNullish 'JsObject
+              .destroy $ :: 'Fn
+                {}
+                  :args $ [] 'js-ffi.webgpu/BufferHost
+                  :return 'Unit
+              .unmap $ :: 'Fn
+                {}
+                  :args $ [] 'js-ffi.webgpu/BufferHost
+                  :return 'Unit
+          :examples $ []
+          :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
+            :names $ {}
+          :schema $ :: 'Trait
+        'DeviceHost $ %{} 'CodeEntry (:doc "|Small browser WebGPU host capability; use the checked public adapters to acquire it.")
+          :code $ quote
+            deftrait DeviceHost
+              :lost $ :: 'JsNullish 'JsObject
+              .destroy $ :: 'Fn
+                {}
+                  :args $ [] 'js-ffi.webgpu/DeviceHost
+                  :return 'Unit
+              .create-buffer $ :: 'Fn
+                {}
+                  :args $ [] 'js-ffi.webgpu/DeviceHost 'JsObject
+                  :return $ :: 'JsNullish 'JsObject
+              .push-error-scope $ :: 'Fn
+                {}
+                  :args $ [] 'js-ffi.webgpu/DeviceHost 'String
+                  :return 'Unit
+              .pop-error-scope $ :: 'Fn
+                {}
+                  :args $ [] 'js-ffi.webgpu/DeviceHost
+                  :return $ :: 'JsNullish 'JsObject
+          :examples $ []
+          :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
+            :names $ {} (:create-buffer |createBuffer) (:pop-error-scope |popErrorScope) (:push-error-scope |pushErrorScope)
+          :schema $ :: 'Trait
+        'DeviceLost $ %{} 'CodeEntry (:doc "|Copied device-loss reason and message. Unknown future reason strings are preserved.")
+          :code $ quote
+            defstruct DeviceLost (:reason 'String) (:message 'String)
+          :examples $ []
+          :schema $ :: 'StructDef
+        'GpuHost $ %{} 'CodeEntry (:doc "|Small browser WebGPU host capability; use the checked public adapters to acquire it.")
+          :code $ quote
+            deftrait GpuHost
+              .request-adapter $ :: 'Fn
+                {}
+                  :args $ [] 'js-ffi.webgpu/GpuHost 'JsObject
+                  :return $ :: 'JsNullish 'JsObject
+              .preferred-format $ :: 'Fn
+                {}
+                  :args $ [] 'js-ffi.webgpu/GpuHost
+                  :return $ :: 'JsNullish 'JsObject
+          :examples $ []
+          :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
+            :names $ {} (:preferred-format |getPreferredCanvasFormat) (:request-adapter |requestAdapter)
+          :schema $ :: 'Trait
+        'buffer-size $ %{} 'CodeEntry (:doc "|Read buffer byte size through a checked host field.")
+          :code $ quote
+            defn buffer-size (buffer) (contract/expect-number |GPUBuffer.size buffer.:size)
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :browser)
+          :schema $ :: 'Fn
+            {} (:return 'Number)
+              :args $ [] 'js-ffi.webgpu/BufferHost
+              :features $ #{} :js-ffi
+        'create-buffer $ %{} 'CodeEntry (:doc "|Create an unmapped buffer. size is bytes; usage is the WebGPU GPUBufferUsage bitmask. Device limits and usage combinations are validated by WebGPU; surround calls with an error scope.")
+          :code $ quote
+            defn create-buffer (device size usage)
+              when
+                or
+                  not $ js/Number.isSafeInteger size
+                  < size 0
+                raise |WebGPU.buffer.size-must-be-a-nonnegative-safe-integer
+              when
+                or
+                  not $ js/Number.isSafeInteger usage
+                  <= usage 0
+                  > usage 1023
+                raise |WebGPU.buffer.usage-must-be-a-nonzero-known-bitmask
+              internal/buffer-host $ device .create-buffer (&js-object :size size :usage usage :mappedAtCreation false)
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :browser)
+          :schema $ :: 'Fn
+            {} (:return 'js-ffi.webgpu/BufferHost)
+              :args $ [] 'js-ffi.webgpu/DeviceHost 'Number 'Number
+              :features $ #{} :js-ffi
+        'destroy-buffer! $ %{} 'CodeEntry (:doc "|Release buffer resources; mapped views are detached by WebGPU.")
+          :code $ quote
+            defn destroy-buffer! (buffer) (buffer .destroy)
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :browser)
+          :schema $ :: 'Fn
+            {} (:return 'Unit)
+              :args $ [] 'js-ffi.webgpu/BufferHost
+              :features $ #{} :js-ffi
+        'destroy-device! $ %{} 'CodeEntry (:doc "|Destroy a device explicitly. Multiple calls are allowed by WebGPU; later GPU work is invalid.")
+          :code $ quote
+            defn destroy-device! (device) (device .destroy)
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :browser)
+          :schema $ :: 'Fn
+            {} (:return 'Unit)
+              :args $ [] 'js-ffi.webgpu/DeviceHost
+              :features $ #{} :js-ffi
+        'gpu $ %{} 'CodeEntry (:doc "|Return Option<GpuHost>. Absence (including non-browser/insecure hosts) is none; malformed non-null capabilities raise a contract violation.")
+          :code $ quote
+            defn gpu () $ if (exists? js/navigator)
+              let
+                  value $ contract/object-field |navigator js/navigator |gpu
+                if (js-nullish? value) (%none)
+                  %some $ internal/gpu-host value
+              %none
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :browser)
+          :schema $ :: 'Fn
+            {}
+              :args $ []
+              :features $ #{} :js-ffi
+              :return $ :: 'Option 'js-ffi.webgpu/GpuHost
+        'pop-error-scope! $ %{} 'CodeEntry (:doc "|Pop a scope: none means no captured error; some contains the error message. A rejected pop (such as empty scope stack) goes to failed!.")
+          :code $ quote
+            defn pop-error-scope! (device ready! failed!)
+              internal/observe! (device .pop-error-scope)
+                fn (value)
+                  if (js-nullish? value)
+                    ready! $ %none
+                    ready! $ %some
+                      contract/expect-string |GPUError.message $ contract/object-field |GPUError value |message
+                , failed!
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :browser)
+          :schema $ :: 'Fn
+            {} (:return 'Unit)
+              :args $ [] 'js-ffi.webgpu/DeviceHost
+                :: 'Fn $ {} (:return 'Unit)
+                  :args $ [] (:: 'Option 'String)
+                :: 'Fn $ {} (:return 'Unit)
+                  :args $ [] 'String
+              :features $ #{} :js-ffi
+        'preferred-canvas-format $ %{} 'CodeEntry (:doc "|Return the browser-preferred canvas format; does not configure a canvas.")
+          :code $ quote
+            defn preferred-canvas-format (gpu)
+              contract/expect-string |GPU.getPreferredCanvasFormat $ gpu .preferred-format
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :browser)
+          :schema $ :: 'Fn
+            {} (:return 'String)
+              :args $ [] 'js-ffi.webgpu/GpuHost
+              :features $ #{} :js-ffi
+        'push-validation-scope! $ %{} 'CodeEntry (:doc "|Push a validation error scope. Pair with pop-error-scope!; scopes belong to the device and are stack ordered.")
+          :code $ quote
+            defn push-validation-scope! (device) (device .push-error-scope |validation)
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :browser)
+          :schema $ :: 'Fn
+            {} (:return 'Unit)
+              :args $ [] 'js-ffi.webgpu/DeviceHost
+              :features $ #{} :js-ffi
+        'request-adapter! $ %{} 'CodeEntry (:doc "|Request a default adapter. Callback receives none if unavailable. Promise rejection/decoder failure goes to failed! as String. No Promise is exposed as an adapter.")
+          :code $ quote
+            defn request-adapter! (gpu ready! failed!)
+              internal/observe!
+                gpu .request-adapter $ &js-object
+                fn (value)
+                  if (js-nullish? value)
+                    ready! $ %none
+                    ready! $ %some (internal/adapter-host value)
+                , failed!
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :browser)
+          :schema $ :: 'Fn
+            {} (:return 'Unit)
+              :args $ [] 'js-ffi.webgpu/GpuHost
+                :: 'Fn $ {} (:return 'Unit)
+                  :args $ [] (:: 'Option 'js-ffi.webgpu/AdapterHost)
+                :: 'Fn $ {} (:return 'Unit)
+                  :args $ [] 'String
+              :features $ #{} :js-ffi
+        'request-device! $ %{} 'CodeEntry (:doc "|Request a default device once per adapter. No extra features or limits are requested. Register device loss separately; successful allocation does not imply an indefinitely usable device.")
+          :code $ quote
+            defn request-device! (adapter ready! failed!)
+              internal/observe!
+                adapter .request-device $ &js-object
+                fn (value)
+                  ready! $ internal/device-host value
+                , failed!
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :browser)
+          :schema $ :: 'Fn
+            {} (:return 'Unit)
+              :args $ [] 'js-ffi.webgpu/AdapterHost
+                :: 'Fn $ {} (:return 'Unit)
+                  :args $ [] 'js-ffi.webgpu/DeviceHost
+                :: 'Fn $ {} (:return 'Unit)
+                  :args $ [] 'String
+              :features $ #{} :js-ffi
+        'watch-device-lost! $ %{} 'CodeEntry (:doc "|Observe device.lost without retrying or reusing the adapter. Listener lives until the promise settles; no cancellation is provided.")
+          :code $ quote
+            defn watch-device-lost! (device ready! failed!)
+              internal/observe! device.:lost
+                fn (value)
+                  ready! $ %{} DeviceLost
+                    :reason $ contract/expect-string |GPUDeviceLostInfo.reason (contract/object-field |GPUDeviceLostInfo value |reason)
+                    :message $ contract/expect-string |GPUDeviceLostInfo.message (contract/object-field |GPUDeviceLostInfo value |message)
+                , failed!
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :browser)
+          :schema $ :: 'Fn
+            {} (:return 'Unit)
+              :args $ [] 'js-ffi.webgpu/DeviceHost
+                :: 'Fn $ {} (:return 'Unit)
+                  :args $ [] 'js-ffi.webgpu/DeviceLost
+                :: 'Fn $ {} (:return 'Unit)
+                  :args $ [] 'String
+              :features $ #{} :js-ffi
+      :ns $ %{} 'NsEntry (:doc |)
+        :code $ quote
+          ns js-ffi.webgpu $ :require (js-ffi.webgpu-internal :as internal) (js-ffi.contract :as contract)
+    'js-ffi.webgpu-internal $ %{} 'FileEntry
+      :defs $ {}
+        'PromiseHost $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            deftrait PromiseHost $ .then
+              :: 'Fn $ {}
+                :args $ [] 'js-ffi.webgpu-internal/PromiseHost
+                  :: 'Fn $ {}
+                    :args $ [] (:: 'JsNullish 'JsObject)
+                    :return 'Unit
+                  :: 'Fn $ {}
+                    :args $ [] (:: 'JsNullish 'JsObject)
+                    :return 'Unit
+                :return 'JsObject
+          :examples $ []
+          :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
+          :schema $ :: 'Trait
+        'adapter-host $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defn adapter-host (value)
+              let
+                  object $ contract/expect-object |WebGPU.adapter-host value
+                contract/expect-function |WebGPU.adapter-host.requestDevice $ contract/object-field |WebGPU.adapter-host object |requestDevice
+                unsafe-coerce object 'js-ffi.webgpu/AdapterHost
+          :examples $ []
+          :schema $ :: 'Fn
+            {} (:return 'js-ffi.webgpu/AdapterHost)
+              :args $ [] (:: 'JsNullish 'JsObject)
+              :features $ #{} :js-ffi
+        'buffer-host $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defn buffer-host (value)
+              let
+                  object $ contract/expect-object |WebGPU.buffer-host value
+                contract/expect-function |WebGPU.buffer-host.destroy $ contract/object-field |WebGPU.buffer-host object |destroy
+                contract/expect-function |WebGPU.buffer-host.unmap $ contract/object-field |WebGPU.buffer-host object |unmap
+                unsafe-coerce object 'js-ffi.webgpu/BufferHost
+          :examples $ []
+          :schema $ :: 'Fn
+            {} (:return 'js-ffi.webgpu/BufferHost)
+              :args $ [] (:: 'JsNullish 'JsObject)
+              :features $ #{} :js-ffi
+        'device-host $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defn device-host (value)
+              let
+                  object $ contract/expect-object |WebGPU.device-host value
+                contract/expect-function |WebGPU.device-host.destroy $ contract/object-field |WebGPU.device-host object |destroy
+                contract/expect-function |WebGPU.device-host.createBuffer $ contract/object-field |WebGPU.device-host object |createBuffer
+                contract/expect-function |WebGPU.device-host.pushErrorScope $ contract/object-field |WebGPU.device-host object |pushErrorScope
+                contract/expect-function |WebGPU.device-host.popErrorScope $ contract/object-field |WebGPU.device-host object |popErrorScope
+                unsafe-coerce object 'js-ffi.webgpu/DeviceHost
+          :examples $ []
+          :schema $ :: 'Fn
+            {} (:return 'js-ffi.webgpu/DeviceHost)
+              :args $ [] (:: 'JsNullish 'JsObject)
+              :features $ #{} :js-ffi
+        'error-message $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defn error-message (value)
+              contract/expect-string |WebGPU.error $ js/String value
+          :examples $ []
+          :schema $ :: 'Fn
+            {} (:return 'String)
+              :args $ [] (:: 'JsNullish 'JsObject)
+              :features $ #{} :js-ffi
+        'gpu-host $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defn gpu-host (value)
+              let
+                  object $ contract/expect-object |WebGPU.gpu-host value
+                contract/expect-function |WebGPU.gpu-host.requestAdapter $ contract/object-field |WebGPU.gpu-host object |requestAdapter
+                contract/expect-function |WebGPU.gpu-host.getPreferredCanvasFormat $ contract/object-field |WebGPU.gpu-host object |getPreferredCanvasFormat
+                unsafe-coerce object 'js-ffi.webgpu/GpuHost
+          :examples $ []
+          :schema $ :: 'Fn
+            {} (:return 'js-ffi.webgpu/GpuHost)
+              :args $ [] (:: 'JsNullish 'JsObject)
+              :features $ #{} :js-ffi
+        'observe! $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defn observe! (promise ready! failed!)
+              let
+                  host $ promise-host promise
+                host .then
+                  fn (value)
+                    try (ready! value)
+                      fn (error)
+                        failed! $ error-message error
+                  fn (error)
+                    failed! $ error-message error
+                , &unit
+          :examples $ []
+          :schema $ :: 'Fn
+            {} (:return 'Unit)
+              :args $ [] (:: 'JsNullish 'JsObject)
+                :: 'Fn $ {} (:return 'Unit)
+                  :args $ [] (:: 'JsNullish 'JsObject)
+                :: 'Fn $ {} (:return 'Unit)
+                  :args $ [] 'String
+              :features $ #{} :js-ffi
+        'promise-host $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defn promise-host (value)
+              let
+                  object $ contract/expect-object |WebGPU.promise-host value
+                contract/expect-function |WebGPU.promise-host.then $ contract/object-field |WebGPU.promise-host object |then
+                unsafe-coerce object 'js-ffi.webgpu-internal/PromiseHost
+          :examples $ []
+          :schema $ :: 'Fn
+            {} (:return 'js-ffi.webgpu-internal/PromiseHost)
+              :args $ [] (:: 'JsNullish 'JsObject)
+              :features $ #{} :js-ffi
+      :ns $ %{} 'NsEntry (:doc |)
+        :code $ quote
+          ns js-ffi.webgpu-internal $ :require (js-ffi.contract :as contract)

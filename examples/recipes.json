@@ -1,5 +1,16 @@
 [
   {
+    "name": "buffer-lifecycle",
+    "namespace": "js-ffi.webgpu-example",
+    "title": "Allocate and release a small unmapped COPY_DST buffer on a caller-owned device",
+    "runtimes": ["browser"],
+    "source": "examples/buffer-lifecycle.cirru",
+    "imports": ["js-ffi.webgpu :as webgpu"],
+    "schema": ":: 'Fn $ {} (:args $ [] 'js-ffi.webgpu/DeviceHost) (:return 'Number) (:features $ #{} :js-ffi)",
+    "apis": ["js-ffi.webgpu/create-buffer", "js-ffi.webgpu/buffer-size", "js-ffi.webgpu/destroy-buffer!"],
+    "validation": "tests/webgpu.mjs"
+  },
+  {
     "name": "query-string",
     "namespace": "js-ffi.query-example",
     "title": "Encode a search query without manual URL escaping",

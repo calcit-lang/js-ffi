@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 
 export const root = fileURLToPath(new URL('../', import.meta.url));
-export const publicNamespaces = ['js-ffi.browser', 'js-ffi.contract', 'js-ffi.node', 'js-ffi.shared'];
+export const publicNamespaces = ['js-ffi.browser', 'js-ffi.contract', 'js-ffi.node', 'js-ffi.shared', 'js-ffi.webgpu'];
 
 /** Run the pinned Calcit CLI without a shell; preserve diagnostics on failure. */
 export function calcit(args, cwd = root) {
@@ -14,7 +14,7 @@ export function calcit(args, cwd = root) {
   }
 }
 
-/** Discover every definition in the four public namespaces using structured CLI output. */
+/** Discover every definition in the public namespaces using structured CLI output. */
 export function inventory(snapshot = resolve(root, 'calcit.cirru')) {
   const report = JSON.parse(calcit([snapshot, 'analyze', 'check-types', '--format', 'json']));
   if (report.schema_version !== 2) throw new Error('Unsupported Calcit type report version');
@@ -32,7 +32,7 @@ export function definition(id) {
 
 /** Namespace policy is explicit: host capability discovery must not infer runtime from names of functions. */
 export function runtimes(namespace) {
-  if (namespace === 'js-ffi.browser') return ['browser'];
+  if (namespace === 'js-ffi.browser' || namespace === 'js-ffi.webgpu') return ['browser'];
   if (namespace === 'js-ffi.node') return ['node'];
   return ['browser', 'node'];
 }
