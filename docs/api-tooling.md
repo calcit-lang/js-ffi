@@ -73,7 +73,7 @@ writable sets are sorted arrays for deterministic generation. Trait declarations
 retain the complete field and method AST. JSON consumers should check
 `schemaVersion` before relying on this representation.
 
-## Current CLI workarounds and upstream requests
+## Upstream requests and remaining workarounds
 
 - [Calcit #873](https://github.com/calcit-lang/calcit/issues/873): enforce async
   invocation contracts before an unawaited result is treated as its logical type.
@@ -81,15 +81,15 @@ retain the complete field and method AST. JSON consumers should check
 - [Calcit #874](https://github.com/calcit-lang/calcit/issues/874): provide a
   supported target-aware all-public-definition check. Temporary roots are the
   local workaround; no hand-maintained per-function list is retained.
-- [Calcit #875](https://github.com/calcit-lang/calcit/issues/875): return complete
-  machine-readable FFI metadata. On 0.13.77, even `query def --raw --json` may
-  truncate the FFI display string. The generator takes full metadata from the
-  snapshot via `calcit cirru parse-edn` instead of parsing that preview.
+- [Calcit #875](https://github.com/calcit-lang/calcit/issues/875) provides the
+  versioned `query def --format json` envelope consumed by the catalog. Its
+  structured `data.ffi` field is lossless even for large host traits. Snapshot
+  parsing remains only for persisted `schemaData`, which is not part of the
+  definition-query contract.
 
-The tooling is pinned to the repository's Calcit 0.13.77 JSON conventions.
-The CLI EDN parser currently takes source text as a command argument. Catalog
-generation for this snapshot exceeds the Windows command-line limit and requires
-WSL, Linux or macOS until a file/stdin parser interface is available. The tool
-reports this limitation explicitly instead of failing with an opaque process
-launch error. Generation fails on parser errors rather than emitting an
-incomplete catalog.
+The tooling requires Calcit's query.def envelope v1 and fails closed on another
+schema version, command, definition ID, malformed JSON, or missing metadata.
+The CLI EDN parser still takes Snapshot source text as a command argument for
+`schemaData`; this exceeds the Windows command-line limit and requires WSL,
+Linux or macOS until a file/stdin parser interface is available. Generation
+fails on parser errors rather than emitting an incomplete catalog.

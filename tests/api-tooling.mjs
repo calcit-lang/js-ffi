@@ -4,7 +4,50 @@ import { copyFileSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from '
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { calcit, root } from '../scripts/api-lib.mjs';
+import { calcit, decodeEdnJson, definition, parseDefinitionReport, root } from '../scripts/api-lib.mjs';
+
+test('definition query consumes one complete versioned JSON envelope', () => {
+  const element = definition('js-ffi.browser/DomElementHost');
+  const ffi = decodeEdnJson(element.ffi);
+  assert.equal(element.id, 'js-ffi.browser/DomElementHost');
+  assert.equal(ffi.names['text-content'], 'textContent');
+  assert.equal(ffi.names['class-name'], 'className');
+  assert.ok(Object.keys(ffi.names).length >= 13, 'large host metadata must not be truncated');
+
+  const plain = definition('js-ffi.browser/add-event-listener!');
+  assert.equal(plain.ffi, null, 'definitions without FFI metadata stay explicit');
+});
+
+test('tagged query metadata preserves Unicode, escaping, sets, and nested keys', () => {
+  const decoded = decodeEdnJson({
+    ':label': '引号 " 和换行\n',
+    ':target': { __edn_tag: '浏览器' },
+    ':members': { ':méthod': 'méthod' },
+    ':writable': { __edn_set: [{ __edn_tag: 'β' }, { __edn_tag: 'α' }] },
+  });
+  assert.deepEqual(decoded, {
+    label: '引号 " 和换行\n',
+    target: '浏览器',
+    members: { méthod: 'méthod' },
+    writable: ['α', 'β'],
+  });
+});
+
+test('definition query rejects malformed or incompatible envelopes', () => {
+  assert.throws(() => parseDefinitionReport('demo/main!', '{'), SyntaxError);
+  assert.throws(
+    () => parseDefinitionReport('demo/main!', JSON.stringify({ schema_version: 2, command: 'query.def', data: { id: 'demo/main!' } })),
+    /Unsupported Calcit definition query envelope/,
+  );
+  assert.throws(
+    () => parseDefinitionReport('demo/main!', JSON.stringify({ schema_version: 1, command: 'query.context', data: { id: 'demo/main!' } })),
+    /Unsupported Calcit definition query envelope/,
+  );
+  assert.throws(
+    () => parseDefinitionReport('demo/main!', JSON.stringify({ schema_version: 1, command: 'query.def', data: { id: 'demo/other' } })),
+    /returned demo\/other for demo\/main!/,
+  );
+});
 
 test('API check discovers an unused new definition and rejects its invalid call', () => {
   const dir = mkdtempSync(join(tmpdir(), 'js-ffi-discovery-'));
