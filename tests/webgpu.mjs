@@ -27,7 +27,12 @@ export async function testWebGpu(a) {
   const device = {
     lost: Promise.resolve({reason: 'destroyed', message: 'explicit cleanup'}),
     destroy() { a.equal(this, device); destroyedDevice++; },
-    createBuffer(value) { a.equal(this, device); descriptor = value; return buffer; },
+    createBuffer(value) {
+      a.equal(this, device);
+      if (destroyedDevice) throw new Error('Test device is destroyed');
+      descriptor = value;
+      return buffer;
+    },
     pushErrorScope(filter) { a.equal(this, device); pushed = filter; },
     popErrorScope() { a.equal(this, device); return Promise.resolve(null); },
   };
@@ -58,6 +63,11 @@ export async function testWebGpu(a) {
   a.equal(await result((ok, fail) => gpu.request_device_$x_(adapter, ok, fail)), device);
   a.equal(isNone(await result((ok, fail) => gpu.request_adapter_$x_({...host, requestAdapter: () => Promise.resolve(null)}, ok, fail))), true);
   a.equal((await failure((ok, fail) => gpu.request_device_$x_({requestDevice: () => Promise.reject(new Error('denied'))}, ok, fail))).includes('denied'), true);
+  for (const reason of [Object.create(null), {toString() { throw new Error('conversion failed'); }}]) {
+    let calls = 0;
+    a.equal(await failure((ok, fail) => gpu.request_device_$x_({requestDevice: () => Promise.reject(reason)}, ok, message => { calls++; fail(message); })), 'WebGPU.error-unprintable');
+    a.equal(calls, 1);
+  }
   a.equal((await failure((ok, fail) => gpu.request_device_$x_({requestDevice: () => Promise.resolve({})}, ok, fail))).includes('WebGPU'), true);
   a.equal(gpu.create_buffer(device, 16, 8), buffer);
   a.equal(descriptor.size, 16);
@@ -77,11 +87,18 @@ export async function testWebGpu(a) {
   a.equal(lost.get(newTag('message')), 'explicit cleanup');
   a.equal((await failure((ok, fail) => gpu.watch_device_lost_$x_({...device, lost: Promise.resolve({reason: 42})}, ok, fail))).includes('GPUDeviceLostInfo'), true);
   a.equal(gpu.destroy_buffer_$x_(buffer), undefined);
-  a.equal(gpu.destroy_device_$x_(device), undefined);
   a.equal(destroyedBuffer, 1);
-  a.equal(destroyedDevice, 1);
   a.equal(buffer_lifecycle(device), 16);
   a.equal(destroyedBuffer, 2);
+  for (const badSize of ['invalid', () => { throw new Error('size getter failed'); }]) {
+    let released = 0;
+    const broken = {get size() { return typeof badSize === 'function' ? badSize() : badSize; }, destroy() { released++; }, unmap() {}};
+    a.throws(() => buffer_lifecycle({...device, createBuffer: () => broken}), /failed-to-read-size/);
+    a.equal(released, 1);
+  }
+  a.equal(gpu.destroy_device_$x_(device), undefined);
+  a.equal(destroyedDevice, 1);
+  a.throws(() => buffer_lifecycle(device), /device is destroyed/);
 }
 
 export async function smokeWebGpu(a) {
