@@ -1,41 +1,5 @@
 {} (:schemaVersion 2)
   :definitions $ {}
-    |js-ffi.shared/abort-controller-create $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 0
-      :unresolved 0
-      :unsafeCoerce 1
-    |js-ffi.shared/headers-create $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 0
-      :unresolved 0
-      :unsafeCoerce 1
-    |js-ffi.shared/search-params-create $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 0
-      :unresolved 0
-      :unsafeCoerce 1
-    |js-ffi.shared/url-create $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 0
-      :unresolved 0
-      :unsafeCoerce 1
     |js-ffi.browser/add-event-listener! $ {} (:codeDynamic 0)
       :codeNil 0
       :declaredOptional 0
@@ -270,6 +234,15 @@
       :typeNotFull 0
       :unresolved 0
       :unsafeCoerce 1
+    |js-ffi.shared/abort-controller-create $ {} (:codeDynamic 0)
+      :codeNil 0
+      :declaredOptional 0
+      :deprecatedCalls 0
+      :schemaDynamic 0
+      :typeNone 0
+      :typeNotFull 0
+      :unresolved 0
+      :unsafeCoerce 1
     |js-ffi.shared/console-error! $ {} (:codeDynamic 0)
       :codeNil 0
       :declaredOptional 0
@@ -298,6 +271,42 @@
       :unresolved 0
       :unsafeCoerce 1
     |js-ffi.shared/date-now-snapshot $ {} (:codeDynamic 0)
+      :codeNil 0
+      :declaredOptional 0
+      :deprecatedCalls 0
+      :schemaDynamic 0
+      :typeNone 0
+      :typeNotFull 0
+      :unresolved 0
+      :unsafeCoerce 1
+    |js-ffi.shared/headers-create $ {} (:codeDynamic 0)
+      :codeNil 0
+      :declaredOptional 0
+      :deprecatedCalls 0
+      :schemaDynamic 0
+      :typeNone 0
+      :typeNotFull 0
+      :unresolved 0
+      :unsafeCoerce 1
+    |js-ffi.shared/response-host $ {} (:codeDynamic 0)
+      :codeNil 0
+      :declaredOptional 0
+      :deprecatedCalls 0
+      :schemaDynamic 0
+      :typeNone 0
+      :typeNotFull 0
+      :unresolved 0
+      :unsafeCoerce 1
+    |js-ffi.shared/search-params-create $ {} (:codeDynamic 0)
+      :codeNil 0
+      :declaredOptional 0
+      :deprecatedCalls 0
+      :schemaDynamic 0
+      :typeNone 0
+      :typeNotFull 0
+      :unresolved 0
+      :unsafeCoerce 1
+    |js-ffi.shared/url-create $ {} (:codeDynamic 0)
       :codeNil 0
       :declaredOptional 0
       :deprecatedCalls 0
@@ -359,7 +368,7 @@
     :typeNone 0
     :typeNotFull 0
     :unresolved 0
-    :unsafeCoerce 39
+    :unsafeCoerce 40
   :scope $ {} (:includeDependencies false)
     :namespace nil
     :namespacePrefix nil

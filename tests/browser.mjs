@@ -1,7 +1,8 @@
 import { query_string } from '../js-out/js-ffi.query-example.mjs';
 import { listen } from '../js-out/js-ffi.listen-example.mjs';
 import * as browser from '../js-out/js-ffi.browser.mjs';
-import { option_$o_none_$q_ as isNone, option_$o_unwrap as unwrap } from '../js-out/calcit.core.mjs';
+import * as shared from '../js-out/js-ffi.shared.mjs';
+import { option_$o_none_$q_ as isNone, option_$o_unwrap as unwrap, result_$o_err_$q_ as isErr, result_$o_ok_$q_ as isOk } from '../js-out/calcit.core.mjs';
 import { assertions, testShared } from './shared.mjs';
 import { testWebGpu, smokeWebGpu } from './webgpu.mjs';
 
@@ -11,6 +12,14 @@ export async function run() {
   await testWebGpu(a);
   const webgpu = await smokeWebGpu(a);
   await testShared(a);
+  const fetched = await shared.fetch_response(new URL('/tests/fixtures/async-body.txt', location.href).href);
+  a.equal(isOk(fetched), true);
+  const body = await shared.response_text(fetched.extra[0]);
+  a.equal(isOk(body), true);
+  a.equal(body.extra[0], 'browser async body\n');
+  a.equal(isErr(await shared.response_text(fetched.extra[0])), true);
+  a.equal(isErr(await shared.response_text({ text() { throw new Error('sync body failure'); } })), true);
+  a.equal(isErr(await shared.response_text({ text() { return Promise.reject(new Error('async body failure')); } })), true);
   a.equal(query_string('中文 +&'), 'page=1&q=%E4%B8%AD%E6%96%87+%2B%26');
   let recipeEvents = 0;
   const cleanup = listen('js-ffi-recipe', () => { recipeEvents++; });
