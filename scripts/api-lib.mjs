@@ -41,7 +41,17 @@ export function parsePublicCheckReport(runtime, namespaces, output) {
   if (JSON.stringify(actualNamespaces) !== JSON.stringify([...namespaces].sort())) {
     throw new Error(`Calcit public check returned an unexpected namespace scope for ${runtime}`);
   }
-  if (report.data.checked_definition_ids.length !== report.data.summary.definitions_selected) {
+  const checkedIds = report.data?.checked_definition_ids;
+  const definitions = report.data?.definitions;
+  const selectedIds = Array.isArray(definitions) ? definitions.map(definition => definition.id) : null;
+  const uniqueCheckedIds = Array.isArray(checkedIds) ? new Set(checkedIds) : new Set();
+  const uniqueSelectedIds = Array.isArray(selectedIds) ? new Set(selectedIds) : new Set();
+  if (!Array.isArray(checkedIds) || !Array.isArray(selectedIds)
+    || checkedIds.length !== report.data.summary.definitions_selected
+    || selectedIds.length !== report.data.summary.definitions_selected
+    || uniqueCheckedIds.size !== checkedIds.length
+    || uniqueSelectedIds.size !== selectedIds.length
+    || JSON.stringify([...uniqueCheckedIds].sort()) !== JSON.stringify([...uniqueSelectedIds].sort())) {
     throw new Error(`Calcit public check returned incomplete definition IDs for ${runtime}`);
   }
   return report;

@@ -124,6 +124,12 @@ test('public-check envelope parser rejects incomplete or mismatched reports', ()
     () => parsePublicCheckReport('node', namespaces, JSON.stringify({ ...valid, data: { ...valid.data, summary: { ...valid.data.summary, complete: false } } })),
     /did not complete successfully/,
   );
+  const duplicateIds = [...valid.data.checked_definition_ids];
+  duplicateIds[duplicateIds.length - 1] = duplicateIds[0];
+  assert.throws(
+    () => parsePublicCheckReport('node', namespaces, JSON.stringify({ ...valid, data: { ...valid.data, checked_definition_ids: duplicateIds } })),
+    /incomplete definition IDs/,
+  );
 });
 
 test('catalog builds on first search, refreshes stale data, and preserves host metadata', () => {
