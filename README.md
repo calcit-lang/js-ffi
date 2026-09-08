@@ -13,6 +13,8 @@ The public API is split by runtime:
 - `js-ffi.browser` contains DOM, URL, storage, viewport, console, timer, and
   browser-global helpers.
 - `js-ffi.node` contains `process`, filesystem, and path helpers.
+- `js-ffi.webgpu` contains browser-only adapter/device requests, device loss,
+  validation scopes, and buffer lifecycle APIs. See [WebGPU foundation](docs/webgpu.md).
 - `js-ffi.contract` contains runtime-independent checks and boundary decoders
   shared by smoke tests and host adapters.
 

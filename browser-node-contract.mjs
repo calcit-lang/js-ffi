@@ -42,4 +42,15 @@ try {
   }
 }
 
+const originalNavigator = Object.getOwnPropertyDescriptor(globalThis, "navigator");
+try {
+  assert.notEqual(originalNavigator?.configurable, false);
+  Reflect.deleteProperty(globalThis, "navigator");
+  const webgpu = await import("./js-out/js-ffi.webgpu.mjs");
+  assert.equal(option_$o_none_$q_(webgpu.gpu()), true);
+} finally {
+  if (originalNavigator) Object.defineProperty(globalThis, "navigator", originalNavigator);
+  else Reflect.deleteProperty(globalThis, "navigator");
+}
+
 console.log("js-ffi-browser-node-contract-passed");

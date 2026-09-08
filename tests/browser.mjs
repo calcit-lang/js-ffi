@@ -3,10 +3,13 @@ import { listen } from '../js-out/js-ffi.listen-example.mjs';
 import * as browser from '../js-out/js-ffi.browser.mjs';
 import { option_$o_none_$q_ as isNone, option_$o_unwrap as unwrap } from '../js-out/calcit.core.mjs';
 import { assertions, testShared } from './shared.mjs';
+import { testWebGpu, smokeWebGpu } from './webgpu.mjs';
 
 /** Exercise shared and browser adapters in a real page and return the test summary. */
 export async function run() {
   const a = assertions();
+  await testWebGpu(a);
+  const webgpu = await smokeWebGpu(a);
   await testShared(a);
   a.equal(query_string('中文 +&'), 'page=1&q=%E4%B8%AD%E6%96%87+%2B%26');
   let recipeEvents = 0;
@@ -76,5 +79,5 @@ export async function run() {
     a.equal(typeof timestamp, 'number');
     resolve();
   }));
-  return { passed: true, assertions: a.count, runtime: navigator.userAgent };
+  return { passed: true, assertions: a.count, runtime: navigator.userAgent, webgpu };
 }

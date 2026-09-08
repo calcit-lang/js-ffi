@@ -6,6 +6,35 @@ Each source is a quoted Calcit definition accepted by `calcit edit def --file`. 
 
 Run `yarn check:api`, `yarn test:node`, and `yarn test:browser`. Browser tests require Chromium (`yarn playwright install chromium`). Node file tests use a temporary directory and remove it in finally. The file recipe itself overwrites `example.txt` in the caller-provided directory.
 
+## Allocate and release a small unmapped COPY_DST buffer on a caller-owned device
+
+Runtime: browser.
+
+Imports:
+
+```text
+js-ffi.webgpu :as webgpu
+```
+
+Schema:
+
+```text
+:: 'Fn $ {} (:args $ [] 'js-ffi.webgpu/DeviceHost) (:return 'Number) (:features $ #{} :js-ffi)
+```
+
+Source: [examples/buffer-lifecycle.cirru](../examples/buffer-lifecycle.cirru)
+
+```text
+quote $ defn buffer-lifecycle (device)
+  let
+      buffer $ webgpu/create-buffer device 16 8
+      size $ webgpu/buffer-size buffer
+    webgpu/destroy-buffer! buffer
+    , size
+```
+
+Runtime verification: [tests/webgpu.mjs](../tests/webgpu.mjs).
+
 ## Encode a search query without manual URL escaping
 
 Runtime: browser, node.
