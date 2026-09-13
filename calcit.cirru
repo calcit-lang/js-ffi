@@ -634,7 +634,7 @@
           :code $ quote $ defn set-before-unload! (callback)
             let
                 host-window $ unsafe-coerce js/window WindowHost
-              aset host-window :on-before-unload callback
+              js-set host-window :on-before-unload callback
               , &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
