@@ -119,6 +119,22 @@ browser/set-timeout!
 
 browser/create-element |section
 
+browser/document-append-body! element
+
+browser/element-first-child element
+
+browser/element-clone element true
+
+browser/element-set-style! element |opacity |0.5
+
+browser/element-select! input
+
+browser/element-dispatch-event! element event
+
+browser/event-stop-propagation! event
+
+browser/element-remove! element
+
 browser/add-event-listener! |resize on-resize
 
 browser/remove-event-listener! |resize on-resize

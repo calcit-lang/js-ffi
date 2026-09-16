@@ -31,9 +31,11 @@ export async function run() {
   a.equal(browser.document_available_$q_(), true);
   const parent = browser.create_element('section');
   const input = browser.create_element('input');
-  document.body.appendChild(parent);
+  a.equal(browser.document_append_body_$x_(parent), undefined);
   try {
     a.equal(browser.append_child_$x_(parent, input), input);
+    a.equal(unwrap(browser.element_first_child(parent)), input);
+    a.equal(isNone(browser.element_first_child(input)), true);
     a.equal(browser.element_set_attribute_$x_(input, 'data-test', '你好'), undefined);
     a.equal(unwrap(browser.element_get_attribute(input, 'data-test')), '你好');
     a.equal(isNone(browser.element_get_attribute(input, 'missing')), true);
@@ -45,14 +47,37 @@ export async function run() {
     a.equal(isNone(browser.element_get_attribute(input, 'data-test')), true);
     a.equal(browser.element_focus_$x_(input), undefined);
     a.equal(document.activeElement, input);
+    input.value = 'select me';
+    a.equal(browser.element_select_$x_(input), undefined);
+    a.equal(input.selectionStart, 0);
+    a.equal(input.selectionEnd, input.value.length);
     a.equal(browser.element_blur_$x_(input), undefined);
     a.equal(document.activeElement === input, false);
     a.equal(unwrap(browser.child_element_at(parent.children, 0)), input);
     a.equal(isNone(browser.child_element_at(parent.children, 1)), true);
     a.equal(browser.element_dataset(input), input.dataset);
     a.equal(browser.element_style(input), input.style);
+    a.equal(browser.element_set_style_$x_(input, 'opacity', '0.5'), undefined);
+    a.equal(input.style.opacity, '0.5');
+
+    let parentEvents = 0;
+    let inputEvents = 0;
+    parent.addEventListener('js-ffi-dom', () => { parentEvents++; });
+    input.addEventListener('js-ffi-dom', event => {
+      inputEvents++;
+      a.equal(browser.event_stop_propagation_$x_(event), undefined);
+    });
+    a.equal(browser.element_dispatch_event_$x_(input, new Event('js-ffi-dom', { bubbles: true })), true);
+    a.equal(inputEvents, 1);
+    a.equal(parentEvents, 0);
+
+    const cloned = browser.element_clone(parent, true);
+    a.equal(cloned.children.length, 1);
+    a.equal(browser.document_append_body_$x_(cloned), undefined);
+    a.equal(browser.element_remove_$x_(cloned), undefined);
+    a.equal(cloned.isConnected, false);
   } finally {
-    parent.remove();
+    browser.element_remove_$x_(parent);
   }
   const key = `js-ffi-test-${crypto.randomUUID()}`;
   try {

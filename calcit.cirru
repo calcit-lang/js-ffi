@@ -354,6 +354,14 @@
           :examples $ [] $ quote (decode-visibility-state |hidden)
           :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/VisibilityState)
             :args $ [] 'String
+        'document-append-body! $ %{} 'CodeEntry
+          :doc "|Append an element to document.body and return the appended element."
+          :code $ quote $ defn document-append-body! (element)
+            do (js/document.body.appendChild element) &unit
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'js-ffi.browser/DomElementHost
+            :features $ #{} :js-ffi
         'document-available? $ %{} 'CodeEntry
           :doc "|Return whether document is present. Use this guard before touching DOM objects so shared code can be checked in both Node.js and browsers. Example: (document-available?) => true"
           :code $ quote $ defn document-available? () (exists? js/document)
@@ -392,6 +400,14 @@
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'js-ffi.browser/DomElementHost
             :features $ #{} :js-ffi
+        'element-clone $ %{} 'CodeEntry
+          :doc "|Clone a DOM element, optionally including its descendants."
+          :code $ quote $ defn element-clone (element deep?)
+            assert-type (.!cloneNode element deep?) 'js-ffi.browser/DomElementHost
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/DomElementHost)
+            :args $ [] 'js-ffi.browser/DomElementHost 'Bool
+            :features $ #{} :js-ffi
         'element-dataset $ %{} 'CodeEntry
           :doc "|Returns the DOM element dataset object through the browser host contract. Use with js-set/js-delete for data-* attributes."
           :code $ quote $ defn element-dataset (element)
@@ -400,6 +416,23 @@
           :schema $ :: 'Fn $ {} (:return 'JsObject)
             :args $ [] 'js-ffi.browser/DomElementHost
             :features $ #{} :js-ffi
+        'element-dispatch-event! $ %{} 'CodeEntry
+          :doc "|Dispatch a host Event through an element and return whether it was not canceled."
+          :code $ quote $ defn element-dispatch-event! (element event)
+            assert-type (.!dispatchEvent element event) 'Bool
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Bool)
+            :args $ [] 'js-ffi.browser/DomElementHost 'JsObject
+            :features $ #{} :js-ffi
+        'element-first-child $ %{} 'CodeEntry
+          :doc "|Return the first child element as Option, normalizing a missing child."
+          :code $ quote $ defn element-first-child (element)
+            js-nullish->option $ assert-type (.-firstElementChild element) (:: 'JsNullish 'js-ffi.browser/DomElementHost)
+          :examples $ []
+          :schema $ :: 'Fn $ {}
+            :args $ [] 'js-ffi.browser/DomElementHost
+            :features $ #{} :js-ffi
+            :return $ :: 'calcit.core/Option 'js-ffi.browser/DomElementHost
         'element-focus! $ %{} 'CodeEntry (:doc "|Focus an HTML element with focus capability.")
           :code $ quote $ defn element-focus! (element)
             do (element .focus!) &unit
@@ -434,6 +467,14 @@
             :args $ [] 'js-ffi.browser/DomElementHost 'String
             :features $ #{} :js-ffi
             :return $ :: 'calcit.core/Option 'js-ffi.browser/DomElementHost
+        'element-remove! $ %{} 'CodeEntry
+          :doc "|Remove a DOM element from its current parent and return Unit."
+          :code $ quote $ defn element-remove! (element)
+            do (.!remove element) &unit
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'js-ffi.browser/DomElementHost
+            :features $ #{} :js-ffi
         'element-remove-attribute! $ %{} 'CodeEntry (:doc "|Remove a DOM attribute.")
           :code $ quote $ defn element-remove-attribute! (element key)
             do (element .remove-attribute! key) &unit
@@ -442,11 +483,29 @@
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'js-ffi.browser/DomElementHost 'String
             :features $ #{} :js-ffi
+        'element-select! $ %{} 'CodeEntry
+          :doc "|Select the editable text of an input or textarea element and return Unit."
+          :code $ quote $ defn element-select! (element)
+            do (.!select element) &unit
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'js-ffi.browser/DomElementHost
+            :features $ #{} :js-ffi
         'element-set-attribute! $ %{} 'CodeEntry (:doc "|Set a DOM attribute.")
           :code $ quote $ defn element-set-attribute! (element key text)
             do (element .set-attribute! key text) &unit
           :examples $ []
           :ffi $ {} (:backend :js) (:target :browser)
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'js-ffi.browser/DomElementHost 'String 'String
+            :features $ #{} :js-ffi
+        'element-set-style! $ %{} 'CodeEntry
+          :doc "|Set one inline CSS property on an element and return Unit."
+          :code $ quote $ defn element-set-style! (element property value)
+            do
+              aset (.-style element) property value
+              , &unit
+          :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'js-ffi.browser/DomElementHost 'String 'String
             :features $ #{} :js-ffi
@@ -467,6 +526,14 @@
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'JsObject)
             :args $ [] 'js-ffi.browser/DomElementHost
+            :features $ #{} :js-ffi
+        'event-stop-propagation! $ %{} 'CodeEntry
+          :doc "|Stop propagation of a browser Event and return Unit."
+          :code $ quote $ defn event-stop-propagation! (event)
+            do (event .stop-propagation!) &unit
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'js-ffi.browser/EventHost
             :features $ #{} :js-ffi
         'local-storage-available? $ %{} 'CodeEntry
           :doc "|Return whether localStorage is available. Browsers may deny storage in privacy or sandboxed modes, so callers should branch on this Boolean. Example: (local-storage-available?) => true"
