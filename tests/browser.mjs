@@ -50,7 +50,9 @@ export async function run() {
     a.equal(browser.element_focus_$x_(input), undefined);
     a.equal(document.activeElement, input);
     input.value = 'select me';
-    a.equal(browser.element_select_$x_(input), undefined);
+    a.equal(browser.selectable_element_host(input), input);
+    a.throws(() => browser.selectable_element_host(null), /DOM\.selectable-element-host expected Object, got nullish/);
+    a.equal(browser.element_select_$x_(browser.selectable_element_host(input)), undefined);
     a.equal(input.selectionStart, 0);
     a.equal(input.selectionEnd, input.value.length);
     a.equal(browser.element_blur_$x_(input), undefined);

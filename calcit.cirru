@@ -109,6 +109,16 @@
             :writable $ #{} :checked :disabled :input-type :name :value
           :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
+        'DomSelectableHost $ %{} 'CodeEntry
+          :doc "|External selectable text-control capability shared by input and textarea elements."
+          :code $ quote $ deftrait DomSelectableHost
+            .select! $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.browser/DomSelectableHost
+              :return 'Unit
+          :examples $ []
+          :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
+            :names $ {} $ :select! |select
+          :schema $ :: 'Trait
         'ElementSnapshot $ %{} 'CodeEntry
           :doc "|Calcit-owned subset of DOM element data suitable for business code without retaining host identity."
           :code $ quote $ defstruct ElementSnapshot (:id 'String) (:class-name 'String)
@@ -355,7 +365,7 @@
           :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/VisibilityState)
             :args $ [] 'String
         'document-append-body! $ %{} 'CodeEntry
-          :doc "|Append an element to document.body and return the appended element."
+          :doc "|Append an element to document.body and return Unit."
           :code $ quote $ defn document-append-body! (element)
             do (js/document.body.appendChild element) &unit
           :examples $ []
@@ -495,10 +505,10 @@
         'element-select! $ %{} 'CodeEntry
           :doc "|Select the editable text of an input or textarea element and return Unit."
           :code $ quote $ defn element-select! (element)
-            do (.!select element) &unit
+            do (element .select!) &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ [] 'js-ffi.browser/DomElementHost
+            :args $ [] 'js-ffi.browser/DomSelectableHost
             :features $ #{} :js-ffi
         'element-set-attribute! $ %{} 'CodeEntry (:doc "|Set a DOM attribute.")
           :code $ quote $ defn element-set-attribute! (element key text)
@@ -679,6 +689,15 @@
           :examples $ [] $ quote "(runtime-name)"
           :schema $ :: 'Fn $ {} (:return 'String)
             :args $ []
+        'selectable-element-host $ %{} 'CodeEntry
+          :doc "|Validate an opaque host value as an object and expose the selectable input or textarea capability."
+          :code $ quote $ defn selectable-element-host (value)
+            assert-type (contract/expect-object |DOM.selectable-element-host value) DomSelectableHost
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/DomSelectableHost)
+            :args $ [] 'T
+            :features $ #{} :js-ffi
+            :generics $ [] 'T
         'set-before-unload! $ %{} 'CodeEntry (:doc "|Install a typed browser beforeunload callback.")
           :code $ quote $ defn set-before-unload! (callback)
             let

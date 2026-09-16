@@ -127,7 +127,7 @@ browser/element-clone element true
 
 browser/element-set-style! element |opacity |0.5
 
-browser/element-select! input
+browser/element-select! $ browser/selectable-element-host input
 
 browser/element-dispatch-event! element event
 
@@ -148,7 +148,8 @@ The listener passed to `remove-event-listener!` must be the same function
 value registered by `add-event-listener!`. `create-element` intentionally
 returns the small `DomElementHost` contract; a renderer that needs a richer
 element contract should narrow it once at its own adapter boundary rather than
-expanding the shared browser host type.
+expanding the shared browser host type. Text selection is intentionally exposed
+through `DomSelectableHost`, which covers selectable input and textarea nodes.
 
 Shared adapters and normalized data work in either JavaScript target:
 
