@@ -3,27 +3,15 @@
   :about "|Machine-generated snapshot. Do not edit directly — changes will be overwritten. Use `calcit query` to inspect and `calcit edit`/`calcit tree` to modify. Run `calcit docs agents --contract` before mutations; use `--full` for first orientation or changed contract digest. Manual edits must follow format and schema conventions, then run `calcit edit format`."
   :package |js-ffi
   :entries $ {}
-    :browser $ {} (:description |)
-      :init-fn 'js-ffi.browser-test/main!
-      :mode :js
-      :reload-fn 'js-ffi.browser-test/reload!
-      :target :browser
+    :browser $ {} (:description |) (:init-fn 'js-ffi.browser-test/main!) (:mode :js) (:reload-fn 'js-ffi.browser-test/reload!) (:target :browser)
       :feature-policy $ {} $ :js-ffi :error
       :modules $ []
       :type-slots $ {}
-    :default $ {} (:description |)
-      :init-fn 'js-ffi.node-test/main!
-      :mode :native
-      :reload-fn 'js-ffi.node-test/reload!
-      :target :node
+    :default $ {} (:description |) (:init-fn 'js-ffi.node-test/main!) (:mode :native) (:reload-fn 'js-ffi.node-test/reload!) (:target :node)
       :feature-policy $ {} $ :js-ffi :error
       :modules $ []
       :type-slots $ {}
-    :node $ {} (:description |)
-      :init-fn 'js-ffi.node-test/main!
-      :mode :native
-      :reload-fn 'js-ffi.node-test/reload!
-      :target :node
+    :node $ {} (:description |) (:init-fn 'js-ffi.node-test/main!) (:mode :native) (:reload-fn 'js-ffi.node-test/reload!) (:target :node)
       :feature-policy $ {} $ :js-ffi :error
       :modules $ []
       :type-slots $ {}
@@ -32,18 +20,13 @@
       :defs $ {}
         'BrowserProbe $ %{} 'CodeEntry
           :doc "|Typed browser smoke result replacing the former heterogeneous Map<Dynamic>."
-          :code $ quote $ defstruct BrowserProbe
-            :runtime 'js-ffi.shared/Runtime
-            :document? 'Bool
-            :storage 'String
-            :viewport 'js-ffi.browser/Viewport
+          :code $ quote $ defstruct BrowserProbe (:runtime 'js-ffi.shared/Runtime) (:document? 'Bool) (:storage 'String) (:viewport 'js-ffi.browser/Viewport)
           :examples $ [] $ quote
             &%{} BrowserProbe :runtime (%:: shared/Runtime :browser) :document? true :storage |ok :viewport $ &%{} Viewport :width 1024 :height 768 :device-pixel-ratio 2
           :schema $ :: 'Enum
         'DocumentHost $ %{} 'CodeEntry
           :doc "|External Document capability with typed state, title, and small selector/creation surface."
-          :code $ quote $ deftrait DocumentHost (:title 'String) (:ready-state 'String)
-            :visibility-state 'String
+          :code $ quote $ deftrait DocumentHost (:title 'String) (:ready-state 'String) (:visibility-state 'String)
             .query-selector $ :: 'Fn $ {}
               :args $ [] 'js-ffi.browser/DocumentHost 'String
               :return $ :: 'JsNullish 'js-ffi.browser/DomElementHost
@@ -52,15 +35,13 @@
               :return 'js-ffi.browser/DomElementHost
           :examples $ [] $ quote DocumentHost
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
-            :names $ {} (:create-element |createElement) (:query-selector |querySelector) (:ready-state |readyState)
-              :visibility-state |visibilityState
+            :names $ {} (:create-element |createElement) (:query-selector |querySelector) (:ready-state |readyState) (:visibility-state |visibilityState)
           :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
         'DocumentReadyState $ %{} 'CodeEntry
           :doc "|Typed document.readyState values with an unknown String variant for forward compatibility."
           :code $ quote $ defenum DocumentReadyState (:loading) (:interactive) (:complete) (:unknown 'String)
-          :examples $ [] $ quote
-            %:: DocumentReadyState :complete
+          :examples $ [] $ quote (%:: DocumentReadyState :complete)
           :schema $ :: 'Enum
         'DomChildrenHost $ %{} 'CodeEntry
           :doc "|External DOM children collection with typed length and nullable indexed element lookup."
@@ -110,18 +91,7 @@
             :local-name 'String
           :examples $ [] $ quote DomElementHost
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
-            :names $ {} (:append-child! |appendChild) (:blur! |blur)
-              :child-element-count |childElementCount
-              :class-name |className
-              :focus! |focus
-              :get-attribute |getAttribute
-              :inner-html |innerHTML
-              :local-name |localName
-              :matches? |matches
-              :query-selector |querySelector
-              :remove-attribute! |removeAttribute
-              :set-attribute! |setAttribute
-              :text-content |textContent
+            :names $ {} (:append-child! |appendChild) (:blur! |blur) (:child-element-count |childElementCount) (:class-name |className) (:focus! |focus) (:get-attribute |getAttribute) (:inner-html |innerHTML) (:local-name |localName) (:matches? |matches) (:query-selector |querySelector) (:remove-attribute! |removeAttribute) (:set-attribute! |setAttribute) (:text-content |textContent)
           :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
         'DomInputHost $ %{} 'CodeEntry
@@ -162,12 +132,7 @@
               :return 'Unit
           :examples $ [] $ quote EventHost
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
-            :names $ {} (:current-target |currentTarget)
-              :default-prevented? |defaultPrevented
-              :event-phase |eventPhase
-              :event-type |type
-              :prevent-default! |preventDefault
-              :stop-propagation! |stopPropagation
+            :names $ {} (:current-target |currentTarget) (:default-prevented? |defaultPrevented) (:event-phase |eventPhase) (:event-type |type) (:prevent-default! |preventDefault) (:stop-propagation! |stopPropagation)
           :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
         'KeyModifiers $ %{} 'CodeEntry
@@ -184,10 +149,7 @@
               :return 'Unit
           :examples $ [] $ quote KeyboardEventHost
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
-            :names $ {} (:alt-key? |altKey) (:ctrl-key? |ctrlKey) (:meta-key? |metaKey)
-              :prevent-default! |preventDefault
-              :repeat? |repeat
-              :shift-key? |shiftKey
+            :names $ {} (:alt-key? |altKey) (:ctrl-key? |ctrlKey) (:meta-key? |metaKey) (:prevent-default! |preventDefault) (:repeat? |repeat) (:shift-key? |shiftKey)
           :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
         'LocationHost $ %{} 'CodeEntry
@@ -223,9 +185,7 @@
               :return 'Unit
           :examples $ [] $ quote MouseEventHost
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
-            :names $ {} (:alt-key? |altKey) (:client-x |clientX) (:client-y |clientY) (:ctrl-key? |ctrlKey) (:meta-key? |metaKey)
-              :prevent-default! |preventDefault
-              :shift-key? |shiftKey
+            :names $ {} (:alt-key? |altKey) (:client-x |clientX) (:client-y |clientY) (:ctrl-key? |ctrlKey) (:meta-key? |metaKey) (:prevent-default! |preventDefault) (:shift-key? |shiftKey)
           :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
         'PointerPosition $ %{} 'CodeEntry
@@ -258,10 +218,8 @@
           :tags $ #{} :ffi :js-host
         'Viewport $ %{} 'CodeEntry
           :doc "|Normalized viewport dimensions and device pixel ratio copied from Window."
-          :code $ quote $ defstruct Viewport (:width 'Number) (:height 'Number)
-            :device-pixel-ratio 'Number
-          :examples $ [] $ quote
-            &%{} Viewport :width 1024 :height 768 :device-pixel-ratio 2
+          :code $ quote $ defstruct Viewport (:width 'Number) (:height 'Number) (:device-pixel-ratio 'Number)
+          :examples $ [] $ quote (&%{} Viewport :width 1024 :height 768 :device-pixel-ratio 2)
           :schema $ :: 'Enum
         'VisibilityState $ %{} 'CodeEntry
           :doc "|Typed document.visibilityState values with an unknown String variant."
@@ -270,8 +228,7 @@
           :schema $ :: 'Enum
         'WindowHost $ %{} 'CodeEntry
           :doc "|External browser Window capability restricted to stable viewport fields, matchMedia, and typed global event listeners."
-          :code $ quote $ deftrait WindowHost (:inner-width 'Number) (:inner-height 'Number)
-            :device-pixel-ratio 'Number
+          :code $ quote $ deftrait WindowHost (:inner-width 'Number) (:inner-height 'Number) (:device-pixel-ratio 'Number)
             :on-before-unload $ :: 'Fn $ {} (:return 'Unit)
               :args $ [] 'js-ffi.browser/EventHost
             .match-media $ :: 'Fn $ {}
@@ -291,14 +248,7 @@
               :return 'Unit
           :examples $ [] $ quote WindowHost
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
-            :names $ {}
-              :add-event-listener! |addEventListener
-              :device-pixel-ratio |devicePixelRatio
-              :inner-height |innerHeight
-              :inner-width |innerWidth
-              :match-media |matchMedia
-              :on-before-unload |onbeforeunload
-              :remove-event-listener! |removeEventListener
+            :names $ {} (:add-event-listener! |addEventListener) (:device-pixel-ratio |devicePixelRatio) (:inner-height |innerHeight) (:inner-width |innerWidth) (:match-media |matchMedia) (:on-before-unload |onbeforeunload) (:remove-event-listener! |removeEventListener)
             :writable $ #{} :on-before-unload
           :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
@@ -321,16 +271,13 @@
           :code $ quote $ defn append-child! (parent child)
             unsafe-coerce (parent .append-child! child) DomElementHost
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :return 'js-ffi.browser/DomElementHost
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/DomElementHost)
             :args $ [] 'js-ffi.browser/DomElementHost 'js-ffi.browser/DomElementHost
             :features $ #{} :js-ffi
         'cancel-animation-frame! $ %{} 'CodeEntry
           :doc "|Cancel a browser numeric handle; unknown handles are harmless."
           :code $ quote $ defn cancel-animation-frame! (handle)
-            do
-              js/cancelAnimationFrame handle
-              , &unit
+            do (js/cancelAnimationFrame handle) &unit
           :examples $ []
           :ffi $ {} (:backend :js) (:target :browser)
           :schema $ :: 'Fn $ {} (:return 'Unit)
@@ -365,15 +312,13 @@
             :features $ #{} :js-ffi
         'console-error! $ %{} 'CodeEntry
           :doc "|Compatibility wrapper for shared/console-error!. It accepts one String and returns Unit."
-          :code $ quote $ defn console-error! (message)
-            shared/console-error! message
+          :code $ quote $ defn console-error! (message) (shared/console-error! message)
           :examples $ [] $ quote (console-error! |failed)
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'String
         'console-log! $ %{} 'CodeEntry
           :doc "|Compatibility wrapper for shared/console-log!. It accepts one String and returns Unit instead of leaking host undefined."
-          :code $ quote $ defn console-log! (message)
-            shared/console-log! message
+          :code $ quote $ defn console-log! (message) (shared/console-log! message)
           :examples $ [] $ quote (console-log! |ready)
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'String
@@ -384,23 +329,20 @@
                 host-document $ unsafe-coerce js/document DocumentHost
               host-document .create-element tag-name
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :return 'js-ffi.browser/DomElementHost
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/DomElementHost)
             :args $ [] 'String
             :features $ #{} :js-ffi
         'decode-document-ready-state $ %{} 'CodeEntry
           :doc "|Decode document.readyState String to DocumentReadyState while preserving unknown values."
           :code $ quote $ defn decode-document-ready-state (raw)
-            case-default raw
-              %:: DocumentReadyState :unknown raw
+            case-default raw (%:: DocumentReadyState :unknown raw)
               |loading $ %:: DocumentReadyState :loading
               |interactive $ %:: DocumentReadyState :interactive
               |complete $ %:: DocumentReadyState :complete
           :examples $ []
             quote $ decode-document-ready-state |complete
             quote $ decode-document-ready-state |future-state
-          :schema $ :: 'Fn $ {}
-            :return 'js-ffi.browser/DocumentReadyState
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/DocumentReadyState)
             :args $ [] 'String
         'decode-visibility-state $ %{} 'CodeEntry
           :doc "|Decode document.visibilityState String to VisibilityState while preserving unknown values."
@@ -409,10 +351,8 @@
               |visible $ %:: VisibilityState :visible
               |hidden $ %:: VisibilityState :hidden
               |prerender $ %:: VisibilityState :prerender
-          :examples $ [] $ quote
-            decode-visibility-state |hidden
-          :schema $ :: 'Fn $ {}
-            :return 'js-ffi.browser/VisibilityState
+          :examples $ [] $ quote (decode-visibility-state |hidden)
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/VisibilityState)
             :args $ [] 'String
         'document-available? $ %{} 'CodeEntry
           :doc "|Return whether document is present. Use this guard before touching DOM objects so shared code can be checked in both Node.js and browsers. Example: (document-available?) => true"
@@ -428,17 +368,14 @@
             let
                 host-document $ unsafe-coerce js/document DocumentHost
               decode-document-ready-state $ host-document :ready-state
-          :examples $ [] $ quote
-            document-ready-state
-          :schema $ :: 'Fn $ {}
-            :return 'js-ffi.browser/DocumentReadyState
+          :examples $ [] $ quote (document-ready-state)
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/DocumentReadyState)
             :args $ []
             :features $ #{} :js-ffi
         'document-title $ %{} 'CodeEntry
           :doc "|Read document.title through DocumentHost. Returns an empty String when document is unavailable."
           :code $ quote $ defn document-title ()
-            if
-              document-available?
+            if (document-available?)
               let
                   host-document $ unsafe-coerce js/document DocumentHost
                 host-document :title
@@ -447,8 +384,7 @@
           :schema $ :: 'Fn $ {} (:return 'String)
             :args $ []
             :features $ #{} :js-ffi
-        'element-blur! $ %{} 'CodeEntry
-          :doc "|Blur an HTML element with blur capability."
+        'element-blur! $ %{} 'CodeEntry (:doc "|Blur an HTML element with blur capability.")
           :code $ quote $ defn element-blur! (element)
             do (element .blur!) &unit
           :examples $ []
@@ -464,8 +400,7 @@
           :schema $ :: 'Fn $ {} (:return 'JsObject)
             :args $ [] 'js-ffi.browser/DomElementHost
             :features $ #{} :js-ffi
-        'element-focus! $ %{} 'CodeEntry
-          :doc "|Focus an HTML element with focus capability."
+        'element-focus! $ %{} 'CodeEntry (:doc "|Focus an HTML element with focus capability.")
           :code $ quote $ defn element-focus! (element)
             do (element .focus!) &unit
           :examples $ []
@@ -473,8 +408,7 @@
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'js-ffi.browser/DomElementHost
             :features $ #{} :js-ffi
-        'element-get-attribute $ %{} 'CodeEntry
-          :doc "|Read a DOM attribute as Option<String>."
+        'element-get-attribute $ %{} 'CodeEntry (:doc "|Read a DOM attribute as Option<String>.")
           :code $ quote $ defn element-get-attribute (element key)
             js-nullish->option $ element .get-attribute key
           :examples $ []
@@ -491,8 +425,7 @@
           :schema $ :: 'Fn $ {} (:return 'Bool)
             :args $ [] 'js-ffi.browser/DomElementHost 'String
             :features $ #{} :js-ffi
-        'element-query-selector $ %{} 'CodeEntry
-          :doc "|Find a descendant or return Option.none."
+        'element-query-selector $ %{} 'CodeEntry (:doc "|Find a descendant or return Option.none.")
           :code $ quote $ defn element-query-selector (element selector)
             js-nullish->option $ element .query-selector selector
           :examples $ []
@@ -501,19 +434,15 @@
             :args $ [] 'js-ffi.browser/DomElementHost 'String
             :features $ #{} :js-ffi
             :return $ :: 'Option 'js-ffi.browser/DomElementHost
-        'element-remove-attribute! $ %{} 'CodeEntry
-          :doc "|Remove a DOM attribute."
+        'element-remove-attribute! $ %{} 'CodeEntry (:doc "|Remove a DOM attribute.")
           :code $ quote $ defn element-remove-attribute! (element key)
-            do
-              element .remove-attribute! key
-              , &unit
+            do (element .remove-attribute! key) &unit
           :examples $ []
           :ffi $ {} (:backend :js) (:target :browser)
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'js-ffi.browser/DomElementHost 'String
             :features $ #{} :js-ffi
-        'element-set-attribute! $ %{} 'CodeEntry
-          :doc "|Set a DOM attribute."
+        'element-set-attribute! $ %{} 'CodeEntry (:doc "|Set a DOM attribute.")
           :code $ quote $ defn element-set-attribute! (element key text)
             do (element .set-attribute! key text) &unit
           :examples $ []
@@ -528,8 +457,7 @@
               js-nullish->option $ element :text-content
               , :child-count $ element :child-element-count
           :examples $ [] $ quote ElementSnapshot
-          :schema $ :: 'Fn $ {}
-            :return 'js-ffi.browser/ElementSnapshot
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/ElementSnapshot)
             :args $ [] 'js-ffi.browser/DomElementHost
             :features $ #{} :js-ffi
         'element-style $ %{} 'CodeEntry
@@ -561,14 +489,9 @@
         'probe $ %{} 'CodeEntry
           :doc "|Run the browser capability smoke probe and return typed BrowserProbe data."
           :code $ quote $ defn probe ()
-            &%{} BrowserProbe :runtime (runtime) :document?
-              document-available?
-              , :storage
-                storage-roundtrip!
-                , :viewport $ viewport
+            &%{} BrowserProbe :runtime (runtime) :document? (document-available?) :storage (storage-roundtrip!) :viewport $ viewport
           :examples $ [] $ quote (probe)
-          :schema $ :: 'Fn $ {}
-            :return 'js-ffi.browser/BrowserProbe
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/BrowserProbe)
             :args $ []
         'query-selector $ %{} 'CodeEntry
           :doc "|Query document for a selector and normalize a missing element into Option<DomElementHost>."
@@ -620,8 +543,7 @@
           :doc "|Return the normalized Runtime browser enum variant."
           :code $ quote $ defn runtime () (%:: shared/Runtime :browser)
           :examples $ [] $ quote (runtime)
-          :schema $ :: 'Fn $ {}
-            :return 'js-ffi.shared/Runtime
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.shared/Runtime)
             :args $ []
         'runtime-name $ %{} 'CodeEntry
           :doc "|Return the literal runtime identifier |browser. This is useful for environment contracts and keeps callers independent from host-specific globals. Example: (runtime-name) => |browser"
@@ -629,8 +551,7 @@
           :examples $ [] $ quote "(runtime-name)"
           :schema $ :: 'Fn $ {} (:return 'String)
             :args $ []
-        'set-before-unload! $ %{} 'CodeEntry
-          :doc "|Install a typed browser beforeunload callback."
+        'set-before-unload! $ %{} 'CodeEntry (:doc "|Install a typed browser beforeunload callback.")
           :code $ quote $ defn set-before-unload! (callback)
             let
                 host-window $ unsafe-coerce js/window WindowHost
@@ -692,8 +613,7 @@
         'storage-remove! $ %{} 'CodeEntry
           :doc "|Remove a localStorage key through StorageHost and return Unit."
           :code $ quote $ defn storage-remove! (key)
-            when
-              local-storage-available?
+            when (local-storage-available?)
               let
                   storage $ unsafe-coerce js/localStorage StorageHost
                 storage .remove-item! key
@@ -705,8 +625,7 @@
         'storage-roundtrip! $ %{} 'CodeEntry
           :doc "|Exercise localStorage with a deterministic String result for smoke tests. It writes |ok, reads it back, and returns |unavailable when storage is missing. Example: (storage-roundtrip!) => |ok"
           :code $ quote $ defn storage-roundtrip! ()
-            if
-              local-storage-available?
+            if (local-storage-available?)
               do (storage-set! |js-ffi-smoke |ok) (storage-get-or |js-ffi-smoke |unavailable)
               , |unavailable
           :examples $ [] $ quote "(storage-roundtrip!)"
@@ -716,8 +635,7 @@
         'storage-set! $ %{} 'CodeEntry
           :doc "|Write a String key/value pair through StorageHost and normalize the host return to Unit."
           :code $ quote $ defn storage-set! (key value)
-            when
-              local-storage-available?
+            when (local-storage-available?)
               let
                   storage $ unsafe-coerce js/localStorage StorageHost
                 storage .set-item! key value
@@ -733,8 +651,7 @@
                 host-window $ unsafe-coerce js/window WindowHost
               &%{} Viewport :width (host-window :inner-width) :height (host-window :inner-height) :device-pixel-ratio $ host-window :device-pixel-ratio
           :examples $ [] $ quote (viewport)
-          :schema $ :: 'Fn $ {}
-            :return 'js-ffi.browser/Viewport
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/Viewport)
             :args $ []
             :features $ #{} :js-ffi
         'viewport-height $ %{} 'CodeEntry
@@ -758,8 +675,7 @@
                 host-document $ unsafe-coerce js/document DocumentHost
               decode-visibility-state $ host-document :visibility-state
           :examples $ [] $ quote (visibility-state)
-          :schema $ :: 'Fn $ {}
-            :return 'js-ffi.browser/VisibilityState
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/VisibilityState)
             :args $ []
             :features $ #{} :js-ffi
       :ns $ %{} 'NsEntry
@@ -802,8 +718,7 @@
           :examples $ [] $ quote (main!)
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ []
-        'reload! $ %{} 'CodeEntry
-          :doc "|No-op browser reload hook returning Unit."
+        'reload! $ %{} 'CodeEntry (:doc "|No-op browser reload hook returning Unit.")
           :code $ quote $ defn reload! () &unit
           :examples $ [] $ quote (reload!)
           :schema $ :: 'Fn $ {} (:return 'Unit)
@@ -892,10 +807,7 @@
       :defs $ {}
         'NodeProbe $ %{} 'CodeEntry
           :doc "|Typed Node smoke result replacing the former heterogeneous Map<Dynamic>."
-          :code $ quote $ defstruct NodeProbe
-            :runtime 'js-ffi.shared/Runtime
-            :cwd 'String
-            :argv-count 'Number
+          :code $ quote $ defstruct NodeProbe (:runtime 'js-ffi.shared/Runtime) (:cwd 'String) (:argv-count 'Number)
           :examples $ [] $ quote
             &%{} NodeProbe :runtime (%:: shared/Runtime :node) :cwd |/tmp :argv-count 2
           :schema $ :: 'Enum
@@ -911,9 +823,7 @@
         'append-text! $ %{} 'CodeEntry
           :doc "|Synchronous node:fs.appendFileSync adapter. Text uses UTF-8; filesystem failures raise the original host exception. No recursive deletion."
           :code $ quote $ defn append-text! (file-path text)
-            do
-              fs/appendFileSync file-path text |utf8
-              , &unit
+            do (fs/appendFileSync file-path text |utf8) &unit
           :examples $ []
           :ffi $ {} (:backend :js) (:target :node)
           :schema $ :: 'Fn $ {} (:return 'Unit)
@@ -997,10 +907,8 @@
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'String
             :features $ #{} :js-ffi
-        'node-version $ %{} 'CodeEntry
-          :doc "|Read and validate Node process metadata."
-          :code $ quote $ defn node-version ()
-            contract/expect-string |process.version js/process.version
+        'node-version $ %{} 'CodeEntry (:doc "|Read and validate Node process metadata.")
+          :code $ quote $ defn node-version () (contract/expect-string |process.version js/process.version)
           :examples $ []
           :ffi $ {} (:backend :js) (:target :node)
           :schema $ :: 'Fn $ {} (:return 'String)
@@ -1077,19 +985,15 @@
           :schema $ :: 'Fn $ {} (:return 'String)
             :args $ [] 'String 'String
             :features $ #{} :js-ffi
-        'pid $ %{} 'CodeEntry
-          :doc "|Read and validate Node process metadata."
-          :code $ quote $ defn pid ()
-            contract/expect-number |process.pid js/process.pid
+        'pid $ %{} 'CodeEntry (:doc "|Read and validate Node process metadata.")
+          :code $ quote $ defn pid () (contract/expect-number |process.pid js/process.pid)
           :examples $ []
           :ffi $ {} (:backend :js) (:target :node)
           :schema $ :: 'Fn $ {} (:return 'Number)
             :args $ []
             :features $ #{} :js-ffi
-        'platform $ %{} 'CodeEntry
-          :doc "|Read and validate Node process metadata."
-          :code $ quote $ defn platform ()
-            contract/expect-string |process.platform js/process.platform
+        'platform $ %{} 'CodeEntry (:doc "|Read and validate Node process metadata.")
+          :code $ quote $ defn platform () (contract/expect-string |process.platform js/process.platform)
           :examples $ []
           :ffi $ {} (:backend :js) (:target :node)
           :schema $ :: 'Fn $ {} (:return 'String)
@@ -1100,8 +1004,7 @@
           :code $ quote $ defn probe ()
             &%{} NodeProbe :runtime (runtime) :cwd (cwd) :argv-count $ argv-count
           :examples $ [] $ quote (probe)
-          :schema $ :: 'Fn $ {}
-            :return 'js-ffi.node/NodeProbe
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.node/NodeProbe)
             :args $ []
         'read-text! $ %{} 'CodeEntry
           :doc "|Synchronous node:fs.readFileSync adapter. Text uses UTF-8; filesystem failures raise the original host exception. No recursive deletion."
@@ -1120,8 +1023,7 @@
               :features $ #{} :js-ffi
               :return $ :: 'Result 'String 'js-ffi.shared/JsError
             try
-              %:: Result :ok $ contract/expect-string |fs.promises.readFile $ js-await
-                fs-promises/readFile file-path |utf8
+              %:: Result :ok $ contract/expect-string |fs.promises.readFile $ js-await (fs-promises/readFile file-path |utf8)
               fn (error)
                 %:: Result :err $ shared/normalize-error error
           :examples $ []
@@ -1161,8 +1063,7 @@
           :doc "|Return the normalized Runtime node enum variant."
           :code $ quote $ defn runtime () (%:: shared/Runtime :node)
           :examples $ [] $ quote (runtime)
-          :schema $ :: 'Fn $ {}
-            :return 'js-ffi.shared/Runtime
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.shared/Runtime)
             :args $ []
         'runtime-name $ %{} 'CodeEntry
           :doc "|Return the literal runtime identifier |node. Example: (runtime-name) => |node"
@@ -1179,8 +1080,7 @@
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'String
             :features $ #{} :js-ffi
-        'uptime $ %{} 'CodeEntry
-          :doc "|Read and validate Node process metadata."
+        'uptime $ %{} 'CodeEntry (:doc "|Read and validate Node process metadata.")
           :code $ quote $ defn uptime ()
             contract/expect-number |process.uptime $ js/process.uptime
           :examples $ []
@@ -1219,8 +1119,7 @@
       :ns $ %{} 'NsEntry
         :doc "|Typed Node.js JavaScript FFI. Node-only modules remain isolated while runtime identity and cross-runtime host contracts come from js-ffi.shared."
         :code $ quote $ ns js-ffi.node
-          :require (|node:fs :as fs) (|node:path :as path) (js-ffi.contract :as contract) (js-ffi.shared :as shared)
-            |node:fs/promises :as fs-promises
+          :require (|node:fs :as fs) (|node:path :as path) (js-ffi.contract :as contract) (js-ffi.shared :as shared) (|node:fs/promises :as fs-promises)
     'js-ffi.node-test $ %{} 'FileEntry
       :defs $ {}
         'main! $ %{} 'CodeEntry
@@ -1233,15 +1132,12 @@
               if
                 contract/valid-runtime? (%:: shared/Runtime :node) (:runtime result)
                 shared/console-log! |js-ffi-node-smoke-passed
-                do
-                  shared/console-error! |js-ffi-node-smoke-failed
-                  node/exit! 1
+                do (shared/console-error! |js-ffi-node-smoke-failed) (node/exit! 1)
               , &unit
           :examples $ [] $ quote (main!)
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ []
-        'reload! $ %{} 'CodeEntry
-          :doc "|No-op Node reload hook returning Unit."
+        'reload! $ %{} 'CodeEntry (:doc "|No-op Node reload hook returning Unit.")
           :code $ quote $ defn reload! () &unit
           :examples $ [] $ quote (reload!)
           :schema $ :: 'Fn $ {} (:return 'Unit)
@@ -1253,8 +1149,7 @@
       :defs $ {}
         'AbortControllerHost $ %{} 'CodeEntry
           :doc "|External AbortController capability with a typed signal and parameterless abort wrapper contract."
-          :code $ quote $ deftrait AbortControllerHost
-            :signal 'js-ffi.shared/AbortSignalHost
+          :code $ quote $ deftrait AbortControllerHost (:signal 'js-ffi.shared/AbortSignalHost)
             .abort! $ :: 'Fn $ {}
               :args $ [] 'js-ffi.shared/AbortControllerHost
               :return 'Unit
@@ -1309,8 +1204,7 @@
         'DateSnapshot $ %{} 'CodeEntry
           :doc "|Immutable normalized view of a host Date with epoch milliseconds and ISO text."
           :code $ quote $ defstruct DateSnapshot (:timestamp 'Number) (:iso 'String)
-          :examples $ [] $ quote
-            &%{} DateSnapshot :timestamp 0 :iso |1970-01-01T00:00:00.000Z
+          :examples $ [] $ quote (&%{} DateSnapshot :timestamp 0 :iso |1970-01-01T00:00:00.000Z)
           :schema $ :: 'Enum
         'HeadersHost $ %{} 'CodeEntry
           :doc "|External Headers capability with typed String keys and values; iteration is deliberately normalized elsewhere."
@@ -1344,10 +1238,7 @@
           :schema $ :: 'Enum
         'JsError $ %{} 'CodeEntry
           :doc "|Normalized JavaScript exception data. Stack is optional because hosts may omit it."
-          :code $ quote $ defstruct JsError
-            :kind 'js-ffi.shared/JsErrorKind
-            :name 'String
-            :message 'String
+          :code $ quote $ defstruct JsError (:kind 'js-ffi.shared/JsErrorKind) (:name 'String) (:message 'String)
             :stack $ :: 'Option 'String
           :examples $ [] $ quote
             &%{} JsError :kind (%:: JsErrorKind :type-error) :name |TypeError :message |invalid
@@ -1361,8 +1252,7 @@
           :schema $ :: 'Enum
         'RequestOptions $ %{} 'CodeEntry
           :doc "|Calcit-owned request configuration converted to a JavaScript object only inside an adapter."
-          :code $ quote $ defstruct RequestOptions
-            :method 'js-ffi.shared/HttpMethod
+          :code $ quote $ defstruct RequestOptions (:method 'js-ffi.shared/HttpMethod)
             :headers $ :: 'Map 'String 'String
             :body $ :: 'Option 'String
           :examples $ [] $ quote
@@ -1370,9 +1260,7 @@
           :schema $ :: 'Enum
         'ResponseHost $ %{} 'CodeEntry
           :doc "|External Response capability with metadata and an opaque Promise-like text-body reader consumed by response-text."
-          :code $ quote $ deftrait ResponseHost (:status 'Number) (:status-text 'String) (:ok? 'Bool) (:url 'String) (:redirected? 'Bool)
-            :headers 'js-ffi.shared/HeadersHost
-            :body-used? 'Bool
+          :code $ quote $ deftrait ResponseHost (:status 'Number) (:status-text 'String) (:ok? 'Bool) (:url 'String) (:redirected? 'Bool) (:headers 'js-ffi.shared/HeadersHost) (:body-used? 'Bool)
             .text $ :: 'Fn $ {}
               :args $ [] 'js-ffi.shared/ResponseHost
               :return 'JsObject
@@ -1435,8 +1323,7 @@
           :examples $ [] $ quote
             &%{} UrlSnapshot :href |https://example.test/a :protocol |https: :host |example.test :hostname |example.test :port | :pathname |/a :search | :hash |
           :schema $ :: 'Enum
-        'abort! $ %{} 'CodeEntry
-          :doc "|Abort the controller. Repeated aborts are safe."
+        'abort! $ %{} 'CodeEntry (:doc "|Abort the controller. Repeated aborts are safe.")
           :code $ quote $ defn abort! (controller)
             do (controller .abort!) &unit
           :examples $ []
@@ -1447,13 +1334,10 @@
         'abort-controller-create $ %{} 'CodeEntry
           :doc "|Construct a native AbortController and retain its typed host identity. Invalid constructor inputs raise host exceptions."
           :code $ quote $ defn abort-controller-create ()
-            unsafe-coerce
-              new js/AbortController
-              , AbortControllerHost
+            unsafe-coerce (new js/AbortController) AbortControllerHost
           :examples $ []
           :ffi $ {} $ :backend :js
-          :schema $ :: 'Fn $ {}
-            :return 'js-ffi.shared/AbortControllerHost
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.shared/AbortControllerHost)
             :args $ []
             :features $ #{} :js-ffi
         'abort-signal $ %{} 'CodeEntry
@@ -1464,12 +1348,10 @@
               , result
           :examples $ []
           :ffi $ {} $ :backend :js
-          :schema $ :: 'Fn $ {}
-            :return 'js-ffi.shared/AbortSignalHost
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.shared/AbortSignalHost)
             :args $ [] 'js-ffi.shared/AbortControllerHost
             :features $ #{} :js-ffi
-        'aborted? $ %{} 'CodeEntry
-          :doc "|Read whether a signal has been aborted."
+        'aborted? $ %{} 'CodeEntry (:doc "|Read whether a signal has been aborted.")
           :code $ quote $ defn aborted? (signal)
             let
                 result $ signal :aborted
@@ -1516,20 +1398,16 @@
           :doc "|Create a host Date and immediately normalize it to DateSnapshot in browser or Node."
           :code $ quote $ defn date-now-snapshot ()
             date-snapshot $ unsafe-coerce (new js/Date) DateHost
-          :examples $ [] $ quote
-            date-now-snapshot
-          :schema $ :: 'Fn $ {}
-            :return 'js-ffi.shared/DateSnapshot
+          :examples $ [] $ quote (date-now-snapshot)
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.shared/DateSnapshot)
             :args $ []
             :features $ #{} :js-ffi
         'date-snapshot $ %{} 'CodeEntry
           :doc "|Copy a typed host Date into Calcit-owned DateSnapshot data."
           :code $ quote $ defn date-snapshot (date)
             &%{} DateSnapshot :timestamp (date .get-time) :iso $ date .to-iso-string
-          :examples $ [] $ quote
-            date-now-snapshot
-          :schema $ :: 'Fn $ {}
-            :return 'js-ffi.shared/DateSnapshot
+          :examples $ [] $ quote (date-now-snapshot)
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.shared/DateSnapshot)
             :args $ [] 'js-ffi.shared/DateHost
             :features $ #{} :js-ffi
         'decode-uri-component $ %{} 'CodeEntry
@@ -1582,12 +1460,10 @@
             unsafe-coerce (new js/Headers) HeadersHost
           :examples $ []
           :ffi $ {} $ :backend :js
-          :schema $ :: 'Fn $ {}
-            :return 'js-ffi.shared/HeadersHost
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.shared/HeadersHost)
             :args $ []
             :features $ #{} :js-ffi
-        'headers-delete! $ %{} 'CodeEntry
-          :doc "|Remove a key and return Unit."
+        'headers-delete! $ %{} 'CodeEntry (:doc "|Remove a key and return Unit.")
           :code $ quote $ defn headers-delete! (value key)
             do (value .delete! key) &unit
           :examples $ []
@@ -1605,16 +1481,14 @@
             :args $ [] 'js-ffi.shared/HeadersHost 'String
             :features $ #{} :js-ffi
             :return $ :: 'Option 'String
-        'headers-has? $ %{} 'CodeEntry
-          :doc "|Check whether a key exists."
+        'headers-has? $ %{} 'CodeEntry (:doc "|Check whether a key exists.")
           :code $ quote $ defn headers-has? (value key) (value .has? key)
           :examples $ []
           :ffi $ {} $ :backend :js
           :schema $ :: 'Fn $ {} (:return 'Bool)
             :args $ [] 'js-ffi.shared/HeadersHost 'String
             :features $ #{} :js-ffi
-        'headers-set! $ %{} 'CodeEntry
-          :doc "|Replace the values for a key."
+        'headers-set! $ %{} 'CodeEntry (:doc "|Replace the values for a key.")
           :code $ quote $ defn headers-set! (value key text)
             do (value .set! key text) &unit
           :examples $ []
@@ -1665,8 +1539,7 @@
               %{} JsError (:kind kind) (:name name) (:message message)
                 :stack $ %none
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :return 'js-ffi.shared/JsError
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.shared/JsError)
             :args $ [] $ :: 'JsNullish 'JsObject
             :features $ #{} :js-ffi
         'now-ms $ %{} 'CodeEntry
@@ -1690,9 +1563,7 @@
         'queue-microtask! $ %{} 'CodeEntry
           :doc "|Queue a Unit callback in the JavaScript microtask queue."
           :code $ quote $ defn queue-microtask! (callback)
-            do
-              js/queueMicrotask callback
-              , &unit
+            do (js/queueMicrotask callback) &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] $ :: 'Fn
@@ -1720,8 +1591,7 @@
               unsafe-coerce object ResponseHost
           :examples $ []
           :ffi $ {} $ :backend :js
-          :schema $ :: 'Fn $ {}
-            :return 'js-ffi.shared/ResponseHost
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.shared/ResponseHost)
             :args $ [] $ :: 'JsNullish 'JsObject
             :features $ #{} :js-ffi
         'response-text $ %{} 'CodeEntry
@@ -1755,17 +1625,13 @@
         'search-params-create $ %{} 'CodeEntry
           :doc "|Construct a native URLSearchParams and retain its typed host identity. Invalid constructor inputs raise host exceptions."
           :code $ quote $ defn search-params-create (query)
-            unsafe-coerce
-              new js/URLSearchParams query
-              , UrlSearchParamsHost
+            unsafe-coerce (new js/URLSearchParams query) UrlSearchParamsHost
           :examples $ []
           :ffi $ {} $ :backend :js
-          :schema $ :: 'Fn $ {}
-            :return 'js-ffi.shared/UrlSearchParamsHost
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.shared/UrlSearchParamsHost)
             :args $ [] 'String
             :features $ #{} :js-ffi
-        'search-params-delete! $ %{} 'CodeEntry
-          :doc "|Remove a key and return Unit."
+        'search-params-delete! $ %{} 'CodeEntry (:doc "|Remove a key and return Unit.")
           :code $ quote $ defn search-params-delete! (value key)
             do (value .delete! key) &unit
           :examples $ []
@@ -1783,16 +1649,14 @@
             :args $ [] 'js-ffi.shared/UrlSearchParamsHost 'String
             :features $ #{} :js-ffi
             :return $ :: 'Option 'String
-        'search-params-has? $ %{} 'CodeEntry
-          :doc "|Check whether a key exists."
+        'search-params-has? $ %{} 'CodeEntry (:doc "|Check whether a key exists.")
           :code $ quote $ defn search-params-has? (value key) (value .has? key)
           :examples $ []
           :ffi $ {} $ :backend :js
           :schema $ :: 'Fn $ {} (:return 'Bool)
             :args $ [] 'js-ffi.shared/UrlSearchParamsHost 'String
             :features $ #{} :js-ffi
-        'search-params-set! $ %{} 'CodeEntry
-          :doc "|Replace the values for a key."
+        'search-params-set! $ %{} 'CodeEntry (:doc "|Replace the values for a key.")
           :code $ quote $ defn search-params-set! (value key text)
             do (value .set! key text) &unit
           :examples $ []
@@ -1800,8 +1664,7 @@
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'js-ffi.shared/UrlSearchParamsHost 'String 'String
             :features $ #{} :js-ffi
-        'search-params-size $ %{} 'CodeEntry
-          :doc "|Count query entries, including duplicate keys."
+        'search-params-size $ %{} 'CodeEntry (:doc "|Count query entries, including duplicate keys.")
           :code $ quote $ defn search-params-size (value)
             let
                 result $ value :size
@@ -1825,8 +1688,7 @@
             unsafe-coerce (new js/URL input base) UrlHost
           :examples $ []
           :ffi $ {} $ :backend :js
-          :schema $ :: 'Fn $ {}
-            :return 'js-ffi.shared/UrlHost
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.shared/UrlHost)
             :args $ [] 'String 'String
             :features $ #{} :js-ffi
         'url-snapshot $ %{} 'CodeEntry
@@ -1834,8 +1696,7 @@
           :code $ quote $ defn url-snapshot (url)
             &%{} UrlSnapshot :href (url :href) :protocol (url :protocol) :host (url :host) :hostname (url :hostname) :port (url :port) :pathname (url :pathname) :search (url :search) :hash $ url :hash
           :examples $ [] $ quote UrlSnapshot
-          :schema $ :: 'Fn $ {}
-            :return 'js-ffi.shared/UrlSnapshot
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.shared/UrlSnapshot)
             :args $ [] 'js-ffi.shared/UrlHost
             :features $ #{} :js-ffi
       :ns $ %{} 'NsEntry
@@ -1887,8 +1748,7 @@
               :return $ :: 'JsNullish 'JsObject
           :examples $ []
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
-            :names $ {} (:create-buffer |createBuffer) (:pop-error-scope |popErrorScope)
-              :push-error-scope |pushErrorScope
+            :names $ {} (:create-buffer |createBuffer) (:pop-error-scope |popErrorScope) (:push-error-scope |pushErrorScope)
           :schema $ :: 'Trait
         'DeviceLost $ %{} 'CodeEntry
           :doc "|Copied device-loss reason and message. Unknown future reason strings are preserved."
@@ -1906,14 +1766,11 @@
               :return $ :: 'JsNullish 'JsObject
           :examples $ []
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
-            :names $ {}
-              :preferred-format |getPreferredCanvasFormat
-              :request-adapter |requestAdapter
+            :names $ {} (:preferred-format |getPreferredCanvasFormat) (:request-adapter |requestAdapter)
           :schema $ :: 'Trait
         'buffer-size $ %{} 'CodeEntry
           :doc "|Read buffer byte size through a checked host field."
-          :code $ quote $ defn buffer-size (buffer)
-            contract/expect-number |GPUBuffer.size buffer.:size
+          :code $ quote $ defn buffer-size (buffer) (contract/expect-number |GPUBuffer.size buffer.:size)
           :examples $ []
           :ffi $ {} (:backend :js) (:target :browser)
           :schema $ :: 'Fn $ {} (:return 'Number)
@@ -1936,8 +1793,7 @@
             internal/buffer-host $ device .create-buffer $ &js-object :size size :usage usage :mappedAtCreation false
           :examples $ []
           :ffi $ {} (:backend :js) (:target :browser)
-          :schema $ :: 'Fn $ {}
-            :return 'js-ffi.webgpu/BufferHost
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.webgpu/BufferHost)
             :args $ [] 'js-ffi.webgpu/DeviceHost 'Number 'Number
             :features $ #{} :js-ffi
         'destroy-buffer! $ %{} 'CodeEntry
@@ -1978,8 +1834,7 @@
               fn (value)
                 if (js-nullish? value)
                   ready! $ %none
-                  ready! $ %some $ contract/expect-string |GPUError.message
-                    contract/object-field |GPUError value |message
+                  ready! $ %some $ contract/expect-string |GPUError.message (contract/object-field |GPUError value |message)
               , failed!
           :examples $ []
           :ffi $ {} (:backend :js) (:target :browser)
@@ -2001,8 +1856,7 @@
             :features $ #{} :js-ffi
         'push-validation-scope! $ %{} 'CodeEntry
           :doc "|Push a validation error scope. Pair with pop-error-scope!; scopes belong to the device and are stack ordered."
-          :code $ quote $ defn push-validation-scope! (device)
-            device .push-error-scope |validation
+          :code $ quote $ defn push-validation-scope! (device) (device .push-error-scope |validation)
           :examples $ []
           :ffi $ {} (:backend :js) (:target :browser)
           :schema $ :: 'Fn $ {} (:return 'Unit)
@@ -2064,9 +1918,7 @@
             :features $ #{} :js-ffi
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns js-ffi.webgpu
-          :require
-            js-ffi.webgpu-internal :as internal
-            js-ffi.contract :as contract
+          :require (js-ffi.webgpu-internal :as internal) (js-ffi.contract :as contract)
     'js-ffi.webgpu-internal $ %{} 'FileEntry
       :defs $ {}
         'PromiseHost $ %{} 'CodeEntry (:doc |)
@@ -2090,8 +1942,7 @@
               contract/expect-function |WebGPU.adapter-host.requestDevice $ contract/object-field |WebGPU.adapter-host object |requestDevice
               unsafe-coerce object 'js-ffi.webgpu/AdapterHost
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :return 'js-ffi.webgpu/AdapterHost
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.webgpu/AdapterHost)
             :args $ [] $ :: 'JsNullish 'JsObject
             :features $ #{} :js-ffi
         'buffer-host $ %{} 'CodeEntry (:doc |)
@@ -2102,8 +1953,7 @@
               contract/expect-function |WebGPU.buffer-host.unmap $ contract/object-field |WebGPU.buffer-host object |unmap
               unsafe-coerce object 'js-ffi.webgpu/BufferHost
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :return 'js-ffi.webgpu/BufferHost
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.webgpu/BufferHost)
             :args $ [] $ :: 'JsNullish 'JsObject
             :features $ #{} :js-ffi
         'device-host $ %{} 'CodeEntry (:doc |)
@@ -2116,8 +1966,7 @@
               contract/expect-function |WebGPU.device-host.popErrorScope $ contract/object-field |WebGPU.device-host object |popErrorScope
               unsafe-coerce object 'js-ffi.webgpu/DeviceHost
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :return 'js-ffi.webgpu/DeviceHost
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.webgpu/DeviceHost)
             :args $ [] $ :: 'JsNullish 'JsObject
             :features $ #{} :js-ffi
         'error-message $ %{} 'CodeEntry (:doc |)
@@ -2137,8 +1986,7 @@
               contract/expect-function |WebGPU.gpu-host.getPreferredCanvasFormat $ contract/object-field |WebGPU.gpu-host object |getPreferredCanvasFormat
               unsafe-coerce object 'js-ffi.webgpu/GpuHost
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :return 'js-ffi.webgpu/GpuHost
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.webgpu/GpuHost)
             :args $ [] $ :: 'JsNullish 'JsObject
             :features $ #{} :js-ffi
         'observe! $ %{} 'CodeEntry (:doc |)
@@ -2168,8 +2016,7 @@
               contract/expect-function |WebGPU.promise-host.then $ contract/object-field |WebGPU.promise-host object |then
               unsafe-coerce object 'js-ffi.webgpu-internal/PromiseHost
           :examples $ []
-          :schema $ :: 'Fn $ {}
-            :return 'js-ffi.webgpu-internal/PromiseHost
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.webgpu-internal/PromiseHost)
             :args $ [] $ :: 'JsNullish 'JsObject
             :features $ #{} :js-ffi
       :ns $ %{} 'NsEntry (:doc |)
