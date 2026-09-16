@@ -1313,18 +1313,22 @@
           :doc "|External Promise capability exposing typed fulfillment and rejection callbacks."
           :code $ quote $ deftrait PromiseHost
             .then! $ :: 'Fn $ {}
-              :generics $ [] 'T 'E
-              :args $ [] 'js-ffi.shared/PromiseHost
-                :: 'Fn $ {}
+              :generics $ [] 'T
+              :args $ [] 'js-ffi.shared/PromiseHost $ :: 'Fn
+                {}
                   :args $ [] 'T
                   :return 'Unit
-                :: 'Fn $ {}
+              :return 'js-ffi.shared/PromiseHost
+            .catch! $ :: 'Fn $ {}
+              :generics $ [] 'E
+              :args $ [] 'js-ffi.shared/PromiseHost $ :: 'Fn
+                {}
                   :args $ [] 'E
                   :return 'Unit
-              :return 'JsObject
+              :return 'js-ffi.shared/PromiseHost
           :examples $ []
           :ffi $ {} (:backend :js) (:kind :external-object)
-            :names $ {} $ :then! |then
+            :names $ {} (:catch! |catch) (:then! |then)
           :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
         'RequestOptions $ %{} 'CodeEntry
@@ -1637,7 +1641,8 @@
           :code $ quote $ defn promise-observe! (value ready! failed!)
             let
                 host $ assert-type (js/Promise.resolve value) 'js-ffi.shared/PromiseHost
-              host .then! ready! failed!
+                handled $ host .then! ready!
+              handled .catch! failed!
               , &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)

@@ -77,4 +77,8 @@ export async function testShared(a) {
     shared.promise_observe_$x_(Promise.reject('failed'), reject, resolve);
   });
   a.equal(rejected, 'failed');
+  const callbackError = await new Promise((resolve, reject) => {
+    shared.promise_observe_$x_('ready', () => { throw new Error('callback failed'); }, resolve);
+  });
+  a.equal(callbackError.message, 'callback failed');
 }
