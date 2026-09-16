@@ -68,4 +68,13 @@ export async function testShared(a) {
   a.equal(flushed, false);
   await Promise.resolve();
   a.equal(flushed, true);
+
+  const fulfilled = await new Promise((resolve, reject) => {
+    a.equal(shared.promise_observe_$x_('ready', resolve, reject), undefined);
+  });
+  a.equal(fulfilled, 'ready');
+  const rejected = await new Promise((resolve, reject) => {
+    shared.promise_observe_$x_(Promise.reject('failed'), reject, resolve);
+  });
+  a.equal(rejected, 'failed');
 }

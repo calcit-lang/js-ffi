@@ -1309,6 +1309,24 @@
             quote $ %:: JsErrorKind :network
             quote $ %:: JsErrorKind :unknown |DataCloneError
           :schema $ :: 'Enum
+        'PromiseHost $ %{} 'CodeEntry
+          :doc "|External Promise capability exposing typed fulfillment and rejection callbacks."
+          :code $ quote $ deftrait PromiseHost
+            .then! $ :: 'Fn $ {}
+              :generics $ [] 'T 'E
+              :args $ [] 'js-ffi.shared/PromiseHost
+                :: 'Fn $ {}
+                  :args $ [] 'T
+                  :return 'Unit
+                :: 'Fn $ {}
+                  :args $ [] 'E
+                  :return 'Unit
+              :return 'JsObject
+          :examples $ []
+          :ffi $ {} (:backend :js) (:kind :external-object)
+            :names $ {} $ :then! |then
+          :schema $ :: 'Trait
+          :tags $ #{} :ffi :js-host
         'RequestOptions $ %{} 'CodeEntry
           :doc "|Calcit-owned request configuration converted to a JavaScript object only inside an adapter."
           :code $ quote $ defstruct RequestOptions (:method 'js-ffi.shared/HttpMethod)
@@ -1614,6 +1632,22 @@
           :schema $ :: 'Fn $ {} (:return 'Number)
             :args $ []
             :features $ #{} :js-ffi
+        'promise-observe! $ %{} 'CodeEntry
+          :doc "|Resolve a value through the host Promise queue and deliver exactly one fulfillment or rejection callback."
+          :code $ quote $ defn promise-observe! (value ready! failed!)
+            let
+                host $ assert-type (js/Promise.resolve value) 'js-ffi.shared/PromiseHost
+              host .then! ready! failed!
+              , &unit
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'T
+              :: 'Fn $ {} (:return 'Unit)
+                :args $ [] 'T
+              :: 'Fn $ {} (:return 'Unit)
+                :args $ [] 'E
+            :features $ #{} :js-ffi
+            :generics $ [] 'T 'E
         'queue-microtask! $ %{} 'CodeEntry
           :doc "|Queue a Unit callback in the JavaScript microtask queue."
           :code $ quote $ defn queue-microtask! (callback) (js/queueMicrotask callback) &unit
