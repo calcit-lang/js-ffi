@@ -450,6 +450,15 @@
             :args $ [] 'js-ffi.browser/DomElementHost 'String
             :features $ #{} :js-ffi
             :return $ :: 'calcit.core/Option 'String
+        'element-host $ %{} 'CodeEntry
+          :doc "|Validate an opaque host value as an object and expose the shared DOM element capability."
+          :code $ quote $ defn element-host (value)
+            assert-type (contract/expect-object |DOM.element-host value) 'js-ffi.browser/DomElementHost
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/DomElementHost)
+            :args $ [] 'T
+            :features $ #{} :js-ffi
+            :generics $ [] 'T
         'element-matches? $ %{} 'CodeEntry
           :doc "|Match a CSS selector; invalid selectors raise DOMException."
           :code $ quote $ defn element-matches? (element selector) (element .matches? selector)
@@ -527,6 +536,29 @@
           :schema $ :: 'Fn $ {} (:return 'JsObject)
             :args $ [] 'js-ffi.browser/DomElementHost
             :features $ #{} :js-ffi
+        'event-host $ %{} 'CodeEntry
+          :doc "|Validate an opaque host value as an object and expose the shared browser Event capability."
+          :code $ quote $ defn event-host (value)
+            assert-type (contract/expect-object |DOM.event-host value) 'js-ffi.browser/EventHost
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/EventHost)
+            :args $ [] 'T
+            :features $ #{} :js-ffi
+            :generics $ [] 'T
+        'event-listener-host $ %{} 'CodeEntry
+          :doc "|Validate an opaque host value as a browser Event listener callback."
+          :code $ quote $ defn event-listener-host (value)
+            assert-type (contract/expect-function |DOM.event-listener-host value)
+              :: 'Fn $ {}
+                :args $ [] 'js-ffi.browser/EventHost
+                :return 'Unit
+          :examples $ []
+          :schema $ :: 'Fn $ {}
+            :args $ [] 'T
+            :features $ #{} :js-ffi
+            :generics $ [] 'T
+            :return $ :: 'Fn $ {} (:return 'Unit)
+              :args $ [] 'js-ffi.browser/EventHost
         'event-stop-propagation! $ %{} 'CodeEntry
           :doc "|Stop propagation of a browser Event and return Unit."
           :code $ quote $ defn event-stop-propagation! (event)
@@ -534,6 +566,25 @@
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'js-ffi.browser/EventHost
+            :features $ #{} :js-ffi
+        'keyboard-event-host $ %{} 'CodeEntry
+          :doc "|Validate an opaque host value as an object and expose keyboard-event fields."
+          :code $ quote $ defn keyboard-event-host (value)
+            assert-type (contract/expect-object |DOM.keyboard-event-host value) 'js-ffi.browser/KeyboardEventHost
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/KeyboardEventHost)
+            :args $ [] 'T
+            :features $ #{} :js-ffi
+            :generics $ [] 'T
+        'keyboard-event-key $ %{} 'CodeEntry
+          :doc "|Read KeyboardEvent.key through the typed host capability."
+          :code $ quote $ defn keyboard-event-key (event)
+            let
+                key $ event :key
+              , key
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'String)
+            :args $ [] 'js-ffi.browser/KeyboardEventHost
             :features $ #{} :js-ffi
         'local-storage-available? $ %{} 'CodeEntry
           :doc "|Return whether localStorage is available. Browsers may deny storage in privacy or sandboxed modes, so callers should branch on this Boolean. Example: (local-storage-available?) => true"
@@ -552,6 +603,16 @@
           :examples $ [] $ quote (location-href)
           :schema $ :: 'Fn $ {} (:return 'String)
             :args $ []
+            :features $ #{} :js-ffi
+        'mouse-event-from-event $ %{} 'CodeEntry
+          :doc "|Create a MouseEvent that preserves the source Event type and compatible initialization fields."
+          :code $ quote $ defn mouse-event-from-event (event)
+            assert-type
+              new js/MouseEvent (event :event-type) event
+              , 'JsObject
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'JsObject)
+            :args $ [] 'js-ffi.browser/EventHost
             :features $ #{} :js-ffi
         'probe $ %{} 'CodeEntry
           :doc "|Run the browser capability smoke probe and return typed BrowserProbe data."

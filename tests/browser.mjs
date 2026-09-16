@@ -31,6 +31,8 @@ export async function run() {
   a.equal(browser.document_available_$q_(), true);
   const parent = browser.create_element('section');
   const input = browser.create_element('input');
+  a.equal(browser.element_host(parent), parent);
+  a.throws(() => browser.element_host(null), /DOM\.element-host expected Object, got nullish/);
   a.equal(browser.document_append_body_$x_(parent), undefined);
   try {
     a.equal(browser.append_child_$x_(parent, input), input);
@@ -65,11 +67,19 @@ export async function run() {
     parent.addEventListener('js-ffi-dom', () => { parentEvents++; });
     input.addEventListener('js-ffi-dom', event => {
       inputEvents++;
+      a.equal(browser.event_host(event), event);
       a.equal(browser.event_stop_propagation_$x_(event), undefined);
     });
     a.equal(browser.element_dispatch_event_$x_(input, new Event('js-ffi-dom', { bubbles: true })), true);
     a.equal(inputEvents, 1);
     a.equal(parentEvents, 0);
+
+    const keyboardEvent = new KeyboardEvent('keydown', { key: 'Escape' });
+    a.equal(browser.keyboard_event_host(keyboardEvent), keyboardEvent);
+    a.equal(browser.keyboard_event_key(keyboardEvent), 'Escape');
+    const mouseEvent = browser.mouse_event_from_event(browser.event_host(keyboardEvent));
+    a.equal(mouseEvent instanceof MouseEvent, true);
+    a.equal(mouseEvent.type, 'keydown');
 
     const cloned = browser.element_clone(parent, true);
     a.equal(cloned.children.length, 1);
