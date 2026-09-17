@@ -1558,9 +1558,15 @@
             :args $ [] 'String
             :features $ #{} :js-ffi
         'date-from-ms $ %{} 'CodeEntry
-          :doc "|Construct a typed host Date from a Unix timestamp in milliseconds."
+          :doc "|Construct a typed host Date from a finite, in-range Unix timestamp in milliseconds. Invalid timestamps raise a stable FFI contract error."
           :code $ quote $ defn date-from-ms (timestamp)
-            unsafe-coerce (new js/Date timestamp) DateHost
+            if
+              and (>= timestamp -8640000000000000) (<= timestamp 8640000000000000)
+              let
+                  date $ unsafe-coerce (new js/Date timestamp) DateHost
+                  validated-timestamp $ date .get-time
+                if (= validated-timestamp validated-timestamp) date $ raise $ str "|JS FFI contract violation: date-from-ms expected a valid Date timestamp, got " timestamp
+              raise $ str "|JS FFI contract violation: date-from-ms expected a finite in-range timestamp, got " timestamp
           :examples $ [] $ quote (date-from-ms 0)
           :ffi $ {} $ :backend :js
           :schema $ :: 'Fn $ {} (:return 'js-ffi.shared/DateHost)
