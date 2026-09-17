@@ -1335,9 +1335,12 @@
             .to-iso-string $ :: 'Fn $ {}
               :args $ [] 'js-ffi.shared/DateHost
               :return 'String
+            .to-locale-string $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.shared/DateHost
+              :return 'String
           :examples $ [] $ quote DateHost
           :ffi $ {} (:backend :js) (:kind :external-object)
-            :names $ {} (:get-time |getTime) (:to-iso-string |toISOString)
+            :names $ {} (:get-time |getTime) (:to-iso-string |toISOString) (:to-locale-string |toLocaleString)
           :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
         'DateSnapshot $ %{} 'CodeEntry
@@ -1553,6 +1556,30 @@
           :examples $ [] $ quote (console-warn! |deprecated)
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'String
+            :features $ #{} :js-ffi
+        'date-from-ms $ %{} 'CodeEntry
+          :doc "|Construct a typed host Date from a finite, in-range Unix timestamp in milliseconds. Invalid timestamps raise a stable FFI contract error."
+          :code $ quote $ defn date-from-ms (timestamp)
+            if
+              and (>= timestamp -8640000000000000) (<= timestamp 8640000000000000)
+              let
+                  date $ unsafe-coerce (new js/Date timestamp) DateHost
+                  validated-timestamp $ date .get-time
+                if (= validated-timestamp validated-timestamp) date $ raise $ str "|JS FFI contract violation: date-from-ms expected a valid Date timestamp, got " timestamp
+              raise $ str "|JS FFI contract violation: date-from-ms expected a finite in-range timestamp, got " timestamp
+          :examples $ [] $ quote (date-from-ms 0)
+          :ffi $ {} $ :backend :js
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.shared/DateHost)
+            :args $ [] 'Number
+            :features $ #{} :js-ffi
+        'date-local-string $ %{} 'CodeEntry
+          :doc "|Format a typed host Date using the runtime locale and default formatting options."
+          :code $ quote $ defn date-local-string (date) (date .to-locale-string)
+          :examples $ [] $ quote
+            date-local-string $ date-from-ms 0
+          :ffi $ {} $ :backend :js
+          :schema $ :: 'Fn $ {} (:return 'String)
+            :args $ [] 'js-ffi.shared/DateHost
             :features $ #{} :js-ffi
         'date-now-snapshot $ %{} 'CodeEntry
           :doc "|Create a host Date and immediately normalize it to DateSnapshot in browser or Node."

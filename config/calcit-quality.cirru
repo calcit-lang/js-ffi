@@ -270,6 +270,15 @@
       :typeNotFull 0
       :unresolved 0
       :unsafeCoerce 1
+    |js-ffi.shared/date-from-ms $ {} (:codeDynamic 0)
+      :codeNil 0
+      :declaredOptional 0
+      :deprecatedCalls 0
+      :schemaDynamic 0
+      :typeNone 0
+      :typeNotFull 0
+      :unresolved 0
+      :unsafeCoerce 1
     |js-ffi.shared/date-now-snapshot $ {} (:codeDynamic 0)
       :codeNil 0
       :declaredOptional 0
@@ -368,7 +377,7 @@
     :typeNone 0
     :typeNotFull 0
     :unresolved 0
-    :unsafeCoerce 40
+    :unsafeCoerce 41
   :scope $ {} (:includeDependencies false)
     :namespace nil
     :namespacePrefix nil

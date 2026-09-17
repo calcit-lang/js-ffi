@@ -62,6 +62,12 @@ export async function testShared(a) {
   const before = Date.now();
   const now = shared.now_ms();
   a.equal(now >= before && now <= Date.now(), true);
+  const epoch = shared.date_from_ms(0);
+  a.equal(epoch.getTime(), 0);
+  a.equal(shared.date_local_string(epoch), new Date(0).toLocaleString());
+  a.throws(() => shared.date_from_ms(Number.NaN), /finite in-range timestamp/);
+  a.throws(() => shared.date_from_ms(Number.POSITIVE_INFINITY), /finite in-range timestamp/);
+  a.throws(() => shared.date_from_ms(8_640_000_000_000_001), /finite in-range timestamp/);
   a.equal(shared.performance_now() >= 0, true);
   let flushed = false;
   a.equal(shared.queue_microtask_$x_(() => { flushed = true; }), undefined);
