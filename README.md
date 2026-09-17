@@ -162,6 +162,10 @@ shared/console-log! |ready
 
 shared/date-now-snapshot
 
+; DateHost -> String
+
+shared/date-local-string $ shared/date-from-ms 0
+
 ; String
 
 shared/runtime-label $ %:: shared/Runtime :browser
