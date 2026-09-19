@@ -12,7 +12,7 @@ entry_for:
 
 # Standard host adapters
 
-These 81 adapters extend the existing host contracts. Import `js-ffi.shared`
+These 75 adapters extend the existing host contracts. Import `js-ffi.shared`
 with either `js-ffi.browser` or `js-ffi.node`. The package retains no native
 objects in application state automatically; constructors explicitly return
 named host capabilities, and missing lookups return `Option`.
@@ -53,7 +53,7 @@ URLSearchParams.size, Headers, AbortController, performance and requestAnimation
 | `normalize-error` | JsObject → JsError | Normalize a caught host failure. |
 | `console-info!` | String → Unit | Write one informational line through the shared console contract. |
 
-## Browser document, location, window and screen accessors (20 adapters)
+## Browser document, location, window and screen accessors (14 adapters)
 
 These accessors expose the stable browser globals as typed host capabilities
 without letting callers read raw `js/...` paths. `document-host`, `location-host`
@@ -66,7 +66,7 @@ helpers read one validated field. `document-body`, every `location-*` field, and
 | `document-host` | () → DocumentHost |
 | `document-body` | () → DomElementHost |
 | `location-host` | () → LocationHost |
-| `location-hash`, `location-hostname`, `location-origin`, `location-pathname`, `location-port`, `location-protocol`, `location-search` | () → String |
+| `location-snapshot` | () → LocationSnapshot |
 | `window-host` | () → WindowHost |
 | `user-agent` | () → String |
 | `screen-width`, `screen-height` | () → Number |
