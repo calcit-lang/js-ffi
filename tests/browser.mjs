@@ -225,6 +225,13 @@ export async function run() {
   a.equal(mutable.innerHTML, '<b>hi</b>');
   a.equal(browser.element_set_hidden_$x_(mutable, true), undefined);
   a.equal(mutable.hidden, true);
+  const inputLike = browser.create_element('input');
+  a.equal(browser.element_set_value_$x_(inputLike, 'hello'), undefined);
+  a.equal(inputLike.value, 'hello');
+  a.equal(browser.element_set_placeholder_$x_(inputLike, 'hint'), undefined);
+  a.equal(inputLike.placeholder, 'hint');
+  a.equal(browser.element_set_css_text_$x_(inputLike, 'color: red;'), undefined);
+  a.equal(inputLike.style.cssText.includes('color'), true);
   let mutableClicks = 0;
   const onMutableClick = () => { mutableClicks++; };
   a.equal(browser.element_add_event_listener_$x_(mutable, 'click', onMutableClick), undefined);
