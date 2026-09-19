@@ -73,7 +73,7 @@
           :tags $ #{} :ffi :js-host
         'DomElementHost $ %{} 'CodeEntry
           :doc "|External DOM Element capability with stable fields, selector methods, attributes, and focus effects."
-          :code $ quote $ deftrait DomElementHost (:id 'String) (:class-name 'String)
+          :code $ quote $ deftrait DomElementHost (:id 'String) (:class-name 'String) (:hidden 'Bool)
             :text-content $ :: 'JsNullish 'String
             :child-element-count 'Number
             :dataset 'JsObject
@@ -106,12 +106,25 @@
             .request-fullscreen! $ :: 'Fn $ {}
               :args $ [] 'js-ffi.browser/DomElementHost
               :return 'Unit
+            .add-event-listener! $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.browser/DomElementHost 'String $ :: 'Fn
+                {}
+                  :args $ [] 'js-ffi.browser/EventHost
+                  :return 'Unit
+              :return 'Unit
+            .remove-event-listener! $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.browser/DomElementHost 'String $ :: 'Fn
+                {}
+                  :args $ [] 'js-ffi.browser/EventHost
+                  :return 'Unit
+              :return 'Unit
             :children 'js-ffi.browser/DomChildrenHost
             :inner-html 'String
             :local-name 'String
           :examples $ [] $ quote DomElementHost
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
-            :names $ {} (:append-child! |appendChild) (:blur! |blur) (:child-element-count |childElementCount) (:class-name |className) (:focus! |focus) (:get-attribute |getAttribute) (:inner-html |innerHTML) (:local-name |localName) (:matches? |matches) (:query-selector |querySelector) (:remove-attribute! |removeAttribute) (:request-fullscreen! |requestFullscreen) (:set-attribute! |setAttribute) (:text-content |textContent)
+            :names $ {} (:add-event-listener! |addEventListener) (:append-child! |appendChild) (:blur! |blur) (:child-element-count |childElementCount) (:class-name |className) (:focus! |focus) (:get-attribute |getAttribute) (:hidden |hidden) (:inner-html |innerHTML) (:local-name |localName) (:matches? |matches) (:query-selector |querySelector) (:remove-attribute! |removeAttribute) (:remove-event-listener! |removeEventListener) (:request-fullscreen! |requestFullscreen) (:set-attribute! |setAttribute) (:text-content |textContent)
+            :writable $ #{} :class-name :hidden :inner-html :text-content
           :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
         'DomInputHost $ %{} 'CodeEntry
@@ -590,6 +603,15 @@
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'String
             :features $ #{} :js-ffi
+        'element-add-event-listener! $ %{} 'CodeEntry (:doc "|Register a typed event listener on one element.")
+          :code $ quote $ defn element-add-event-listener! (element event-name callback)
+            do (element .add-event-listener! event-name callback) &unit
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'js-ffi.browser/DomElementHost 'String $ :: 'Fn
+              {} (:return 'Unit)
+                :args $ [] 'js-ffi.browser/EventHost
+            :features $ #{} :js-ffi
         'element-blur! $ %{} 'CodeEntry (:doc "|Blur an HTML element with blur capability.")
           :code $ quote $ defn element-blur! (element)
             do (element .blur!) &unit
@@ -721,6 +743,15 @@
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'js-ffi.browser/DomElementHost 'String
             :features $ #{} :js-ffi
+        'element-remove-event-listener! $ %{} 'CodeEntry (:doc "|Remove a typed event listener from one element.")
+          :code $ quote $ defn element-remove-event-listener! (element event-name callback)
+            do (element .remove-event-listener! event-name callback) &unit
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'js-ffi.browser/DomElementHost 'String $ :: 'Fn
+              {} (:return 'Unit)
+                :args $ [] 'js-ffi.browser/EventHost
+            :features $ #{} :js-ffi
         'element-request-fullscreen! $ %{} 'CodeEntry
           :doc "|Request fullscreen for a typed element. The host Promise is not awaited and the adapter returns Unit."
           :code $ quote $ defn element-request-fullscreen! (element)
@@ -745,6 +776,27 @@
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'js-ffi.browser/DomElementHost 'String 'String
             :features $ #{} :js-ffi
+        'element-set-class-name! $ %{} 'CodeEntry
+          :doc "|Replace one element className through DomElementHost.className."
+          :code $ quote $ defn element-set-class-name! (element class-name) (js-set element :class-name class-name) &unit
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'js-ffi.browser/DomElementHost 'String
+            :features $ #{} :js-ffi
+        'element-set-hidden! $ %{} 'CodeEntry
+          :doc "|Toggle one element hidden flag through DomElementHost.hidden."
+          :code $ quote $ defn element-set-hidden! (element hidden) (js-set element :hidden hidden) &unit
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'js-ffi.browser/DomElementHost 'Bool
+            :features $ #{} :js-ffi
+        'element-set-inner-html! $ %{} 'CodeEntry
+          :doc "|Replace one element HTML through DomElementHost.innerHTML."
+          :code $ quote $ defn element-set-inner-html! (element html) (js-set element :inner-html html) &unit
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'js-ffi.browser/DomElementHost 'String
+            :features $ #{} :js-ffi
         'element-set-style! $ %{} 'CodeEntry
           :doc "|Set one inline CSS property on an element and return Unit."
           :code $ quote $ defn element-set-style! (element property value)
@@ -754,6 +806,13 @@
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'js-ffi.browser/DomElementHost 'String 'String
+            :features $ #{} :js-ffi
+        'element-set-text-content! $ %{} 'CodeEntry
+          :doc "|Replace one element text content through DomElementHost.textContent."
+          :code $ quote $ defn element-set-text-content! (element text) (js-set element :text-content text) &unit
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'js-ffi.browser/DomElementHost 'String
             :features $ #{} :js-ffi
         'element-snapshot $ %{} 'CodeEntry
           :doc "|Copy a typed DOM element into ElementSnapshot, converting nullish textContent to Option<String>."
