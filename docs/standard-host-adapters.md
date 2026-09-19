@@ -111,6 +111,7 @@ and `screen-height`. `document-body` returns `Option<DomElementHost>` because
 | `element-data-set!`, `element-data-remove!` | DomElementHost, String [, String] → Unit |
 | `element-style-get` | DomElementHost, String → Option<String> |
 | `mouse-event-host` | T → MouseEventHost |
+| `pointer-event-host` | T → PointerEventHost |
 | `event-target-element` | EventHost → Option<DomElementHost> |
 | `document-title!` | String → Unit |
 | `element-set-inner-html!` | DomElementHost, String → Unit |

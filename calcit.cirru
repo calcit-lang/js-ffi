@@ -269,6 +269,14 @@
             :names $ {} (:alt-key? |altKey) (:client-x |clientX) (:client-y |clientY) (:ctrl-key? |ctrlKey) (:meta-key? |metaKey) (:prevent-default! |preventDefault) (:shift-key? |shiftKey)
           :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
+        'PointerEventHost $ %{} 'CodeEntry
+          :doc "|External PointerEvent capability exposing target-relative layer coordinates used by gesture code."
+          :code $ quote $ deftrait PointerEventHost (:layer-x 'Number) (:layer-y 'Number)
+          :examples $ [] $ quote PointerEventHost
+          :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
+            :names $ {} (:layer-x |layerX) (:layer-y |layerY)
+          :schema $ :: 'Trait
+          :tags $ #{} :ffi :js-host
         'PointerPosition $ %{} 'CodeEntry
           :doc "|Normalized pointer coordinates and button index copied from a MouseEvent-like object."
           :code $ quote $ defstruct PointerPosition (:client-x 'Number) (:client-y 'Number) (:button 'Number)
@@ -1130,6 +1138,15 @@
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'String
             :features $ #{} :js-ffi
+        'pointer-event-host $ %{} 'CodeEntry
+          :doc "|Validate an opaque host value as a PointerEvent capability (layerX/layerY)."
+          :code $ quote $ defn pointer-event-host (value)
+            assert-type (contract/expect-object |PointerEvent.host value) (quote js-ffi.browser/PointerEventHost)
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/PointerEventHost)
+            :args $ [] 'T
+            :features $ #{} :js-ffi
+            :generics $ [] 'T
         'probe $ %{} 'CodeEntry
           :doc "|Run the browser capability smoke probe and return typed BrowserProbe data."
           :code $ quote $ defn probe ()
