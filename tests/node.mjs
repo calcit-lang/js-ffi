@@ -183,6 +183,27 @@ test('shared fetch-request sends method, headers and optional body', async () =>
   }
 });
 
+test('shared response-json parses object bodies', async () => {
+  const a = assertions();
+  const server = createServer((_request, response) => {
+    response.writeHead(200, { 'content-type': 'application/json' });
+    response.end('{"ok":true,"n":1}');
+  });
+  try {
+    await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+    const url = `http://127.0.0.1:${server.address().port}/json`;
+    const fetched = await shared.fetch_response(url);
+    a.equal(isOk(fetched), true);
+    const parsed = await shared.response_json(fetched.extra[0]);
+    a.equal(isOk(parsed), true);
+    a.equal(parsed.extra[0].ok, true);
+    a.equal(parsed.extra[0].n, 1);
+    console.log(`Response json: ${a.count} assertions`);
+  } finally {
+    await new Promise(resolve => server.close(resolve));
+  }
+});
+
 test('shared console-host exposes the host console for method calls', () => {
   const a = assertions();
   a.equal(shared.console_host(), console);

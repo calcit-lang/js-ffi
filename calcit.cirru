@@ -118,13 +118,15 @@
                   :args $ [] 'js-ffi.browser/EventHost
                   :return 'Unit
               :return 'Unit
+            :value $ :: 'JsNullish 'String
+            :placeholder $ :: 'JsNullish 'String
             :children 'js-ffi.browser/DomChildrenHost
             :inner-html 'String
             :local-name 'String
           :examples $ [] $ quote DomElementHost
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
-            :names $ {} (:add-event-listener! |addEventListener) (:append-child! |appendChild) (:blur! |blur) (:child-element-count |childElementCount) (:class-name |className) (:focus! |focus) (:get-attribute |getAttribute) (:hidden |hidden) (:inner-html |innerHTML) (:local-name |localName) (:matches? |matches) (:query-selector |querySelector) (:remove-attribute! |removeAttribute) (:remove-event-listener! |removeEventListener) (:request-fullscreen! |requestFullscreen) (:set-attribute! |setAttribute) (:text-content |textContent)
-            :writable $ #{} :class-name :hidden :inner-html :text-content
+            :names $ {} (:add-event-listener! |addEventListener) (:append-child! |appendChild) (:blur! |blur) (:child-element-count |childElementCount) (:class-name |className) (:focus! |focus) (:get-attribute |getAttribute) (:hidden |hidden) (:inner-html |innerHTML) (:local-name |localName) (:matches? |matches) (:placeholder |placeholder) (:query-selector |querySelector) (:remove-attribute! |removeAttribute) (:remove-event-listener! |removeEventListener) (:request-fullscreen! |requestFullscreen) (:set-attribute! |setAttribute) (:text-content |textContent) (:value |value)
+            :writable $ #{} :class-name :hidden :inner-html :placeholder :text-content :value
           :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
         'DomInputHost $ %{} 'CodeEntry
@@ -292,6 +294,15 @@
           :examples $ [] $ quote StorageHost
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
             :names $ {} (:clear! |clear) (:get-item |getItem) (:key-at |key) (:remove-item! |removeItem) (:set-item! |setItem)
+          :schema $ :: 'Trait
+          :tags $ #{} :ffi :js-host
+        'StyleHost $ %{} 'CodeEntry
+          :doc "|External CSSStyleDeclaration capability exposing cssText and property accessors."
+          :code $ quote $ deftrait StyleHost (:css-text 'String)
+          :examples $ [] $ quote StyleHost
+          :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
+            :names $ {} $ :css-text |cssText
+            :writable $ #{} :css-text
           :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
         'Viewport $ %{} 'CodeEntry
@@ -783,6 +794,17 @@
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'js-ffi.browser/DomElementHost 'String
             :features $ #{} :js-ffi
+        'element-set-css-text! $ %{} 'CodeEntry
+          :doc "|Replace one element full inline style text through element.style.cssText."
+          :code $ quote $ defn element-set-css-text! (element text)
+            let
+                style $ element-style element
+              js-set style :css-text text
+              , &unit
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'js-ffi.browser/DomElementHost 'String
+            :features $ #{} :js-ffi
         'element-set-hidden! $ %{} 'CodeEntry
           :doc "|Toggle one element hidden flag through DomElementHost.hidden."
           :code $ quote $ defn element-set-hidden! (element hidden) (js-set element :hidden hidden) &unit
@@ -793,6 +815,13 @@
         'element-set-inner-html! $ %{} 'CodeEntry
           :doc "|Replace one element HTML through DomElementHost.innerHTML."
           :code $ quote $ defn element-set-inner-html! (element html) (js-set element :inner-html html) &unit
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'js-ffi.browser/DomElementHost 'String
+            :features $ #{} :js-ffi
+        'element-set-placeholder! $ %{} 'CodeEntry
+          :doc "|Set an input-like element placeholder through DomElementHost.placeholder."
+          :code $ quote $ defn element-set-placeholder! (element text) (js-set element :placeholder text) &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'js-ffi.browser/DomElementHost 'String
@@ -814,6 +843,13 @@
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'js-ffi.browser/DomElementHost 'String
             :features $ #{} :js-ffi
+        'element-set-value! $ %{} 'CodeEntry
+          :doc "|Set an input-like element value through DomElementHost.value."
+          :code $ quote $ defn element-set-value! (element value) (js-set element :value value) &unit
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'js-ffi.browser/DomElementHost 'String
+            :features $ #{} :js-ffi
         'element-snapshot $ %{} 'CodeEntry
           :doc "|Copy a typed DOM element into ElementSnapshot, converting nullish textContent to Option<String>."
           :code $ quote $ defn element-snapshot (element)
@@ -827,9 +863,9 @@
         'element-style $ %{} 'CodeEntry
           :doc "|Returns the raw DOM element style object. Prefer element-style-get / element-set-style! for typed access; this raw accessor is deprecated and will be removed in a future release."
           :code $ quote $ defn element-style (element)
-            unsafe-coerce (element :style) JsObject
+            unsafe-coerce (element :style) StyleHost
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'JsObject)
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/StyleHost)
             :args $ [] 'js-ffi.browser/DomElementHost
             :features $ #{} :js-ffi
         'element-style-get $ %{} 'CodeEntry
@@ -2478,6 +2514,24 @@
           :schema $ :: 'Fn $ {} (:return 'js-ffi.shared/ResponseHost)
             :args $ [] $ :: 'JsNullish 'JsObject
             :features $ #{} :js-ffi
+        'response-json $ %{} 'CodeEntry
+          :doc "|Await one response text, parse JSON, and expose the resulting object as Result<JsObject, JsError>."
+          :code $ quote $ defn response-json (response)
+            hint-fn $ {} (:async true)
+              :args $ [] 'js-ffi.shared/ResponseHost
+              :features $ #{} :js-ffi
+              :return $ :: 'calcit.core/Result 'JsObject 'js-ffi.shared/JsError
+            try
+              let
+                  text $ js-await $ response .text
+                %:: Result :ok $ contract/expect-object |response.json $ js/JSON.parse (contract/expect-string |response.text text)
+              fn (error)
+                %:: Result :err $ normalize-error error
+          :examples $ []
+          :schema $ :: 'Fn $ {}
+            :args $ [] 'js-ffi.shared/ResponseHost
+            :features $ #{} :js-ffi
+            :return $ :: 'calcit.core/Result 'JsObject 'js-ffi.shared/JsError
         'response-text $ %{} 'CodeEntry
           :doc "|Await Response.text exactly once and normalize synchronous throws or Promise rejections as Result.err."
           :code $ quote $ defn response-text (response)

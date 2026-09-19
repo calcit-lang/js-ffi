@@ -12,7 +12,7 @@ entry_for:
 
 # Standard host adapters
 
-These 122 adapters extend the existing host contracts. Import `js-ffi.shared`
+These 126 adapters extend the existing host contracts. Import `js-ffi.shared`
 with either `js-ffi.browser` or `js-ffi.node`. The package retains no native
 objects in application state automatically; constructors explicitly return
 named host capabilities, and missing lookups return `Option`.
@@ -21,7 +21,7 @@ Development and CI use Node.js 24 (Vite requires Node.js >=22.12 here) and
 Playwright Chromium. Runtime helpers use standard APIs; the browser needs
 URLSearchParams.size, Headers, AbortController, performance and requestAnimationFrame.
 
-## Shared APIs (29 adapters)
+## Shared APIs (30 adapters)
 
 | Function | Parameters → result | Behavior |
 | --- | --- | --- |
@@ -51,11 +51,12 @@ URLSearchParams.size, Headers, AbortController, performance and requestAnimation
 | `fetch-response` | String → async Result<ResponseHost, JsError> | Await one fetch; normalize throw/rejection. |
 | `fetch-request` | String, HttpMethod, HeadersHost, Option<String> → async Result<ResponseHost, JsError> | Build a request from typed method, headers and optional String body. |
 | `response-text` | ResponseHost → async Result<String, JsError> | Await one body read; repeated/failed reads are errors. |
+| `response-json` | ResponseHost → async Result<JsObject, JsError> | Await the body, parse JSON, and expose the resulting object. |
 | `normalize-error` | JsObject → JsError | Normalize a caught host failure. |
 | `console-info!` | String → Unit | Write one informational line through the shared console contract. |
 | `console-host` | () → ConsoleHost | Return the console external-object for method-style calls. |
 
-## Browser document, location, window, screen, clipboard, data and socket adapters (55 adapters)
+## Browser document, location, window, screen, clipboard, data and socket adapters (58 adapters)
 
 These accessors expose the stable browser globals as typed host capabilities
 without letting callers read raw `js/...` paths. `document-host`, `location-host`
@@ -116,6 +117,8 @@ and `screen-height`. `document-body` returns `Option<DomElementHost>` because
 | `element-set-text-content!` | DomElementHost, String → Unit |
 | `element-set-class-name!` | DomElementHost, String → Unit |
 | `element-set-hidden!` | DomElementHost, Bool → Unit |
+| `element-set-value!`, `element-set-placeholder!` | DomElementHost, String → Unit |
+| `element-set-css-text!` | DomElementHost, String → Unit |
 | `element-add-event-listener!`, `element-remove-event-listener!` | DomElementHost, String, Fn(EventHost) → Unit |
 
 ## Browser APIs (11 adapters)
