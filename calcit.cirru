@@ -638,7 +638,7 @@
             :args $ [] 'js-ffi.browser/DomElementHost 'String 'String
             :features $ #{} :js-ffi
         'element-dataset $ %{} 'CodeEntry
-          :doc "|Returns the DOM element dataset object through the browser host contract. Use with js-set/js-delete for data-* attributes."
+          :doc "|Returns the raw DOM element dataset object. Prefer element-data-get / element-data-set! / element-data-remove! for typed access; this raw accessor is deprecated and will be removed in a future release."
           :code $ quote $ defn element-dataset (element)
             unsafe-coerce (element :dataset) JsObject
           :examples $ []
@@ -651,7 +651,7 @@
             assert-type (.!dispatchEvent element event) 'Bool
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Bool)
-            :args $ [] 'js-ffi.browser/DomElementHost 'JsObject
+            :args $ [] 'js-ffi.browser/DomElementHost 'js-ffi.browser/EventHost
             :features $ #{} :js-ffi
         'element-first-child $ %{} 'CodeEntry
           :doc "|Return the first child element as Option, normalizing a missing child."
@@ -766,7 +766,7 @@
             :args $ [] 'js-ffi.browser/DomElementHost
             :features $ #{} :js-ffi
         'element-style $ %{} 'CodeEntry
-          :doc "|Returns the DOM element style declaration through the browser host contract. Use with aset for normalized CSS property names."
+          :doc "|Returns the raw DOM element style object. Prefer element-style-get / element-set-style! for typed access; this raw accessor is deprecated and will be removed in a future release."
           :code $ quote $ defn element-style (element)
             unsafe-coerce (element :style) JsObject
           :examples $ []
@@ -977,9 +977,9 @@
           :code $ quote $ defn mouse-event-from-event (event)
             assert-type
               new js/MouseEvent (event :event-type) event
-              , 'JsObject
+              quote js-ffi.browser/EventHost
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'JsObject)
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/EventHost)
             :args $ [] 'js-ffi.browser/EventHost
             :features $ #{} :js-ffi
         'mouse-event-host $ %{} 'CodeEntry
