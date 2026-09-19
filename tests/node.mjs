@@ -183,6 +183,31 @@ test('shared fetch-request sends method, headers and optional body', async () =>
   }
 });
 
+test('Node HTTP client helpers', async () => {
+  const a = assertions();
+  const server = node.http_create_server((request, response) => {
+    response.setHeader('X-Test', 'ok');
+    response.end('client-body');
+  });
+  await new Promise((resolve) => node.server_listen_$x_(server, 0, '127.0.0.1', () => resolve()));
+  try {
+    const port = server.address().port;
+    const result = await new Promise((resolve) => {
+      node.http_get_$x_(`http://127.0.0.1:${port}/`, (response) => {
+        const header = node.response_header(response, 'x-test');
+        node.response_body_text(response, (text) => resolve({ text, header }));
+      });
+    });
+    a.equal(result.text, 'client-body');
+    a.equal(isSome(result.header), true);
+    a.equal(unwrap(result.header), 'ok');
+  } finally {
+    node.server_close_$x_(server);
+  }
+  a.equal(isNone(node.response_header({ headers: {} }, 'missing')), true);
+  console.log(`Node http client: ${a.count} assertions`);
+});
+
 test('Node HTTP server, request header and timers', async () => {
   const a = assertions();
   const server = node.http_create_server((request, response) => {
@@ -202,6 +227,14 @@ test('Node HTTP server, request header and timers', async () => {
   } finally {
     node.server_close_$x_(server);
   }
+  const echoServer = node.http_create_server((request, response) => {
+    node.request_body_text(request, _PCT_some((text) => response.end(`echo:${text}`)));
+  });
+  await new Promise((resolve) => node.server_listen_$x_(echoServer, 0, '127.0.0.1', () => resolve()));
+  const echoPort = echoServer.address().port;
+  const posted = await fetch(`http://127.0.0.1:${echoPort}/`, { method: 'POST', body: 'payload' });
+  a.equal(await posted.text(), 'echo:payload');
+  node.server_close_$x_(echoServer);
   const headerValue = node.request_header({ headers: { 'content-type': 'text/plain' } }, 'content-type');
   a.equal(isSome(headerValue), true);
   a.equal(unwrap(headerValue), 'text/plain');

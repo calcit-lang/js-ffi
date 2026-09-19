@@ -306,7 +306,7 @@
       :typeNotFull 0
       :unresolved 0
       :unsafeCoerce 3
-    |js-ffi.node/request-body-text $ {} (:codeDynamic 0)
+    |js-ffi.node/http-get! $ {} (:codeDynamic 0)
       :codeNil 0
       :declaredOptional 0
       :deprecatedCalls 0
@@ -315,6 +315,15 @@
       :typeNotFull 0
       :unresolved 0
       :unsafeCoerce 2
+    |js-ffi.node/request-body-text $ {} (:codeDynamic 0)
+      :codeNil 0
+      :declaredOptional 0
+      :deprecatedCalls 0
+      :schemaDynamic 0
+      :typeNone 0
+      :typeNotFull 0
+      :unresolved 0
+      :unsafeCoerce 1
     |js-ffi.node/set-timeout! $ {} (:codeDynamic 0)
       :codeNil 0
       :declaredOptional 0
@@ -485,7 +494,7 @@
     :typeNone 0
     :typeNotFull 0
     :unresolved 0
-    :unsafeCoerce 56
+    :unsafeCoerce 57
   :scope $ {} (:includeDependencies false)
     :namespace nil
     :namespacePrefix nil

@@ -144,7 +144,7 @@ Missing attributes and selector results become none; invalid CSS selectors
 raise the native DOMException. Keep timer/frame handles and cancel them during
 teardown. Browser handles are numeric and must not be used as Node timer handles.
 
-## Node APIs (33 adapters)
+## Node APIs (36 adapters)
 
 | Function | Parameters → result |
 | --- | --- |
@@ -164,6 +164,9 @@ teardown. Browser handles are numeric and must not be used as Node timer handles
 | `platform`, `node-version` | () → String |
 | `env-get` | String → Option<String> |
 | `http-create-server` | Fn(NodeRequestHost, NodeServerResponseHost) → Unit → NodeServerHost | Create a Node HTTP server. |
+| `http-get!` | String, Fn(NodeIncomingResponseHost) → Unit → JsObject | Start a Node HTTP GET and return the client request. |
+| `response-header` | NodeIncomingResponseHost, String → Option<String> | Read one response header. |
+| `response-body-text` | NodeIncomingResponseHost, Fn(String) → Unit → Unit | Collect a response body as UTF-8 text. |
 | `server-listen!`, `server-close!` | NodeServerHost [, Number, String, Fn() → Unit] → NodeServerHost/Unit | Bind or close a Node HTTP server. |
 | `request-header` | NodeRequestHost, String → Option<String> | Read one request header. |
 | `request-body-text` | NodeRequestHost, Option<Fn(String) → Unit> → PromiseHost | Collect the request body as UTF-8 text. |
