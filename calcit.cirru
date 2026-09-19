@@ -18,6 +18,17 @@
   :files $ {}
     'js-ffi.browser $ %{} 'FileEntry
       :defs $ {}
+        'BlobHost $ %{} 'CodeEntry
+          :doc "|External Blob capability exposing size, type, and an async UTF-8 text reader."
+          :code $ quote $ deftrait BlobHost (:size 'Number) (:type 'String)
+            .text $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.browser/BlobHost
+              :return 'JsObject
+          :examples $ [] $ quote BlobHost
+          :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
+            :names $ {} $ :text |text
+          :schema $ :: 'Trait
+          :tags $ #{} :ffi :js-host
         'BrowserProbe $ %{} 'CodeEntry
           :doc "|Typed browser smoke result replacing the former heterogeneous Map<Dynamic>."
           :code $ quote $ defstruct BrowserProbe (:runtime 'js-ffi.shared/Runtime) (:document? 'Bool) (:storage 'String) (:viewport 'js-ffi.browser/Viewport)
@@ -168,6 +179,19 @@
           :examples $ [] $ quote FormDataHost
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
             :names $ {} (:append! |append) (:delete! |delete) (:has? |has)
+          :schema $ :: 'Trait
+          :tags $ #{} :ffi :js-host
+        'ImageHost $ %{} 'CodeEntry
+          :doc "|External HTMLImageElement capability with source, natural size, and a decode promise."
+          :code $ quote $ deftrait ImageHost (:natural-width 'Number) (:natural-height 'Number)
+            :src $ :: 'JsNullish 'String
+            .decode $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.browser/ImageHost
+              :return 'JsObject
+          :examples $ [] $ quote ImageHost
+          :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
+            :names $ {} (:decode |decode) (:natural-height |naturalHeight) (:natural-width |naturalWidth) (:src |src)
+            :writable $ #{} :src
           :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
         'KeyModifiers $ %{} 'CodeEntry
@@ -325,6 +349,32 @@
           :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/DomElementHost)
             :args $ [] 'js-ffi.browser/DomElementHost 'js-ffi.browser/DomElementHost
             :features $ #{} :js-ffi
+        'blob-create $ %{} 'CodeEntry
+          :doc "|Create a browser Blob containing one UTF-8 String part."
+          :code $ quote $ defn blob-create (text)
+            unsafe-coerce
+              new js/Blob $ js/Array.of text
+              , BlobHost
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/BlobHost)
+            :args $ [] 'String
+            :features $ #{} :js-ffi
+        'blob-text $ %{} 'CodeEntry
+          :doc "|Await Blob.text once and decode the UTF-8 String or normalize a JsError."
+          :code $ quote $ defn blob-text (blob)
+            hint-fn $ {} (:async true)
+              :args $ [] 'js-ffi.browser/BlobHost
+              :features $ #{} :js-ffi
+              :return $ :: 'Result 'String 'js-ffi.shared/JsError
+            try
+              %:: Result :ok $ contract/expect-string |blob.text $ js-await (blob .text)
+              fn (error)
+                %:: Result :err $ shared/normalize-error error
+          :examples $ []
+          :schema $ :: 'Fn $ {}
+            :args $ [] 'js-ffi.browser/BlobHost
+            :features $ #{} :js-ffi
+            :return $ :: 'calcit.core/Result 'String 'js-ffi.shared/JsError
         'cancel-animation-frame! $ %{} 'CodeEntry
           :doc "|Cancel a browser numeric handle; unknown handles are harmless."
           :code $ quote $ defn cancel-animation-frame! (handle)
@@ -723,6 +773,54 @@
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'String
             :features $ #{} :js-ffi
+        'image-create $ %{} 'CodeEntry
+          :doc "|Create an empty HTMLImageElement host capability."
+          :code $ quote $ defn image-create ()
+            unsafe-coerce (new js/Image) ImageHost
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/ImageHost)
+            :args $ []
+            :features $ #{} :js-ffi
+        'image-decode! $ %{} 'CodeEntry
+          :doc "|Await image.decode once so the natural size is available, or normalize a JsError."
+          :code $ quote $ defn image-decode! (image)
+            hint-fn $ {} (:async true)
+              :args $ [] 'js-ffi.browser/ImageHost
+              :features $ #{} :js-ffi
+              :return $ :: 'Result 'Unit 'js-ffi.shared/JsError
+            try
+              do
+                js-await $ image .decode
+                %:: Result :ok &unit
+              fn (error)
+                %:: Result :err $ shared/normalize-error error
+          :examples $ []
+          :schema $ :: 'Fn $ {}
+            :args $ [] 'js-ffi.browser/ImageHost
+            :features $ #{} :js-ffi
+            :return $ :: 'calcit.core/Result 'Unit 'js-ffi.shared/JsError
+        'image-natural-height $ %{} 'CodeEntry
+          :doc "|Return image.naturalHeight after the image has decoded."
+          :code $ quote $ defn image-natural-height (image)
+            identity $ image :natural-height
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Number)
+            :args $ [] 'js-ffi.browser/ImageHost
+            :features $ #{} :js-ffi
+        'image-natural-width $ %{} 'CodeEntry
+          :doc "|Return image.naturalWidth after the image has decoded."
+          :code $ quote $ defn image-natural-width (image)
+            identity $ image :natural-width
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Number)
+            :args $ [] 'js-ffi.browser/ImageHost
+            :features $ #{} :js-ffi
+        'image-src! $ %{} 'CodeEntry (:doc "|Set the image source URL.")
+          :code $ quote $ defn image-src! (image src) (js-set image :src src) &unit
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'js-ffi.browser/ImageHost 'String
+            :features $ #{} :js-ffi
         'keyboard-event-host $ %{} 'CodeEntry
           :doc "|Validate an opaque host value as an object and expose keyboard-event fields."
           :code $ quote $ defn keyboard-event-host (value)
@@ -814,6 +912,22 @@
             :args $ []
             :features $ #{} :js-ffi
             :return $ :: 'calcit.core/Result 'String 'js-ffi.shared/JsError
+        'object-url-create $ %{} 'CodeEntry
+          :doc "|Create an object URL for a Blob after a runtime String check."
+          :code $ quote $ defn object-url-create (blob)
+            contract/expect-string |URL.createObjectURL $ js/URL.createObjectURL blob
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'String)
+            :args $ [] 'js-ffi.browser/BlobHost
+            :features $ #{} :js-ffi
+        'object-url-revoke! $ %{} 'CodeEntry
+          :doc "|Revoke an object URL created by object-url-create."
+          :code $ quote $ defn object-url-revoke! (url)
+            do (js/URL.revokeObjectURL url) &unit
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'String
+            :features $ #{} :js-ffi
         'probe $ %{} 'CodeEntry
           :doc "|Run the browser capability smoke probe and return typed BrowserProbe data."
           :code $ quote $ defn probe ()
