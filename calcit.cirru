@@ -290,6 +290,33 @@
           :code $ quote $ defenum VisibilityState (:visible) (:hidden) (:prerender) (:unknown 'String)
           :examples $ [] $ quote (%:: VisibilityState :visible)
           :schema $ :: 'Enum
+        'WebSocketHost $ %{} 'CodeEntry
+          :doc "|External WebSocket capability with readyState, typed event callbacks, and String send/close effects."
+          :code $ quote $ deftrait WebSocketHost (:ready-state 'Number)
+            :on-open $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.browser/EventHost
+              :return 'Unit
+            :on-message $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.browser/EventHost
+              :return 'Unit
+            :on-close $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.browser/EventHost
+              :return 'Unit
+            :on-error $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.browser/EventHost
+              :return 'Unit
+            .send! $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.browser/WebSocketHost 'String
+              :return 'Unit
+            .close! $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.browser/WebSocketHost
+              :return 'Unit
+          :examples $ [] $ quote WebSocketHost
+          :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
+            :names $ {} (:close! |close) (:on-close |onclose) (:on-error |onerror) (:on-message |onmessage) (:on-open |onopen) (:ready-state |readyState) (:send! |send)
+            :writable $ #{} :on-close :on-error :on-message :on-open
+          :schema $ :: 'Trait
+          :tags $ #{} :ffi :js-host
         'WindowHost $ %{} 'CodeEntry
           :doc "|External browser Window capability restricted to stable viewport fields, matchMedia, and typed global event listeners."
           :code $ quote $ deftrait WindowHost (:inner-width 'Number) (:inner-height 'Number) (:device-pixel-ratio 'Number)
@@ -1178,6 +1205,72 @@
           :examples $ [] $ quote (visibility-state)
           :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/VisibilityState)
             :args $ []
+            :features $ #{} :js-ffi
+        'web-socket-close! $ %{} 'CodeEntry (:doc "|Close the socket.")
+          :code $ quote $ defn web-socket-close! (socket)
+            do (socket .close!) &unit
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'js-ffi.browser/WebSocketHost
+            :features $ #{} :js-ffi
+        'web-socket-create $ %{} 'CodeEntry
+          :doc "|Create a WebSocket connection to the given ws:// or wss:// URL."
+          :code $ quote $ defn web-socket-create (url)
+            unsafe-coerce (new js/WebSocket url) WebSocketHost
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/WebSocketHost)
+            :args $ [] 'String
+            :features $ #{} :js-ffi
+        'web-socket-on-close! $ %{} 'CodeEntry (:doc "|Install a typed close-event callback.")
+          :code $ quote $ defn web-socket-on-close! (socket callback) (js-set socket :on-close callback) &unit
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'js-ffi.browser/WebSocketHost $ :: 'Fn
+              {} (:return 'Unit)
+                :args $ [] 'js-ffi.browser/EventHost
+            :features $ #{} :js-ffi
+        'web-socket-on-error! $ %{} 'CodeEntry (:doc "|Install a typed error-event callback.")
+          :code $ quote $ defn web-socket-on-error! (socket callback) (js-set socket :on-error callback) &unit
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'js-ffi.browser/WebSocketHost $ :: 'Fn
+              {} (:return 'Unit)
+                :args $ [] 'js-ffi.browser/EventHost
+            :features $ #{} :js-ffi
+        'web-socket-on-message! $ %{} 'CodeEntry
+          :doc "|Install a callback receiving each incoming message decoded as String."
+          :code $ quote $ defn web-socket-on-message! (socket callback)
+            js-set socket :on-message $ fn (event)
+              callback $ contract/expect-string |ws.message $ js-get event |data
+            , &unit
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'js-ffi.browser/WebSocketHost $ :: 'Fn
+              {} (:return 'Unit)
+                :args $ [] 'String
+            :features $ #{} :js-ffi
+        'web-socket-on-open! $ %{} 'CodeEntry (:doc "|Install a typed open-event callback.")
+          :code $ quote $ defn web-socket-on-open! (socket callback) (js-set socket :on-open callback) &unit
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'js-ffi.browser/WebSocketHost $ :: 'Fn
+              {} (:return 'Unit)
+                :args $ [] 'js-ffi.browser/EventHost
+            :features $ #{} :js-ffi
+        'web-socket-ready-state $ %{} 'CodeEntry
+          :doc "|Return the numeric readyState: 0 connecting, 1 open, 2 closing, 3 closed."
+          :code $ quote $ defn web-socket-ready-state (socket)
+            identity $ socket :ready-state
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Number)
+            :args $ [] 'js-ffi.browser/WebSocketHost
+            :features $ #{} :js-ffi
+        'web-socket-send! $ %{} 'CodeEntry (:doc "|Send one String frame through the socket.")
+          :code $ quote $ defn web-socket-send! (socket text)
+            do (socket .send! text) &unit
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'js-ffi.browser/WebSocketHost 'String
             :features $ #{} :js-ffi
         'window-host $ %{} 'CodeEntry
           :doc "|Return the typed WindowHost capability for the current browser window."

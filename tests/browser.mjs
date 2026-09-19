@@ -185,6 +185,18 @@ export async function run() {
   a.equal(isOk(decoded), true);
   a.equal(browser.image_natural_width(image), 1);
   a.equal(browser.image_natural_height(image), 1);
+
+  const socket = browser.web_socket_create('ws://127.0.0.1:1/');
+  a.equal(browser.web_socket_ready_state(socket), 0);
+  browser.web_socket_on_open_$x_(socket, () => {});
+  browser.web_socket_on_close_$x_(socket, () => {});
+  browser.web_socket_on_error_$x_(socket, () => {});
+  let socketMessage = null;
+  browser.web_socket_on_message_$x_(socket, text => { socketMessage = text; });
+  socket.onmessage({ data: 'hello' });
+  a.equal(socketMessage, 'hello');
+  a.equal(browser.web_socket_close_$x_(socket), undefined);
+  a.equal(browser.web_socket_ready_state(socket) >= 2, true);
   if (typeof speechSynthesis !== 'undefined') {
     a.equal(browser.speech_synthesis_cancel_$x_(), undefined);
     a.equal(browser.speech_synthesis_speak_$x_('js-ffi smoke'), undefined);
