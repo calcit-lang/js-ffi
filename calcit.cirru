@@ -2390,7 +2390,7 @@
             .for-each! $ :: 'Fn $ {}
               :args $ [] 'js-ffi.shared/UrlSearchParamsHost $ :: 'Fn
                 {}
-                  :args $ [] 'String 'String 'Dynamic
+                  :args $ [] 'String 'String 'js-ffi.shared/UrlSearchParamsHost
                   :return 'Unit
               :return 'Unit
             .to-string $ :: 'Fn $ {}
