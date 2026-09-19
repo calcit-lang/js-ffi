@@ -216,6 +216,15 @@
       :typeNotFull 0
       :unresolved 0
       :unsafeCoerce 1
+    |js-ffi.browser/web-socket-create $ {} (:codeDynamic 0)
+      :codeNil 0
+      :declaredOptional 0
+      :deprecatedCalls 0
+      :schemaDynamic 0
+      :typeNone 0
+      :typeNotFull 0
+      :unresolved 0
+      :unsafeCoerce 1
     |js-ffi.browser/window-host $ {} (:codeDynamic 0)
       :codeNil 0
       :declaredOptional 0
@@ -449,7 +458,7 @@
     :typeNone 0
     :typeNotFull 0
     :unresolved 0
-    :unsafeCoerce 49
+    :unsafeCoerce 50
   :scope $ {} (:includeDependencies false)
     :namespace nil
     :namespacePrefix nil
