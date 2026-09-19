@@ -187,6 +187,10 @@ export async function run() {
   a.equal(browser.image_natural_width(image), 1);
   a.equal(browser.image_natural_height(image), 1);
 
+  const pointerEvent = new PointerEvent('pointerdown', { clientX: 12, clientY: 34 });
+  const pointerHost = browser.pointer_event_host(pointerEvent);
+  a.equal(typeof pointerHost.layerX, 'number');
+  a.equal(typeof pointerHost.layerY, 'number');
   const socket = browser.web_socket_create('ws://127.0.0.1:1/');
   a.equal(browser.web_socket_ready_state(socket), 0);
   browser.web_socket_on_open_$x_(socket, () => {});
