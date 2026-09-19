@@ -12,7 +12,7 @@ entry_for:
 
 # Standard host adapters
 
-These 106 adapters extend the existing host contracts. Import `js-ffi.shared`
+These 114 adapters extend the existing host contracts. Import `js-ffi.shared`
 with either `js-ffi.browser` or `js-ffi.node`. The package retains no native
 objects in application state automatically; constructors explicitly return
 named host capabilities, and missing lookups return `Option`.
@@ -53,7 +53,7 @@ URLSearchParams.size, Headers, AbortController, performance and requestAnimation
 | `normalize-error` | JsObject → JsError | Normalize a caught host failure. |
 | `console-info!` | String → Unit | Write one informational line through the shared console contract. |
 
-## Browser document, location, window, screen, clipboard, data and socket adapters (42 adapters)
+## Browser document, location, window, screen, clipboard, data and socket adapters (49 adapters)
 
 These accessors expose the stable browser globals as typed host capabilities
 without letting callers read raw `js/...` paths. `document-host`, `location-host`
@@ -104,6 +104,12 @@ and `screen-height`. `document-body` returns `Option<DomElementHost>` because
 | `web-socket-ready-state` | WebSocketHost → Number |
 | `web-socket-on-open!`, `web-socket-on-close!`, `web-socket-on-error!` | WebSocketHost, Fn(EventHost) → Unit |
 | `web-socket-on-message!` | WebSocketHost, Fn(String) → Unit |
+| `element-data-get` | DomElementHost, String → Option<String> |
+| `element-data-set!`, `element-data-remove!` | DomElementHost, String [, String] → Unit |
+| `element-style-get` | DomElementHost, String → Option<String> |
+| `mouse-event-host` | T → MouseEventHost |
+| `event-target-element` | EventHost → Option<DomElementHost> |
+| `document-title!` | String → Unit |
 
 ## Browser APIs (11 adapters)
 
@@ -126,7 +132,7 @@ Missing attributes and selector results become none; invalid CSS selectors
 raise the native DOMException. Keep timer/frame handles and cancel them during
 teardown. Browser handles are numeric and must not be used as Node timer handles.
 
-## Node APIs (26 adapters)
+## Node APIs (27 adapters)
 
 | Function | Parameters → result |
 | --- | --- |
@@ -144,6 +150,7 @@ teardown. Browser handles are numeric and must not be used as Node timer handles
 | `real-path!` | String path → String |
 | `pid`, `uptime` | () → Number |
 | `platform`, `node-version` | () → String |
+| `env-get` | String → Option<String> |
 | `import-meta-url` | () → String |
 | `buffer-from-string` | String → BufferHost |
 | `buffer->string` | BufferHost → String |
