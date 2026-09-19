@@ -169,6 +169,22 @@ export async function run() {
   a.equal(browser.window_local_storage(), localStorage);
   a.equal(browser.history_push_state_$x_(location.href), undefined);
   a.equal(browser.history_replace_state_$x_(location.href), undefined);
+
+  const blob = browser.blob_create('你好');
+  a.equal(blob.size, 6);
+  const blobText = await browser.blob_text(blob);
+  a.equal(isOk(blobText), true);
+  a.equal(blobText.extra[0], '你好');
+  const objectUrl = browser.object_url_create(blob);
+  a.equal(typeof objectUrl, 'string');
+  a.equal(browser.object_url_revoke_$x_(objectUrl), undefined);
+
+  const image = browser.image_create();
+  a.equal(browser.image_src_$x_(image, 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='), undefined);
+  const decoded = await browser.image_decode_$x_(image);
+  a.equal(isOk(decoded), true);
+  a.equal(browser.image_natural_width(image), 1);
+  a.equal(browser.image_natural_height(image), 1);
   if (typeof speechSynthesis !== 'undefined') {
     a.equal(browser.speech_synthesis_cancel_$x_(), undefined);
     a.equal(browser.speech_synthesis_speak_$x_('js-ffi smoke'), undefined);

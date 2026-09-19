@@ -12,7 +12,7 @@ entry_for:
 
 # Standard host adapters
 
-These 89 adapters extend the existing host contracts. Import `js-ffi.shared`
+These 98 adapters extend the existing host contracts. Import `js-ffi.shared`
 with either `js-ffi.browser` or `js-ffi.node`. The package retains no native
 objects in application state automatically; constructors explicitly return
 named host capabilities, and missing lookups return `Option`.
@@ -53,7 +53,7 @@ URLSearchParams.size, Headers, AbortController, performance and requestAnimation
 | `normalize-error` | JsObject → JsError | Normalize a caught host failure. |
 | `console-info!` | String → Unit | Write one informational line through the shared console contract. |
 
-## Browser document, location, window, screen and clipboard adapters (25 adapters)
+## Browser document, location, window, screen, clipboard and data adapters (34 adapters)
 
 These accessors expose the stable browser globals as typed host capabilities
 without letting callers read raw `js/...` paths. `document-host`, `location-host`
@@ -90,6 +90,14 @@ and `screen-height`. `document-body` returns `Option<DomElementHost>` because
 | `alert!` | String → Unit |
 | `prompt!` | String → Option<String> |
 | `notification-request-permission!` | () → async Result<String, JsError> |
+| `blob-create` | String → BlobHost |
+| `blob-text` | BlobHost → async Result<String, JsError> |
+| `object-url-create` | BlobHost → String |
+| `object-url-revoke!` | String → Unit |
+| `image-create` | () → ImageHost |
+| `image-src!` | ImageHost, String → Unit |
+| `image-decode!` | ImageHost → async Result<Unit, JsError> |
+| `image-natural-width`, `image-natural-height` | ImageHost → Number |
 
 ## Browser APIs (11 adapters)
 

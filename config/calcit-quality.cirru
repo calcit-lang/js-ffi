@@ -18,6 +18,15 @@
       :typeNotFull 0
       :unresolved 0
       :unsafeCoerce 1
+    |js-ffi.browser/blob-create $ {} (:codeDynamic 0)
+      :codeNil 0
+      :declaredOptional 0
+      :deprecatedCalls 0
+      :schemaDynamic 0
+      :typeNone 0
+      :typeNotFull 0
+      :unresolved 0
+      :unsafeCoerce 1
     |js-ffi.browser/create-element $ {} (:codeDynamic 0)
       :codeNil 0
       :declaredOptional 0
@@ -73,6 +82,15 @@
       :unresolved 0
       :unsafeCoerce 1
     |js-ffi.browser/form-data-create $ {} (:codeDynamic 0)
+      :codeNil 0
+      :declaredOptional 0
+      :deprecatedCalls 0
+      :schemaDynamic 0
+      :typeNone 0
+      :typeNotFull 0
+      :unresolved 0
+      :unsafeCoerce 1
+    |js-ffi.browser/image-create $ {} (:codeDynamic 0)
       :codeNil 0
       :declaredOptional 0
       :deprecatedCalls 0
@@ -431,7 +449,7 @@
     :typeNone 0
     :typeNotFull 0
     :unresolved 0
-    :unsafeCoerce 47
+    :unsafeCoerce 49
   :scope $ {} (:includeDependencies false)
     :namespace nil
     :namespacePrefix nil
