@@ -26,7 +26,8 @@
           :schema $ :: 'Enum
         'DocumentHost $ %{} 'CodeEntry
           :doc "|External Document capability with typed state, title, and small selector/creation surface."
-          :code $ quote $ deftrait DocumentHost (:title 'String) (:body 'js-ffi.browser/DomElementHost) (:ready-state 'String) (:visibility-state 'String)
+          :code $ quote $ deftrait DocumentHost (:title 'String) (:ready-state 'String) (:visibility-state 'String)
+            :body $ :: 'JsNullish 'js-ffi.browser/DomElementHost
             .query-selector $ :: 'Fn $ {}
               :args $ [] 'js-ffi.browser/DocumentHost 'String
               :return $ :: 'JsNullish 'js-ffi.browser/DomElementHost
@@ -426,11 +427,12 @@
           :code $ quote $ defn document-body ()
             let
                 host $ document-host
-              identity $ host :body
+              js-nullish->option $ host :body
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/DomElementHost)
+          :schema $ :: 'Fn $ {}
             :args $ []
             :features $ #{} :js-ffi
+            :return $ :: 'calcit.core/Option 'js-ffi.browser/DomElementHost
         'document-host $ %{} 'CodeEntry
           :doc "|Return the typed DocumentHost capability for the current browser document."
           :code $ quote $ defn document-host () (unsafe-coerce js/document DocumentHost)

@@ -127,7 +127,7 @@ export async function run() {
   }));
 
   a.equal(browser.document_host(), document);
-  a.equal(browser.document_body(), document.body);
+  a.equal(unwrap(browser.document_body()), document.body);
   a.equal(browser.location_host(), location);
   const locationField = (snapshot, name) => snapshot.values[snapshot.fields.findIndex(field => field.value === name)];
   const locationSnapshot = browser.location_snapshot();

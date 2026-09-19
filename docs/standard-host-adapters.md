@@ -57,9 +57,12 @@ URLSearchParams.size, Headers, AbortController, performance and requestAnimation
 
 These accessors expose the stable browser globals as typed host capabilities
 without letting callers read raw `js/...` paths. `document-host`, `location-host`
-and `window-host` return the existing external-object contracts; the remaining
-helpers read one validated field. `document-body`, every `location-*` field, and
-`window-host` require the `:js-ffi` feature because they cross the host border.
+and `window-host` return the existing external-object contracts; `location-snapshot`
+copies the stable Location fields into one struct; the remaining helpers read a
+single validated host value. **All 14 accessors require `:js-ffi`** because they
+cross the host border, including `document-host`, `user-agent`, `screen-width`,
+and `screen-height`. `document-body` returns `Option<DomElementHost>` because
+`document.body` can be null before a body or frameset exists.
 
 | Function | Parameters → result |
 | --- | --- |
