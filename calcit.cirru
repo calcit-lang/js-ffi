@@ -1631,6 +1631,26 @@
             :names $ {} (:byte-length |length) (:to-string |toString)
           :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
+        'NodeIncomingResponseHost $ %{} 'CodeEntry
+          :doc "|External Node client IncomingMessage capability with status, headers and body hooks."
+          :code $ quote $ deftrait NodeIncomingResponseHost
+            :status-code $ :: 'JsNullish 'Number
+            :status-message $ :: 'JsNullish 'String
+            :headers 'JsObject
+            .set-encoding! $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.node/NodeIncomingResponseHost 'String
+              :return 'Unit
+            .on! $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.node/NodeIncomingResponseHost 'String $ :: 'Fn
+                {}
+                  :args $ [] 'JsObject
+                  :return 'Unit
+              :return 'js-ffi.node/NodeIncomingResponseHost
+          :examples $ [] $ quote NodeIncomingResponseHost
+          :ffi $ {} (:backend :js) (:kind :external-object) (:target :node)
+            :names $ {} (:on! |on) (:set-encoding! |setEncoding) (:status-code |statusCode) (:status-message |statusMessage)
+          :schema $ :: 'Trait
+          :tags $ #{} :ffi :js-host
         'NodeProbe $ %{} 'CodeEntry
           :doc "|Typed Node smoke result replacing the former heterogeneous Map<Dynamic>."
           :code $ quote $ defstruct NodeProbe (:runtime 'js-ffi.shared/Runtime) (:cwd 'String) (:argv-count 'Number)
@@ -1643,6 +1663,9 @@
             :url $ :: 'JsNullish 'String
             :method $ :: 'JsNullish 'String
             :headers 'JsObject
+            .set-encoding! $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.node/NodeRequestHost 'String
+              :return 'Unit
             .on! $ :: 'Fn $ {}
               :args $ [] 'js-ffi.node/NodeRequestHost 'String $ :: 'Fn
                 {}
@@ -1651,7 +1674,7 @@
               :return 'js-ffi.node/NodeRequestHost
           :examples $ [] $ quote NodeRequestHost
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :node)
-            :names $ {} $ :on! |on
+            :names $ {} (:on! |on) (:set-encoding! |setEncoding)
           :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
         'NodeServerHost $ %{} 'CodeEntry
@@ -1805,6 +1828,20 @@
             :args $ [] $ :: 'Fn
               {} (:return 'Unit)
                 :args $ [] 'js-ffi.node/NodeRequestHost 'js-ffi.node/NodeServerResponseHost
+            :features $ #{} :js-ffi
+        'http-get! $ %{} 'CodeEntry
+          :doc "|Start a Node HTTP GET and return the opaque client request object."
+          :code $ quote $ defn http-get! (url callback)
+            unsafe-coerce
+              http/get url $ fn (raw-response)
+                callback $ unsafe-coerce raw-response NodeIncomingResponseHost
+              , JsObject
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :node)
+          :schema $ :: 'Fn $ {} (:return 'JsObject)
+            :args $ [] 'String $ :: 'Fn
+              {} (:return 'Unit)
+                :args $ [] 'js-ffi.node/NodeIncomingResponseHost
             :features $ #{} :js-ffi
         'import-meta-url $ %{} 'CodeEntry
           :doc "|Read import.meta.url after a runtime String check."
@@ -1978,13 +2015,12 @@
             unsafe-coerce
               new js/Promise $ fn (resolve reject)
                 let
-                    chunks $ js-array
+                    chunks $ atom |
+                  request .set-encoding! |utf8
                   request .on! |error $ fn (error) (reject error)
-                  request .on! |data $ fn (data)
-                    do (.push chunks data) &unit
+                  request .on! |data $ fn (data) (swap! chunks str data)
                   request .on! |end $ fn () $ let
-                      buffer $ unsafe-coerce (js/Buffer.concat chunks) BufferHost
-                      text $ buffer .to-string |utf8
+                      text @chunks
                     do
                       match callback
                         (:some cb) (cb text)
@@ -2008,6 +2044,35 @@
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] 'js-ffi.node/NodeRequestHost 'String
+            :features $ #{} :js-ffi
+            :return $ :: 'calcit.core/Option 'String
+        'response-body-text $ %{} 'CodeEntry
+          :doc "|Collect a Node response body as UTF-8 text and invoke the callback."
+          :code $ quote $ defn response-body-text (response callback)
+            let
+                chunks $ atom |
+              response .set-encoding! |utf8
+              response .on! |data $ fn (chunk) (swap! chunks str chunk)
+              response .on! |end $ fn () $ callback @chunks
+            , &unit
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :node)
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'js-ffi.node/NodeIncomingResponseHost $ :: 'Fn
+              {} (:return 'Unit)
+                :args $ [] 'String
+            :features $ #{} :js-ffi
+        'response-header $ %{} 'CodeEntry
+          :doc "|Read one Node response header as Option<String>."
+          :code $ quote $ defn response-header (response key)
+            let
+                headers $ response :headers
+                value $ contract/object-field |response.header headers key
+              if (js-nullish? value) (%none)
+                %some $ contract/expect-string |response.header value
+          :examples $ []
+          :schema $ :: 'Fn $ {}
+            :args $ [] 'js-ffi.node/NodeIncomingResponseHost 'String
             :features $ #{} :js-ffi
             :return $ :: 'calcit.core/Option 'String
         'rmdir! $ %{} 'CodeEntry
