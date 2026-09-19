@@ -125,5 +125,21 @@ export async function run() {
     a.equal(typeof timestamp, 'number');
     resolve();
   }));
+
+  a.equal(browser.document_host(), document);
+  a.equal(browser.document_body(), document.body);
+  a.equal(browser.location_host(), location);
+  a.equal(browser.location_origin(), location.origin);
+  a.equal(browser.location_hostname(), location.hostname);
+  a.equal(browser.location_pathname(), location.pathname);
+  a.equal(browser.location_protocol(), location.protocol);
+  a.equal(browser.location_port(), location.port);
+  a.equal(browser.location_search(), location.search);
+  a.equal(browser.location_hash(), location.hash);
+  a.equal(browser.window_host(), window);
+  a.equal(browser.user_agent(), navigator.userAgent);
+  a.equal(browser.screen_width(), window.screen.width);
+  a.equal(browser.screen_height(), window.screen.height);
+  a.equal(shared.console_info_$x_('js-ffi browser smoke'), undefined);
   return { passed: true, assertions: a.count, runtime: navigator.userAgent, webgpu };
 }

@@ -26,7 +26,7 @@
           :schema $ :: 'Enum
         'DocumentHost $ %{} 'CodeEntry
           :doc "|External Document capability with typed state, title, and small selector/creation surface."
-          :code $ quote $ deftrait DocumentHost (:title 'String) (:ready-state 'String) (:visibility-state 'String)
+          :code $ quote $ deftrait DocumentHost (:title 'String) (:body 'js-ffi.browser/DomElementHost) (:ready-state 'String) (:visibility-state 'String)
             .query-selector $ :: 'Fn $ {}
               :args $ [] 'js-ffi.browser/DocumentHost 'String
               :return $ :: 'JsNullish 'js-ffi.browser/DomElementHost
@@ -35,7 +35,7 @@
               :return 'js-ffi.browser/DomElementHost
           :examples $ [] $ quote DocumentHost
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
-            :names $ {} (:create-element |createElement) (:query-selector |querySelector) (:ready-state |readyState) (:visibility-state |visibilityState)
+            :names $ {} (:body |body) (:create-element |createElement) (:query-selector |querySelector) (:ready-state |readyState) (:visibility-state |visibilityState)
           :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
         'DocumentReadyState $ %{} 'CodeEntry
@@ -164,7 +164,7 @@
           :tags $ #{} :ffi :js-host
         'LocationHost $ %{} 'CodeEntry
           :doc "|External browser Location capability. Navigation methods are explicit effects; URL fields are readable."
-          :code $ quote $ deftrait LocationHost (:href 'String) (:protocol 'String) (:host 'String) (:hostname 'String) (:port 'String) (:pathname 'String) (:search 'String) (:hash 'String)
+          :code $ quote $ deftrait LocationHost (:href 'String) (:origin 'String) (:protocol 'String) (:host 'String) (:hostname 'String) (:port 'String) (:pathname 'String) (:search 'String) (:hash 'String)
             .assign! $ :: 'Fn $ {}
               :args $ [] 'js-ffi.browser/LocationHost 'String
               :return 'Unit
@@ -176,7 +176,7 @@
               :return 'Unit
           :examples $ [] $ quote LocationHost
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
-            :names $ {} (:assign! |assign) (:reload! |reload) (:replace! |replace)
+            :names $ {} (:assign! |assign) (:origin |origin) (:reload! |reload) (:replace! |replace)
           :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
         'MediaQueryListHost $ %{} 'CodeEntry
@@ -378,6 +378,24 @@
           :examples $ [] $ quote "(document-available?)"
           :ffi $ {} (:backend :js) (:target :browser)
           :schema $ :: 'Fn $ {} (:return 'Bool)
+            :args $ []
+            :features $ #{} :js-ffi
+        'document-body $ %{} 'CodeEntry
+          :doc "|Return document.body as a typed DomElementHost through DocumentHost."
+          :code $ quote $ defn document-body ()
+            let
+                host $ document-host
+              identity $ host :body
+          :examples $ [] $ quote (document-body)
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/DomElementHost)
+            :args $ []
+            :features $ #{} :js-ffi
+        'document-host $ %{} 'CodeEntry
+          :doc "|Return the typed DocumentHost capability for the current browser document."
+          :code $ quote $ defn document-host () (unsafe-coerce js/document DocumentHost)
+          :examples $ [] $ quote (document-host)
+          :ffi $ {} (:backend :js) (:target :browser)
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/DocumentHost)
             :args $ []
             :features $ #{} :js-ffi
         'document-ready-state $ %{} 'CodeEntry
@@ -604,6 +622,34 @@
           :schema $ :: 'Fn $ {} (:return 'Bool)
             :args $ []
             :features $ #{} :js-ffi
+        'location-hash $ %{} 'CodeEntry
+          :doc "|Read location.hash through the typed LocationHost contract."
+          :code $ quote $ defn location-hash ()
+            let
+                host $ location-host
+              str $ host :hash
+          :examples $ [] $ quote (location-hash)
+          :schema $ :: 'Fn $ {} (:return 'String)
+            :args $ []
+            :features $ #{} :js-ffi
+        'location-host $ %{} 'CodeEntry
+          :doc "|Return the typed LocationHost capability for browser navigation fields and effects."
+          :code $ quote $ defn location-host () (unsafe-coerce js/location LocationHost)
+          :examples $ [] $ quote (location-host)
+          :ffi $ {} (:backend :js) (:target :browser)
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/LocationHost)
+            :args $ []
+            :features $ #{} :js-ffi
+        'location-hostname $ %{} 'CodeEntry
+          :doc "|Read location.hostname through the typed LocationHost contract."
+          :code $ quote $ defn location-hostname ()
+            let
+                host $ location-host
+              str $ host :hostname
+          :examples $ [] $ quote (location-hostname)
+          :schema $ :: 'Fn $ {} (:return 'String)
+            :args $ []
+            :features $ #{} :js-ffi
         'location-href $ %{} 'CodeEntry
           :doc "|Read location.href through the typed LocationHost contract."
           :code $ quote $ defn location-href ()
@@ -611,6 +657,56 @@
                 host-location $ unsafe-coerce js/location LocationHost
               host-location :href
           :examples $ [] $ quote (location-href)
+          :schema $ :: 'Fn $ {} (:return 'String)
+            :args $ []
+            :features $ #{} :js-ffi
+        'location-origin $ %{} 'CodeEntry
+          :doc "|Read location.origin through the typed LocationHost contract."
+          :code $ quote $ defn location-origin ()
+            let
+                host $ location-host
+              str $ host :origin
+          :examples $ [] $ quote (location-origin)
+          :schema $ :: 'Fn $ {} (:return 'String)
+            :args $ []
+            :features $ #{} :js-ffi
+        'location-pathname $ %{} 'CodeEntry
+          :doc "|Read location.pathname through the typed LocationHost contract."
+          :code $ quote $ defn location-pathname ()
+            let
+                host $ location-host
+              str $ host :pathname
+          :examples $ [] $ quote (location-pathname)
+          :schema $ :: 'Fn $ {} (:return 'String)
+            :args $ []
+            :features $ #{} :js-ffi
+        'location-port $ %{} 'CodeEntry
+          :doc "|Read location.port through the typed LocationHost contract."
+          :code $ quote $ defn location-port ()
+            let
+                host $ location-host
+              str $ host :port
+          :examples $ [] $ quote (location-port)
+          :schema $ :: 'Fn $ {} (:return 'String)
+            :args $ []
+            :features $ #{} :js-ffi
+        'location-protocol $ %{} 'CodeEntry
+          :doc "|Read location.protocol through the typed LocationHost contract."
+          :code $ quote $ defn location-protocol ()
+            let
+                host $ location-host
+              str $ host :protocol
+          :examples $ [] $ quote (location-protocol)
+          :schema $ :: 'Fn $ {} (:return 'String)
+            :args $ []
+            :features $ #{} :js-ffi
+        'location-search $ %{} 'CodeEntry
+          :doc "|Read location.search through the typed LocationHost contract."
+          :code $ quote $ defn location-search ()
+            let
+                host $ location-host
+              str $ host :search
+          :examples $ [] $ quote (location-search)
           :schema $ :: 'Fn $ {} (:return 'String)
             :args $ []
             :features $ #{} :js-ffi
@@ -689,6 +785,19 @@
           :examples $ [] $ quote "(runtime-name)"
           :schema $ :: 'Fn $ {} (:return 'String)
             :args $ []
+        'screen-height $ %{} 'CodeEntry
+          :doc "|Read screen.height after a runtime Number check."
+          :code $ quote $ defn screen-height () (contract/expect-number |screen.height js/window.screen.height)
+          :examples $ [] $ quote (screen-height)
+          :schema $ :: 'Fn $ {} (:return 'Number)
+            :args $ []
+            :features $ #{} :js-ffi
+        'screen-width $ %{} 'CodeEntry (:doc "|Read screen.width after a runtime Number check.")
+          :code $ quote $ defn screen-width () (contract/expect-number |screen.width js/window.screen.width)
+          :examples $ [] $ quote (screen-width)
+          :schema $ :: 'Fn $ {} (:return 'Number)
+            :args $ []
+            :features $ #{} :js-ffi
         'selectable-element-host $ %{} 'CodeEntry
           :doc "|Validate an opaque host value as an object and expose the selectable input or textarea capability."
           :code $ quote $ defn selectable-element-host (value)
@@ -791,6 +900,13 @@
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'String 'String
             :features $ #{} :js-ffi
+        'user-agent $ %{} 'CodeEntry
+          :doc "|Read navigator.userAgent after a runtime String check."
+          :code $ quote $ defn user-agent () (contract/expect-string |navigator.userAgent js/window.navigator.userAgent)
+          :examples $ [] $ quote (user-agent)
+          :schema $ :: 'Fn $ {} (:return 'String)
+            :args $ []
+            :features $ #{} :js-ffi
         'viewport $ %{} 'CodeEntry
           :doc "|Read Window viewport fields once and return normalized Viewport data."
           :code $ quote $ defn viewport ()
@@ -823,6 +939,14 @@
               decode-visibility-state $ host-document :visibility-state
           :examples $ [] $ quote (visibility-state)
           :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/VisibilityState)
+            :args $ []
+            :features $ #{} :js-ffi
+        'window-host $ %{} 'CodeEntry
+          :doc "|Return the typed WindowHost capability for the current browser window."
+          :code $ quote $ defn window-host () (unsafe-coerce js/window WindowHost)
+          :examples $ [] $ quote (window-host)
+          :ffi $ {} (:backend :js) (:target :browser)
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/WindowHost)
             :args $ []
             :features $ #{} :js-ffi
       :ns $ %{} 'NsEntry
@@ -1532,6 +1656,14 @@
               host-console .error! message
               , &unit
           :examples $ [] $ quote (console-error! |failed)
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'String
+            :features $ #{} :js-ffi
+        'console-info! $ %{} 'CodeEntry
+          :doc "|Write one informational String to the host console and return Unit in browser or Node."
+          :code $ quote $ defn console-info! (message)
+            do (js/console.info message) &unit
+          :examples $ [] $ quote (console-info! |ready)
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'String
             :features $ #{} :js-ffi
