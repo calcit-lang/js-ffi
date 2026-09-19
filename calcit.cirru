@@ -28,6 +28,7 @@
           :doc "|External Document capability with typed state, title, and small selector/creation surface."
           :code $ quote $ deftrait DocumentHost (:title 'String) (:ready-state 'String) (:visibility-state 'String)
             :body $ :: 'JsNullish 'js-ffi.browser/DomElementHost
+            :active-element $ :: 'JsNullish 'js-ffi.browser/DomElementHost
             .query-selector $ :: 'Fn $ {}
               :args $ [] 'js-ffi.browser/DocumentHost 'String
               :return $ :: 'JsNullish 'js-ffi.browser/DomElementHost
@@ -39,7 +40,7 @@
               :return 'js-ffi.browser/DomElementHost
           :examples $ [] $ quote DocumentHost
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
-            :names $ {} (:body |body) (:create-element |createElement) (:create-element-ns |createElementNS) (:query-selector |querySelector) (:ready-state |readyState) (:visibility-state |visibilityState)
+            :names $ {} (:active-element |activeElement) (:body |body) (:create-element |createElement) (:create-element-ns |createElementNS) (:query-selector |querySelector) (:ready-state |readyState) (:visibility-state |visibilityState)
           :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
         'DocumentReadyState $ %{} 'CodeEntry
@@ -352,6 +353,30 @@
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'Number
             :features $ #{} :js-ffi
+        'clipboard-read-text! $ %{} 'CodeEntry
+          :doc "|Await navigator.clipboard.readText exactly once and normalize failures as Result.err<JsError>."
+          :code $ quote $ defn clipboard-read-text! ()
+            hint-fn $ {} (:async true)
+              :args $ []
+              :features $ #{} :js-ffi
+              :return $ :: 'Result 'String 'js-ffi.shared/JsError
+            try
+              %:: Result :ok $ contract/expect-string |navigator.clipboard.readText $ js-await (js/navigator.clipboard.readText)
+              fn (error)
+                %:: Result :err $ shared/normalize-error error
+          :examples $ []
+          :schema $ :: 'Fn $ {}
+            :args $ []
+            :features $ #{} :js-ffi
+            :return $ :: 'calcit.core/Result 'String 'js-ffi.shared/JsError
+        'clipboard-write-text! $ %{} 'CodeEntry
+          :doc "|Write text to the browser clipboard through navigator.clipboard. The host Promise is not awaited and the adapter returns Unit."
+          :code $ quote $ defn clipboard-write-text! (text)
+            do (js/navigator.clipboard.writeText text) &unit
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'String
+            :features $ #{} :js-ffi
         'console-error! $ %{} 'CodeEntry
           :doc "|Compatibility wrapper for shared/console-error!. It accepts one String and returns Unit."
           :code $ quote $ defn console-error! (message) (shared/console-error! message)
@@ -406,6 +431,17 @@
           :examples $ [] $ quote (decode-visibility-state |hidden)
           :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/VisibilityState)
             :args $ [] 'String
+        'document-active-element $ %{} 'CodeEntry
+          :doc "|Return the focused element as Option<DomElementHost>; an absent active element yields none."
+          :code $ quote $ defn document-active-element ()
+            let
+                host $ document-host
+              js-nullish->option $ host :active-element
+          :examples $ []
+          :schema $ :: 'Fn $ {}
+            :args $ []
+            :features $ #{} :js-ffi
+            :return $ :: 'calcit.core/Option 'js-ffi.browser/DomElementHost
         'document-append-body! $ %{} 'CodeEntry
           :doc "|Append an element to document.body and return Unit."
           :code $ quote $ defn document-append-body! (element)
@@ -866,6 +902,24 @@
                 :args $ []
               , 'Number
             :features $ #{} :js-ffi
+        'speech-synthesis-cancel! $ %{} 'CodeEntry
+          :doc "|Cancel all pending browser speech synthesis utterances."
+          :code $ quote $ defn speech-synthesis-cancel! ()
+            do (js/speechSynthesis.cancel) &unit
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ []
+            :features $ #{} :js-ffi
+        'speech-synthesis-speak! $ %{} 'CodeEntry
+          :doc "|Speak one String through the browser SpeechSynthesis API."
+          :code $ quote $ defn speech-synthesis-speak! (text)
+            do
+              js/speechSynthesis.speak $ new js/SpeechSynthesisUtterance text
+              , &unit
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'String
+            :features $ #{} :js-ffi
         'storage-get $ %{} 'CodeEntry
           :doc "|Read one localStorage key as Option<String>; missing and JavaScript nullish values become none. Host exceptions remain an adapter concern."
           :code $ quote $ defn storage-get (key)
@@ -965,6 +1019,13 @@
           :examples $ []
           :ffi $ {} (:backend :js) (:target :browser)
           :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/WindowHost)
+            :args $ []
+            :features $ #{} :js-ffi
+        'window-local-storage $ %{} 'CodeEntry
+          :doc "|Return window.localStorage as the typed StorageHost capability."
+          :code $ quote $ defn window-local-storage () (unsafe-coerce js/window.localStorage StorageHost)
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/StorageHost)
             :args $ []
             :features $ #{} :js-ffi
         'window-open $ %{} 'CodeEntry
@@ -1105,6 +1166,20 @@
           :require $ js-ffi.shared :as shared
     'js-ffi.node $ %{} 'FileEntry
       :defs $ {}
+        'BufferHost $ %{} 'CodeEntry
+          :doc "|External Node Buffer capability exposing UTF-8 decoding and byte length."
+          :code $ quote $ deftrait BufferHost
+            .to-string $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.node/BufferHost 'String
+              :return 'String
+            .byte-length $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.node/BufferHost
+              :return 'Number
+          :examples $ [] $ quote BufferHost
+          :ffi $ {} (:backend :js) (:kind :external-object) (:target :node)
+            :names $ {} (:byte-length |length) (:to-string |toString)
+          :schema $ :: 'Trait
+          :tags $ #{} :ffi :js-host
         'NodeProbe $ %{} 'CodeEntry
           :doc "|Typed Node smoke result replacing the former heterogeneous Map<Dynamic>."
           :code $ quote $ defstruct NodeProbe (:runtime 'js-ffi.shared/Runtime) (:cwd 'String) (:argv-count 'Number)
@@ -1138,6 +1213,20 @@
           :ffi $ {} (:backend :js) (:target :node)
           :schema $ :: 'Fn $ {} (:return 'Number)
             :args $ []
+            :features $ #{} :js-ffi
+        'buffer->string $ %{} 'CodeEntry (:doc "|Decode a typed BufferHost as a UTF-8 String.")
+          :code $ quote $ defn buffer->string (value) (value .to-string |utf8)
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'String)
+            :args $ [] 'js-ffi.node/BufferHost
+            :features $ #{} :js-ffi
+        'buffer-from-string $ %{} 'CodeEntry
+          :doc "|Create a Node Buffer from a UTF-8 String and return a typed BufferHost."
+          :code $ quote $ defn buffer-from-string (text)
+            unsafe-coerce (js/Buffer.from text |utf8) BufferHost
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.node/BufferHost)
+            :args $ [] 'String
             :features $ #{} :js-ffi
         'copy-file! $ %{} 'CodeEntry
           :doc "|Synchronous node:fs.copyFileSync adapter. Text uses UTF-8; filesystem failures raise the original host exception. No recursive deletion."
@@ -1185,6 +1274,13 @@
           :ffi $ {} (:backend :js) (:target :node)
           :schema $ :: 'Fn $ {} (:return 'Bool)
             :args $ [] 'String
+            :features $ #{} :js-ffi
+        'import-meta-url $ %{} 'CodeEntry
+          :doc "|Read import.meta.url after a runtime String check."
+          :code $ quote $ defn import-meta-url () (contract/expect-string |import.meta.url js/import.meta.url)
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'String)
+            :args $ []
             :features $ #{} :js-ffi
         'make-temp-dir! $ %{} 'CodeEntry
           :doc "|Synchronous node:fs.mkdtempSync adapter. Text uses UTF-8; filesystem failures raise the original host exception. No recursive deletion."

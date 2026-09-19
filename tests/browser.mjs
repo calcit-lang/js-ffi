@@ -157,5 +157,20 @@ export async function run() {
   const opened = browser.window_open('about:blank');
   a.equal(opened !== undefined, true);
   if (!isNone(opened)) unwrap(opened).close();
+
+  const focusTarget = browser.create_element('input');
+  browser.document_append_body_$x_(focusTarget);
+  try {
+    focusTarget.focus();
+    a.equal(unwrap(browser.document_active_element()), focusTarget);
+  } finally {
+    browser.element_remove_$x_(focusTarget);
+  }
+  a.equal(browser.window_local_storage(), localStorage);
+  if (typeof speechSynthesis !== 'undefined') {
+    a.equal(browser.speech_synthesis_cancel_$x_(), undefined);
+    a.equal(browser.speech_synthesis_speak_$x_('js-ffi smoke'), undefined);
+    a.equal(browser.speech_synthesis_cancel_$x_(), undefined);
+  }
   return { passed: true, assertions: a.count, runtime: navigator.userAgent, webgpu };
 }

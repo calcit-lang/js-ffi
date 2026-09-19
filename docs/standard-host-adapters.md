@@ -12,7 +12,7 @@ entry_for:
 
 # Standard host adapters
 
-These 75 adapters extend the existing host contracts. Import `js-ffi.shared`
+These 84 adapters extend the existing host contracts. Import `js-ffi.shared`
 with either `js-ffi.browser` or `js-ffi.node`. The package retains no native
 objects in application state automatically; constructors explicitly return
 named host capabilities, and missing lookups return `Option`.
@@ -53,7 +53,7 @@ URLSearchParams.size, Headers, AbortController, performance and requestAnimation
 | `normalize-error` | JsObject → JsError | Normalize a caught host failure. |
 | `console-info!` | String → Unit | Write one informational line through the shared console contract. |
 
-## Browser document, location, window and screen accessors (14 adapters)
+## Browser document, location, window, screen and clipboard adapters (20 adapters)
 
 These accessors expose the stable browser globals as typed host capabilities
 without letting callers read raw `js/...` paths. `document-host`, `location-host`
@@ -79,6 +79,12 @@ and `screen-height`. `document-body` returns `Option<DomElementHost>` because
 | `create-element-ns` | String namespace, String tag → DomElementHost |
 | `form-data-create` | () → FormDataHost |
 | `form-data-append!` | FormDataHost, String name, String value → Unit |
+| `document-active-element` | () → Option<DomElementHost> |
+| `clipboard-write-text!` | String → Unit |
+| `clipboard-read-text!` | () → async Result<String, JsError> |
+| `speech-synthesis-speak!` | String → Unit |
+| `speech-synthesis-cancel!` | () → Unit |
+| `window-local-storage` | () → StorageHost |
 
 ## Browser APIs (11 adapters)
 
@@ -101,7 +107,7 @@ Missing attributes and selector results become none; invalid CSS selectors
 raise the native DOMException. Keep timer/frame handles and cancel them during
 teardown. Browser handles are numeric and must not be used as Node timer handles.
 
-## Node APIs (23 adapters)
+## Node APIs (26 adapters)
 
 | Function | Parameters → result |
 | --- | --- |
@@ -119,6 +125,9 @@ teardown. Browser handles are numeric and must not be used as Node timer handles
 | `real-path!` | String path → String |
 | `pid`, `uptime` | () → Number |
 | `platform`, `node-version` | () → String |
+| `import-meta-url` | () → String |
+| `buffer-from-string` | String → BufferHost |
+| `buffer->string` | BufferHost → String |
 
 The original filesystem calls are synchronous and use UTF-8 for text. They preserve native
 exceptions (including ENOENT and ENOTEMPTY). `write-text!` overwrites existing

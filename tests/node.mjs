@@ -149,3 +149,11 @@ test('checked async fetch, Response body and filesystem adapters', async () => {
     process.off('unhandledRejection', onUnhandled);
   }
 });
+
+test('Node import.meta and Buffer adapters', () => {
+  const a = assertions();
+  a.equal(node.import_meta_url().includes('js-ffi.node.mjs'), true);
+  const buffer = node.buffer_from_string('你好');
+  a.equal(node.buffer__GT_string(buffer), '你好');
+  console.log(`Node FFI basics: ${a.count} assertions`);
+});

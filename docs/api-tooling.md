@@ -92,10 +92,13 @@ retain the complete field and method AST. JSON consumers should check
   structured `data.ffi` field is lossless even for large host traits. Snapshot
   parsing remains only for persisted `schemaData`, which is not part of the
   definition-query contract.
+- [Calcit #1206](https://github.com/calcit-lang/calcit/issues/1206) adds
+  `--file`/stdin input to `cirru parse-edn`. The catalog now reads `calcit.cirru`
+  from the file instead of passing Snapshot source text as a command argument,
+  so it no longer hits platform command-line length limits.
 
 The tooling requires Calcit's query.def envelope v1 and fails closed on another
 schema version, command, definition ID, malformed JSON, or missing metadata.
-The CLI EDN parser still takes Snapshot source text as a command argument for
-`schemaData`; this exceeds the Windows command-line limit and requires WSL,
-Linux or macOS until a file/stdin parser interface is available. Generation
+`calcit cirru parse-edn --file calcit.cirru` supplies `schemaData` from the
+Snapshot without platform argument-length limits. Generation
 fails on parser errors rather than emitting an incomplete catalog.
