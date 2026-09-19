@@ -12,7 +12,7 @@ entry_for:
 
 # Standard host adapters
 
-These 60 adapters extend the existing host contracts. Import `js-ffi.shared`
+These 75 adapters extend the existing host contracts. Import `js-ffi.shared`
 with either `js-ffi.browser` or `js-ffi.node`. The package retains no native
 objects in application state automatically; constructors explicitly return
 named host capabilities, and missing lookups return `Option`.
@@ -21,7 +21,7 @@ Development and CI use Node.js 24 (Vite requires Node.js >=22.12 here) and
 Playwright Chromium. Runtime helpers use standard APIs; the browser needs
 URLSearchParams.size, Headers, AbortController, performance and requestAnimationFrame.
 
-## Shared APIs (26 adapters)
+## Shared APIs (27 adapters)
 
 | Function | Parameters → result | Behavior |
 | --- | --- | --- |
@@ -51,6 +51,34 @@ URLSearchParams.size, Headers, AbortController, performance and requestAnimation
 | `fetch-response` | String → async Result<ResponseHost, JsError> | Await one fetch; normalize throw/rejection. |
 | `response-text` | ResponseHost → async Result<String, JsError> | Await one body read; repeated/failed reads are errors. |
 | `normalize-error` | JsObject → JsError | Normalize a caught host failure. |
+| `console-info!` | String → Unit | Write one informational line through the shared console contract. |
+
+## Browser document, location, window and screen accessors (14 adapters)
+
+These accessors expose the stable browser globals as typed host capabilities
+without letting callers read raw `js/...` paths. `document-host`, `location-host`
+and `window-host` return the existing external-object contracts; `location-snapshot`
+copies the stable Location fields into one struct; the remaining helpers read a
+single validated host value. **All 14 accessors require `:js-ffi`** because they
+cross the host border, including `document-host`, `user-agent`, `screen-width`,
+and `screen-height`. `document-body` returns `Option<DomElementHost>` because
+`document.body` can be null before a body or frameset exists.
+
+| Function | Parameters → result |
+| --- | --- |
+| `document-host` | () → DocumentHost |
+| `document-body` | () → DomElementHost |
+| `location-host` | () → LocationHost |
+| `location-snapshot` | () → LocationSnapshot |
+| `window-host` | () → WindowHost |
+| `user-agent` | () → String |
+| `screen-width`, `screen-height` | () → Number |
+| `window-open` | String → Option<WindowHost> |
+| `location-replace!` | String → Unit |
+| `element-request-fullscreen!` | DomElementHost → Unit |
+| `create-element-ns` | String namespace, String tag → DomElementHost |
+| `form-data-create` | () → FormDataHost |
+| `form-data-append!` | FormDataHost, String name, String value → Unit |
 
 ## Browser APIs (11 adapters)
 
