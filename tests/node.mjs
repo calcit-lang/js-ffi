@@ -6,7 +6,8 @@ import { createServer } from 'node:http';
 import { syncBuiltinESMExports } from 'node:module';
 import * as node from '../js-out/js-ffi.node.mjs';
 import * as shared from '../js-out/js-ffi.shared.mjs';
-import { result_$o_err_$q_ as isErr, result_$o_ok_$q_ as isOk, option_$o_unwrap as unwrap, option_$o_none_$q_ as isNone } from '../js-out/calcit.core.mjs';
+import { result_$o_err_$q_ as isErr, result_$o_ok_$q_ as isOk, option_$o_unwrap as unwrap, option_$o_none_$q_ as isNone, _PCT_some, _PCT_none } from '../js-out/calcit.core.mjs';
+import * as procs from '@calcit/procs';
 import { assertions, testShared } from './shared.mjs';
 
 const structField = (value, name) => value.values[value.fields.findIndex(field => field.value === name)];
@@ -147,6 +148,38 @@ test('checked async fetch, Response body and filesystem adapters', async () => {
     console.log(`Async Node: ${a.count} assertions`);
   } finally {
     process.off('unhandledRejection', onUnhandled);
+  }
+});
+
+test('shared fetch-request sends method, headers and optional body', async () => {
+  const a = assertions();
+  const tags = procs.init_tags(['get', 'post', 'put', 'patch', 'delete', 'head', 'options']);
+  const postMethod = procs._PCT__$o__$o_(shared.HttpMethod, tags.post);
+  const server = createServer((request, response) => {
+    let body = '';
+    request.on('data', chunk => { body += chunk; });
+    request.on('end', () => {
+      response.writeHead(200, { 'content-type': 'text/plain; charset=utf-8' });
+      response.end(`${request.method}:${request.headers['x-test'] || ''}:${body}`);
+    });
+  });
+  try {
+    await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+    const url = `http://127.0.0.1:${server.address().port}/echo`;
+    const headers = shared.headers_create();
+    a.equal(shared.headers_set_$x_(headers, 'X-Test', 'yes'), undefined);
+    const withBody = await shared.fetch_request(url, postMethod, headers, _PCT_some('payload'));
+    a.equal(isOk(withBody), true);
+    const body = await shared.response_text(withBody.extra[0]);
+    a.equal(isOk(body), true);
+    a.equal(body.extra[0], 'POST:yes:payload');
+    const withoutBody = await shared.fetch_request(url, postMethod, headers, _PCT_none());
+    a.equal(isOk(withoutBody), true);
+    const empty = await shared.response_text(withoutBody.extra[0]);
+    a.equal(empty.extra[0], 'POST:yes:');
+    console.log(`Fetch request: ${a.count} assertions`);
+  } finally {
+    await new Promise(resolve => server.close(resolve));
   }
 });
 

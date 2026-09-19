@@ -2271,6 +2271,28 @@
           :schema $ :: 'Fn $ {} (:return 'String)
             :args $ [] 'String
             :features $ #{} :js-ffi
+        'fetch-request $ %{} 'CodeEntry
+          :doc "|Await one fetch built from a typed HttpMethod, HeadersHost and optional String body; normalize throws and rejections as Result.err<JsError>."
+          :code $ quote $ defn fetch-request (url method headers body)
+            hint-fn $ {} (:async true)
+              :args $ [] 'String 'js-ffi.shared/HttpMethod 'js-ffi.shared/HeadersHost $ :: 'calcit.core/Option 'String
+              :features $ #{} :js-ffi
+              :return $ :: 'calcit.core/Result 'js-ffi.shared/ResponseHost 'js-ffi.shared/JsError
+            let
+                method-label $ http-method-label method
+              try
+                %:: Result :ok $ response-host $ js-await
+                  if (option:some? body)
+                    js/fetch url $ js-object (:method method-label) (:headers headers)
+                      :body $ option:unwrap body
+                    js/fetch url $ js-object (:method method-label) (:headers headers)
+                fn (error)
+                  %:: Result :err $ normalize-error error
+          :examples $ []
+          :schema $ :: 'Fn $ {}
+            :args $ [] 'String 'js-ffi.shared/HttpMethod 'js-ffi.shared/HeadersHost $ :: 'calcit.core/Option 'String
+            :features $ #{} :js-ffi
+            :return $ :: 'calcit.core/Result 'js-ffi.shared/ResponseHost 'js-ffi.shared/JsError
         'fetch-response $ %{} 'CodeEntry
           :doc "|Await fetch exactly once and normalize synchronous throws or Promise rejections as Result.err."
           :code $ quote $ defn fetch-response (url)
