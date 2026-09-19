@@ -167,6 +167,8 @@ export async function run() {
     browser.element_remove_$x_(focusTarget);
   }
   a.equal(browser.window_local_storage(), localStorage);
+  a.equal(browser.history_push_state_$x_(location.href), undefined);
+  a.equal(browser.history_replace_state_$x_(location.href), undefined);
   if (typeof speechSynthesis !== 'undefined') {
     a.equal(browser.speech_synthesis_cancel_$x_(), undefined);
     a.equal(browser.speech_synthesis_speak_$x_('js-ffi smoke'), undefined);
