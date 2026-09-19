@@ -12,7 +12,7 @@ entry_for:
 
 # Standard host adapters
 
-These 120 adapters extend the existing host contracts. Import `js-ffi.shared`
+These 121 adapters extend the existing host contracts. Import `js-ffi.shared`
 with either `js-ffi.browser` or `js-ffi.node`. The package retains no native
 objects in application state automatically; constructors explicitly return
 named host capabilities, and missing lookups return `Option`.
@@ -21,7 +21,7 @@ Development and CI use Node.js 24 (Vite requires Node.js >=22.12 here) and
 Playwright Chromium. Runtime helpers use standard APIs; the browser needs
 URLSearchParams.size, Headers, AbortController, performance and requestAnimationFrame.
 
-## Shared APIs (27 adapters)
+## Shared APIs (28 adapters)
 
 | Function | Parameters → result | Behavior |
 | --- | --- | --- |
@@ -49,6 +49,7 @@ URLSearchParams.size, Headers, AbortController, performance and requestAnimation
 | `performance-now` | () → Number | Monotonic milliseconds relative to the host time origin. |
 | `response-host` | JsObject → ResponseHost | Validate Response metadata, Headers methods, and its async text reader. |
 | `fetch-response` | String → async Result<ResponseHost, JsError> | Await one fetch; normalize throw/rejection. |
+| `fetch-request` | String, HttpMethod, HeadersHost, Option<String> → async Result<ResponseHost, JsError> | Build a request from typed method, headers and optional String body. |
 | `response-text` | ResponseHost → async Result<String, JsError> | Await one body read; repeated/failed reads are errors. |
 | `normalize-error` | JsObject → JsError | Normalize a caught host failure. |
 | `console-info!` | String → Unit | Write one informational line through the shared console contract. |
