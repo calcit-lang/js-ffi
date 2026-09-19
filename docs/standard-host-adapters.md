@@ -21,7 +21,7 @@ Development and CI use Node.js 24 (Vite requires Node.js >=22.12 here) and
 Playwright Chromium. Runtime helpers use standard APIs; the browser needs
 URLSearchParams.size, Headers, AbortController, performance and requestAnimationFrame.
 
-## Shared APIs (32 adapters)
+## Shared APIs (34 adapters)
 
 | Function | Parameters → result | Behavior |
 | --- | --- | --- |
@@ -33,6 +33,7 @@ URLSearchParams.size, Headers, AbortController, performance and requestAnimation
 | `search-params-delete!` | UrlSearchParamsHost, String key → Unit | Remove all entries for a key. |
 | `search-params-string` | UrlSearchParamsHost → String | Serialize using native percent encoding. |
 | `search-params-size` | UrlSearchParamsHost → Number | Count entries, including duplicate keys. |
+| `search-params->map` | UrlSearchParamsHost → Map<String, String> | Collect entries; duplicate keys keep the last value. |
 | `headers-create` | () → HeadersHost | Create mutable empty headers. |
 | `headers-get` | HeadersHost, String key → Option<String> | Case-insensitive lookup. |
 | `headers-has?` | HeadersHost, String key → Bool | Case-insensitive existence check. |
@@ -46,6 +47,7 @@ URLSearchParams.size, Headers, AbortController, performance and requestAnimation
 | `encode-uri-component` | String → String | Encode one URI component, including Unicode. |
 | `decode-uri-component` | String → String | Decode one component; malformed escapes raise URIError. |
 | `now-ms` | () → Number | Epoch milliseconds from Date.now. |
+| `promise-create` | DynFn executor → PromiseHost | Create a PromiseHost from a (resolve reject) executor. |
 | `promise?` | Dynamic → Bool | True only for a thenable that resolves to itself, matching the Promise contract. |
 | `performance-now` | () → Number | Monotonic milliseconds relative to the host time origin. |
 | `response-host` | JsObject → ResponseHost | Validate Response metadata, Headers methods, and its async text reader. |
