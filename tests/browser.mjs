@@ -166,5 +166,11 @@ export async function run() {
   } finally {
     browser.element_remove_$x_(focusTarget);
   }
+  a.equal(browser.window_local_storage(), localStorage);
+  if (typeof speechSynthesis !== 'undefined') {
+    a.equal(browser.speech_synthesis_cancel_$x_(), undefined);
+    a.equal(browser.speech_synthesis_speak_$x_('js-ffi smoke'), undefined);
+    a.equal(browser.speech_synthesis_cancel_$x_(), undefined);
+  }
   return { passed: true, assertions: a.count, runtime: navigator.userAgent, webgpu };
 }

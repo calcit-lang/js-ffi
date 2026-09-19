@@ -207,6 +207,15 @@
       :typeNotFull 0
       :unresolved 0
       :unsafeCoerce 1
+    |js-ffi.browser/window-local-storage $ {} (:codeDynamic 0)
+      :codeNil 0
+      :declaredOptional 0
+      :deprecatedCalls 0
+      :schemaDynamic 0
+      :typeNone 0
+      :typeNotFull 0
+      :unresolved 0
+      :unsafeCoerce 1
     |js-ffi.contract/expect-bool $ {} (:codeDynamic 0)
       :codeNil 0
       :declaredOptional 0
@@ -422,7 +431,7 @@
     :typeNone 0
     :typeNotFull 0
     :unresolved 0
-    :unsafeCoerce 46
+    :unsafeCoerce 47
   :scope $ {} (:includeDependencies false)
     :namespace nil
     :namespacePrefix nil

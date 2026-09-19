@@ -353,6 +353,22 @@
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'Number
             :features $ #{} :js-ffi
+        'clipboard-read-text! $ %{} 'CodeEntry
+          :doc "|Await navigator.clipboard.readText exactly once and normalize failures as Result.err<JsError>."
+          :code $ quote $ defn clipboard-read-text! ()
+            hint-fn $ {} (:async true)
+              :args $ []
+              :features $ #{} :js-ffi
+              :return $ :: 'Result 'String 'js-ffi.shared/JsError
+            try
+              %:: Result :ok $ contract/expect-string |navigator.clipboard.readText $ js-await (js/navigator.clipboard.readText)
+              fn (error)
+                %:: Result :err $ shared/normalize-error error
+          :examples $ []
+          :schema $ :: 'Fn $ {}
+            :args $ []
+            :features $ #{} :js-ffi
+            :return $ :: 'calcit.core/Result 'String 'js-ffi.shared/JsError
         'clipboard-write-text! $ %{} 'CodeEntry
           :doc "|Write text to the browser clipboard through navigator.clipboard. The host Promise is not awaited and the adapter returns Unit."
           :code $ quote $ defn clipboard-write-text! (text)
@@ -886,6 +902,24 @@
                 :args $ []
               , 'Number
             :features $ #{} :js-ffi
+        'speech-synthesis-cancel! $ %{} 'CodeEntry
+          :doc "|Cancel all pending browser speech synthesis utterances."
+          :code $ quote $ defn speech-synthesis-cancel! ()
+            do (js/speechSynthesis.cancel) &unit
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ []
+            :features $ #{} :js-ffi
+        'speech-synthesis-speak! $ %{} 'CodeEntry
+          :doc "|Speak one String through the browser SpeechSynthesis API."
+          :code $ quote $ defn speech-synthesis-speak! (text)
+            do
+              js/speechSynthesis.speak $ new js/SpeechSynthesisUtterance text
+              , &unit
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'String
+            :features $ #{} :js-ffi
         'storage-get $ %{} 'CodeEntry
           :doc "|Read one localStorage key as Option<String>; missing and JavaScript nullish values become none. Host exceptions remain an adapter concern."
           :code $ quote $ defn storage-get (key)
@@ -985,6 +1019,13 @@
           :examples $ []
           :ffi $ {} (:backend :js) (:target :browser)
           :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/WindowHost)
+            :args $ []
+            :features $ #{} :js-ffi
+        'window-local-storage $ %{} 'CodeEntry
+          :doc "|Return window.localStorage as the typed StorageHost capability."
+          :code $ quote $ defn window-local-storage () (unsafe-coerce js/window.localStorage StorageHost)
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/StorageHost)
             :args $ []
             :features $ #{} :js-ffi
         'window-open $ %{} 'CodeEntry
