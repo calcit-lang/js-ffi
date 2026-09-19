@@ -39,6 +39,7 @@
           :doc "|External Document capability with typed state, title, and small selector/creation surface."
           :code $ quote $ deftrait DocumentHost (:title 'String) (:ready-state 'String) (:visibility-state 'String)
             :body $ :: 'JsNullish 'js-ffi.browser/DomElementHost
+            :document-element $ :: 'JsNullish 'js-ffi.browser/DomElementHost
             :active-element $ :: 'JsNullish 'js-ffi.browser/DomElementHost
             .query-selector $ :: 'Fn $ {}
               :args $ [] 'js-ffi.browser/DocumentHost 'String
@@ -51,7 +52,7 @@
               :return 'js-ffi.browser/DomElementHost
           :examples $ [] $ quote DocumentHost
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
-            :names $ {} (:active-element |activeElement) (:body |body) (:create-element |createElement) (:create-element-ns |createElementNS) (:query-selector |querySelector) (:ready-state |readyState) (:visibility-state |visibilityState)
+            :names $ {} (:active-element |activeElement) (:body |body) (:create-element |createElement) (:create-element-ns |createElementNS) (:document-element |documentElement) (:query-selector |querySelector) (:ready-state |readyState) (:visibility-state |visibilityState)
             :writable $ #{} :title
           :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
@@ -574,6 +575,17 @@
             let
                 host $ document-host
               js-nullish->option $ host :body
+          :examples $ []
+          :schema $ :: 'Fn $ {}
+            :args $ []
+            :features $ #{} :js-ffi
+            :return $ :: 'calcit.core/Option 'js-ffi.browser/DomElementHost
+        'document-element $ %{} 'CodeEntry
+          :doc "|Return document.documentElement as Option<DomElementHost>."
+          :code $ quote $ defn document-element ()
+            let
+                host $ document-host
+              js-nullish->option $ host :document-element
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ []
