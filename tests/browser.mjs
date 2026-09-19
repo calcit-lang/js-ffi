@@ -202,5 +202,18 @@ export async function run() {
     a.equal(browser.speech_synthesis_speak_$x_('js-ffi smoke'), undefined);
     a.equal(browser.speech_synthesis_cancel_$x_(), undefined);
   }
+
+  const boundaryElement = browser.create_element('div');
+  a.equal(browser.element_data_set_$x_(boundaryElement, 'key', '值'), undefined);
+  a.equal(unwrap(browser.element_data_get(boundaryElement, 'key')), '值');
+  a.equal(browser.element_data_remove_$x_(boundaryElement, 'key'), undefined);
+  a.equal(isNone(browser.element_data_get(boundaryElement, 'key')), true);
+  a.equal(browser.element_set_style_$x_(boundaryElement, 'color', 'red'), undefined);
+  a.equal(unwrap(browser.element_style_get(boundaryElement, 'color')), 'red');
+  a.equal(isNone(browser.element_style_get(boundaryElement, 'unknown-prop')), true);
+  const previousTitle = document.title;
+  a.equal(browser.document_title_$x_('js-ffi title'), undefined);
+  a.equal(browser.document_title(), 'js-ffi title');
+  a.equal(browser.document_title_$x_(previousTitle), undefined);
   return { passed: true, assertions: a.count, runtime: navigator.userAgent, webgpu };
 }

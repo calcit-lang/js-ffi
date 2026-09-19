@@ -52,6 +52,7 @@
           :examples $ [] $ quote DocumentHost
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
             :names $ {} (:active-element |activeElement) (:body |body) (:create-element |createElement) (:create-element-ns |createElementNS) (:query-selector |querySelector) (:ready-state |readyState) (:visibility-state |visibilityState)
+            :writable $ #{} :title
           :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
         'DocumentReadyState $ %{} 'CodeEntry
@@ -574,15 +575,20 @@
             :features $ #{} :js-ffi
         'document-title $ %{} 'CodeEntry
           :doc "|Read document.title through DocumentHost. Returns an empty String when document is unavailable."
-          :code $ quote $ defn document-title ()
-            if (document-available?)
-              let
-                  host-document $ unsafe-coerce js/document DocumentHost
-                host-document :title
-              , |
+          :code $ quote $ defn document-title () (str js/document.title)
           :examples $ [] $ quote (document-title)
           :schema $ :: 'Fn $ {} (:return 'String)
             :args $ []
+            :features $ #{} :js-ffi
+        'document-title! $ %{} 'CodeEntry (:doc "|Set document.title through DocumentHost.")
+          :code $ quote $ defn document-title! (title)
+            let
+                host $ document-host
+              js-set host :title title
+              , &unit
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'String
             :features $ #{} :js-ffi
         'element-blur! $ %{} 'CodeEntry (:doc "|Blur an HTML element with blur capability.")
           :code $ quote $ defn element-blur! (element)
@@ -599,6 +605,37 @@
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/DomElementHost)
             :args $ [] 'js-ffi.browser/DomElementHost 'Bool
+            :features $ #{} :js-ffi
+        'element-data-get $ %{} 'CodeEntry
+          :doc "|Read one data-* attribute as Option<String> through element.dataset."
+          :code $ quote $ defn element-data-get (element key)
+            let
+                dataset $ contract/expect-object |element.dataset $ js-get element |dataset
+                value $ js-get dataset key
+              if (js-nullish? value) (%none)
+                %some $ contract/expect-string |element.dataset value
+          :examples $ []
+          :schema $ :: 'Fn $ {}
+            :args $ [] 'js-ffi.browser/DomElementHost 'String
+            :features $ #{} :js-ffi
+            :return $ :: 'calcit.core/Option 'String
+        'element-data-remove! $ %{} 'CodeEntry
+          :doc "|Remove one data-* attribute through element.dataset."
+          :code $ quote $ defn element-data-remove! (element key)
+            js-delete (js-get element |dataset) key
+            , &unit
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'js-ffi.browser/DomElementHost 'String
+            :features $ #{} :js-ffi
+        'element-data-set! $ %{} 'CodeEntry
+          :doc "|Set one data-* attribute through element.dataset."
+          :code $ quote $ defn element-data-set! (element key value)
+            js-set (js-get element |dataset) key value
+            , &unit
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'js-ffi.browser/DomElementHost 'String 'String
             :features $ #{} :js-ffi
         'element-dataset $ %{} 'CodeEntry
           :doc "|Returns the DOM element dataset object through the browser host contract. Use with js-set/js-delete for data-* attributes."
@@ -736,6 +773,19 @@
           :schema $ :: 'Fn $ {} (:return 'JsObject)
             :args $ [] 'js-ffi.browser/DomElementHost
             :features $ #{} :js-ffi
+        'element-style-get $ %{} 'CodeEntry
+          :doc "|Read one inline CSS property as Option<String> through element.style."
+          :code $ quote $ defn element-style-get (element key)
+            let
+                style $ contract/expect-object |element.style $ js-get element |style
+                value $ js-get style key
+              if (js-nullish? value) (%none)
+                %some $ contract/expect-string |element.style value
+          :examples $ []
+          :schema $ :: 'Fn $ {}
+            :args $ [] 'js-ffi.browser/DomElementHost 'String
+            :features $ #{} :js-ffi
+            :return $ :: 'calcit.core/Option 'String
         'event-host $ %{} 'CodeEntry
           :doc "|Validate an opaque host value as an object and expose the shared browser Event capability."
           :code $ quote $ defn event-host (value)
@@ -767,6 +817,18 @@
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'js-ffi.browser/EventHost
             :features $ #{} :js-ffi
+        'event-target-element $ %{} 'CodeEntry
+          :doc "|Decode the event target as Option<DomElementHost>; non-element or absent targets yield none."
+          :code $ quote $ defn event-target-element (event)
+            let
+                target $ js-get event |target
+              if (js-nullish? target) (%none)
+                %some $ assert-type (contract/expect-object |event.target target) (quote js-ffi.browser/DomElementHost)
+          :examples $ []
+          :schema $ :: 'Fn $ {}
+            :args $ [] 'js-ffi.browser/EventHost
+            :features $ #{} :js-ffi
+            :return $ :: 'calcit.core/Option 'js-ffi.browser/DomElementHost
         'form-data-append! $ %{} 'CodeEntry
           :doc "|Append one String field to a FormData capability."
           :code $ quote $ defn form-data-append! (form name value)
@@ -885,10 +947,7 @@
             :features $ #{} :js-ffi
         'location-href $ %{} 'CodeEntry
           :doc "|Read location.href through the typed LocationHost contract."
-          :code $ quote $ defn location-href ()
-            let
-                host-location $ unsafe-coerce js/location LocationHost
-              host-location :href
+          :code $ quote $ defn location-href () (str js/location.href)
           :examples $ [] $ quote (location-href)
           :schema $ :: 'Fn $ {} (:return 'String)
             :args $ []
@@ -923,6 +982,15 @@
           :schema $ :: 'Fn $ {} (:return 'JsObject)
             :args $ [] 'js-ffi.browser/EventHost
             :features $ #{} :js-ffi
+        'mouse-event-host $ %{} 'CodeEntry
+          :doc "|Validate an opaque host value as a MouseEvent capability."
+          :code $ quote $ defn mouse-event-host (value)
+            assert-type (contract/expect-object |MouseEvent.host value) (quote js-ffi.browser/MouseEventHost)
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/MouseEventHost)
+            :args $ [] 'T
+            :features $ #{} :js-ffi
+            :generics $ [] 'T
         'notification-request-permission! $ %{} 'CodeEntry
           :doc "|Await Notification.requestPermission once and normalize the String permission or JsError."
           :code $ quote $ defn notification-request-permission! ()
@@ -1504,6 +1572,19 @@
           :schema $ :: 'Fn $ {} (:return 'String)
             :args $ []
             :features $ #{} :js-ffi
+        'env-get $ %{} 'CodeEntry
+          :doc "|Read one process.env variable as Option<String>."
+          :code $ quote $ defn env-get (key)
+            let
+                env $ contract/expect-object |process.env js/process.env
+                raw $ js-get env key
+              if (js-nullish? raw) (%none)
+                %some $ contract/expect-string |process.env raw
+          :examples $ []
+          :schema $ :: 'Fn $ {}
+            :args $ [] 'String
+            :features $ #{} :js-ffi
+            :return $ :: 'calcit.core/Option 'String
         'env-or $ %{} 'CodeEntry
           :doc "|Read a process.env value with a typed String fallback. Example: (env-or |NODE_ENV |development) => |development"
           :code $ quote $ defn env-or (key fallback)

@@ -6,7 +6,7 @@ import { createServer } from 'node:http';
 import { syncBuiltinESMExports } from 'node:module';
 import * as node from '../js-out/js-ffi.node.mjs';
 import * as shared from '../js-out/js-ffi.shared.mjs';
-import { result_$o_err_$q_ as isErr, result_$o_ok_$q_ as isOk } from '../js-out/calcit.core.mjs';
+import { result_$o_err_$q_ as isErr, result_$o_ok_$q_ as isOk, option_$o_unwrap as unwrap, option_$o_none_$q_ as isNone } from '../js-out/calcit.core.mjs';
 import { assertions, testShared } from './shared.mjs';
 
 const structField = (value, name) => value.values[value.fields.findIndex(field => field.value === name)];
@@ -148,6 +148,18 @@ test('checked async fetch, Response body and filesystem adapters', async () => {
   } finally {
     process.off('unhandledRejection', onUnhandled);
   }
+});
+
+test('Node env-get reads optional process.env values', () => {
+  const a = assertions();
+  a.equal(isNone(node.env_get('JS_FFI_MISSING_KEY')), true);
+  process.env.JS_FFI_TEST_KEY = '值';
+  try {
+    a.equal(unwrap(node.env_get('JS_FFI_TEST_KEY')), '值');
+  } finally {
+    delete process.env.JS_FFI_TEST_KEY;
+  }
+  console.log(`Node env: ${a.count} assertions`);
 });
 
 test('Node import.meta and Buffer adapters', () => {
