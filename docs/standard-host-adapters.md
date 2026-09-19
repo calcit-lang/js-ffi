@@ -12,7 +12,7 @@ entry_for:
 
 # Standard host adapters
 
-These 75 adapters extend the existing host contracts. Import `js-ffi.shared`
+These 81 adapters extend the existing host contracts. Import `js-ffi.shared`
 with either `js-ffi.browser` or `js-ffi.node`. The package retains no native
 objects in application state automatically; constructors explicitly return
 named host capabilities, and missing lookups return `Option`.
@@ -53,7 +53,7 @@ URLSearchParams.size, Headers, AbortController, performance and requestAnimation
 | `normalize-error` | JsObject → JsError | Normalize a caught host failure. |
 | `console-info!` | String → Unit | Write one informational line through the shared console contract. |
 
-## Browser document, location, window and screen accessors (14 adapters)
+## Browser document, location, window and screen accessors (20 adapters)
 
 These accessors expose the stable browser globals as typed host capabilities
 without letting callers read raw `js/...` paths. `document-host`, `location-host`
@@ -70,6 +70,12 @@ helpers read one validated field. `document-body`, every `location-*` field, and
 | `window-host` | () → WindowHost |
 | `user-agent` | () → String |
 | `screen-width`, `screen-height` | () → Number |
+| `window-open` | String → Option<WindowHost> |
+| `location-replace!` | String → Unit |
+| `element-request-fullscreen!` | DomElementHost → Unit |
+| `create-element-ns` | String namespace, String tag → DomElementHost |
+| `form-data-create` | () → FormDataHost |
+| `form-data-append!` | FormDataHost, String name, String value → Unit |
 
 ## Browser APIs (11 adapters)
 

@@ -141,5 +141,18 @@ export async function run() {
   a.equal(browser.screen_width(), window.screen.width);
   a.equal(browser.screen_height(), window.screen.height);
   a.equal(shared.console_info_$x_('js-ffi browser smoke'), undefined);
+
+  const svg = browser.create_element_ns('http://www.w3.org/2000/svg', 'svg');
+  a.equal(svg.namespaceURI, 'http://www.w3.org/2000/svg');
+  a.equal(svg.localName, 'svg');
+  const form = browser.form_data_create();
+  a.equal(browser.form_data_append_$x_(form, 'field', '值'), undefined);
+  a.equal(form.has('field'), true);
+  a.equal(form.get('field'), '值');
+  form.delete('field');
+  a.equal(form.has('field'), false);
+  const opened = browser.window_open('about:blank');
+  a.equal(opened !== undefined, true);
+  if (!isNone(opened)) unwrap(opened).close();
   return { passed: true, assertions: a.count, runtime: navigator.userAgent, webgpu };
 }

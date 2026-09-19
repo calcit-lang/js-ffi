@@ -72,6 +72,15 @@
       :typeNotFull 0
       :unresolved 0
       :unsafeCoerce 1
+    |js-ffi.browser/form-data-create $ {} (:codeDynamic 0)
+      :codeNil 0
+      :declaredOptional 0
+      :deprecatedCalls 0
+      :schemaDynamic 0
+      :typeNone 0
+      :typeNotFull 0
+      :unresolved 0
+      :unsafeCoerce 1
     |js-ffi.browser/location-host $ {} (:codeDynamic 0)
       :codeNil 0
       :declaredOptional 0
@@ -404,7 +413,7 @@
     :typeNone 0
     :typeNotFull 0
     :unresolved 0
-    :unsafeCoerce 44
+    :unsafeCoerce 45
   :scope $ {} (:includeDependencies false)
     :namespace nil
     :namespacePrefix nil

@@ -33,9 +33,12 @@
             .create-element $ :: 'Fn $ {}
               :args $ [] 'js-ffi.browser/DocumentHost 'String
               :return 'js-ffi.browser/DomElementHost
+            .create-element-ns $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.browser/DocumentHost 'String 'String
+              :return 'js-ffi.browser/DomElementHost
           :examples $ [] $ quote DocumentHost
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
-            :names $ {} (:body |body) (:create-element |createElement) (:query-selector |querySelector) (:ready-state |readyState) (:visibility-state |visibilityState)
+            :names $ {} (:body |body) (:create-element |createElement) (:create-element-ns |createElementNS) (:query-selector |querySelector) (:ready-state |readyState) (:visibility-state |visibilityState)
           :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
         'DocumentReadyState $ %{} 'CodeEntry
@@ -86,12 +89,15 @@
             .blur! $ :: 'Fn $ {}
               :args $ [] 'js-ffi.browser/DomElementHost
               :return 'Unit
+            .request-fullscreen! $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.browser/DomElementHost
+              :return 'Unit
             :children 'js-ffi.browser/DomChildrenHost
             :inner-html 'String
             :local-name 'String
           :examples $ [] $ quote DomElementHost
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
-            :names $ {} (:append-child! |appendChild) (:blur! |blur) (:child-element-count |childElementCount) (:class-name |className) (:focus! |focus) (:get-attribute |getAttribute) (:inner-html |innerHTML) (:local-name |localName) (:matches? |matches) (:query-selector |querySelector) (:remove-attribute! |removeAttribute) (:set-attribute! |setAttribute) (:text-content |textContent)
+            :names $ {} (:append-child! |appendChild) (:blur! |blur) (:child-element-count |childElementCount) (:class-name |className) (:focus! |focus) (:get-attribute |getAttribute) (:inner-html |innerHTML) (:local-name |localName) (:matches? |matches) (:query-selector |querySelector) (:remove-attribute! |removeAttribute) (:request-fullscreen! |requestFullscreen) (:set-attribute! |setAttribute) (:text-content |textContent)
           :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
         'DomInputHost $ %{} 'CodeEntry
@@ -143,6 +149,23 @@
           :examples $ [] $ quote EventHost
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
             :names $ {} (:current-target |currentTarget) (:default-prevented? |defaultPrevented) (:event-phase |eventPhase) (:event-type |type) (:prevent-default! |preventDefault) (:stop-propagation! |stopPropagation)
+          :schema $ :: 'Trait
+          :tags $ #{} :ffi :js-host
+        'FormDataHost $ %{} 'CodeEntry
+          :doc "|External FormData capability for building multipart request bodies from String fields."
+          :code $ quote $ deftrait FormDataHost
+            .append! $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.browser/FormDataHost 'String 'String
+              :return 'Unit
+            .delete! $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.browser/FormDataHost 'String
+              :return 'Unit
+            .has? $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.browser/FormDataHost 'String
+              :return 'Bool
+          :examples $ [] $ quote FormDataHost
+          :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
+            :names $ {} (:append! |append) (:delete! |delete) (:has? |has)
           :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
         'KeyModifiers $ %{} 'CodeEntry
@@ -256,9 +279,12 @@
                   :args $ [] 'js-ffi.browser/EventHost
                   :return 'Unit
               :return 'Unit
+            .open $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.browser/WindowHost 'String
+              :return $ :: 'JsNullish 'js-ffi.browser/WindowHost
           :examples $ [] $ quote WindowHost
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
-            :names $ {} (:add-event-listener! |addEventListener) (:device-pixel-ratio |devicePixelRatio) (:inner-height |innerHeight) (:inner-width |innerWidth) (:match-media |matchMedia) (:on-before-unload |onbeforeunload) (:remove-event-listener! |removeEventListener)
+            :names $ {} (:add-event-listener! |addEventListener) (:device-pixel-ratio |devicePixelRatio) (:inner-height |innerHeight) (:inner-width |innerWidth) (:match-media |matchMedia) (:on-before-unload |onbeforeunload) (:open |open) (:remove-event-listener! |removeEventListener)
             :writable $ #{} :on-before-unload
           :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
@@ -341,6 +367,16 @@
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/DomElementHost)
             :args $ [] 'String
+            :features $ #{} :js-ffi
+        'create-element-ns $ %{} 'CodeEntry
+          :doc "|Create a namespaced DOM element (for example SVG) through DocumentHost."
+          :code $ quote $ defn create-element-ns (namespace tag-name)
+            let
+                host $ document-host
+              host .create-element-ns namespace tag-name
+          :examples $ [] $ quote (create-element-ns)
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/DomElementHost)
+            :args $ [] 'String 'String
             :features $ #{} :js-ffi
         'decode-document-ready-state $ %{} 'CodeEntry
           :doc "|Decode document.readyState String to DocumentReadyState while preserving unknown values."
@@ -520,6 +556,14 @@
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'js-ffi.browser/DomElementHost 'String
             :features $ #{} :js-ffi
+        'element-request-fullscreen! $ %{} 'CodeEntry
+          :doc "|Request fullscreen for a typed element. The host Promise is not awaited and the adapter returns Unit."
+          :code $ quote $ defn element-request-fullscreen! (element)
+            do (element .request-fullscreen!) &unit
+          :examples $ [] $ quote (element-request-fullscreen!)
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'js-ffi.browser/DomElementHost
+            :features $ #{} :js-ffi
         'element-select! $ %{} 'CodeEntry
           :doc "|Select the editable text of an input or textarea element and return Unit."
           :code $ quote $ defn element-select! (element)
@@ -594,6 +638,23 @@
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'js-ffi.browser/EventHost
+            :features $ #{} :js-ffi
+        'form-data-append! $ %{} 'CodeEntry
+          :doc "|Append one String field to a FormData capability."
+          :code $ quote $ defn form-data-append! (form name value)
+            do (form .append! name value) &unit
+          :examples $ [] $ quote (form-data-append!)
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'js-ffi.browser/FormDataHost 'String 'String
+            :features $ #{} :js-ffi
+        'form-data-create $ %{} 'CodeEntry
+          :doc "|Create an empty FormData capability for multipart request bodies."
+          :code $ quote $ defn form-data-create ()
+            unsafe-coerce (new js/FormData) FormDataHost
+          :examples $ [] $ quote (form-data-create)
+          :ffi $ {} (:backend :js) (:target :browser)
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/FormDataHost)
+            :args $ []
             :features $ #{} :js-ffi
         'keyboard-event-host $ %{} 'CodeEntry
           :doc "|Validate an opaque host value as an object and expose keyboard-event fields."
@@ -699,6 +760,16 @@
           :examples $ [] $ quote (location-protocol)
           :schema $ :: 'Fn $ {} (:return 'String)
             :args $ []
+            :features $ #{} :js-ffi
+        'location-replace! $ %{} 'CodeEntry
+          :doc "|Replace the current history entry with the given URL through LocationHost.replace."
+          :code $ quote $ defn location-replace! (url)
+            let
+                host $ location-host
+              do (host .replace! url) &unit
+          :examples $ [] $ quote (location-replace!)
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'String
             :features $ #{} :js-ffi
         'location-search $ %{} 'CodeEntry
           :doc "|Read location.search through the typed LocationHost contract."
@@ -949,6 +1020,17 @@
           :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/WindowHost)
             :args $ []
             :features $ #{} :js-ffi
+        'window-open $ %{} 'CodeEntry
+          :doc "|Open a browser window or tab through WindowHost and return the typed WindowHost as Option; popup blocking yields none."
+          :code $ quote $ defn window-open (url)
+            let
+                host $ window-host
+              js-nullish->option $ host .open url
+          :examples $ [] $ quote (window-open)
+          :schema $ :: 'Fn $ {}
+            :args $ [] 'String
+            :features $ #{} :js-ffi
+            :return $ :: 'calcit.core/Option 'js-ffi.browser/WindowHost
       :ns $ %{} 'NsEntry
         :doc "|Typed browser JavaScript FFI with normalized Struct/Enum results and explicit external-object contracts for Window, Document, Location, Storage, DOM elements, and events."
         :code $ quote $ ns js-ffi.browser
