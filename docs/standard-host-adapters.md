@@ -12,7 +12,7 @@ entry_for:
 
 # Standard host adapters
 
-These 114 adapters extend the existing host contracts. Import `js-ffi.shared`
+These 120 adapters extend the existing host contracts. Import `js-ffi.shared`
 with either `js-ffi.browser` or `js-ffi.node`. The package retains no native
 objects in application state automatically; constructors explicitly return
 named host capabilities, and missing lookups return `Option`.
@@ -53,7 +53,7 @@ URLSearchParams.size, Headers, AbortController, performance and requestAnimation
 | `normalize-error` | JsObject → JsError | Normalize a caught host failure. |
 | `console-info!` | String → Unit | Write one informational line through the shared console contract. |
 
-## Browser document, location, window, screen, clipboard, data and socket adapters (49 adapters)
+## Browser document, location, window, screen, clipboard, data and socket adapters (55 adapters)
 
 These accessors expose the stable browser globals as typed host capabilities
 without letting callers read raw `js/...` paths. `document-host`, `location-host`
@@ -110,6 +110,11 @@ and `screen-height`. `document-body` returns `Option<DomElementHost>` because
 | `mouse-event-host` | T → MouseEventHost |
 | `event-target-element` | EventHost → Option<DomElementHost> |
 | `document-title!` | String → Unit |
+| `element-set-inner-html!` | DomElementHost, String → Unit |
+| `element-set-text-content!` | DomElementHost, String → Unit |
+| `element-set-class-name!` | DomElementHost, String → Unit |
+| `element-set-hidden!` | DomElementHost, Bool → Unit |
+| `element-add-event-listener!`, `element-remove-event-listener!` | DomElementHost, String, Fn(EventHost) → Unit |
 
 ## Browser APIs (11 adapters)
 

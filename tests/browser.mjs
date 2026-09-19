@@ -215,5 +215,23 @@ export async function run() {
   a.equal(browser.document_title_$x_('js-ffi title'), undefined);
   a.equal(browser.document_title(), 'js-ffi title');
   a.equal(browser.document_title_$x_(previousTitle), undefined);
+
+  const mutable = browser.create_element('div');
+  a.equal(browser.element_set_class_name_$x_(mutable, 'snippet'), undefined);
+  a.equal(mutable.className, 'snippet');
+  a.equal(browser.element_set_text_content_$x_(mutable, '值'), undefined);
+  a.equal(mutable.textContent, '值');
+  a.equal(browser.element_set_inner_html_$x_(mutable, '<b>hi</b>'), undefined);
+  a.equal(mutable.innerHTML, '<b>hi</b>');
+  a.equal(browser.element_set_hidden_$x_(mutable, true), undefined);
+  a.equal(mutable.hidden, true);
+  let mutableClicks = 0;
+  const onMutableClick = () => { mutableClicks++; };
+  a.equal(browser.element_add_event_listener_$x_(mutable, 'click', onMutableClick), undefined);
+  mutable.click();
+  a.equal(mutableClicks, 1);
+  a.equal(browser.element_remove_event_listener_$x_(mutable, 'click', onMutableClick), undefined);
+  mutable.click();
+  a.equal(mutableClicks, 1);
   return { passed: true, assertions: a.count, runtime: navigator.userAgent, webgpu };
 }
