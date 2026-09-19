@@ -251,10 +251,13 @@ test('shared search-params->map and promise-create', async () => {
   a.equal(mapped.get('a'), '3');
   a.equal(mapped.get('b'), '2');
   const created = await new Promise((resolve) => {
-    shared.promise_create((res, rej) => res('created-value'));
     shared.promise_observe_$x_(shared.promise_create((res) => res('created-value')), (value) => resolve(value), () => resolve('rejected'));
   });
   a.equal(created, 'created-value');
+  const rejected = await new Promise((resolve) => {
+    shared.promise_observe_$x_(shared.promise_create((_res, rej) => rej('boom')), () => resolve('resolved'), (error) => resolve(`rejected:${error}`));
+  });
+  a.equal(rejected, 'rejected:boom');
   console.log(`Shared query/promise: ${a.count} assertions`);
 });
 
