@@ -40,12 +40,8 @@ if (command === 'search') {
   }
   // Persisted schemaData is not part of query.def and remains sourced from the
   // authoritative Snapshot. FFI metadata comes from the supported query envelope.
-  const snapshotSource = readFileSync(join(root, 'calcit.cirru'), 'utf8');
-  // parse-edn has no file/stdin input; leave room for executable and quoting.
-  if (process.platform === 'win32' && snapshotSource.length > 24000) {
-    throw new Error('Catalog generation needs Calcit parse-edn file/stdin support for this snapshot on Windows (command-line length limit). Generate the local cache under WSL, Linux or macOS.');
-  }
-  const snapshot = JSON.parse(calcit(['cirru', 'parse-edn', snapshotSource]));
+  // Parse from the file to avoid platform command-line argument length limits.
+  const snapshot = JSON.parse(calcit(['cirru', 'parse-edn', '--file', join(root, 'calcit.cirru')]));
   const records = defs.map(def => {
     const metadata = definition(def.id);
     if (!metadata.schema || !metadata.doc) throw new Error(`Missing schema/documentation: ${def.id}`);
