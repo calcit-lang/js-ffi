@@ -21,7 +21,7 @@ Development and CI use Node.js 24 (Vite requires Node.js >=22.12 here) and
 Playwright Chromium. Runtime helpers use standard APIs; the browser needs
 URLSearchParams.size, Headers, AbortController, performance and requestAnimationFrame.
 
-## Shared APIs (34 adapters)
+## Shared APIs (35 adapters)
 
 | Function | Parameters → result | Behavior |
 | --- | --- | --- |
@@ -34,6 +34,7 @@ URLSearchParams.size, Headers, AbortController, performance and requestAnimation
 | `search-params-string` | UrlSearchParamsHost → String | Serialize using native percent encoding. |
 | `search-params-size` | UrlSearchParamsHost → Number | Count entries, including duplicate keys. |
 | `search-params->map` | UrlSearchParamsHost → Map<String, String> | Collect entries; duplicate keys keep the last value. |
+| `search-params->pairs` | UrlSearchParamsHost → List<List<String>> | Collect ordered [key value] pairs, preserving duplicates. |
 | `headers-create` | () → HeadersHost | Create mutable empty headers. |
 | `headers-get` | HeadersHost, String key → Option<String> | Case-insensitive lookup. |
 | `headers-has?` | HeadersHost, String key → Bool | Case-insensitive existence check. |

@@ -2839,6 +2839,20 @@
             :args $ [] 'js-ffi.shared/UrlSearchParamsHost
             :features $ #{} :js-ffi
             :return $ :: 'Map 'String 'String
+        'search-params->pairs $ %{} 'CodeEntry
+          :doc "|Collect URLSearchParams entries as a list of [key value] pairs, preserving duplicates and order."
+          :code $ quote $ defn search-params->pairs (value)
+            let
+                result $ atom $ []
+              do
+                value .for-each! $ fn (item key _parent)
+                  swap! result append $ [] key item
+                deref result
+          :examples $ []
+          :schema $ :: 'Fn $ {}
+            :args $ [] 'js-ffi.shared/UrlSearchParamsHost
+            :features $ #{} :js-ffi
+            :return $ :: 'List $ :: 'List 'String
         'search-params-create $ %{} 'CodeEntry
           :doc "|Construct a native URLSearchParams and retain its typed host identity. Invalid constructor inputs raise host exceptions."
           :code $ quote $ defn search-params-create (query)

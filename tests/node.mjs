@@ -250,6 +250,8 @@ test('shared search-params->map and promise-create', async () => {
   const mapped = shared.search_params__GT_map(params);
   a.equal(mapped.get('a'), '3');
   a.equal(mapped.get('b'), '2');
+  const pairs = procs.listToArray(shared.search_params__GT_pairs(params));
+  a.equal(JSON.stringify(pairs.map((entry) => procs.listToArray(entry))), JSON.stringify([['a', '1'], ['b', '2'], ['a', '3']]));
   const created = await new Promise((resolve) => {
     shared.promise_observe_$x_(shared.promise_create((res) => res('created-value')), (value) => resolve(value), () => resolve('rejected'));
   });
