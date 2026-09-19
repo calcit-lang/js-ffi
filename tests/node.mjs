@@ -183,6 +183,12 @@ test('shared fetch-request sends method, headers and optional body', async () =>
   }
 });
 
+test('shared console-host exposes the host console for method calls', () => {
+  const a = assertions();
+  a.equal(shared.console_host(), console);
+  console.log(`Console host: ${a.count} assertions`);
+});
+
 test('Node env-get reads optional process.env values', () => {
   const a = assertions();
   a.equal(isNone(node.env_get('JS_FFI_MISSING_KEY')), true);

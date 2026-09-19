@@ -12,7 +12,7 @@ entry_for:
 
 # Standard host adapters
 
-These 121 adapters extend the existing host contracts. Import `js-ffi.shared`
+These 122 adapters extend the existing host contracts. Import `js-ffi.shared`
 with either `js-ffi.browser` or `js-ffi.node`. The package retains no native
 objects in application state automatically; constructors explicitly return
 named host capabilities, and missing lookups return `Option`.
@@ -21,7 +21,7 @@ Development and CI use Node.js 24 (Vite requires Node.js >=22.12 here) and
 Playwright Chromium. Runtime helpers use standard APIs; the browser needs
 URLSearchParams.size, Headers, AbortController, performance and requestAnimationFrame.
 
-## Shared APIs (28 adapters)
+## Shared APIs (29 adapters)
 
 | Function | Parameters → result | Behavior |
 | --- | --- | --- |
@@ -53,6 +53,7 @@ URLSearchParams.size, Headers, AbortController, performance and requestAnimation
 | `response-text` | ResponseHost → async Result<String, JsError> | Await one body read; repeated/failed reads are errors. |
 | `normalize-error` | JsObject → JsError | Normalize a caught host failure. |
 | `console-info!` | String → Unit | Write one informational line through the shared console contract. |
+| `console-host` | () → ConsoleHost | Return the console external-object for method-style calls. |
 
 ## Browser document, location, window, screen, clipboard, data and socket adapters (55 adapters)
 

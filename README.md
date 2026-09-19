@@ -35,7 +35,7 @@ runtime split, decoding policy, and guidance for keeping host effects outside
 pure application logic. The page is indexed for `calcit docs read` and
 `calcit docs search` when this module is installed.
 
-See [Standard host adapters](docs/standard-host-adapters.md) for 121 additional
+See [Standard host adapters](docs/standard-host-adapters.md) for 122 additional
 URL, fetch/Response, query string, headers, cancellation, DOM, timer, process,
 path and UTF-8 filesystem adapters with signatures and error semantics. The
 [checked async migration](docs/checked-async-adapters.md) shows the required
@@ -54,6 +54,41 @@ path and UTF-8 filesystem adapters with signatures and error semantics. The
 
 See [API tooling](docs/api-tooling.md) for the editing workflow and upstream
 Calcit requests. After API changes, run `yarn api:generate` before `yarn test`.
+
+## Method-style host access
+
+Every host capability is an external-object trait, so adapters that return one
+can be used with JavaScript-like method and field syntax. Trait methods compile
+to the mapped native calls (`:ffi :names`), and fields compile to property reads.
+Writable fields are assigned through `js-set` inside a `:js-ffi` adapter.
+
+```cirru
+; Method call on a DocumentHost capability.
+let
+    document $ browser/document-host
+  document .query-selector |.app
+
+; Read a trait field; normalize nullish values when a concrete type is needed.
+let
+    element $ browser/query-selector |.app
+  element :text-content
+
+; Writable fields (inner-html, text-content, class-name, hidden) via js-set.
+defn relabel! (element text)
+  js-set element :text-content text
+  , &unit
+
+; WebSocketHost methods.
+let
+    socket $ browser/web-socket-create |ws://127.0.0.1:1/
+  do (socket .close!) &unit
+```
+
+Typed free helpers (`storage-get`, `query-selector`, `fetch-request`, ...) decode
+host values into Calcit `Option`/`Result` at the boundary, while method calls
+stay closer to the host and may return `JsNullish` or trait values. Use method
+style for direct host operations and the typed helpers when you want normalized
+Calcit data.
 
 ## API examples
 

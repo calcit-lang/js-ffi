@@ -2183,6 +2183,13 @@
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'String
             :features $ #{} :js-ffi
+        'console-host $ %{} 'CodeEntry
+          :doc "|Return the shared ConsoleHost capability for method-style calls such as (.log! message)."
+          :code $ quote $ defn console-host () (unsafe-coerce js/console ConsoleHost)
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.shared/ConsoleHost)
+            :args $ []
+            :features $ #{} :js-ffi
         'console-info! $ %{} 'CodeEntry
           :doc "|Write one informational String to the host console and return Unit in browser or Node."
           :code $ quote $ defn console-info! (message)
