@@ -2721,6 +2721,18 @@
                 :args $ [] 'E
             :features $ #{} :js-ffi
             :generics $ [] 'T 'E
+        'promise? $ %{} 'CodeEntry
+          :doc "|Detect a thenable that resolves to itself, matching the Promise contract."
+          :code $ quote $ defn promise? (value)
+            if (nil? value) false $ let
+                resolved $ js/Promise.resolve value
+              and
+                fn? $ .-then value
+                identical? value resolved
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Bool)
+            :args $ [] 'Dynamic
+            :features $ #{} :js-ffi
         'queue-microtask! $ %{} 'CodeEntry
           :doc "|Queue a Unit callback in the JavaScript microtask queue."
           :code $ quote $ defn queue-microtask! (callback) (js/queueMicrotask callback) &unit
