@@ -21,7 +21,7 @@ Development and CI use Node.js 24 (Vite requires Node.js >=22.12 here) and
 Playwright Chromium. Runtime helpers use standard APIs; the browser needs
 URLSearchParams.size, Headers, AbortController, performance and requestAnimationFrame.
 
-## Shared APIs (30 adapters)
+## Shared APIs (31 adapters)
 
 | Function | Parameters → result | Behavior |
 | --- | --- | --- |
@@ -55,6 +55,7 @@ URLSearchParams.size, Headers, AbortController, performance and requestAnimation
 | `normalize-error` | JsObject → JsError | Normalize a caught host failure. |
 | `console-info!` | String → Unit | Write one informational line through the shared console contract. |
 | `console-host` | () → ConsoleHost | Return the console external-object for method-style calls. |
+| `console-clear!` | () → Unit | Clear the shared console. |
 
 ## Browser document, location, window, screen, clipboard, data and socket adapters (58 adapters)
 
@@ -143,7 +144,7 @@ Missing attributes and selector results become none; invalid CSS selectors
 raise the native DOMException. Keep timer/frame handles and cancel them during
 teardown. Browser handles are numeric and must not be used as Node timer handles.
 
-## Node APIs (27 adapters)
+## Node APIs (33 adapters)
 
 | Function | Parameters → result |
 | --- | --- |
@@ -162,6 +163,11 @@ teardown. Browser handles are numeric and must not be used as Node timer handles
 | `pid`, `uptime` | () → Number |
 | `platform`, `node-version` | () → String |
 | `env-get` | String → Option<String> |
+| `http-create-server` | Fn(NodeRequestHost, NodeServerResponseHost) → Unit → NodeServerHost | Create a Node HTTP server. |
+| `server-listen!`, `server-close!` | NodeServerHost [, Number, String, Fn() → Unit] → NodeServerHost/Unit | Bind or close a Node HTTP server. |
+| `request-header` | NodeRequestHost, String → Option<String> | Read one request header. |
+| `request-body-text` | NodeRequestHost, Option<Fn(String) → Unit> → PromiseHost | Collect the request body as UTF-8 text. |
+| `set-timeout!` | Fn() → Unit, Number → Number | Schedule a Node timer. |
 | `import-meta-url` | () → String |
 | `buffer-from-string` | String → BufferHost |
 | `buffer->string` | BufferHost → String |

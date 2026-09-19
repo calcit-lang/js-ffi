@@ -6,7 +6,7 @@ import { createServer } from 'node:http';
 import { syncBuiltinESMExports } from 'node:module';
 import * as node from '../js-out/js-ffi.node.mjs';
 import * as shared from '../js-out/js-ffi.shared.mjs';
-import { result_$o_err_$q_ as isErr, result_$o_ok_$q_ as isOk, option_$o_unwrap as unwrap, option_$o_none_$q_ as isNone, _PCT_some, _PCT_none } from '../js-out/calcit.core.mjs';
+import { result_$o_err_$q_ as isErr, result_$o_ok_$q_ as isOk, option_$o_unwrap as unwrap, option_$o_none_$q_ as isNone, option_$o_some_$q_ as isSome, _PCT_some, _PCT_none } from '../js-out/calcit.core.mjs';
 import * as procs from '@calcit/procs';
 import { assertions, testShared } from './shared.mjs';
 
@@ -181,6 +181,34 @@ test('shared fetch-request sends method, headers and optional body', async () =>
   } finally {
     await new Promise(resolve => server.close(resolve));
   }
+});
+
+test('Node HTTP server, request header and timers', async () => {
+  const a = assertions();
+  const server = node.http_create_server((request, response) => {
+    response.setHeader('X-Test', 'yes');
+    response.end('hello-http');
+  });
+  await new Promise((resolve, reject) => {
+    try {
+      node.server_listen_$x_(server, 0, '127.0.0.1', () => resolve());
+    } catch (error) { reject(error); }
+  });
+  try {
+    const port = server.address().port;
+    const response = await fetch(`http://127.0.0.1:${port}/`);
+    a.equal(await response.text(), 'hello-http');
+    a.equal(response.headers.get('x-test'), 'yes');
+  } finally {
+    node.server_close_$x_(server);
+  }
+  const headerValue = node.request_header({ headers: { 'content-type': 'text/plain' } }, 'content-type');
+  a.equal(isSome(headerValue), true);
+  a.equal(unwrap(headerValue), 'text/plain');
+  a.equal(isNone(node.request_header({ headers: {} }, 'missing')), true);
+  await new Promise(resolve => node.set_timeout_$x_(() => resolve(), 5));
+  a.equal(shared.console_clear_$x_(), undefined);
+  console.log(`Node http: ${a.count} assertions`);
 });
 
 test('shared response-json parses object bodies', async () => {

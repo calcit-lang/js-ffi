@@ -297,7 +297,43 @@
       :typeNotFull 0
       :unresolved 0
       :unsafeCoerce 1
+    |js-ffi.node/http-create-server $ {} (:codeDynamic 0)
+      :codeNil 0
+      :declaredOptional 0
+      :deprecatedCalls 0
+      :schemaDynamic 0
+      :typeNone 0
+      :typeNotFull 0
+      :unresolved 0
+      :unsafeCoerce 3
+    |js-ffi.node/request-body-text $ {} (:codeDynamic 0)
+      :codeNil 0
+      :declaredOptional 0
+      :deprecatedCalls 0
+      :schemaDynamic 0
+      :typeNone 0
+      :typeNotFull 0
+      :unresolved 0
+      :unsafeCoerce 2
+    |js-ffi.node/set-timeout! $ {} (:codeDynamic 0)
+      :codeNil 0
+      :declaredOptional 0
+      :deprecatedCalls 0
+      :schemaDynamic 0
+      :typeNone 0
+      :typeNotFull 0
+      :unresolved 0
+      :unsafeCoerce 1
     |js-ffi.shared/abort-controller-create $ {} (:codeDynamic 0)
+      :codeNil 0
+      :declaredOptional 0
+      :deprecatedCalls 0
+      :schemaDynamic 0
+      :typeNone 0
+      :typeNotFull 0
+      :unresolved 0
+      :unsafeCoerce 1
+    |js-ffi.shared/console-clear! $ {} (:codeDynamic 0)
       :codeNil 0
       :declaredOptional 0
       :deprecatedCalls 0
@@ -449,7 +485,7 @@
     :typeNone 0
     :typeNotFull 0
     :unresolved 0
-    :unsafeCoerce 49
+    :unsafeCoerce 56
   :scope $ {} (:includeDependencies false)
     :namespace nil
     :namespacePrefix nil

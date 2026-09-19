@@ -1637,6 +1637,57 @@
           :examples $ [] $ quote
             &%{} NodeProbe :runtime (%:: shared/Runtime :node) :cwd |/tmp :argv-count 2
           :schema $ :: 'Enum
+        'NodeRequestHost $ %{} 'CodeEntry
+          :doc "|External Node IncomingMessage capability with request fields and an event hook."
+          :code $ quote $ deftrait NodeRequestHost
+            :url $ :: 'JsNullish 'String
+            :method $ :: 'JsNullish 'String
+            :headers 'JsObject
+            .on! $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.node/NodeRequestHost 'String $ :: 'Fn
+                {}
+                  :args $ [] 'JsObject
+                  :return 'Unit
+              :return 'js-ffi.node/NodeRequestHost
+          :examples $ [] $ quote NodeRequestHost
+          :ffi $ {} (:backend :js) (:kind :external-object) (:target :node)
+            :names $ {} $ :on! |on
+          :schema $ :: 'Trait
+          :tags $ #{} :ffi :js-host
+        'NodeServerHost $ %{} 'CodeEntry
+          :doc "|External Node HTTP server capability exposing listen and close."
+          :code $ quote $ deftrait NodeServerHost
+            .listen! $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.node/NodeServerHost 'Number 'String $ :: 'Fn
+                {}
+                  :args $ []
+                  :return 'Unit
+              :return 'js-ffi.node/NodeServerHost
+            .close! $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.node/NodeServerHost
+              :return 'Unit
+          :examples $ [] $ quote NodeServerHost
+          :ffi $ {} (:backend :js) (:kind :external-object) (:target :node)
+            :names $ {} (:close! |close) (:listen! |listen)
+          :schema $ :: 'Trait
+          :tags $ #{} :ffi :js-host
+        'NodeServerResponseHost $ %{} 'CodeEntry
+          :doc "|External Node ServerResponse capability with writable status and send helpers."
+          :code $ quote $ deftrait NodeServerResponseHost
+            :status-code $ :: 'JsNullish 'Number
+            :status-message $ :: 'JsNullish 'String
+            .set-header! $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.node/NodeServerResponseHost 'String 'String
+              :return 'Unit
+            .end! $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.node/NodeServerResponseHost 'String
+              :return 'Unit
+          :examples $ [] $ quote NodeServerResponseHost
+          :ffi $ {} (:backend :js) (:kind :external-object) (:target :node)
+            :names $ {} (:end! |end) (:set-header! |setHeader) (:status-code |statusCode) (:status-message |statusMessage)
+            :writable $ #{} :status-code :status-message
+          :schema $ :: 'Trait
+          :tags $ #{} :ffi :js-host
         'ProcessArgvHost $ %{} 'CodeEntry
           :doc "|External process.argv capability exposing only an opaque/nullish length that argv-count validates at runtime."
           :code $ quote $ deftrait ProcessArgvHost
@@ -1738,6 +1789,22 @@
           :ffi $ {} (:backend :js) (:target :node)
           :schema $ :: 'Fn $ {} (:return 'Bool)
             :args $ [] 'String
+            :features $ #{} :js-ffi
+        'http-create-server $ %{} 'CodeEntry
+          :doc "|Create a Node HTTP server from a typed request/response handler."
+          :code $ quote $ defn http-create-server (handler)
+            unsafe-coerce
+              http/createServer $ fn (raw-request raw-response)
+                hint-fn $ {} (:return 'Unit)
+                  :args $ [] 'JsObject 'JsObject
+                handler (unsafe-coerce raw-request NodeRequestHost) (unsafe-coerce raw-response NodeServerResponseHost)
+              , NodeServerHost
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :node)
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.node/NodeServerHost)
+            :args $ [] $ :: 'Fn
+              {} (:return 'Unit)
+                :args $ [] 'js-ffi.node/NodeRequestHost 'js-ffi.node/NodeServerResponseHost
             :features $ #{} :js-ffi
         'import-meta-url $ %{} 'CodeEntry
           :doc "|Read import.meta.url after a runtime String check."
@@ -1905,6 +1972,44 @@
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'String 'String
             :features $ #{} :js-ffi
+        'request-body-text $ %{} 'CodeEntry
+          :doc "|Collect a Node request body into UTF-8 text and resolve a PromiseHost, optionally invoking a callback."
+          :code $ quote $ defn request-body-text (request callback)
+            unsafe-coerce
+              new js/Promise $ fn (resolve reject)
+                let
+                    chunks $ js-array
+                  request .on! |error $ fn (error) (reject error)
+                  request .on! |data $ fn (data)
+                    do (.push chunks data) &unit
+                  request .on! |end $ fn () $ let
+                      buffer $ unsafe-coerce (js/Buffer.concat chunks) BufferHost
+                      text $ buffer .to-string |utf8
+                    do
+                      match callback
+                        (:some cb) (cb text)
+                        (:none) &unit
+                      resolve text
+              , 'js-ffi.shared/PromiseHost
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :node)
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.shared/PromiseHost)
+            :args $ [] 'js-ffi.node/NodeRequestHost $ :: 'calcit.core/Option
+              :: 'Fn $ {} (:return 'Unit)
+                :args $ [] 'String
+            :features $ #{} :js-ffi
+        'request-header $ %{} 'CodeEntry (:doc "|Read one Node request header as Option<String>.")
+          :code $ quote $ defn request-header (request key)
+            let
+                headers $ request :headers
+                value $ contract/object-field |request.header headers key
+              if (js-nullish? value) (%none)
+                %some $ contract/expect-string |request.header value
+          :examples $ []
+          :schema $ :: 'Fn $ {}
+            :args $ [] 'js-ffi.node/NodeRequestHost 'String
+            :features $ #{} :js-ffi
+            :return $ :: 'calcit.core/Option 'String
         'rmdir! $ %{} 'CodeEntry
           :doc "|Synchronous node:fs.rmdirSync adapter. Text uses UTF-8; filesystem failures raise the original host exception. No recursive deletion."
           :code $ quote $ defn rmdir! (directory) (fs/rmdirSync directory) &unit
@@ -1925,6 +2030,34 @@
           :examples $ [] $ quote "(runtime-name)"
           :schema $ :: 'Fn $ {} (:return 'String)
             :args $ []
+        'server-close! $ %{} 'CodeEntry (:doc "|Close a Node HTTP server.")
+          :code $ quote $ defn server-close! (server)
+            do (server .close!) &unit
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'js-ffi.node/NodeServerHost
+            :features $ #{} :js-ffi
+        'server-listen! $ %{} 'CodeEntry
+          :doc "|Bind a Node HTTP server to a port and host, invoking the callback after start."
+          :code $ quote $ defn server-listen! (server port host callback) (server .listen! port host callback)
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.node/NodeServerHost)
+            :args $ [] 'js-ffi.node/NodeServerHost 'Number 'String $ :: 'Fn
+              {} (:return 'Unit)
+                :args $ []
+            :features $ #{} :js-ffi
+        'set-timeout! $ %{} 'CodeEntry
+          :doc "|Schedule a callback after a delay and return the numeric handle."
+          :code $ quote $ defn set-timeout! (callback millis)
+            unsafe-coerce (js/setTimeout callback millis) Number
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :node)
+          :schema $ :: 'Fn $ {} (:return 'Number)
+            :args $ []
+              :: 'Fn $ {} (:return 'Unit)
+                :args $ []
+              , 'Number
+            :features $ #{} :js-ffi
         'unlink! $ %{} 'CodeEntry
           :doc "|Synchronous node:fs.unlinkSync adapter. Text uses UTF-8; filesystem failures raise the original host exception. No recursive deletion."
           :code $ quote $ defn unlink! (file-path) (fs/unlinkSync file-path) &unit
@@ -1971,7 +2104,7 @@
       :ns $ %{} 'NsEntry
         :doc "|Typed Node.js JavaScript FFI. Node-only modules remain isolated while runtime identity and cross-runtime host contracts come from js-ffi.shared."
         :code $ quote $ ns js-ffi.node
-          :require (|node:fs :as fs) (|node:path :as path) (js-ffi.contract :as contract) (js-ffi.shared :as shared) (|node:fs/promises :as fs-promises)
+          :require (|node:fs :as fs) (|node:path :as path) (js-ffi.contract :as contract) (js-ffi.shared :as shared) (|node:fs/promises :as fs-promises) (|node:http :as http)
     'js-ffi.node-test $ %{} 'FileEntry
       :defs $ {}
         'main! $ %{} 'CodeEntry
@@ -2034,9 +2167,12 @@
             .error! $ :: 'Fn $ {}
               :args $ [] 'js-ffi.shared/ConsoleHost 'String
               :return 'Unit
+            .clear! $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.shared/ConsoleHost
+              :return 'Unit
           :examples $ [] $ quote ConsoleHost
           :ffi $ {} (:backend :js) (:kind :external-object)
-            :names $ {} (:error! |error) (:log! |log) (:warn! |warn)
+            :names $ {} (:clear! |clear) (:error! |error) (:info! |info) (:log! |log) (:warn! |warn)
           :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
         'DateHost $ %{} 'CodeEntry
@@ -2236,6 +2372,16 @@
           :ffi $ {} $ :backend :js
           :schema $ :: 'Fn $ {} (:return 'Bool)
             :args $ [] 'js-ffi.shared/AbortSignalHost
+            :features $ #{} :js-ffi
+        'console-clear! $ %{} 'CodeEntry
+          :doc "|Clear the shared console through ConsoleHost.clear."
+          :code $ quote $ defn console-clear! ()
+            let
+                host-console $ unsafe-coerce js/console ConsoleHost
+              do (host-console .clear!) &unit
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ []
             :features $ #{} :js-ffi
         'console-error! $ %{} 'CodeEntry
           :doc "|Write one error String to the host console and return Unit in browser or Node."
