@@ -35,7 +35,7 @@ runtime split, decoding policy, and guidance for keeping host effects outside
 pure application logic. The page is indexed for `calcit docs read` and
 `calcit docs search` when this module is installed.
 
-See [Standard host adapters](docs/standard-host-adapters.md) for 84 additional
+See [Standard host adapters](docs/standard-host-adapters.md) for 89 additional
 URL, fetch/Response, query string, headers, cancellation, DOM, timer, process,
 path and UTF-8 filesystem adapters with signatures and error semantics. The
 [checked async migration](docs/checked-async-adapters.md) shows the required

@@ -309,6 +309,14 @@
               {} (:return 'Unit)
                 :args $ [] 'js-ffi.browser/EventHost
             :features $ #{} :js-ffi
+        'alert! $ %{} 'CodeEntry
+          :doc "|Show one blocking browser alert String and return Unit."
+          :code $ quote $ defn alert! (message)
+            do (js/alert message) &unit
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'String
+            :features $ #{} :js-ffi
         'append-child! $ %{} 'CodeEntry
           :doc "|Appends one typed DOM host element to another and returns the child. This keeps DOM insertion inside the browser FFI boundary."
           :code $ quote $ defn append-child! (parent child)
@@ -699,6 +707,22 @@
           :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/FormDataHost)
             :args $ []
             :features $ #{} :js-ffi
+        'history-push-state! $ %{} 'CodeEntry
+          :doc "|Push a history entry through history.pushState without reloading the document."
+          :code $ quote $ defn history-push-state! (url)
+            do (js/history.pushState 0 | url) &unit
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'String
+            :features $ #{} :js-ffi
+        'history-replace-state! $ %{} 'CodeEntry
+          :doc "|Replace the current history entry through history.replaceState without reloading the document."
+          :code $ quote $ defn history-replace-state! (url)
+            do (js/history.replaceState 0 | url) &unit
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'String
+            :features $ #{} :js-ffi
         'keyboard-event-host $ %{} 'CodeEntry
           :doc "|Validate an opaque host value as an object and expose keyboard-event fields."
           :code $ quote $ defn keyboard-event-host (value)
@@ -774,6 +798,22 @@
           :schema $ :: 'Fn $ {} (:return 'JsObject)
             :args $ [] 'js-ffi.browser/EventHost
             :features $ #{} :js-ffi
+        'notification-request-permission! $ %{} 'CodeEntry
+          :doc "|Await Notification.requestPermission once and normalize the String permission or JsError."
+          :code $ quote $ defn notification-request-permission! ()
+            hint-fn $ {} (:async true)
+              :args $ []
+              :features $ #{} :js-ffi
+              :return $ :: 'Result 'String 'js-ffi.shared/JsError
+            try
+              %:: Result :ok $ contract/expect-string |Notification.requestPermission $ js-await (js/Notification.requestPermission)
+              fn (error)
+                %:: Result :err $ shared/normalize-error error
+          :examples $ []
+          :schema $ :: 'Fn $ {}
+            :args $ []
+            :features $ #{} :js-ffi
+            :return $ :: 'calcit.core/Result 'String 'js-ffi.shared/JsError
         'probe $ %{} 'CodeEntry
           :doc "|Run the browser capability smoke probe and return typed BrowserProbe data."
           :code $ quote $ defn probe ()
@@ -781,6 +821,18 @@
           :examples $ [] $ quote (probe)
           :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/BrowserProbe)
             :args $ []
+        'prompt! $ %{} 'CodeEntry
+          :doc "|Show a blocking browser prompt and return the entered text as Option<String>; cancellation yields none."
+          :code $ quote $ defn prompt! (message)
+            let
+                raw $ js/prompt message
+              if (js-nullish? raw) (%none)
+                %some $ contract/expect-string |prompt raw
+          :examples $ []
+          :schema $ :: 'Fn $ {}
+            :args $ [] 'String
+            :features $ #{} :js-ffi
+            :return $ :: 'calcit.core/Option 'String
         'query-selector $ %{} 'CodeEntry
           :doc "|Query document for a selector and normalize a missing element into Option<DomElementHost>."
           :code $ quote $ defn query-selector (selector)
