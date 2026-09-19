@@ -244,6 +244,20 @@ test('Node HTTP server, request header and timers', async () => {
   console.log(`Node http: ${a.count} assertions`);
 });
 
+test('shared search-params->map and promise-create', async () => {
+  const a = assertions();
+  const params = shared.search_params_create('a=1&b=2&a=3');
+  const mapped = shared.search_params__GT_map(params);
+  a.equal(mapped.get('a'), '3');
+  a.equal(mapped.get('b'), '2');
+  const created = await new Promise((resolve) => {
+    shared.promise_create((res, rej) => res('created-value'));
+    shared.promise_observe_$x_(shared.promise_create((res) => res('created-value')), (value) => resolve(value), () => resolve('rejected'));
+  });
+  a.equal(created, 'created-value');
+  console.log(`Shared query/promise: ${a.count} assertions`);
+});
+
 test('shared promise? detects real promises and rejects plain values', () => {
   const a = assertions();
   a.equal(shared.promise_$q_(Promise.resolve(1)), true);

@@ -2387,12 +2387,18 @@
             .delete! $ :: 'Fn $ {}
               :args $ [] 'js-ffi.shared/UrlSearchParamsHost 'String
               :return 'Unit
+            .for-each! $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.shared/UrlSearchParamsHost $ :: 'Fn
+                {}
+                  :args $ [] 'String 'String 'Dynamic
+                  :return 'Unit
+              :return 'Unit
             .to-string $ :: 'Fn $ {}
               :args $ [] 'js-ffi.shared/UrlSearchParamsHost
               :return 'String
           :examples $ [] $ quote UrlSearchParamsHost
           :ffi $ {} (:backend :js) (:kind :external-object)
-            :names $ {} (:delete! |delete) (:get |get) (:has? |has) (:set! |set) (:to-string |toString)
+            :names $ {} (:delete! |delete) (:for-each! |forEach) (:get |get) (:has? |has) (:set! |set) (:to-string |toString)
           :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
         'UrlSnapshot $ %{} 'CodeEntry
@@ -2704,6 +2710,14 @@
           :schema $ :: 'Fn $ {} (:return 'Number)
             :args $ []
             :features $ #{} :js-ffi
+        'promise-create $ %{} 'CodeEntry
+          :doc "|Create a PromiseHost from a (resolve reject) executor function."
+          :code $ quote $ defn promise-create (executor)
+            unsafe-coerce (new js/Promise executor) PromiseHost
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.shared/PromiseHost)
+            :args $ [] 'DynFn
+            :features $ #{} :js-ffi
         'promise-observe! $ %{} 'CodeEntry
           :doc "|Resolve a value through the host Promise queue and deliver exactly one fulfillment or rejection callback."
           :code $ quote $ defn promise-observe! (value ready! failed!)
@@ -2812,6 +2826,19 @@
             runtime-label $ Runtime :browser
           :schema $ :: 'Fn $ {} (:return 'String)
             :args $ [] 'js-ffi.shared/Runtime
+        'search-params->map $ %{} 'CodeEntry
+          :doc "|Collect URLSearchParams entries into a Map<String, String>; duplicate keys keep the last value."
+          :code $ quote $ defn search-params->map (value)
+            let
+                result $ atom $ {}
+              do
+                value .for-each! $ fn (item key _parent) (swap! result assoc key item)
+                deref result
+          :examples $ []
+          :schema $ :: 'Fn $ {}
+            :args $ [] 'js-ffi.shared/UrlSearchParamsHost
+            :features $ #{} :js-ffi
+            :return $ :: 'Map 'String 'String
         'search-params-create $ %{} 'CodeEntry
           :doc "|Construct a native URLSearchParams and retain its typed host identity. Invalid constructor inputs raise host exceptions."
           :code $ quote $ defn search-params-create (query)
