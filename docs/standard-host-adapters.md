@@ -21,7 +21,7 @@ Development and CI use Node.js 24 (Vite requires Node.js >=22.12 here) and
 Playwright Chromium. Runtime helpers use standard APIs; the browser needs
 URLSearchParams.size, Headers, AbortController, performance and requestAnimationFrame.
 
-## Shared APIs (31 adapters)
+## Shared APIs (32 adapters)
 
 | Function | Parameters → result | Behavior |
 | --- | --- | --- |
@@ -46,6 +46,7 @@ URLSearchParams.size, Headers, AbortController, performance and requestAnimation
 | `encode-uri-component` | String → String | Encode one URI component, including Unicode. |
 | `decode-uri-component` | String → String | Decode one component; malformed escapes raise URIError. |
 | `now-ms` | () → Number | Epoch milliseconds from Date.now. |
+| `promise?` | Dynamic → Bool | True only for a thenable that resolves to itself, matching the Promise contract. |
 | `performance-now` | () → Number | Monotonic milliseconds relative to the host time origin. |
 | `response-host` | JsObject → ResponseHost | Validate Response metadata, Headers methods, and its async text reader. |
 | `fetch-response` | String → async Result<ResponseHost, JsError> | Await one fetch; normalize throw/rejection. |

@@ -244,6 +244,18 @@ test('Node HTTP server, request header and timers', async () => {
   console.log(`Node http: ${a.count} assertions`);
 });
 
+test('shared promise? detects real promises and rejects plain values', () => {
+  const a = assertions();
+  a.equal(shared.promise_$q_(Promise.resolve(1)), true);
+  a.equal(shared.promise_$q_(new Promise(() => {})), true);
+  a.equal(shared.promise_$q_(42), false);
+  a.equal(shared.promise_$q_('text'), false);
+  a.equal(shared.promise_$q_(null), false);
+  a.equal(shared.promise_$q_({}), false);
+  a.equal(shared.promise_$q_({ then: () => {} }), false);
+  console.log(`Promise predicate: ${a.count} assertions`);
+});
+
 test('shared response-json parses object bodies', async () => {
   const a = assertions();
   const server = createServer((_request, response) => {
