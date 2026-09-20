@@ -230,13 +230,13 @@
           :schema $ :: 'Enum
         'KeyboardEventHost $ %{} 'CodeEntry
           :doc "|External KeyboardEvent capability without trait inheritance; adapters normalize keys and modifiers into Calcit data."
-          :code $ quote $ deftrait KeyboardEventHost (:key 'String) (:code 'String) (:repeat? 'Bool) (:alt-key? 'Bool) (:ctrl-key? 'Bool) (:meta-key? 'Bool) (:shift-key? 'Bool)
+          :code $ quote $ deftrait KeyboardEventHost (:key 'String) (:code 'String) (:key-code 'Number) (:repeat? 'Bool) (:alt-key? 'Bool) (:ctrl-key? 'Bool) (:meta-key? 'Bool) (:shift-key? 'Bool)
             .prevent-default! $ :: 'Fn $ {}
               :args $ [] 'js-ffi.browser/KeyboardEventHost
               :return 'Unit
           :examples $ [] $ quote KeyboardEventHost
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
-            :names $ {} (:alt-key? |altKey) (:ctrl-key? |ctrlKey) (:meta-key? |metaKey) (:prevent-default! |preventDefault) (:repeat? |repeat) (:shift-key? |shiftKey)
+            :names $ {} (:alt-key? |altKey) (:ctrl-key? |ctrlKey) (:key-code |keyCode) (:meta-key? |metaKey) (:prevent-default! |preventDefault) (:repeat? |repeat) (:shift-key? |shiftKey)
           :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
         'LocationHost $ %{} 'CodeEntry
