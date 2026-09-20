@@ -83,10 +83,17 @@
             :client-height 'Number
             :dataset 'JsObject
             :style 'JsObject
+            :parent-element $ :: 'JsNullish 'js-ffi.browser/DomElementHost
             .append-child! $ :: 'Fn $ {}
               :generics $ [] 'T
               :args $ [] 'T 'T
               :return 'T
+            .clone-node $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.browser/DomElementHost 'Bool
+              :return 'js-ffi.browser/DomElementHost
+            .remove! $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.browser/DomElementHost
+              :return 'Unit
             .matches? $ :: 'Fn $ {}
               :args $ [] 'js-ffi.browser/DomElementHost 'String
               :return 'Bool
@@ -130,7 +137,7 @@
             :local-name 'String
           :examples $ [] $ quote DomElementHost
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
-            :names $ {} (:add-event-listener! |addEventListener) (:append-child! |appendChild) (:blur! |blur) (:child-element-count |childElementCount) (:class-name |className) (:client-height |clientHeight) (:client-width |clientWidth) (:focus! |focus) (:get-attribute |getAttribute) (:hidden |hidden) (:inner-html |innerHTML) (:local-name |localName) (:matches? |matches) (:offset-left |offsetLeft) (:offset-top |offsetTop) (:placeholder |placeholder) (:query-selector |querySelector) (:remove-attribute! |removeAttribute) (:remove-event-listener! |removeEventListener) (:request-fullscreen! |requestFullscreen) (:set-attribute! |setAttribute) (:text-content |textContent) (:value |value)
+            :names $ {} (:add-event-listener! |addEventListener) (:append-child! |appendChild) (:blur! |blur) (:child-element-count |childElementCount) (:class-name |className) (:client-height |clientHeight) (:client-width |clientWidth) (:clone-node |cloneNode) (:focus! |focus) (:get-attribute |getAttribute) (:hidden |hidden) (:inner-html |innerHTML) (:local-name |localName) (:matches? |matches) (:offset-left |offsetLeft) (:offset-top |offsetTop) (:parent-element |parentElement) (:placeholder |placeholder) (:query-selector |querySelector) (:remove! |remove) (:remove-attribute! |removeAttribute) (:remove-event-listener! |removeEventListener) (:request-fullscreen! |requestFullscreen) (:set-attribute! |setAttribute) (:text-content |textContent) (:value |value)
             :writable $ #{} :class-name :hidden :inner-html :placeholder :text-content :value
           :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
