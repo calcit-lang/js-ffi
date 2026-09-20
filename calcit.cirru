@@ -357,7 +357,7 @@
           :tags $ #{} :ffi :js-host
         'WindowHost $ %{} 'CodeEntry
           :doc "|External browser Window capability restricted to stable viewport fields, matchMedia, and typed global event listeners."
-          :code $ quote $ deftrait WindowHost (:inner-width 'Number) (:inner-height 'Number) (:device-pixel-ratio 'Number)
+          :code $ quote $ deftrait WindowHost (:inner-width 'Number) (:inner-height 'Number) (:device-pixel-ratio 'Number) (:document 'js-ffi.browser/DocumentHost)
             :on-before-unload $ :: 'Fn $ {} (:return 'Unit)
               :args $ [] 'js-ffi.browser/EventHost
             .match-media $ :: 'Fn $ {}
@@ -375,12 +375,15 @@
                   :args $ [] 'js-ffi.browser/EventHost
                   :return 'Unit
               :return 'Unit
+            .post-message! $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.browser/WindowHost 'Dynamic 'String
+              :return 'Unit
             .open $ :: 'Fn $ {}
               :args $ [] 'js-ffi.browser/WindowHost 'String
               :return $ :: 'JsNullish 'js-ffi.browser/WindowHost
           :examples $ [] $ quote WindowHost
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
-            :names $ {} (:add-event-listener! |addEventListener) (:device-pixel-ratio |devicePixelRatio) (:inner-height |innerHeight) (:inner-width |innerWidth) (:match-media |matchMedia) (:on-before-unload |onbeforeunload) (:open |open) (:remove-event-listener! |removeEventListener)
+            :names $ {} (:add-event-listener! |addEventListener) (:device-pixel-ratio |devicePixelRatio) (:document |document) (:inner-height |innerHeight) (:inner-width |innerWidth) (:match-media |matchMedia) (:on-before-unload |onbeforeunload) (:open |open) (:post-message! |postMessage) (:remove-event-listener! |removeEventListener)
             :writable $ #{} :on-before-unload
           :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
