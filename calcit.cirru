@@ -77,6 +77,10 @@
           :code $ quote $ deftrait DomElementHost (:id 'String) (:class-name 'String) (:hidden 'Bool)
             :text-content $ :: 'JsNullish 'String
             :child-element-count 'Number
+            :offset-left 'Number
+            :offset-top 'Number
+            :client-width 'Number
+            :client-height 'Number
             :dataset 'JsObject
             :style 'JsObject
             .append-child! $ :: 'Fn $ {}
@@ -126,7 +130,7 @@
             :local-name 'String
           :examples $ [] $ quote DomElementHost
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
-            :names $ {} (:add-event-listener! |addEventListener) (:append-child! |appendChild) (:blur! |blur) (:child-element-count |childElementCount) (:class-name |className) (:focus! |focus) (:get-attribute |getAttribute) (:hidden |hidden) (:inner-html |innerHTML) (:local-name |localName) (:matches? |matches) (:placeholder |placeholder) (:query-selector |querySelector) (:remove-attribute! |removeAttribute) (:remove-event-listener! |removeEventListener) (:request-fullscreen! |requestFullscreen) (:set-attribute! |setAttribute) (:text-content |textContent) (:value |value)
+            :names $ {} (:add-event-listener! |addEventListener) (:append-child! |appendChild) (:blur! |blur) (:child-element-count |childElementCount) (:class-name |className) (:client-height |clientHeight) (:client-width |clientWidth) (:focus! |focus) (:get-attribute |getAttribute) (:hidden |hidden) (:inner-html |innerHTML) (:local-name |localName) (:matches? |matches) (:offset-left |offsetLeft) (:offset-top |offsetTop) (:placeholder |placeholder) (:query-selector |querySelector) (:remove-attribute! |removeAttribute) (:remove-event-listener! |removeEventListener) (:request-fullscreen! |requestFullscreen) (:set-attribute! |setAttribute) (:text-content |textContent) (:value |value)
             :writable $ #{} :class-name :hidden :inner-html :placeholder :text-content :value
           :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
