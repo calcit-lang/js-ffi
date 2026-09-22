@@ -410,8 +410,7 @@
             :features $ #{} :js-ffi
         'alert! $ %{} 'CodeEntry
           :doc "|Show one blocking browser alert String and return Unit."
-          :code $ quote $ defn alert! (message)
-            do (js/alert message) &unit
+          :code $ quote $ defn alert! (message) (js/alert message) &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'String
@@ -452,8 +451,7 @@
             :return $ :: 'calcit.core/Result 'String 'js-ffi.shared/JsError
         'cancel-animation-frame! $ %{} 'CodeEntry
           :doc "|Cancel a browser numeric handle; unknown handles are harmless."
-          :code $ quote $ defn cancel-animation-frame! (handle)
-            do (js/cancelAnimationFrame handle) &unit
+          :code $ quote $ defn cancel-animation-frame! (handle) (js/cancelAnimationFrame handle) &unit
           :examples $ []
           :ffi $ {} (:backend :js) (:target :browser)
           :schema $ :: 'Fn $ {} (:return 'Unit)
@@ -470,8 +468,7 @@
             :return $ :: 'calcit.core/Option 'js-ffi.browser/DomElementHost
         'clear-interval! $ %{} 'CodeEntry
           :doc "|Cancel a browser numeric handle; unknown handles are harmless."
-          :code $ quote $ defn clear-interval! (handle)
-            do (js/clearInterval handle) &unit
+          :code $ quote $ defn clear-interval! (handle) (js/clearInterval handle) &unit
           :examples $ []
           :ffi $ {} (:backend :js) (:target :browser)
           :schema $ :: 'Fn $ {} (:return 'Unit)
@@ -479,8 +476,7 @@
             :features $ #{} :js-ffi
         'clear-timeout! $ %{} 'CodeEntry
           :doc "|Cancel a browser numeric handle; unknown handles are harmless."
-          :code $ quote $ defn clear-timeout! (handle)
-            do (js/clearTimeout handle) &unit
+          :code $ quote $ defn clear-timeout! (handle) (js/clearTimeout handle) &unit
           :examples $ []
           :ffi $ {} (:backend :js) (:target :browser)
           :schema $ :: 'Fn $ {} (:return 'Unit)
@@ -504,8 +500,7 @@
             :return $ :: 'calcit.core/Result 'String 'js-ffi.shared/JsError
         'clipboard-write-text! $ %{} 'CodeEntry
           :doc "|Write text to the browser clipboard through navigator.clipboard. The host Promise is not awaited and the adapter returns Unit."
-          :code $ quote $ defn clipboard-write-text! (text)
-            do (js/navigator.clipboard.writeText text) &unit
+          :code $ quote $ defn clipboard-write-text! (text) (js/navigator.clipboard.writeText text) &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'String
@@ -545,10 +540,10 @@
         'decode-document-ready-state $ %{} 'CodeEntry
           :doc "|Decode document.readyState String to DocumentReadyState while preserving unknown values."
           :code $ quote $ defn decode-document-ready-state (raw)
-            case-default raw (%:: DocumentReadyState :unknown raw)
-              |loading $ %:: DocumentReadyState :loading
-              |interactive $ %:: DocumentReadyState :interactive
-              |complete $ %:: DocumentReadyState :complete
+            case-default raw (DocumentReadyState :unknown raw)
+              |loading $ DocumentReadyState :loading
+              |interactive $ DocumentReadyState :interactive
+              |complete $ DocumentReadyState :complete
           :examples $ []
             quote $ decode-document-ready-state |complete
             quote $ decode-document-ready-state |future-state
@@ -557,10 +552,10 @@
         'decode-visibility-state $ %{} 'CodeEntry
           :doc "|Decode document.visibilityState String to VisibilityState while preserving unknown values."
           :code $ quote $ defn decode-visibility-state (raw)
-            case-default raw (%:: VisibilityState :unknown raw)
-              |visible $ %:: VisibilityState :visible
-              |hidden $ %:: VisibilityState :hidden
-              |prerender $ %:: VisibilityState :prerender
+            case-default raw (VisibilityState :unknown raw)
+              |visible $ VisibilityState :visible
+              |hidden $ VisibilityState :hidden
+              |prerender $ VisibilityState :prerender
           :examples $ [] $ quote (decode-visibility-state |hidden)
           :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/VisibilityState)
             :args $ [] 'String
@@ -577,8 +572,7 @@
             :return $ :: 'calcit.core/Option 'js-ffi.browser/DomElementHost
         'document-append-body! $ %{} 'CodeEntry
           :doc "|Append an element to document.body and return Unit."
-          :code $ quote $ defn document-append-body! (element)
-            do (js/document.body.appendChild element) &unit
+          :code $ quote $ defn document-append-body! (element) (js/document.body.appendChild element) &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'js-ffi.browser/DomElementHost
@@ -649,8 +643,7 @@
             :args $ [] 'String
             :features $ #{} :js-ffi
         'element-add-event-listener! $ %{} 'CodeEntry (:doc "|Register a typed event listener on one element.")
-          :code $ quote $ defn element-add-event-listener! (element event-name callback)
-            do (element .add-event-listener! event-name callback) &unit
+          :code $ quote $ defn element-add-event-listener! (element event-name callback) (element .add-event-listener! event-name callback) &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'js-ffi.browser/DomElementHost 'String $ :: 'Fn
@@ -658,8 +651,7 @@
                 :args $ [] 'js-ffi.browser/EventHost
             :features $ #{} :js-ffi
         'element-blur! $ %{} 'CodeEntry (:doc "|Blur an HTML element with blur capability.")
-          :code $ quote $ defn element-blur! (element)
-            do (element .blur!) &unit
+          :code $ quote $ defn element-blur! (element) (element .blur!) &unit
           :examples $ []
           :ffi $ {} (:backend :js) (:target :browser)
           :schema $ :: 'Fn $ {} (:return 'Unit)
@@ -730,8 +722,7 @@
             :features $ #{} :js-ffi
             :return $ :: 'calcit.core/Option 'js-ffi.browser/DomElementHost
         'element-focus! $ %{} 'CodeEntry (:doc "|Focus an HTML element with focus capability.")
-          :code $ quote $ defn element-focus! (element)
-            do (element .focus!) &unit
+          :code $ quote $ defn element-focus! (element) (element .focus!) &unit
           :examples $ []
           :ffi $ {} (:backend :js) (:target :browser)
           :schema $ :: 'Fn $ {} (:return 'Unit)
@@ -774,23 +765,20 @@
             :return $ :: 'calcit.core/Option 'js-ffi.browser/DomElementHost
         'element-remove! $ %{} 'CodeEntry
           :doc "|Remove a DOM element from its current parent and return Unit."
-          :code $ quote $ defn element-remove! (element)
-            do (.!remove element) &unit
+          :code $ quote $ defn element-remove! (element) (.!remove element) &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'js-ffi.browser/DomElementHost
             :features $ #{} :js-ffi
         'element-remove-attribute! $ %{} 'CodeEntry (:doc "|Remove a DOM attribute.")
-          :code $ quote $ defn element-remove-attribute! (element key)
-            do (element .remove-attribute! key) &unit
+          :code $ quote $ defn element-remove-attribute! (element key) (element .remove-attribute! key) &unit
           :examples $ []
           :ffi $ {} (:backend :js) (:target :browser)
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'js-ffi.browser/DomElementHost 'String
             :features $ #{} :js-ffi
         'element-remove-event-listener! $ %{} 'CodeEntry (:doc "|Remove a typed event listener from one element.")
-          :code $ quote $ defn element-remove-event-listener! (element event-name callback)
-            do (element .remove-event-listener! event-name callback) &unit
+          :code $ quote $ defn element-remove-event-listener! (element event-name callback) (element .remove-event-listener! event-name callback) &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'js-ffi.browser/DomElementHost 'String $ :: 'Fn
@@ -799,23 +787,20 @@
             :features $ #{} :js-ffi
         'element-request-fullscreen! $ %{} 'CodeEntry
           :doc "|Request fullscreen for a typed element. The host Promise is not awaited and the adapter returns Unit."
-          :code $ quote $ defn element-request-fullscreen! (element)
-            do (element .request-fullscreen!) &unit
+          :code $ quote $ defn element-request-fullscreen! (element) (element .request-fullscreen!) &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'js-ffi.browser/DomElementHost
             :features $ #{} :js-ffi
         'element-select! $ %{} 'CodeEntry
           :doc "|Select the editable text of an input or textarea element and return Unit."
-          :code $ quote $ defn element-select! (element)
-            do (element .select!) &unit
+          :code $ quote $ defn element-select! (element) (element .select!) &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'js-ffi.browser/DomSelectableHost
             :features $ #{} :js-ffi
         'element-set-attribute! $ %{} 'CodeEntry (:doc "|Set a DOM attribute.")
-          :code $ quote $ defn element-set-attribute! (element key text)
-            do (element .set-attribute! key text) &unit
+          :code $ quote $ defn element-set-attribute! (element key text) (element .set-attribute! key text) &unit
           :examples $ []
           :ffi $ {} (:backend :js) (:target :browser)
           :schema $ :: 'Fn $ {} (:return 'Unit)
@@ -863,9 +848,8 @@
         'element-set-style! $ %{} 'CodeEntry
           :doc "|Set one inline CSS property on an element and return Unit."
           :code $ quote $ defn element-set-style! (element property value)
-            do
-              aset (.-style element) property value
-              , &unit
+            aset (.-style element) property value
+            , &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'js-ffi.browser/DomElementHost 'String 'String
@@ -940,8 +924,7 @@
               :args $ [] 'js-ffi.browser/EventHost
         'event-stop-propagation! $ %{} 'CodeEntry
           :doc "|Stop propagation of a browser Event and return Unit."
-          :code $ quote $ defn event-stop-propagation! (event)
-            do (event .stop-propagation!) &unit
+          :code $ quote $ defn event-stop-propagation! (event) (event .stop-propagation!) &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'js-ffi.browser/EventHost
@@ -960,8 +943,7 @@
             :return $ :: 'calcit.core/Option 'js-ffi.browser/DomElementHost
         'form-data-append! $ %{} 'CodeEntry
           :doc "|Append one String field to a FormData capability."
-          :code $ quote $ defn form-data-append! (form name value)
-            do (form .append! name value) &unit
+          :code $ quote $ defn form-data-append! (form name value) (form .append! name value) &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'js-ffi.browser/FormDataHost 'String 'String
@@ -977,16 +959,14 @@
             :features $ #{} :js-ffi
         'history-push-state! $ %{} 'CodeEntry
           :doc "|Push a history entry through history.pushState without reloading the document."
-          :code $ quote $ defn history-push-state! (url)
-            do (js/history.pushState 0 | url) &unit
+          :code $ quote $ defn history-push-state! (url) (js/history.pushState 0 | url) &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'String
             :features $ #{} :js-ffi
         'history-replace-state! $ %{} 'CodeEntry
           :doc "|Replace the current history entry through history.replaceState without reloading the document."
-          :code $ quote $ defn history-replace-state! (url)
-            do (js/history.replaceState 0 | url) &unit
+          :code $ quote $ defn history-replace-state! (url) (js/history.replaceState 0 | url) &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'String
@@ -1086,7 +1066,8 @@
           :code $ quote $ defn location-replace! (url)
             let
                 host $ location-host
-              do (host .replace! url) &unit
+              host .replace! url
+              , &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'String
@@ -1146,8 +1127,7 @@
             :features $ #{} :js-ffi
         'object-url-revoke! $ %{} 'CodeEntry
           :doc "|Revoke an object URL created by object-url-create."
-          :code $ quote $ defn object-url-revoke! (url)
-            do (js/URL.revokeObjectURL url) &unit
+          :code $ quote $ defn object-url-revoke! (url) (js/URL.revokeObjectURL url) &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'String
@@ -1228,7 +1208,7 @@
             :features $ #{} :js-ffi
         'runtime $ %{} 'CodeEntry
           :doc "|Return the normalized Runtime browser enum variant."
-          :code $ quote $ defn runtime () (%:: shared/Runtime :browser)
+          :code $ quote $ defn runtime () (shared/Runtime :browser)
           :examples $ [] $ quote (runtime)
           :schema $ :: 'Fn $ {} (:return 'js-ffi.shared/Runtime)
             :args $ []
@@ -1303,8 +1283,7 @@
             :features $ #{} :js-ffi
         'speech-synthesis-cancel! $ %{} 'CodeEntry
           :doc "|Cancel all pending browser speech synthesis utterances."
-          :code $ quote $ defn speech-synthesis-cancel! ()
-            do (js/speechSynthesis.cancel) &unit
+          :code $ quote $ defn speech-synthesis-cancel! () (js/speechSynthesis.cancel) &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ []
@@ -1312,9 +1291,8 @@
         'speech-synthesis-speak! $ %{} 'CodeEntry
           :doc "|Speak one String through the browser SpeechSynthesis API."
           :code $ quote $ defn speech-synthesis-speak! (text)
-            do
-              js/speechSynthesis.speak $ new js/SpeechSynthesisUtterance text
-              , &unit
+            js/speechSynthesis.speak $ new js/SpeechSynthesisUtterance text
+            , &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'String
@@ -1413,8 +1391,7 @@
             :args $ []
             :features $ #{} :js-ffi
         'web-socket-close! $ %{} 'CodeEntry (:doc "|Close the socket.")
-          :code $ quote $ defn web-socket-close! (socket)
-            do (socket .close!) &unit
+          :code $ quote $ defn web-socket-close! (socket) (socket .close!) &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'js-ffi.browser/WebSocketHost
@@ -1472,8 +1449,7 @@
             :args $ [] 'js-ffi.browser/WebSocketHost
             :features $ #{} :js-ffi
         'web-socket-send! $ %{} 'CodeEntry (:doc "|Send one String frame through the socket.")
-          :code $ quote $ defn web-socket-send! (socket text)
-            do (socket .send! text) &unit
+          :code $ quote $ defn web-socket-send! (socket text) (socket .send! text) &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'js-ffi.browser/WebSocketHost 'String
@@ -1537,7 +1513,7 @@
                 shared/console-log! |js-ffi-browser-microtask-passed
               shared/console-log! |js-ffi-browser-smoke
               if
-                contract/valid-runtime? (%:: shared/Runtime :browser) (:runtime result)
+                contract/valid-runtime? (shared/Runtime :browser) (:runtime result)
                 shared/console-log! |js-ffi-browser-smoke-passed
                 shared/console-error! |js-ffi-browser-smoke-failed
               , &unit
@@ -2035,11 +2011,10 @@
                   request .on! |data $ fn (data) (swap! chunks str data)
                   request .on! |end $ fn () $ let
                       text @chunks
-                    do
-                      match callback
-                        (:some cb) (cb text)
-                        (:none) &unit
-                      resolve text
+                    match callback
+                      (:some cb) (cb text)
+                      (:none) &unit
+                    resolve text
               , 'js-ffi.shared/PromiseHost
           :examples $ []
           :ffi $ {} (:backend :js) (:target :node)
@@ -2110,8 +2085,7 @@
           :schema $ :: 'Fn $ {} (:return 'String)
             :args $ []
         'server-close! $ %{} 'CodeEntry (:doc "|Close a Node HTTP server.")
-          :code $ quote $ defn server-close! (server)
-            do (server .close!) &unit
+          :code $ quote $ defn server-close! (server) (server .close!) &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'js-ffi.node/NodeServerHost
@@ -2463,7 +2437,8 @@
           :code $ quote $ defn console-clear! ()
             let
                 host-console $ unsafe-coerce js/console ConsoleHost
-              do (host-console .clear!) &unit
+              host-console .clear!
+              , &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ []
@@ -2488,8 +2463,7 @@
             :features $ #{} :js-ffi
         'console-info! $ %{} 'CodeEntry
           :doc "|Write one informational String to the host console and return Unit in browser or Node."
-          :code $ quote $ defn console-info! (message)
-            do (js/console.info message) &unit
+          :code $ quote $ defn console-info! (message) (js/console.info message) &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'String
@@ -2845,9 +2819,8 @@
           :code $ quote $ defn search-params->map (value)
             let
                 result $ atom $ {}
-              do
-                value .for-each! $ fn (item key _parent) (swap! result assoc key item)
-                deref result
+              value .for-each! $ fn (item key _parent) (swap! result assoc key item)
+              deref result
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] 'js-ffi.shared/UrlSearchParamsHost
@@ -2858,10 +2831,9 @@
           :code $ quote $ defn search-params->pairs (value)
             let
                 result $ atom $ []
-              do
-                value .for-each! $ fn (item key _parent)
-                  swap! result append $ [] key item
-                deref result
+              value .for-each! $ fn (item key _parent)
+                swap! result append $ [] key item
+              deref result
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] 'js-ffi.shared/UrlSearchParamsHost
@@ -3146,9 +3118,9 @@
           :code $ quote $ defn watch-device-lost! (device ready! failed!)
             internal/observe! device.:lost
               fn (value)
-                ready! $ %{} DeviceLost
-                  :reason $ contract/expect-string |GPUDeviceLostInfo.reason $ contract/object-field |GPUDeviceLostInfo value |reason
-                  :message $ contract/expect-string |GPUDeviceLostInfo.message $ contract/object-field |GPUDeviceLostInfo value |message
+                ready! $ DeviceLost :reason
+                  contract/expect-string |GPUDeviceLostInfo.reason $ contract/object-field |GPUDeviceLostInfo value |reason
+                  , :message $ contract/expect-string |GPUDeviceLostInfo.message (contract/object-field |GPUDeviceLostInfo value |message)
               , failed!
           :examples $ []
           :ffi $ {} (:backend :js) (:target :browser)
