@@ -5,6 +5,7 @@ import * as shared from '../js-out/js-ffi.shared.mjs';
 import { option_$o_none_$q_ as isNone, option_$o_unwrap as unwrap, result_$o_err_$q_ as isErr, result_$o_ok_$q_ as isOk } from '../js-out/calcit.core.mjs';
 import { assertions, testShared } from './shared.mjs';
 import { testWebGpu, smokeWebGpu } from './webgpu.mjs';
+import { drawFloat32RectBatch } from '../canvas-rect-batches.mjs';
 
 /** Exercise shared and browser adapters in a real page and return the test summary. */
 export async function run() {
@@ -12,6 +13,19 @@ export async function run() {
   await testWebGpu(a);
   const webgpu = await smokeWebGpu(a);
   await testShared(a);
+  const batchCanvas = document.createElement('canvas');
+  batchCanvas.width = 80;
+  batchCanvas.height = 40;
+  const batchContext = batchCanvas.getContext('2d', { willReadFrequently: true });
+  batchContext.fillStyle = '#ffffff';
+  batchContext.fillRect(0, 0, 80, 40);
+  const batchMetrics = drawFloat32RectBatch(batchContext, new Float32Array([10, 10, 30, 10]), 0, 2, 4, 4, '#ea580c', 1);
+  a.equal(batchMetrics.boundaryCalls, 1);
+  a.equal(batchMetrics.canvasCalls, 2);
+  a.equal(Array.from(batchContext.getImageData(10, 10, 1, 1).data).join(','), '234,88,12,255');
+  a.equal(Array.from(batchContext.getImageData(30, 10, 1, 1).data).join(','), '234,88,12,255');
+  a.equal(Array.from(batchContext.getImageData(20, 10, 1, 1).data).join(','), '255,255,255,255');
+  a.equal(batchContext.fillStyle, '#ffffff');
   const fetched = await shared.fetch_response(new URL('/tests/fixtures/async-body.txt', location.href).href);
   a.equal(isOk(fetched), true);
   const body = await shared.response_text(fetched.extra[0]);
