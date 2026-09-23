@@ -17,6 +17,7 @@ The public API is split by runtime:
   validation scopes, and buffer lifecycle APIs. See [WebGPU foundation](docs/webgpu.md).
 - `js-ffi.contract` contains runtime-independent checks and boundary decoders
   shared by smoke tests and host adapters.
+- `typed-arrays.mjs` 提供跨 Node/浏览器的 Float32 不可变快照：登记时复制、校验有限数值、只读索引和按范围再复制；内部数组不外露。See [Float32 snapshots](docs/typed-arrays.md).
 
 Browser and Node namespaces should not be imported into each other; both may
 depend on `js-ffi.shared`. A project

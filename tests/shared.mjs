@@ -1,5 +1,6 @@
 import * as shared from '../js-out/js-ffi.shared.mjs';
 import { option_$o_none_$q_ as isNone, option_$o_unwrap as unwrap } from '../js-out/calcit.core.mjs';
+import { snapshotFloat32, float32Length, float32ByteLength, float32At, float32CopyRange } from '../typed-arrays.mjs';
 
 /** Create browser-compatible equality/exception assertions with a running count. */
 export function assertions() {
@@ -23,6 +24,30 @@ export function assertions() {
 
 /** Verify compiled shared adapters against native Web APIs in either runtime. */
 export async function testShared(a) {
+  const source = new Float32Array([1.25, -2.5, 3]);
+  const snapshot = snapshotFloat32(source);
+  source[0] = 99;
+  a.equal(Object.isFrozen(snapshot), true);
+  a.equal(float32Length(snapshot), 3);
+  a.equal(float32ByteLength(snapshot), 12);
+  a.equal(float32At(snapshot, 0), 1.25);
+  a.equal(float32At(snapshot, 1), -2.5);
+  const copied = float32CopyRange(snapshot, 1, 2);
+  a.equal(copied instanceof Float32Array, true);
+  a.equal(copied[0], -2.5);
+  copied[0] = 99;
+  a.equal(float32At(snapshot, 1), -2.5);
+  a.equal(float32CopyRange(snapshot, 3, 0).length, 0);
+  a.throws(() => snapshotFloat32([1, 2]), /Float32Array source required/);
+  a.throws(() => snapshotFloat32(new Float32Array([Number.NaN])), /non-finite/);
+  a.throws(() => snapshotFloat32(new Float32Array([Number.POSITIVE_INFINITY])), /non-finite/);
+  a.throws(() => float32Length({}), /snapshot required/);
+  a.throws(() => float32At(snapshot, 3), /safe integer/);
+  a.throws(() => float32At(snapshot, 0.5), /safe integer/);
+  a.throws(() => float32CopyRange(snapshot, 2, 2), /safe integer/);
+  if (typeof SharedArrayBuffer !== 'undefined') {
+    a.throws(() => snapshotFloat32(new Float32Array(new SharedArrayBuffer(4))), /not a stable snapshot/);
+  }
   const url = shared.url_create('../路径?q=a%20b#part', 'https://example.com/base/index');
   a.equal(url.href, 'https://example.com/%E8%B7%AF%E5%BE%84?q=a%20b#part');
   a.throws(() => shared.url_create('/', 'invalid base'), /TypeError/);
