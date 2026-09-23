@@ -250,14 +250,14 @@ The static gate does not replace the host smoke tests below. CI also runs
 real Chromium tests, synchronous filesystem tests, shared Web API tests,
 and invalid-consumer type checks.
 
-The checked-in v2 baseline keeps Dynamic, nil, unresolved types, and incomplete
-schemas at zero. It also records the 34 reviewed `unsafe-coerce` sites per
+The checked-in v2 baseline keeps Dynamic, nil, and unresolved types at zero.
+It also records 58 reviewed `unsafe-coerce` sites per
 definition. These assertions are expected only inside small host adapters; a
 new assertion or moving one into another definition fails the quality gate and
 requires an explicit review. Run `yarn audit:unsafe` to inspect their runtime
 contract evidence.
 
-The commands assume the released Calcit 0.14.5 toolchain, Node.js 24 and Yarn
+The commands assume the released Calcit 0.19.1 toolchain, Node.js 24 and Yarn
 are available on `PATH`. CI installs the exact Calcit version declared in
 `deps.cirru`:
 
