@@ -9,6 +9,7 @@ import * as shared from '../js-out/js-ffi.shared.mjs';
 import { result_$o_err_$q_ as isErr, result_$o_ok_$q_ as isOk, option_$o_unwrap as unwrap, option_$o_none_$q_ as isNone, option_$o_some_$q_ as isSome, _PCT_some, _PCT_none } from '../js-out/calcit.core.mjs';
 import * as procs from '@calcit/procs';
 import { assertions, testShared } from './shared.mjs';
+import { testWebGpuCapabilities } from './webgpu-capabilities.mjs';
 
 const structField = (value, name) => value.values[value.fields.findIndex(field => field.value === name)];
 
@@ -16,6 +17,12 @@ test('shared Web API adapters on Node', async () => {
   const a = assertions();
   await testShared(a);
   console.log(`Shared: ${a.count} assertions`);
+});
+
+test('WebGPU capability and ownership states on Node', async () => {
+  const a = assertions();
+  await testWebGpuCapabilities(a);
+  console.log(`WebGPU capability: ${a.count} assertions`);
 });
 
 test('Node paths, process, UTF-8 files and error boundaries', () => {

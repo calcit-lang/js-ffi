@@ -6,12 +6,22 @@ import { option_$o_none_$q_ as isNone, option_$o_unwrap as unwrap, result_$o_err
 import { assertions, testShared } from './shared.mjs';
 import { testWebGpu, smokeWebGpu } from './webgpu.mjs';
 import { drawFloat32RectBatch } from '../canvas-rect-batches.mjs';
+import { probeWebGpuDevice } from '../webgpu-capabilities.mjs';
+import { testWebGpuCapabilities } from './webgpu-capabilities.mjs';
 
 /** Exercise shared and browser adapters in a real page and return the test summary. */
 export async function run() {
   const a = assertions();
   await testWebGpu(a);
+  await testWebGpuCapabilities(a);
   const webgpu = await smokeWebGpu(a);
+  const capability = await probeWebGpuDevice(navigator);
+  if (capability.kind === 'ready') {
+    a.equal(capability.format === 'rgba8unorm' || capability.format === 'bgra8unorm', true);
+    a.equal(capability.release(), true);
+  } else {
+    a.equal(['unavailable', 'failed'].includes(capability.kind), true);
+  }
   await testShared(a);
   const batchCanvas = document.createElement('canvas');
   batchCanvas.width = 80;
