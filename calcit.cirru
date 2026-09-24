@@ -1528,6 +1528,48 @@
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns js-ffi.browser-test
           :require (js-ffi.browser :as browser) (js-ffi.contract :as contract) (js-ffi.shared :as shared) (js-ffi.webgpu :as webgpu)
+    'js-ffi.canvas-batches $ %{} 'FileEntry
+      :defs $ {}
+        'CanvasContextHost $ %{} 'CodeEntry
+          :doc "|浏览器 CanvasRenderingContext2D 宿主句柄；底层实现验证 save/restore/fillRect。"
+          :code $ quote $ deftrait CanvasContextHost
+          :examples $ []
+          :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
+          :schema $ :: 'Trait
+        'CanvasRectMetrics $ %{} 'CodeEntry
+          :doc "|一次批次边界调用和逐矩形 Canvas 调用计数；position-bytes-read 并非 GPU 上传字节。"
+          :code $ quote $ defstruct CanvasRectMetrics (:boundary-calls 'Number) (:canvas-calls 'Number) (:instances 'Number) (:position-bytes-read 'Number)
+          :examples $ []
+          :schema $ :: 'StructDef
+        'draw-rects! $ %{} 'CodeEntry (:doc "|按输入顺序绘制一个 Float32 x/y 范围并返回类型化指标；宿主仅跨界一次。")
+          :code $ quote $ defn draw-rects! (context positions start amount width height fill-style alpha)
+            hint-fn $ {}
+              :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'js-ffi.typed-arrays/Float32ArrayHost 'Number 'Number 'Number 'Number 'String 'Number
+              :return 'js-ffi.canvas-batches/CanvasRectMetrics
+              :features $ #{} :js-ffi
+            let
+                draw-batch $ unsafe-coerce drawFloat32RectBatch $ :: 'Fn
+                  {}
+                    :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'js-ffi.typed-arrays/Float32ArrayHost 'Number 'Number 'Number 'Number 'String 'Number
+                    :return 'JsObject
+                result $ draw-batch context positions start amount width height fill-style alpha
+                boundary-calls $ contract/expect-number |CanvasRect.boundaryCalls $ contract/object-field |CanvasRect.draw result |boundaryCalls
+                canvas-calls $ contract/expect-number |CanvasRect.canvasCalls $ contract/object-field |CanvasRect.draw result |canvasCalls
+                instances $ contract/expect-number |CanvasRect.instances $ contract/object-field |CanvasRect.draw result |instances
+                bytes-read $ contract/expect-number |CanvasRect.positionBytesRead $ contract/object-field |CanvasRect.draw result |positionBytesRead
+              CanvasRectMetrics :boundary-calls boundary-calls :canvas-calls canvas-calls :instances instances :position-bytes-read bytes-read
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :browser)
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.canvas-batches/CanvasRectMetrics)
+            :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'js-ffi.typed-arrays/Float32ArrayHost 'Number 'Number 'Number 'Number 'String 'Number
+            :features $ #{} :js-ffi
+      :ns $ %{} 'NsEntry
+        :doc "|浏览器 Canvas2D Float32 矩形批次入口；Calcit 负责契约与计数解码，JS 仅执行宿主绘制。"
+        :code $ quote $ ns js-ffi.canvas-batches
+          :require
+            |@calcit/js-ffi/canvas-rect-batches.mjs :refer $ drawFloat32RectBatch
+            js-ffi.contract :as contract
+            js-ffi.typed-arrays :as typed-arrays
     'js-ffi.contract $ %{} 'FileEntry
       :defs $ {}
         'expect-bool $ %{} 'CodeEntry
@@ -2918,6 +2960,109 @@
         :doc "|Shared JavaScript FFI data types, normalized snapshots, and explicit external-object capabilities that work in browser and Node targets."
         :code $ quote $ ns js-ffi.shared
           :require $ js-ffi.contract :as contract
+    'js-ffi.typed-arrays $ %{} 'FileEntry
+      :defs $ {}
+        'Float32ArrayHost $ %{} 'CodeEntry (:doc "|同 realm Float32Array 宿主句柄，调用方不得把共享内存当稳定快照。")
+          :code $ quote $ deftrait Float32ArrayHost (:length 'Number) (:byteLength 'Number)
+          :examples $ []
+          :ffi $ {} (:backend :js) (:kind :external-object)
+          :schema $ :: 'Trait
+        'Float32SnapshotHost $ %{} 'CodeEntry (:doc "|不可变不透明快照；由 snapshot-float32 构造，不能直接访问底层数组。")
+          :code $ quote $ deftrait Float32SnapshotHost
+          :examples $ []
+          :ffi $ {} (:backend :js) (:kind :external-object)
+          :schema $ :: 'Trait
+        'float32-at $ %{} 'CodeEntry (:doc "|读取一个有界索引；索引必须为范围内非负安全整数。")
+          :code $ quote $ defn float32-at (snapshot index)
+            hint-fn $ {}
+              :args $ [] 'js-ffi.typed-arrays/Float32SnapshotHost 'Number
+              :return 'Number
+              :features $ #{} :js-ffi
+            let
+                read-at $ unsafe-coerce float32At $ :: 'Fn
+                  {}
+                    :args $ [] 'js-ffi.typed-arrays/Float32SnapshotHost 'Number
+                    :return 'Number
+              read-at snapshot index
+          :examples $ []
+          :ffi $ {} $ :backend :js
+          :schema $ :: 'Fn $ {} (:return 'Number)
+            :args $ [] 'js-ffi.typed-arrays/Float32SnapshotHost 'Number
+            :features $ #{} :js-ffi
+        'float32-byte-length $ %{} 'CodeEntry (:doc "|读取快照字节数；每个 Float32 元素为四字节。")
+          :code $ quote $ defn float32-byte-length (snapshot)
+            hint-fn $ {}
+              :args $ [] 'js-ffi.typed-arrays/Float32SnapshotHost
+              :return 'Number
+              :features $ #{} :js-ffi
+            let
+                read-byte-length $ unsafe-coerce float32ByteLength $ :: 'Fn
+                  {}
+                    :args $ [] 'js-ffi.typed-arrays/Float32SnapshotHost
+                    :return 'Number
+              read-byte-length snapshot
+          :examples $ []
+          :ffi $ {} $ :backend :js
+          :schema $ :: 'Fn $ {} (:return 'Number)
+            :args $ [] 'js-ffi.typed-arrays/Float32SnapshotHost
+            :features $ #{} :js-ffi
+        'float32-copy-range $ %{} 'CodeEntry
+          :doc "|按元素范围复制快照为新的可变 Float32Array；调用方可缓存用于 Canvas/GPU 上传。"
+          :code $ quote $ defn float32-copy-range (snapshot start amount)
+            hint-fn $ {}
+              :args $ [] 'js-ffi.typed-arrays/Float32SnapshotHost 'Number 'Number
+              :return 'js-ffi.typed-arrays/Float32ArrayHost
+              :features $ #{} :js-ffi
+            let
+                copy-range $ unsafe-coerce float32CopyRange $ :: 'Fn
+                  {}
+                    :args $ [] 'js-ffi.typed-arrays/Float32SnapshotHost 'Number 'Number
+                    :return 'js-ffi.typed-arrays/Float32ArrayHost
+              copy-range snapshot start amount
+          :examples $ []
+          :ffi $ {} $ :backend :js
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.typed-arrays/Float32ArrayHost)
+            :args $ [] 'js-ffi.typed-arrays/Float32SnapshotHost 'Number 'Number
+            :features $ #{} :js-ffi
+        'float32-length $ %{} 'CodeEntry (:doc "|读取快照的 Float32 元素数，不暴露原数组。")
+          :code $ quote $ defn float32-length (snapshot)
+            hint-fn $ {}
+              :args $ [] 'js-ffi.typed-arrays/Float32SnapshotHost
+              :return 'Number
+              :features $ #{} :js-ffi
+            let
+                read-length $ unsafe-coerce float32Length $ :: 'Fn
+                  {}
+                    :args $ [] 'js-ffi.typed-arrays/Float32SnapshotHost
+                    :return 'Number
+              read-length snapshot
+          :examples $ []
+          :ffi $ {} $ :backend :js
+          :schema $ :: 'Fn $ {} (:return 'Number)
+            :args $ [] 'js-ffi.typed-arrays/Float32SnapshotHost
+            :features $ #{} :js-ffi
+        'snapshot-float32 $ %{} 'CodeEntry
+          :doc "|校验并复制 Float32Array 为不可变快照；拒绝非有限值和 SharedArrayBuffer。"
+          :code $ quote $ defn snapshot-float32 (source)
+            hint-fn $ {}
+              :args $ [] 'js-ffi.typed-arrays/Float32ArrayHost
+              :return 'js-ffi.typed-arrays/Float32SnapshotHost
+              :features $ #{} :js-ffi
+            let
+                snapshot $ unsafe-coerce snapshotFloat32 $ :: 'Fn
+                  {}
+                    :args $ [] 'js-ffi.typed-arrays/Float32ArrayHost
+                    :return 'js-ffi.typed-arrays/Float32SnapshotHost
+              snapshot source
+          :examples $ []
+          :ffi $ {} $ :backend :js
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.typed-arrays/Float32SnapshotHost)
+            :args $ [] 'js-ffi.typed-arrays/Float32ArrayHost
+            :features $ #{} :js-ffi
+      :ns $ %{} 'NsEntry
+        :doc "|跨 Node 与浏览器的 Float32 宿主快照边界；公开入口是 Calcit，JS 文件只保留底层复制和校验。"
+        :code $ quote $ ns js-ffi.typed-arrays
+          :require $ |@calcit/js-ffi/typed-arrays.mjs :refer $ snapshotFloat32 float32Length float32ByteLength float32At float32CopyRange
     'js-ffi.webgpu $ %{} 'FileEntry
       :defs $ {}
         'AdapterHost $ %{} 'CodeEntry

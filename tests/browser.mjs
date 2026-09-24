@@ -6,6 +6,7 @@ import { option_$o_none_$q_ as isNone, option_$o_unwrap as unwrap, result_$o_err
 import { assertions, testShared } from './shared.mjs';
 import { testWebGpu, smokeWebGpu } from './webgpu.mjs';
 import { drawFloat32RectBatch } from '../canvas-rect-batches.mjs';
+import { draw_rects_$x_ as drawCalcitRectBatch } from '../js-out/js-ffi.canvas-batches.mjs';
 import { probeWebGpuDevice } from '../webgpu-capabilities.mjs';
 import { testWebGpuCapabilities } from './webgpu-capabilities.mjs';
 import { testWebGpuRectBatches, smokeWebGpuRectBatches } from './webgpu-rect-batches.mjs';
@@ -41,6 +42,12 @@ export async function run() {
   a.equal(Array.from(batchContext.getImageData(30, 10, 1, 1).data).join(','), '234,88,12,255');
   a.equal(Array.from(batchContext.getImageData(20, 10, 1, 1).data).join(','), '255,255,255,255');
   a.equal(batchContext.fillStyle, '#ffffff');
+  const calcitMetrics = drawCalcitRectBatch(batchContext, new Float32Array([10, 10, 30, 10]), 0, 2, 4, 4, '#ea580c', 1);
+  const metric = (key) => calcitMetrics.values[calcitMetrics.fields.findIndex(field => field.value === key)];
+  a.equal(metric('boundary-calls'), 1);
+  a.equal(metric('canvas-calls'), 2);
+  a.equal(metric('instances'), 2);
+  a.equal(metric('position-bytes-read'), 16);
   const fetched = await shared.fetch_response(new URL('/tests/fixtures/async-body.txt', location.href).href);
   a.equal(isOk(fetched), true);
   const body = await shared.response_text(fetched.extra[0]);

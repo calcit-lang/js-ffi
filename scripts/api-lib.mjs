@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 
 export const root = fileURLToPath(new URL('../', import.meta.url));
-export const publicNamespaces = ['js-ffi.browser', 'js-ffi.contract', 'js-ffi.node', 'js-ffi.shared', 'js-ffi.webgpu-batches', 'js-ffi.webgpu'];
+export const publicNamespaces = ['js-ffi.browser', 'js-ffi.canvas-batches', 'js-ffi.contract', 'js-ffi.node', 'js-ffi.shared', 'js-ffi.typed-arrays', 'js-ffi.webgpu-batches', 'js-ffi.webgpu'];
 
 /** Run the pinned Calcit CLI without a shell; preserve diagnostics on failure. */
 export function calcit(args, cwd = root) {
@@ -91,7 +91,7 @@ export function definition(id) {
 
 /** Namespace policy is explicit: host capability discovery must not infer runtime from names of functions. */
 export function runtimes(namespace) {
-  if (namespace === 'js-ffi.browser' || namespace === 'js-ffi.webgpu' || namespace === 'js-ffi.webgpu-batches') return ['browser'];
+  if (namespace === 'js-ffi.browser' || namespace === 'js-ffi.canvas-batches' || namespace === 'js-ffi.webgpu' || namespace === 'js-ffi.webgpu-batches') return ['browser'];
   if (namespace === 'js-ffi.node') return ['node'];
   return ['browser', 'node'];
 }
