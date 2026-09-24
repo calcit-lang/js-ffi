@@ -1570,6 +1570,50 @@
             |@calcit/js-ffi/canvas-rect-batches.mjs :refer $ drawFloat32RectBatch
             js-ffi.contract :as contract
             js-ffi.typed-arrays :as typed-arrays
+    'js-ffi.canvas-scene $ %{} 'FileEntry
+      :defs $ {}
+        'CanvasSceneCommandsHost $ %{} 'CodeEntry
+          :doc "|宿主命令数组，逐项由包内实现原子校验；调用方只传由已验证 Scene IR 降低的封闭 push/pop/rect/instances 命令。"
+          :code $ quote $ deftrait CanvasSceneCommandsHost
+          :examples $ []
+          :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
+          :schema $ :: 'Trait
+        'CanvasSceneMetrics $ %{} 'CodeEntry (:doc "|一次边界调用的 Canvas 绘制数与实例读取字节；不是 GPU 上传或执行时间。")
+          :code $ quote $ defstruct CanvasSceneMetrics (:boundary-calls 'Number) (:canvas-calls 'Number) (:groups 'Number) (:rectangles 'Number) (:instances 'Number) (:position-bytes-read 'Number)
+          :examples $ []
+          :schema $ :: 'StructDef
+        'draw-scene! $ %{} 'CodeEntry
+          :doc "|一次宿主边界调用绘制完整预序场景；非法命令在清屏前拒绝，暂不支持需要离屏隔离的 group opacity。"
+          :code $ quote $ defn draw-scene! (context commands width height dpr)
+            hint-fn $ {}
+              :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'js-ffi.canvas-scene/CanvasSceneCommandsHost 'Number 'Number 'Number
+              :return 'js-ffi.canvas-scene/CanvasSceneMetrics
+              :features $ #{} :js-ffi
+            let
+                draw-batch $ unsafe-coerce drawCanvasSceneCommands $ :: 'Fn
+                  {}
+                    :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'js-ffi.canvas-scene/CanvasSceneCommandsHost 'Number 'Number 'Number
+                    :return 'JsObject
+                result $ draw-batch context commands width height dpr
+                boundary-calls $ contract/expect-number |CanvasScene.boundaryCalls $ contract/object-field |CanvasScene.draw result |boundaryCalls
+                canvas-calls $ contract/expect-number |CanvasScene.canvasCalls $ contract/object-field |CanvasScene.draw result |canvasCalls
+                groups $ contract/expect-number |CanvasScene.groups $ contract/object-field |CanvasScene.draw result |groups
+                rectangles $ contract/expect-number |CanvasScene.rectangles $ contract/object-field |CanvasScene.draw result |rectangles
+                instances $ contract/expect-number |CanvasScene.instances $ contract/object-field |CanvasScene.draw result |instances
+                bytes-read $ contract/expect-number |CanvasScene.positionBytesRead $ contract/object-field |CanvasScene.draw result |positionBytesRead
+              CanvasSceneMetrics :boundary-calls boundary-calls :canvas-calls canvas-calls :groups groups :rectangles rectangles :instances instances :position-bytes-read bytes-read
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :browser)
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.canvas-scene/CanvasSceneMetrics)
+            :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'js-ffi.canvas-scene/CanvasSceneCommandsHost 'Number 'Number 'Number
+            :features $ #{} :js-ffi
+      :ns $ %{} 'NsEntry
+        :doc "|浏览器 Canvas2D 整场景批次入口；Calcit 暴露宿主契约与类型化计数，JS 内部实现校验封闭命令列表。"
+        :code $ quote $ ns js-ffi.canvas-scene
+          :require
+            |@calcit/js-ffi/canvas-scene-commands.mjs :refer $ drawCanvasSceneCommands
+            js-ffi.canvas-batches :as canvas-batches
+            js-ffi.contract :as contract
     'js-ffi.contract $ %{} 'FileEntry
       :defs $ {}
         'expect-bool $ %{} 'CodeEntry
