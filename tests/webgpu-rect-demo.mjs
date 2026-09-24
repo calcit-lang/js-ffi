@@ -1,11 +1,11 @@
 import { probeWebGpuDevice } from '../webgpu-capabilities.mjs';
 import { _$n__PCT__$M_ as makeStruct, _$L_ as list, newTag } from '@calcit/procs';
-import { _PCT_some as some, to_js_data as toJsData } from '../js-out/calcit.core.mjs';
+import { _PCT_none as none, _PCT_some as some, to_js_data as toJsData } from '../js-out/calcit.core.mjs';
 import {
   RectColor, RectFrame, RectTranslation, RectVec2,
   create_rect_batch_$x_ as createRectBatch, dispose_batch_$x_ as disposeBatch,
   draw_rects_$x_ as drawRects, positions_from_list as positionsFromList,
-  read_translation_$x_ as readTranslation, upload_positions_$x_ as uploadPositions,
+  read_pixel_$x_ as readPixel, read_translation_$x_ as readTranslation, upload_positions_$x_ as uploadPositions,
 } from '../js-out/js-ffi.webgpu-batches.mjs';
 import { assertions } from './shared.mjs';
 import { smokeWebGpuRectBatches } from './webgpu-rect-batches.mjs';
@@ -29,24 +29,25 @@ if (capability.kind !== 'ready') {
       });
       const frame = struct(RectFrame, {
         width: 4, height: 4, fill: struct(RectColor, { r: 234 / 255, g: 88 / 255, b: 12 / 255, a: 1 }),
-        alpha: 1, translation: some(motion),
+        alpha: 1, translation: some(motion), count: none(),
       });
       const metrics = toJsData(drawRects(batch, frame));
       const left = 10 + Math.round(offset);
       const right = 30 + Math.round(offset);
       const [sampled, first, second, gapPixel] = await Promise.all([
-        readTranslation(batch), batch.readPixel(left, 10), batch.readPixel(right, 10), batch.readPixel(gap, 10),
+        readTranslation(batch), readPixel(batch, left, 10), readPixel(batch, right, 10), readPixel(batch, gap, 10),
       ]);
       const translation = toJsData(sampled);
+      const pixel = (value) => { const { r, g, b, a } = toJsData(value); return [r, g, b, a].join(','); };
       if (Math.abs(translation.x - offset) > 1e-5 + 1e-5 * Math.abs(offset) || Math.abs(translation.y) > 1e-5) {
         throw new Error(`WebGPU translation mismatch: ${translation.x},${translation.y} vs ${offset},0`);
       }
-      if (first.join(',') !== '234,88,12,255' || second.join(',') !== '234,88,12,255' || gapPixel.join(',') !== '255,255,255,255') {
-        throw new Error(`WebGPU translated pixel mismatch: ${first} / ${second} / ${gapPixel}`);
+      if (pixel(first) !== '234,88,12,255' || pixel(second) !== '234,88,12,255' || pixel(gapPixel) !== '255,255,255,255') {
+        throw new Error(`WebGPU translated pixel mismatch: ${pixel(first)} / ${pixel(second)} / ${pixel(gapPixel)}`);
       }
       status.dataset.result = 'ready';
       const info = capability.adapter.info ?? {};
-      status.textContent = `Calcit FFI GPU PASS · ${label} · translation=${translation.x},${translation.y} · draw=${metrics['draw-calls']} · upload=${metrics['position-bytes-uploaded']} · uniform=${metrics['uniform-bytes-uploaded']} · pixel=${first.join(',')} · adapter=${info.vendor ?? 'unknown'}/${info.isFallbackAdapter ?? 'unknown'}`;
+      status.textContent = `Calcit FFI GPU PASS · ${label} · translation=${translation.x},${translation.y} · draw=${metrics['draw-calls']} · upload=${metrics['position-bytes-uploaded']} · uniform=${metrics['uniform-bytes-uploaded']} · pixel=${pixel(first)} · adapter=${info.vendor ?? 'unknown'}/${info.isFallbackAdapter ?? 'unknown'}`;
     }
     let tail = Promise.resolve();
     const cases = [

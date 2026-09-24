@@ -1,6 +1,6 @@
 # WebGPU Float32 矩形实例批次
 
-公开给 Calcit 消费者的入口是 `js-ffi.webgpu-batches` 命名空间，而非直接导入 `.mjs`。应用在 `deps.cirru` 引入 js-ffi 模块后，使用 `:require (js-ffi.webgpu-batches :as batches)`，以 `RectFrame`、`RectTranslation`、`RectColor` 和 `RectVec2` 构造参数，调用 `create-rect-batch!`、`positions-from-list`、`upload-positions!`、`draw-rects!`、`read-translation!` 和 `dispose-batch!`。`create-rect-batch!` 异步返回 `RectBatchHost`；生产帧不要调用诊断读回。`positions-from-list` 仅适合初始或脏范围上传，不应逐帧分配列表。
+公开给 Calcit 消费者的入口是 `js-ffi.webgpu-batches` 命名空间，而非直接导入 `.mjs`。应用在 `deps.cirru` 引入 js-ffi 模块后，使用 `:require (js-ffi.webgpu-batches :as batches)`，以 `RectFrame`、`RectTranslation`、`RectColor` 和 `RectVec2` 构造参数，调用 `create-rect-batch!`、`positions-from-list`、`upload-positions!`、`draw-rects!`、`read-pixel!`、`read-translation!` 和 `dispose-batch!`。`RectFrame` 的可选 `count=0` 可提交空帧清屏；`RectMetrics` 保留了 draw、上传、pipeline 和 buffer 创建计数。`create-rect-batch!` 异步返回 `RectBatchHost`；生产帧不要调用诊断读回。`positions-from-list` 仅适合初始或脏范围上传，不应逐帧分配列表。
 
 下面的 `.mjs` 是同包内部宿主实现，用于 WGSL、Canvas 配置和 GPU 资源管理。Calcit 编译后的代码会通过 `@calcit/js-ffi/webgpu-rect-batches.mjs` 引用它，因此 JS 包也须安装为同版本依赖；应用代码不应越过 Calcit API 直接引用底层实现。JS 宿主测试可以直接调用它，以隔离 WebGPU 机制与 Calcit 数据边界。
 

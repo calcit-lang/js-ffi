@@ -3165,13 +3165,18 @@
           :code $ quote $ defstruct RectColor (:r 'Number) (:g 'Number) (:b 'Number) (:a 'Number)
           :examples $ []
           :schema $ :: 'StructDef
-        'RectFrame $ %{} 'CodeEntry (:doc "|单次矩形批次绘制参数；可选位移动画按绝对时间采样。")
+        'RectFrame $ %{} 'CodeEntry (:doc "|单次矩形批次绘制参数；可选 count=0 可提交空帧清屏，可选位移动画按绝对时间采样。")
           :code $ quote $ defstruct RectFrame (:width 'Number) (:height 'Number) (:fill 'js-ffi.webgpu-batches/RectColor) (:alpha 'Number)
             :translation $ :: 'calcit.core/Option 'js-ffi.webgpu-batches/RectTranslation
+            :count $ :: 'calcit.core/Option 'Number
           :examples $ []
           :schema $ :: 'StructDef
-        'RectMetrics $ %{} 'CodeEntry (:doc "|单次绘制的批次、实例、位置上传和 uniform 上传计数。")
-          :code $ quote $ defstruct RectMetrics (:draw-calls 'Number) (:instances 'Number) (:position-bytes-uploaded 'Number) (:uniform-bytes-uploaded 'Number)
+        'RectMetrics $ %{} 'CodeEntry (:doc "|单次绘制的批次、实例、位置和 uniform 上传及保留资源创建计数。")
+          :code $ quote $ defstruct RectMetrics (:draw-calls 'Number) (:instances 'Number) (:position-bytes-uploaded 'Number) (:uniform-bytes-uploaded 'Number) (:pipelines-created 'Number) (:buffers-created 'Number)
+          :examples $ []
+          :schema $ :: 'StructDef
+        'RectPixel $ %{} 'CodeEntry (:doc "|诊断读回的一个 RGBA 像素，四通道均为 0..255 整数。")
+          :code $ quote $ defstruct RectPixel (:r 'Number) (:g 'Number) (:b 'Number) (:a 'Number)
           :examples $ []
           :schema $ :: 'StructDef
         'RectTranslation $ %{} 'CodeEntry (:doc "|共享的 Vec2 起止位置、绝对时间、起点、持续时间和缓动。")
@@ -3241,6 +3246,8 @@
                       :duration $ :duration motion
                       :easing $ :easing motion
                   , js/undefined
+                maybe-count $ :count frame
+                draw-count $ if (option:some? maybe-count) (option:unwrap maybe-count) js/undefined
                 options $ js-object
                   :width $ :width frame
                   :height $ :height frame
@@ -3251,13 +3258,16 @@
                     :a $ :a color
                   :alpha $ :alpha frame
                   :translation translation
+                  :count draw-count
                 result $ batch .draw options
               let
                   draws $ contract/expect-number |RectBatch.drawCalls $ contract/object-field |RectBatch.draw result |drawCalls
                   instances $ contract/expect-number |RectBatch.instances $ contract/object-field |RectBatch.draw result |instances
                   uploaded $ contract/expect-number |RectBatch.positionBytesUploaded $ contract/object-field |RectBatch.draw result |positionBytesUploaded
                   uniform $ contract/expect-number |RectBatch.uniformBytesUploaded $ contract/object-field |RectBatch.draw result |uniformBytesUploaded
-                RectMetrics :draw-calls draws :instances instances :position-bytes-uploaded uploaded :uniform-bytes-uploaded uniform
+                  pipelines $ contract/expect-number |RectBatch.pipelinesCreated $ contract/object-field |RectBatch.draw result |pipelinesCreated
+                  buffers $ contract/expect-number |RectBatch.buffersCreated $ contract/object-field |RectBatch.draw result |buffersCreated
+                RectMetrics :draw-calls draws :instances instances :position-bytes-uploaded uploaded :uniform-bytes-uploaded uniform :pipelines-created pipelines :buffers-created buffers
           :examples $ []
           :ffi $ {} (:backend :js) (:target :browser)
           :schema $ :: 'Fn $ {} (:return 'js-ffi.webgpu-batches/RectMetrics)
@@ -3277,6 +3287,24 @@
           :ffi $ {} (:backend :js) (:target :browser)
           :schema $ :: 'Fn $ {} (:return 'js-ffi.webgpu-batches/Float32PositionsHost)
             :args $ [] $ :: 'List 'Number
+            :features $ #{} :js-ffi
+        'read-pixel! $ %{} 'CodeEntry (:doc "|诊断专用：异步读取一个画布像素；正常播放不要调用。")
+          :code $ quote $ defn read-pixel! (batch x y)
+            hint-fn $ {} (:async true)
+              :args $ [] 'js-ffi.webgpu-batches/RectBatchHost 'Number 'Number
+              :return 'js-ffi.webgpu-batches/RectPixel
+              :features $ #{} :js-ffi
+            let
+                raw $ js-await $ batch .read-pixel x y
+                r $ contract/expect-number |RectBatch.pixel.r $ contract/object-field |RectBatch.pixel raw |0
+                g $ contract/expect-number |RectBatch.pixel.g $ contract/object-field |RectBatch.pixel raw |1
+                b $ contract/expect-number |RectBatch.pixel.b $ contract/object-field |RectBatch.pixel raw |2
+                a $ contract/expect-number |RectBatch.pixel.a $ contract/object-field |RectBatch.pixel raw |3
+              RectPixel :r r :g g :b b :a a
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :browser)
+          :schema $ :: 'Fn $ {} (:async true) (:return 'js-ffi.webgpu-batches/RectPixel)
+            :args $ [] 'js-ffi.webgpu-batches/RectBatchHost 'Number 'Number
             :features $ #{} :js-ffi
         'read-translation! $ %{} 'CodeEntry (:doc "|诊断专用：异步读回与顶点 shader 共用函数的 f32 位移；正常播放不要调用。")
           :code $ quote $ defn read-translation! (batch)
