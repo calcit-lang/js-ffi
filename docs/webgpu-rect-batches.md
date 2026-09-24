@@ -6,6 +6,8 @@
 
 `readPixel(x,y)` 是测试/诊断专用：配置的 canvas texture 带 `COPY_SRC`，每次读回暂时分配 256 字节 staging buffer，经 GPU 拷贝和 `mapAsync` 返回 RGBA 四通道。它不是普通帧路径，也不得拿其分配量代表稳定动画资源数量。需要读同一帧的多个像素时，先同步发起所有调用，再 `Promise.all` 等待；跨 `await` 或浏览器呈现后，`getCurrentTexture()` 可能属于下一帧。
 
-边界：此模块只绘制同尺寸/颜色的矩形图层，没有纹理、圆、剪裁、变换、组隔离、自动合批或跨层排序；调用方须在完整图层边界选择 Canvas 回退。`tests/webgpu-rect-batches.mjs` 的宿主双重测试验证 10k 实例一次 draw、脏范围 8 字节、缓存稳定及诊断读回；真实浏览器有 adapter 时额外核对 GPU 画布内部/背景像素，无 adapter 时明确 SKIP。手动页面 `tests/webgpu-rect-batch.html` 可用于截图，但浏览器显示结果不替代正式跨设备性能测量。
+`readTranslation()` 同样只用于诊断，要求先 `draw`，并在下一次 `draw` 前等待结果。它按需创建 compute pipeline，复用顶点 shader 的同一段 `sampledTranslation()` WGSL 函数和当前 64 字节 uniform，将一个 vec2f 写入 8 字节结果缓冲，再读回 `{x,y}`。每次读取临时分配结果和 staging buffer，随后释放；这些 buffer 与 compute pass 不在稳态绘制计数中。此方法可证明 GPU 上的 f32 位移采样，而不需要由像素覆盖率反推连续数值；它不验证后续投影、光栅化或颜色混合。正常播放不得调用它。
+
+边界：此模块只绘制同尺寸/颜色的矩形图层，没有纹理、圆、剪裁、变换、组隔离、自动合批或跨层排序；调用方须在完整图层边界选择 Canvas 回退。`tests/webgpu-rect-batches.mjs` 的宿主双重测试验证 10k 实例一次 draw、脏范围 8 字节、缓存稳定及诊断读回；真实浏览器有 adapter 时额外核对 GPU 画布像素、固定/乱序/固定 seed 时间的 f32 位移和零持续时间边界，无 adapter 时明确 SKIP。手动页面 `tests/webgpu-rect-batch.html` 可用于截图，但浏览器显示结果不替代正式跨设备性能测量。
 
 接口依据：[GPUQueue.writeBuffer](https://gpuweb.github.io/types/interfaces/GPUQueue.html)、[GPUCanvasContext](https://gpuweb.github.io/types/interfaces/GPUCanvasContext)、[GPURenderPassEncoder](https://gpuweb.github.io/types/interfaces/GPURenderPassEncoder.html)。
