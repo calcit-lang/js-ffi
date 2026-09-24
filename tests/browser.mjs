@@ -8,13 +8,16 @@ import { testWebGpu, smokeWebGpu } from './webgpu.mjs';
 import { drawFloat32RectBatch } from '../canvas-rect-batches.mjs';
 import { probeWebGpuDevice } from '../webgpu-capabilities.mjs';
 import { testWebGpuCapabilities } from './webgpu-capabilities.mjs';
+import { testWebGpuRectBatches, smokeWebGpuRectBatches } from './webgpu-rect-batches.mjs';
 
 /** Exercise shared and browser adapters in a real page and return the test summary. */
 export async function run() {
   const a = assertions();
   await testWebGpu(a);
   await testWebGpuCapabilities(a);
+  await testWebGpuRectBatches(a);
   const webgpu = await smokeWebGpu(a);
+  const webgpuRect = await smokeWebGpuRectBatches(a);
   const capability = await probeWebGpuDevice(navigator);
   if (capability.kind === 'ready') {
     a.equal(capability.format === 'rgba8unorm' || capability.format === 'bgra8unorm', true);
@@ -269,5 +272,5 @@ export async function run() {
   a.equal(browser.element_remove_event_listener_$x_(mutable, 'click', onMutableClick), undefined);
   mutable.click();
   a.equal(mutableClicks, 1);
-  return { passed: true, assertions: a.count, runtime: navigator.userAgent, webgpu };
+  return { passed: true, assertions: a.count, runtime: navigator.userAgent, webgpu, webgpuRect };
 }
