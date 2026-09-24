@@ -7,26 +7,28 @@ import { assertions, testShared } from './shared.mjs';
 import { testWebGpu, smokeWebGpu } from './webgpu.mjs';
 import { drawFloat32RectBatch } from '../canvas-rect-batches.mjs';
 import { draw_rects_$x_ as drawCalcitRectBatch } from '../js-out/js-ffi.canvas-batches.mjs';
-import { probeWebGpuDevice } from '../webgpu-capabilities.mjs';
 import { testWebGpuCapabilities } from './webgpu-capabilities.mjs';
 import { testWebGpuRectBatches, smokeWebGpuRectBatches } from './webgpu-rect-batches.mjs';
 import { testCalcitWebGpuBatches } from './webgpu-calcit-batches.mjs';
+import { testCalcitWebGpuCapabilities } from './webgpu-calcit-capabilities.mjs';
+import { probe_device_$x_ as probeCalcitWebGpuDevice } from '../js-out/js-ffi.webgpu-capabilities.mjs';
 
 /** Exercise shared and browser adapters in a real page and return the test summary. */
 export async function run() {
   const a = assertions();
   await testWebGpu(a);
   await testWebGpuCapabilities(a);
+  await testCalcitWebGpuCapabilities(a);
   await testWebGpuRectBatches(a);
   await testCalcitWebGpuBatches(a);
   const webgpu = await smokeWebGpu(a);
   const webgpuRect = await smokeWebGpuRectBatches(a);
-  const capability = await probeWebGpuDevice(navigator);
-  if (capability.kind === 'ready') {
-    a.equal(capability.format === 'rgba8unorm' || capability.format === 'bgra8unorm', true);
-    a.equal(capability.release(), true);
+  const capability = await probeCalcitWebGpuDevice(navigator);
+  if (capability.tag.value === 'ready') {
+    a.equal(['rgba8unorm', 'bgra8unorm'].includes(capability.extra[0].format), true);
+    a.equal(capability.extra[0].release(), true);
   } else {
-    a.equal(['unavailable', 'failed'].includes(capability.kind), true);
+    a.equal(['unavailable', 'failed'].includes(capability.tag.value), true);
   }
   await testShared(a);
   const batchCanvas = document.createElement('canvas');
