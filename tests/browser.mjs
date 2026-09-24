@@ -6,7 +6,7 @@ import { option_$o_none_$q_ as isNone, option_$o_unwrap as unwrap, result_$o_err
 import { assertions, testShared } from './shared.mjs';
 import { testWebGpu, smokeWebGpu } from './webgpu.mjs';
 import { drawFloat32RectBatch } from '../canvas-rect-batches.mjs';
-import { draw_rects_$x_ as drawCalcitRectBatch } from '../js-out/js-ffi.canvas-batches.mjs';
+import { draw_rects_$x_ as drawCalcitRectBatch, fill_solid_rect_$x_ as fillSolidRect } from '../js-out/js-ffi.canvas-batches.mjs';
 import { draw_scene_$x_ as drawCalcitScene } from '../js-out/js-ffi.canvas-scene.mjs';
 import { testWebGpuCapabilities } from './webgpu-capabilities.mjs';
 import { testWebGpuRectBatches, smokeWebGpuRectBatches } from './webgpu-rect-batches.mjs';
@@ -51,6 +51,16 @@ export async function run() {
   a.equal(metric('canvas-calls'), 2);
   a.equal(metric('instances'), 2);
   a.equal(metric('position-bytes-read'), 16);
+  const primitiveCanvas = document.createElement('canvas');
+  primitiveCanvas.width = 40;
+  primitiveCanvas.height = 30;
+  const primitiveContext = primitiveCanvas.getContext('2d', { willReadFrequently: true });
+  primitiveContext.fillStyle = '#ffffff';
+  primitiveContext.fillRect(0, 0, 40, 30);
+  a.equal(fillSolidRect(primitiveContext, 6, 7, 12, 9, '#ea580c'), undefined);
+  a.equal(Array.from(primitiveContext.getImageData(10, 10, 1, 1).data).join(','), '234,88,12,255');
+  a.equal(Array.from(primitiveContext.getImageData(20, 10, 1, 1).data).join(','), '255,255,255,255');
+  a.equal(primitiveContext.fillStyle, '#ffffff');
   const sceneCanvas = document.createElement('canvas');
   const sceneContext = sceneCanvas.getContext('2d', { willReadFrequently: true });
   const scene = [
