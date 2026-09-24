@@ -1,6 +1,12 @@
 import * as shared from '../js-out/js-ffi.shared.mjs';
 import { option_$o_none_$q_ as isNone, option_$o_unwrap as unwrap } from '../js-out/calcit.core.mjs';
-import { snapshotFloat32, float32Length, float32ByteLength, float32At, float32CopyRange } from '../typed-arrays.mjs';
+import {
+  snapshot_float32 as snapshotFloat32,
+  float32_length as float32Length,
+  float32_byte_length as float32ByteLength,
+  float32_at as float32At,
+  float32_copy_range as float32CopyRange,
+} from '../js-out/js-ffi.typed-arrays.mjs';
 import { drawFloat32RectBatch } from '../canvas-rect-batches.mjs';
 
 /** Create browser-compatible equality/exception assertions with a running count. */
