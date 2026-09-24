@@ -3,6 +3,9 @@ struct Params {
   resolution: vec2f,
   size: vec2f,
   color: vec4f,
+  translationFrom: vec2f,
+  translationTo: vec2f,
+  translationTiming: vec4f,
 }
 @group(0) @binding(0) var<uniform> params: Params;
 
@@ -11,7 +14,21 @@ struct Params {
     vec2f(0.0, 0.0), vec2f(1.0, 0.0), vec2f(0.0, 1.0),
     vec2f(0.0, 1.0), vec2f(1.0, 0.0), vec2f(1.0, 1.0),
   );
-  let pixel = origin + corners[vertexIndex] * params.size;
+  var translation = vec2f(0.0, 0.0);
+  if (params.translationTiming.w > 0.5) {
+    let elapsed = params.translationTiming.x - params.translationTiming.y;
+    var progress = 0.0;
+    if (params.translationTiming.z == 0.0) {
+      progress = select(0.0, 1.0, elapsed >= 0.0);
+    } else {
+      progress = clamp(elapsed / params.translationTiming.z, 0.0, 1.0);
+    }
+    if (params.translationTiming.w > 1.5) {
+      progress = progress * progress * (3.0 - 2.0 * progress);
+    }
+    translation = mix(params.translationFrom, params.translationTo, progress);
+  }
+  let pixel = origin + translation + corners[vertexIndex] * params.size;
   return vec4f(pixel.x / params.resolution.x * 2.0 - 1.0, 1.0 - pixel.y / params.resolution.y * 2.0, 0.0, 1.0);
 }
 
@@ -36,6 +53,31 @@ function color(value, name) {
   if (value === null || typeof value !== 'object') throw new TypeError(`${name} must be RGBA`);
   for (const channel of ['r', 'g', 'b', 'a']) unit(value[channel], `${name}.${channel}`);
   return value;
+}
+
+function finiteF32(value, name) {
+  if (!Number.isFinite(value) || !Number.isFinite(Math.fround(value))) throw new RangeError(`${name} must be finite f32`);
+  return value;
+}
+
+function translationParams(value) {
+  if (value === undefined) return [0, 0, 0, 0, 0, 0, 0, 0];
+  if (value === null || typeof value !== 'object') throw new TypeError('translation tween required');
+  const from = value.from;
+  const to = value.to;
+  if (from === null || typeof from !== 'object' || to === null || typeof to !== 'object') {
+    throw new TypeError('translation from/to vectors required');
+  }
+  const easing = value.easing;
+  if (easing !== 'linear' && easing !== 'smoothstep') throw new RangeError('unsupported translation easing');
+  const duration = finiteF32(value.duration, 'translation duration');
+  if (duration < 0) throw new RangeError('translation duration must be nonnegative');
+  return [
+    finiteF32(from.x, 'translation from.x'), finiteF32(from.y, 'translation from.y'),
+    finiteF32(to.x, 'translation to.x'), finiteF32(to.y, 'translation to.y'),
+    finiteF32(value.time, 'translation time'), finiteF32(value.start, 'translation start'),
+    duration, easing === 'linear' ? 1 : 2,
+  ];
 }
 
 /** A retained, single-draw WebGPU layer for interleaved Float32 xy rectangles. */
@@ -72,7 +114,7 @@ export async function createFloat32RectBatch(canvas, device, format, capacity) {
       primitive: { topology: 'triangle-list' },
     });
     positionsBuffer = device.createBuffer({ size: capacity * 8, usage: VERTEX | COPY_DST, label: 'js-ffi rectangle positions' });
-    paramsBuffer = device.createBuffer({ size: 32, usage: UNIFORM | COPY_DST, label: 'js-ffi rectangle parameters' });
+    paramsBuffer = device.createBuffer({ size: 64, usage: UNIFORM | COPY_DST, label: 'js-ffi rectangle parameters' });
     const bindGroup = device.createBindGroup({ layout: pipeline.getBindGroupLayout(0), entries: [{ binding: 0, resource: { buffer: paramsBuffer } }] });
     context.configure({ device, format, usage: 0x10 | 0x01, alphaMode: 'premultiplied' });
 
@@ -106,7 +148,7 @@ export async function createFloat32RectBatch(canvas, device, format, capacity) {
         pendingPositionBytesUploaded += bytes;
         return Object.freeze({ positionBytesUploaded: bytes, activeCount });
       },
-      draw({ start = 0, count = activeCount, width, height, fill, alpha = 1, clear = { r: 1, g: 1, b: 1, a: 1 } }) {
+      draw({ start = 0, count = activeCount, width, height, fill, alpha = 1, clear = { r: 1, g: 1, b: 1, a: 1 }, translation }) {
         ensureLive();
         safeCount(start, 'start');
         safeCount(count, 'count');
@@ -118,7 +160,10 @@ export async function createFloat32RectBatch(canvas, device, format, capacity) {
         color(fill, 'fill');
         color(clear, 'clear');
         unit(alpha, 'alpha');
-        const params = new Float32Array([canvas.width, canvas.height, width, height, fill.r, fill.g, fill.b, fill.a * alpha]);
+        const params = new Float32Array([
+          canvas.width, canvas.height, width, height, fill.r, fill.g, fill.b, fill.a * alpha,
+          ...translationParams(translation),
+        ]);
         device.queue.writeBuffer(paramsBuffer, 0, params);
         const encoder = device.createCommandEncoder();
         const pass = encoder.beginRenderPass({ colorAttachments: [{
@@ -138,7 +183,7 @@ export async function createFloat32RectBatch(canvas, device, format, capacity) {
         const metrics = Object.freeze({
           frames, drawCalls: count > 0 ? 1 : 0, instances: count,
           positionBytesUploaded: pendingPositionBytesUploaded,
-          totalPositionBytesUploaded, uniformBytesUploaded: 32,
+          totalPositionBytesUploaded, uniformBytesUploaded: 64,
           pipelinesCreated: 1, buffersCreated: 2,
         });
         pendingPositionBytesUploaded = 0;

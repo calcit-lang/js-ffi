@@ -1,8 +1,8 @@
 # WebGPU Float32 矩形实例批次
 
-`createFloat32RectBatch(canvas, device, format, capacity)` 创建一个保留式矩形图层：一个异步编译的 WGSL pipeline、一个实例位置 vertex buffer、一个参数 uniform buffer和一个 bind group。实例以交错 `Float32Array` 的 `(x,y)` 表达；一次完整 `upload` 建立活跃数量，后续 `upload(positions,start,count)` 只写入脏范围。`draw({start,count,width,height,fill,alpha,clear})` 使用六个顶点和 `count` 个实例进行一次 draw，保留输入顺序，以预乘 alpha 的 source-over 混合绘制到 WebGPU Canvas。尺寸和坐标均为 canvas 实际像素，不自动处理 CSS 尺寸/DPR。
+`createFloat32RectBatch(canvas, device, format, capacity)` 创建一个保留式矩形图层：一个异步编译的 WGSL pipeline、一个实例位置 vertex buffer、一个参数 uniform buffer和一个 bind group。实例以交错 `Float32Array` 的 `(x,y)` 表达；一次完整 `upload` 建立活跃数量，后续 `upload(positions,start,count)` 只写入脏范围。`draw({start,count,width,height,fill,alpha,clear,translation})` 使用六个顶点和 `count` 个实例进行一次 draw，保留输入顺序，以预乘 alpha 的 source-over 混合绘制到 WebGPU Canvas。尺寸和坐标均为 canvas 实际像素，不自动处理 CSS 尺寸/DPR。
 
-位置缓冲和 pipeline 不随时间帧重建；每帧写入 32 字节参数 uniform，创建一次命令编码器并提交一次 render pass。返回计数区分 `positionBytesUploaded`、累计上传、`uniformBytesUploaded`、`drawCalls`、`pipelinesCreated` 和 `buffersCreated`；计数不等于 GPU 执行耗时。局部上传必须处于已完成的活跃范围内。当前颜色是直通道 RGBA 输入，在 fragment 输出时预乘；背景默认为不透明白。`dispose()` 幂等释放两个 buffer 并解除 canvas 配置；调用方负责 device 所有权以及 device lost 后重新创建图层。
+位置缓冲和 pipeline 不随时间帧重建；每帧写入 64 字节参数 uniform，创建一次命令编码器并提交一次 render pass。可选 `translation` 用 `{from:{x,y},to:{x,y},time,start,duration,easing}` 描述整个实例图层的绝对时间平移；`easing` 为 `linear` 或 `smoothstep`，`duration=0` 在 `time>=start` 跳到终点。无 `translation` 时保持原坐标。位移进度在 vertex shader 中采样，单个时间帧不重传实例位置；这里的输入是通用数字参数，不依赖 Quamolit Motion IR。返回计数区分 `positionBytesUploaded`、累计上传、`uniformBytesUploaded`、`drawCalls`、`pipelinesCreated` 和 `buffersCreated`；计数不等于 GPU 执行耗时。局部上传必须处于已完成的活跃范围内。当前颜色是直通道 RGBA 输入，在 fragment 输出时预乘；背景默认为不透明白。`dispose()` 幂等释放两个 buffer 并解除 canvas 配置；调用方负责 device 所有权以及 device lost 后重新创建图层。
 
 `readPixel(x,y)` 是测试/诊断专用：配置的 canvas texture 带 `COPY_SRC`，每次读回暂时分配 256 字节 staging buffer，经 GPU 拷贝和 `mapAsync` 返回 RGBA 四通道。它不是普通帧路径，也不得拿其分配量代表稳定动画资源数量。需要读同一帧的多个像素时，先同步发起所有调用，再 `Promise.all` 等待；跨 `await` 或浏览器呈现后，`getCurrentTexture()` 可能属于下一帧。
 

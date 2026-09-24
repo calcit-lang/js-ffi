@@ -16,7 +16,11 @@ export async function testWebGpuRectBatches(a) {
       writeBuffer(...args) { writes.push(args); },
       submit(commandBuffers) { a.equal(commandBuffers.length, 1); },
     },
-    createShaderModule(descriptor) { a.equal(descriptor.code.includes('@vertex'), true); return {}; },
+    createShaderModule(descriptor) {
+      a.equal(descriptor.code.includes('@vertex'), true);
+      a.equal(descriptor.code.includes('params.translationTiming'), true);
+      return {};
+    },
     async createRenderPipelineAsync(descriptor) {
       pipelines++;
       a.equal(descriptor.vertex.buffers[0].stepMode, 'instance');
@@ -76,7 +80,7 @@ export async function testWebGpuRectBatches(a) {
   a.equal(cold.drawCalls, 1);
   a.equal(cold.instances, 10000);
   a.equal(cold.positionBytesUploaded, 80000);
-  a.equal(cold.uniformBytesUploaded, 32);
+  a.equal(cold.uniformBytesUploaded, 64);
   a.equal(draws[0].join(','), '6,10000,0,0');
   a.equal(writes[1][2][7], 0.5);
   const warm = batch.draw({ width: 8, height: 8, fill });
@@ -96,6 +100,19 @@ export async function testWebGpuRectBatches(a) {
   a.equal((await batch.readPixel(1, 1)).join(','), '234,88,12,255');
   a.equal(createdBuffers, 3);
   a.equal(destroyedBuffers, 1);
+  const translated = batch.draw({ width: 8, height: 8, fill, translation: {
+    from: { x: 48, y: 80 }, to: { x: 208, y: 120 }, time: 0.25, start: 0, duration: 1, easing: 'linear',
+  } });
+  a.equal(translated.positionBytesUploaded, 0);
+  a.equal(translated.uniformBytesUploaded, 64);
+  a.equal(writes.at(-1)[2].length, 16);
+  a.equal(Array.from(writes.at(-1)[2].slice(8)).join(','), '48,80,208,120,0.25,0,1,1');
+  a.throws(() => batch.draw({ width: 8, height: 8, fill, translation: {
+    from: { x: 0, y: 0 }, to: { x: 1, y: 1 }, time: 0, start: 0, duration: -1, easing: 'linear',
+  } }), /duration/);
+  a.throws(() => batch.draw({ width: 8, height: 8, fill, translation: {
+    from: { x: 0, y: 0 }, to: { x: 1, y: 1 }, time: 0, start: 0, duration: 1, easing: 'cubic',
+  } }), /easing/);
   a.throws(() => batch.upload(positions, 10000, 1), /range/);
   positions[0] = Number.NaN;
   a.throws(() => batch.upload(positions), /non-finite/);
@@ -133,6 +150,14 @@ export async function smokeWebGpuRectBatches(a) {
     a.equal(pixels[0].join(','), '234,88,12,255');
     a.equal(pixels[1].join(','), '234,88,12,255');
     a.equal(pixels[2].join(','), '255,255,255,255');
+    const translated = batch.draw({ width: 4, height: 4, fill: { r: 234 / 255, g: 88 / 255, b: 12 / 255, a: 1 },
+      translation: { from: { x: 0, y: 0 }, to: { x: 20, y: 0 }, time: 0.5, start: 0, duration: 1, easing: 'linear' } });
+    const translatedPixels = await Promise.all([batch.readPixel(20, 10), batch.readPixel(40, 10), batch.readPixel(10, 10)]);
+    a.equal(translated.positionBytesUploaded, 0);
+    a.equal(translated.uniformBytesUploaded, 64);
+    a.equal(translatedPixels[0].join(','), '234,88,12,255');
+    a.equal(translatedPixels[1].join(','), '234,88,12,255');
+    a.equal(translatedPixels[2].join(','), '255,255,255,255');
     return `PASS: real WebGPU rectangles (${capability.format}, adapter=${JSON.stringify(capability.adapter.info ?? {})})`;
   } finally {
     batch?.dispose();
