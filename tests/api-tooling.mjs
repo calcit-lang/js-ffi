@@ -91,7 +91,7 @@ test('target-aware API checks cover every admitted definition and data declarati
   for (const runtime of ['node', 'browser']) {
     const report = checkPublic(runtime);
     const expectedIds = definitions.filter(definition => runtimes(definition.namespace).includes(runtime)).map(definition => definition.id);
-    assert.deepEqual(report.data.checked_definition_ids, expectedIds);
+    assert.deepEqual([...report.data.checked_definition_ids].sort(), [...expectedIds].sort());
     assert.ok(report.data.definitions.some(definition => definition.kind === 'data'), `${runtime} check must include data and trait declarations`);
   }
 });

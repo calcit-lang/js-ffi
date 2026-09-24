@@ -6,6 +6,7 @@ export async function testWebGpuRectBatches(a) {
   const writes = [];
   const draws = [];
   let pipelines = 0;
+  let computePipelines = 0;
   let createdBuffers = 0;
   let destroyedBuffers = 0;
   let configurations = 0;
@@ -17,8 +18,9 @@ export async function testWebGpuRectBatches(a) {
       submit(commandBuffers) { a.equal(commandBuffers.length, 1); },
     },
     createShaderModule(descriptor) {
-      a.equal(descriptor.code.includes('@vertex'), true);
+      a.equal(descriptor.code.includes('@vertex') || descriptor.code.includes('@compute'), true);
       a.equal(descriptor.code.includes('params.translationTiming'), true);
+      a.equal(descriptor.code.includes('fn sampledTranslation()'), true);
       return {};
     },
     async createRenderPipelineAsync(descriptor) {
@@ -27,19 +29,34 @@ export async function testWebGpuRectBatches(a) {
       a.equal(descriptor.fragment.targets[0].blend.color.srcFactor, 'one');
       return { getBindGroupLayout() { return {}; } };
     },
+    async createComputePipelineAsync(descriptor) {
+      computePipelines++;
+      a.equal(descriptor.compute.entryPoint, 'probe');
+      return { getBindGroupLayout() { return {}; } };
+    },
     createBuffer(descriptor) {
       createdBuffers++;
       return {
         descriptor,
         async mapAsync() {},
-        getMappedRange() { return new Uint8Array([12, 88, 234, 255]).buffer; },
+        getMappedRange() { return descriptor.size === 8 ? new Float32Array([88, 90]).buffer : new Uint8Array([12, 88, 234, 255]).buffer; },
         unmap() {},
         destroy() { destroyedBuffers++; },
       };
     },
-    createBindGroup(descriptor) { a.equal(descriptor.entries.length, 1); return {}; },
+    createBindGroup(descriptor) { a.equal([1, 2].includes(descriptor.entries.length), true); return {}; },
     createCommandEncoder() {
       return {
+        copyBufferToBuffer(source, sourceOffset, destination, destinationOffset, size) {
+          a.equal(source.descriptor.size, 8);
+          a.equal(destination.descriptor.size, 8);
+          a.equal(sourceOffset, 0);
+          a.equal(destinationOffset, 0);
+          a.equal(size, 8);
+        },
+        beginComputePass() {
+          return { setPipeline() {}, setBindGroup() {}, dispatchWorkgroups(count) { a.equal(count, 1); }, end() {} };
+        },
         copyTextureToBuffer(source, destination, extent) {
           a.equal(source.origin.x, 1);
           a.equal(destination.bytesPerRow, 256);
@@ -67,6 +84,9 @@ export async function testWebGpuRectBatches(a) {
   a.equal(createdBuffers, 2);
   a.equal(configurations, 1);
   a.equal(batch.activeCount, 0);
+  let beforeDrawError;
+  try { await batch.readTranslation(); } catch (error) { beforeDrawError = error; }
+  a.equal(/draw required/.test(String(beforeDrawError)), true);
   const positions = new Float32Array(20000);
   positions[0] = 40;
   positions[1] = 50;
@@ -107,6 +127,11 @@ export async function testWebGpuRectBatches(a) {
   a.equal(translated.uniformBytesUploaded, 64);
   a.equal(writes.at(-1)[2].length, 16);
   a.equal(Array.from(writes.at(-1)[2].slice(8)).join(','), '48,80,208,120,0.25,0,1,1');
+  a.equal((await batch.readTranslation()).x, 88);
+  a.equal((await batch.readTranslation()).y, 90);
+  a.equal(computePipelines, 1);
+  a.equal(createdBuffers, 7);
+  a.equal(destroyedBuffers, 5);
   a.throws(() => batch.draw({ width: 8, height: 8, fill, translation: {
     from: { x: 0, y: 0 }, to: { x: 1, y: 1 }, time: 0, start: 0, duration: -1, easing: 'linear',
   } }), /duration/);
@@ -122,7 +147,7 @@ export async function testWebGpuRectBatches(a) {
   a.equal(batch.dispose(), true);
   a.equal(batch.dispose(), false);
   a.equal(unconfigurations, 1);
-  a.equal(destroyedBuffers, 3);
+  a.equal(destroyedBuffers, 7);
   a.throws(() => batch.draw({ width: 8, height: 8, fill }), /disposed/);
   a.throws(() => batch.upload(positions), /disposed/);
   let rejected = false;
@@ -158,6 +183,25 @@ export async function smokeWebGpuRectBatches(a) {
     a.equal(translatedPixels[0].join(','), '234,88,12,255');
     a.equal(translatedPixels[1].join(','), '234,88,12,255');
     a.equal(translatedPixels[2].join(','), '255,255,255,255');
+    const withinTolerance = (actual, expected) => Math.abs(actual - expected) <= 1e-5 + 1e-5 * Math.abs(expected);
+    let seed = 0x52c0ffee;
+    const nextTime = () => { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return -0.25 + seed / 0x100000000 * 1.5; };
+    for (const easing of ['linear', 'smoothstep']) {
+      for (const time of [-0.25, 0, 0.25, 0.5, 0.75, 1, 1.25, ...Array.from({ length: 16 }, nextTime)]) {
+        const translation = { from: { x: 1.25, y: -2.5 }, to: { x: 17.75, y: 8.25 }, time, start: 0, duration: 1, easing };
+        batch.draw({ width: 4, height: 4, fill: { r: 1, g: 0, b: 0, a: 1 }, translation });
+        const actual = await batch.readTranslation();
+        let progress = Math.min(Math.max(time, 0), 1);
+        if (easing === 'smoothstep') progress = progress * progress * (3 - 2 * progress);
+        a.equal(withinTolerance(actual.x, 1.25 + (17.75 - 1.25) * progress), true);
+        a.equal(withinTolerance(actual.y, -2.5 + (8.25 + 2.5) * progress), true);
+      }
+    }
+    for (const [time, expectedX] of [[0.499999, 1.25], [0.5, 17.75], [0.500001, 17.75]]) {
+      batch.draw({ width: 4, height: 4, fill: { r: 1, g: 0, b: 0, a: 1 },
+        translation: { from: { x: 1.25, y: 0 }, to: { x: 17.75, y: 0 }, time, start: 0.5, duration: 0, easing: 'linear' } });
+      a.equal(withinTolerance((await batch.readTranslation()).x, expectedX), true);
+    }
     return `PASS: real WebGPU rectangles (${capability.format}, adapter=${JSON.stringify(capability.adapter.info ?? {})})`;
   } finally {
     batch?.dispose();

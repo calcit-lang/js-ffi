@@ -1,4 +1,4 @@
-const SHADER = /* wgsl */ `
+const TRANSLATION_SHADER = /* wgsl */ `
 struct Params {
   resolution: vec2f,
   size: vec2f,
@@ -9,11 +9,7 @@ struct Params {
 }
 @group(0) @binding(0) var<uniform> params: Params;
 
-@vertex fn vertex(@builtin(vertex_index) vertexIndex: u32, @location(0) origin: vec2f) -> @builtin(position) vec4f {
-  let corners = array<vec2f, 6>(
-    vec2f(0.0, 0.0), vec2f(1.0, 0.0), vec2f(0.0, 1.0),
-    vec2f(0.0, 1.0), vec2f(1.0, 0.0), vec2f(1.0, 1.0),
-  );
+fn sampledTranslation() -> vec2f {
   var translation = vec2f(0.0, 0.0);
   if (params.translationTiming.w > 0.5) {
     let elapsed = params.translationTiming.x - params.translationTiming.y;
@@ -28,7 +24,17 @@ struct Params {
     }
     translation = mix(params.translationFrom, params.translationTo, progress);
   }
-  let pixel = origin + translation + corners[vertexIndex] * params.size;
+  return translation;
+}
+`;
+
+const SHADER = /* wgsl */ `${TRANSLATION_SHADER}
+@vertex fn vertex(@builtin(vertex_index) vertexIndex: u32, @location(0) origin: vec2f) -> @builtin(position) vec4f {
+  let corners = array<vec2f, 6>(
+    vec2f(0.0, 0.0), vec2f(1.0, 0.0), vec2f(0.0, 1.0),
+    vec2f(0.0, 1.0), vec2f(1.0, 0.0), vec2f(1.0, 1.0),
+  );
+  let pixel = origin + sampledTranslation() + corners[vertexIndex] * params.size;
   return vec4f(pixel.x / params.resolution.x * 2.0 - 1.0, 1.0 - pixel.y / params.resolution.y * 2.0, 0.0, 1.0);
 }
 
@@ -37,9 +43,20 @@ struct Params {
 }
 `;
 
+const TRANSLATION_PROBE_SHADER = /* wgsl */ `${TRANSLATION_SHADER}
+struct ProbeResult { translation: vec2f, }
+@group(0) @binding(1) var<storage, read_write> result: ProbeResult;
+@compute @workgroup_size(1) fn probe() {
+  result.translation = sampledTranslation();
+}
+`;
+
 const COPY_DST = 0x08;
 const VERTEX = 0x20;
 const UNIFORM = 0x40;
+const STORAGE = 0x80;
+const COPY_SRC = 0x04;
+const MAP_READ = 0x01;
 
 function safeCount(value, name) {
   if (!Number.isSafeInteger(value) || value < 0) throw new RangeError(`${name} must be a nonnegative safe integer`);
@@ -123,6 +140,7 @@ export async function createFloat32RectBatch(canvas, device, format, capacity) {
     let totalPositionBytesUploaded = 0;
     let pendingPositionBytesUploaded = 0;
     let frames = 0;
+    let probePipelinePromise;
     const ensureLive = () => { if (disposed) throw new Error('WebGPU rectangle batch disposed'); };
     return Object.freeze({
       get activeCount() { return activeCount; },
@@ -211,6 +229,44 @@ export async function createFloat32RectBatch(canvas, device, format, capacity) {
         } finally {
           if (mapped) buffer.unmap();
           buffer.destroy();
+        }
+      },
+      /** Diagnostic only: evaluate the exact vertex translation function into a bounded f32 readback. */
+      async readTranslation() {
+        ensureLive();
+        if (frames === 0) throw new Error('draw required before translation readback');
+        if (typeof device.createComputePipelineAsync !== 'function') throw new TypeError('WebGPU compute pipeline required for translation readback');
+        probePipelinePromise ??= device.createComputePipelineAsync({
+          layout: 'auto',
+          compute: { module: device.createShaderModule({ code: TRANSLATION_PROBE_SHADER, label: 'js-ffi translation diagnostic' }), entryPoint: 'probe' },
+        });
+        const probePipeline = await probePipelinePromise;
+        ensureLive();
+        const result = device.createBuffer({ size: 8, usage: STORAGE | COPY_SRC, label: 'js-ffi translation diagnostic result' });
+        let staging;
+        let mapped = false;
+        try {
+          staging = device.createBuffer({ size: 8, usage: MAP_READ | COPY_DST, label: 'js-ffi translation diagnostic readback' });
+          const probeBindGroup = device.createBindGroup({ layout: probePipeline.getBindGroupLayout(0), entries: [
+            { binding: 0, resource: { buffer: paramsBuffer } },
+            { binding: 1, resource: { buffer: result } },
+          ] });
+          const encoder = device.createCommandEncoder();
+          const pass = encoder.beginComputePass();
+          pass.setPipeline(probePipeline);
+          pass.setBindGroup(0, probeBindGroup);
+          pass.dispatchWorkgroups(1);
+          pass.end();
+          encoder.copyBufferToBuffer(result, 0, staging, 0, 8);
+          device.queue.submit([encoder.finish()]);
+          await staging.mapAsync(MAP_READ);
+          mapped = true;
+          const values = new Float32Array(staging.getMappedRange(), 0, 2);
+          return Object.freeze({ x: values[0], y: values[1] });
+        } finally {
+          if (mapped) staging.unmap();
+          staging?.destroy();
+          result.destroy();
         }
       },
       dispose() {

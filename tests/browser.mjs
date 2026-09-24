@@ -9,6 +9,7 @@ import { drawFloat32RectBatch } from '../canvas-rect-batches.mjs';
 import { probeWebGpuDevice } from '../webgpu-capabilities.mjs';
 import { testWebGpuCapabilities } from './webgpu-capabilities.mjs';
 import { testWebGpuRectBatches, smokeWebGpuRectBatches } from './webgpu-rect-batches.mjs';
+import { testCalcitWebGpuBatches } from './webgpu-calcit-batches.mjs';
 
 /** Exercise shared and browser adapters in a real page and return the test summary. */
 export async function run() {
@@ -16,6 +17,7 @@ export async function run() {
   await testWebGpu(a);
   await testWebGpuCapabilities(a);
   await testWebGpuRectBatches(a);
+  await testCalcitWebGpuBatches(a);
   const webgpu = await smokeWebGpu(a);
   const webgpuRect = await smokeWebGpuRectBatches(a);
   const capability = await probeWebGpuDevice(navigator);

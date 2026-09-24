@@ -32,6 +32,9 @@ for (const runtime of [compile]) {
     const selected = definitions.filter(def => runtimes(def.namespace).includes(runtime));
     const refs = selected.map(def => def.id.replace('js-ffi.', ''));
     const target = `js-ffi.${runtime}-test/check-api!`;
+    if (runtime === 'browser') {
+      edit(['edit', 'add-import', `js-ffi.${runtime}-test`, '--code', 'quote $ js-ffi.webgpu-batches :as webgpu-batches']);
+    }
     edit(['edit', 'def', target, '--code', `quote $ defn check-api! ()\n  do ${refs.join(' ')} &unit`]);
     edit(['edit', 'schema', target, '--code', "quote $ :: 'Fn $ {} (:args $ []) (:return 'Unit)"]);
     edit(['tree', 'insert-before', `js-ffi.${runtime}-test/main!`, '--path', '@3', '--code', 'quote $ check-api!']);

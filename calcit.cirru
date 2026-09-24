@@ -3134,6 +3134,215 @@
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns js-ffi.webgpu
           :require (js-ffi.webgpu-internal :as internal) (js-ffi.contract :as contract)
+    'js-ffi.webgpu-batches $ %{} 'FileEntry
+      :defs $ {}
+        'Float32PositionsHost $ %{} 'CodeEntry (:doc "|浏览器 Float32Array 宿主句柄；只由本模块构造或经明确 FFI 边界传入。")
+          :code $ quote $ deftrait Float32PositionsHost (:length 'Number)
+          :examples $ []
+          :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
+          :schema $ :: 'Trait
+        'RectBatchHost $ %{} 'CodeEntry (:doc "|浏览器 WebGPU 矩形图层宿主句柄；所有权由调用者管理。")
+          :code $ quote $ deftrait RectBatchHost
+            .upload $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.webgpu-batches/RectBatchHost 'js-ffi.webgpu-batches/Float32PositionsHost 'Number 'Number
+              :return 'JsObject
+            .draw $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.webgpu-batches/RectBatchHost 'JsObject
+              :return 'JsObject
+            .read-translation $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.webgpu-batches/RectBatchHost
+              :return 'JsObject
+            .read-pixel $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.webgpu-batches/RectBatchHost 'Number 'Number
+              :return 'JsObject
+            .dispose $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.webgpu-batches/RectBatchHost
+              :return 'Bool
+          :examples $ []
+          :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
+          :schema $ :: 'Trait
+        'RectColor $ %{} 'CodeEntry (:doc "|直通道 RGBA 颜色；绘制 shader 输出时转为预乘 alpha。")
+          :code $ quote $ defstruct RectColor (:r 'Number) (:g 'Number) (:b 'Number) (:a 'Number)
+          :examples $ []
+          :schema $ :: 'StructDef
+        'RectFrame $ %{} 'CodeEntry (:doc "|单次矩形批次绘制参数；可选 count=0 可提交空帧清屏，可选位移动画按绝对时间采样。")
+          :code $ quote $ defstruct RectFrame (:width 'Number) (:height 'Number) (:fill 'js-ffi.webgpu-batches/RectColor) (:alpha 'Number)
+            :translation $ :: 'calcit.core/Option 'js-ffi.webgpu-batches/RectTranslation
+            :count $ :: 'calcit.core/Option 'Number
+          :examples $ []
+          :schema $ :: 'StructDef
+        'RectMetrics $ %{} 'CodeEntry (:doc "|单次绘制的批次、实例、位置和 uniform 上传及保留资源创建计数。")
+          :code $ quote $ defstruct RectMetrics (:draw-calls 'Number) (:instances 'Number) (:position-bytes-uploaded 'Number) (:uniform-bytes-uploaded 'Number) (:pipelines-created 'Number) (:buffers-created 'Number)
+          :examples $ []
+          :schema $ :: 'StructDef
+        'RectPixel $ %{} 'CodeEntry (:doc "|诊断读回的一个 RGBA 像素，四通道均为 0..255 整数。")
+          :code $ quote $ defstruct RectPixel (:r 'Number) (:g 'Number) (:b 'Number) (:a 'Number)
+          :examples $ []
+          :schema $ :: 'StructDef
+        'RectTranslation $ %{} 'CodeEntry (:doc "|共享的 Vec2 起止位置、绝对时间、起点、持续时间和缓动。")
+          :code $ quote $ defstruct RectTranslation (:from 'js-ffi.webgpu-batches/RectVec2) (:to 'js-ffi.webgpu-batches/RectVec2) (:time 'Number) (:start 'Number) (:duration 'Number) (:easing 'String)
+          :examples $ []
+          :schema $ :: 'StructDef
+        'RectTranslationSample $ %{} 'CodeEntry (:doc "|GPU 诊断读回的一个 f32 Vec2 位移样本。")
+          :code $ quote $ defstruct RectTranslationSample (:x 'Number) (:y 'Number)
+          :examples $ []
+          :schema $ :: 'StructDef
+        'RectVec2 $ %{} 'CodeEntry (:doc "|矩形图层使用的实际像素坐标二维向量。")
+          :code $ quote $ defstruct RectVec2 (:x 'Number) (:y 'Number)
+          :examples $ []
+          :schema $ :: 'StructDef
+        'create-rect-batch! $ %{} 'CodeEntry (:doc "|异步创建保留式矩形图层；断言同包底层 JS 构造器的契约，调用者负责释放。")
+          :code $ quote $ defn create-rect-batch! (canvas device format capacity)
+            hint-fn $ {} (:async true)
+              :args $ [] 'js-ffi.browser/DomElementHost 'js-ffi.webgpu/DeviceHost 'String 'Number
+              :return 'js-ffi.webgpu-batches/RectBatchHost
+              :features $ #{} :js-ffi
+            let
+                create $ unsafe-coerce createFloat32RectBatch $ :: 'Fn
+                  {} (:async true)
+                    :args $ [] 'js-ffi.browser/DomElementHost 'js-ffi.webgpu/DeviceHost 'String 'Number
+                    :return 'js-ffi.webgpu-batches/RectBatchHost
+              js-await $ create canvas device format capacity
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :browser)
+          :schema $ :: 'Fn $ {} (:async true) (:return 'js-ffi.webgpu-batches/RectBatchHost)
+            :args $ [] 'js-ffi.browser/DomElementHost 'js-ffi.webgpu/DeviceHost 'String 'Number
+            :features $ #{} :js-ffi
+        'dispose-batch! $ %{} 'CodeEntry (:doc "|幂等释放矩形图层的 GPU 资源并解除 canvas 配置。")
+          :code $ quote $ defn dispose-batch! (batch)
+            hint-fn $ {}
+              :args $ [] 'js-ffi.webgpu-batches/RectBatchHost
+              :return 'Bool
+              :features $ #{} :js-ffi
+            batch .dispose
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :browser)
+          :schema $ :: 'Fn $ {} (:return 'Bool)
+            :args $ [] 'js-ffi.webgpu-batches/RectBatchHost
+            :features $ #{} :js-ffi
+        'draw-rects! $ %{} 'CodeEntry (:doc "|把类型化 Calcit 帧转成一次 WebGPU draw，并解码计数；时间帧不重传静态位置。")
+          :code $ quote $ defn draw-rects! (batch frame)
+            hint-fn $ {}
+              :args $ [] 'js-ffi.webgpu-batches/RectBatchHost 'js-ffi.webgpu-batches/RectFrame
+              :return 'js-ffi.webgpu-batches/RectMetrics
+              :features $ #{} :js-ffi
+            let
+                color $ :fill frame
+                maybe-translation $ :translation frame
+                translation $ if (option:some? maybe-translation)
+                  let
+                      motion $ option:unwrap maybe-translation
+                      from $ :from motion
+                      to $ :to motion
+                    js-object
+                      :from $ js-object
+                        :x $ :x from
+                        :y $ :y from
+                      :to $ js-object
+                        :x $ :x to
+                        :y $ :y to
+                      :time $ :time motion
+                      :start $ :start motion
+                      :duration $ :duration motion
+                      :easing $ :easing motion
+                  , js/undefined
+                maybe-count $ :count frame
+                draw-count $ if (option:some? maybe-count) (option:unwrap maybe-count) js/undefined
+                options $ js-object
+                  :width $ :width frame
+                  :height $ :height frame
+                  :fill $ js-object
+                    :r $ :r color
+                    :g $ :g color
+                    :b $ :b color
+                    :a $ :a color
+                  :alpha $ :alpha frame
+                  :translation translation
+                  :count draw-count
+                result $ batch .draw options
+              let
+                  draws $ contract/expect-number |RectBatch.drawCalls $ contract/object-field |RectBatch.draw result |drawCalls
+                  instances $ contract/expect-number |RectBatch.instances $ contract/object-field |RectBatch.draw result |instances
+                  uploaded $ contract/expect-number |RectBatch.positionBytesUploaded $ contract/object-field |RectBatch.draw result |positionBytesUploaded
+                  uniform $ contract/expect-number |RectBatch.uniformBytesUploaded $ contract/object-field |RectBatch.draw result |uniformBytesUploaded
+                  pipelines $ contract/expect-number |RectBatch.pipelinesCreated $ contract/object-field |RectBatch.draw result |pipelinesCreated
+                  buffers $ contract/expect-number |RectBatch.buffersCreated $ contract/object-field |RectBatch.draw result |buffersCreated
+                RectMetrics :draw-calls draws :instances instances :position-bytes-uploaded uploaded :uniform-bytes-uploaded uniform :pipelines-created pipelines :buffers-created buffers
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :browser)
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.webgpu-batches/RectMetrics)
+            :args $ [] 'js-ffi.webgpu-batches/RectBatchHost 'js-ffi.webgpu-batches/RectFrame
+            :features $ #{} :js-ffi
+        'positions-from-list $ %{} 'CodeEntry
+          :doc "|将 Calcit 数值列表一次性复制成浏览器 Float32Array；用于初始上传，不用于逐帧重建。"
+          :code $ quote $ defn positions-from-list (values)
+            hint-fn $ {}
+              :args $ [] $ :: 'List 'Number
+              :return 'js-ffi.webgpu-batches/Float32PositionsHost
+              :features $ #{} :js-ffi
+            unsafe-coerce
+              new js/Float32Array $ to-js-data values
+              , 'js-ffi.webgpu-batches/Float32PositionsHost
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :browser)
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.webgpu-batches/Float32PositionsHost)
+            :args $ [] $ :: 'List 'Number
+            :features $ #{} :js-ffi
+        'read-pixel! $ %{} 'CodeEntry (:doc "|诊断专用：异步读取一个画布像素；正常播放不要调用。")
+          :code $ quote $ defn read-pixel! (batch x y)
+            hint-fn $ {} (:async true)
+              :args $ [] 'js-ffi.webgpu-batches/RectBatchHost 'Number 'Number
+              :return 'js-ffi.webgpu-batches/RectPixel
+              :features $ #{} :js-ffi
+            let
+                raw $ js-await $ batch .read-pixel x y
+                r $ contract/expect-number |RectBatch.pixel.r $ contract/object-field |RectBatch.pixel raw |0
+                g $ contract/expect-number |RectBatch.pixel.g $ contract/object-field |RectBatch.pixel raw |1
+                b $ contract/expect-number |RectBatch.pixel.b $ contract/object-field |RectBatch.pixel raw |2
+                a $ contract/expect-number |RectBatch.pixel.a $ contract/object-field |RectBatch.pixel raw |3
+              RectPixel :r r :g g :b b :a a
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :browser)
+          :schema $ :: 'Fn $ {} (:async true) (:return 'js-ffi.webgpu-batches/RectPixel)
+            :args $ [] 'js-ffi.webgpu-batches/RectBatchHost 'Number 'Number
+            :features $ #{} :js-ffi
+        'read-translation! $ %{} 'CodeEntry (:doc "|诊断专用：异步读回与顶点 shader 共用函数的 f32 位移；正常播放不要调用。")
+          :code $ quote $ defn read-translation! (batch)
+            hint-fn $ {} (:async true)
+              :args $ [] 'js-ffi.webgpu-batches/RectBatchHost
+              :return 'js-ffi.webgpu-batches/RectTranslationSample
+              :features $ #{} :js-ffi
+            let
+                raw $ js-await $ batch .read-translation
+                x $ contract/expect-number |RectBatch.translation.x $ contract/object-field |RectBatch.translation raw |x
+                y $ contract/expect-number |RectBatch.translation.y $ contract/object-field |RectBatch.translation raw |y
+              RectTranslationSample :x x :y y
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :browser)
+          :schema $ :: 'Fn $ {} (:async true) (:return 'js-ffi.webgpu-batches/RectTranslationSample)
+            :args $ [] 'js-ffi.webgpu-batches/RectBatchHost
+            :features $ #{} :js-ffi
+        'upload-positions! $ %{} 'CodeEntry (:doc "|按实例范围上传 Float32 位置数据，返回本次上传字节数。")
+          :code $ quote $ defn upload-positions! (batch positions start instance-count)
+            hint-fn $ {}
+              :args $ [] 'js-ffi.webgpu-batches/RectBatchHost 'js-ffi.webgpu-batches/Float32PositionsHost 'Number 'Number
+              :return 'Number
+              :features $ #{} :js-ffi
+            let
+                result $ batch .upload positions start instance-count
+              contract/expect-number |RectBatch.positionBytesUploaded $ contract/object-field |RectBatch.upload result |positionBytesUploaded
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :browser)
+          :schema $ :: 'Fn $ {} (:return 'Number)
+            :args $ [] 'js-ffi.webgpu-batches/RectBatchHost 'js-ffi.webgpu-batches/Float32PositionsHost 'Number 'Number
+            :features $ #{} :js-ffi
+      :ns $ %{} 'NsEntry (:doc |)
+        :code $ quote $ ns js-ffi.webgpu-batches
+          :require
+            |@calcit/js-ffi/webgpu-rect-batches.mjs :refer $ createFloat32RectBatch
+            js-ffi.contract :as contract
+            js-ffi.browser :as browser
+            js-ffi.webgpu :as webgpu
     'js-ffi.webgpu-internal $ %{} 'FileEntry
       :defs $ {}
         'PromiseHost $ %{} 'CodeEntry (:doc |)
