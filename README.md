@@ -255,11 +255,17 @@ real Chromium tests, synchronous filesystem tests, shared Web API tests,
 and invalid-consumer type checks.
 
 The checked-in v2 baseline keeps Dynamic, nil, and unresolved types at zero.
-It also records 58 reviewed `unsafe-coerce` sites per
+It also records 60 reviewed `unsafe-coerce` sites per
 definition. These assertions are expected only inside small host adapters; a
 new assertion or moving one into another definition fails the quality gate and
 requires an explicit review. Run `yarn audit:unsafe` to inspect their runtime
 contract evidence.
+
+The two additional sites in `js-ffi.webgpu-batches` are confined to the
+Calcit/JS boundary: one asserts this package's named async batch constructor,
+the other asserts the browser's `Float32Array` constructor result. The public
+API checks every definition and browser/Node host doubles exercise the typed
+marshalling; a real WebGPU browser exercises the same Calcit entry points.
 
 The commands assume the released Calcit 0.19.1 toolchain, Node.js 24 and Yarn
 are available on `PATH`. CI installs the exact Calcit version declared in

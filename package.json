@@ -2,6 +2,9 @@
   "name": "@calcit/js-ffi",
   "private": true,
   "version": "0.1.42",
+  "exports": {
+    "./*.mjs": "./*.mjs"
+  },
   "packageManager": "yarn@4.18.0",
   "dependencies": {
     "@calcit/procs": "0.19.1"
