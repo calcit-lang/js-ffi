@@ -1,7 +1,7 @@
 {
   "name": "@calcit/js-ffi",
   "private": true,
-  "version": "0.1.44",
+  "version": "0.1.45",
   "exports": {
     "./*.mjs": "./*.mjs"
   },
@@ -31,7 +31,7 @@
     "test": "yarn api:check && yarn check:api && yarn test:tooling && yarn check && yarn check:node && yarn check:browser && yarn check:quality && yarn test:types && yarn test:node && yarn test:browser",
     "test:types": "node tests/type-contract.mjs",
     "test:node": "yarn compile:node && node node.mjs && node node-contract.mjs && node --test tests/node.mjs tests/recipes.mjs",
-    "test:browser": "yarn compile:browser && node browser-node-contract.mjs && node --test tests/webgpu-calcit-capabilities.node.mjs && node tests/run-browser.mjs",
+    "test:browser": "yarn compile:browser && node browser-node-contract.mjs && node --test tests/webgpu-calcit-capabilities.node.mjs tests/canvas-scene.node.mjs && node tests/run-browser.mjs",
     "check:api": "node scripts/check-api.mjs",
     "api:generate": "node scripts/api-catalog.mjs generate",
     "api:check": "node scripts/api-catalog.mjs check",

@@ -7,6 +7,7 @@ import { assertions, testShared } from './shared.mjs';
 import { testWebGpu, smokeWebGpu } from './webgpu.mjs';
 import { drawFloat32RectBatch } from '../canvas-rect-batches.mjs';
 import { draw_rects_$x_ as drawCalcitRectBatch } from '../js-out/js-ffi.canvas-batches.mjs';
+import { draw_scene_$x_ as drawCalcitScene } from '../js-out/js-ffi.canvas-scene.mjs';
 import { testWebGpuCapabilities } from './webgpu-capabilities.mjs';
 import { testWebGpuRectBatches, smokeWebGpuRectBatches } from './webgpu-rect-batches.mjs';
 import { testCalcitWebGpuBatches } from './webgpu-calcit-batches.mjs';
@@ -50,6 +51,20 @@ export async function run() {
   a.equal(metric('canvas-calls'), 2);
   a.equal(metric('instances'), 2);
   a.equal(metric('position-bytes-read'), 16);
+  const sceneCanvas = document.createElement('canvas');
+  const sceneContext = sceneCanvas.getContext('2d', { willReadFrequently: true });
+  const scene = [
+    { kind: 'push', transform: [1, 0, 0, 1, 5, 0], clip: { kind: 'rect', x: 0, y: 0, width: 20, height: 20 }, opacity: 1 },
+    { kind: 'rect', x: 5, y: 5, width: 10, height: 10, fill: { r: 234 / 255, g: 88 / 255, b: 12 / 255, a: 1 } },
+    { kind: 'pop' },
+  ];
+  const sceneMetrics = drawCalcitScene(sceneContext, scene, 40, 30, 2);
+  const sceneMetric = (key) => sceneMetrics.values[sceneMetrics.fields.findIndex(field => field.value === key)];
+  a.equal(sceneMetric('boundary-calls'), 1);
+  a.equal(sceneMetric('groups'), 1);
+  a.equal(sceneMetric('canvas-calls'), 2);
+  a.equal(Array.from(sceneContext.getImageData(20, 20, 1, 1).data).join(','), '234,88,12,255');
+  a.equal(Array.from(sceneContext.getImageData(60, 20, 1, 1).data).join(','), '255,255,255,255');
   const fetched = await shared.fetch_response(new URL('/tests/fixtures/async-body.txt', location.href).href);
   a.equal(isOk(fetched), true);
   const body = await shared.response_text(fetched.extra[0]);
