@@ -1531,10 +1531,21 @@
     'js-ffi.canvas-batches $ %{} 'FileEntry
       :defs $ {}
         'CanvasContextHost $ %{} 'CodeEntry
-          :doc "|浏览器 CanvasRenderingContext2D 宿主句柄；底层实现验证 save/restore/fillRect。"
-          :code $ quote $ deftrait CanvasContextHost
+          :doc "|浏览器 CanvasRenderingContext2D 类型化宿主能力；提供 save/restore、fillStyle 和 fillRect 基础操作。"
+          :code $ quote $ deftrait CanvasContextHost (:fill-style 'String)
+            .save! $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.canvas-batches/CanvasContextHost
+              :return 'Unit
+            .restore! $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.canvas-batches/CanvasContextHost
+              :return 'Unit
+            .fill-rect! $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'Number 'Number 'Number 'Number
+              :return 'Unit
           :examples $ []
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
+            :names $ {} (:fill-rect! |fillRect) (:fill-style |fillStyle) (:restore! |restore) (:save! |save)
+            :writable $ #{} :fill-style
           :schema $ :: 'Trait
         'CanvasRectMetrics $ %{} 'CodeEntry
           :doc "|一次批次边界调用和逐矩形 Canvas 调用计数；position-bytes-read 并非 GPU 上传字节。"
@@ -1563,8 +1574,23 @@
           :schema $ :: 'Fn $ {} (:return 'js-ffi.canvas-batches/CanvasRectMetrics)
             :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'js-ffi.typed-arrays/Float32ArrayHost 'Number 'Number 'Number 'Number 'String 'Number
             :features $ #{} :js-ffi
+        'fill-solid-rect! $ %{} 'CodeEntry (:doc "|通过 Calcit 类型化 Canvas2D 基础方法绘制一个纯色矩形，并恢复绘制状态。")
+          :code $ quote $ defn fill-solid-rect! (context x y width height fill-style)
+            hint-fn $ {}
+              :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'Number 'Number 'Number 'Number 'String
+              :return 'Unit
+              :features $ #{} :js-ffi
+            context .save!
+            js-set context :fill-style fill-style
+            context .fill-rect! x y width height
+            context .restore!
+            , &unit
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'Number 'Number 'Number 'Number 'String
+            :features $ #{} :js-ffi
       :ns $ %{} 'NsEntry
-        :doc "|浏览器 Canvas2D Float32 矩形批次入口；Calcit 负责契约与计数解码，JS 仅执行宿主绘制。"
+        :doc "|浏览器 Canvas2D 类型化基础操作与 Float32 矩形批次；通用批量宿主绘制由包内 JS 实现。"
         :code $ quote $ ns js-ffi.canvas-batches
           :require
             |@calcit/js-ffi/canvas-rect-batches.mjs :refer $ drawFloat32RectBatch

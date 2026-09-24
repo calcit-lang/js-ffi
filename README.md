@@ -18,7 +18,7 @@ The public API is split by runtime:
 - `js-ffi.contract` contains runtime-independent checks and boundary decoders
   shared by smoke tests and host adapters.
 - `js-ffi.typed-arrays` 是跨 Node/浏览器的 Calcit Float32 快照 API：登记时复制、校验有限数值、只读索引和按范围再复制；`typed-arrays.mjs` 只做内部宿主实现。See [Float32 snapshots](docs/typed-arrays.md).
-- `js-ffi.canvas-batches` 是 Calcit Canvas2D Float32 矩形批次 API，区分边界调用与实际 Canvas 绘制调用；`canvas-rect-batches.mjs` 只做内部宿主实现。See [Canvas2D batches](docs/canvas-rect-batches.md).
+- `js-ffi.canvas-batches` 提供 Calcit 类型化 Canvas2D 宿主方法与 Float32 矩形批次 API；简单纯色矩形可直接用 Calcit 方法绘制，批次实现仍使用包内的 `canvas-rect-batches.mjs`。See [Canvas2D batches](docs/canvas-rect-batches.md).
 - `js-ffi.canvas-scene` 是 Calcit Canvas2D 整场景命令批次 API：按预序执行 group、rect 和实例图层，整场景一次宿主边界调用；`canvas-scene-commands.mjs` 只做内部宿主实现。See [Canvas scene commands](docs/canvas-scene-commands.md).
 - `js-ffi.webgpu-capabilities` 公开带封闭结果分支和显式设备所有权的 Calcit WebGPU 探测；`webgpu-capabilities.mjs` 仅为内部宿主实现。See [WebGPU capability probe](docs/webgpu-capabilities.md).
 - `webgpu-rect-batches.mjs` 提供保留式 WebGPU Float32 矩形实例图层、脏范围上传和测试用有界像素读回。See [WebGPU rectangle batches](docs/webgpu-rect-batches.md).
