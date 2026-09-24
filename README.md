@@ -20,6 +20,7 @@ The public API is split by runtime:
 - `typed-arrays.mjs` 提供跨 Node/浏览器的 Float32 不可变快照：登记时复制、校验有限数值、只读索引和按范围再复制；内部数组不外露。See [Float32 snapshots](docs/typed-arrays.md).
 - `canvas-rect-batches.mjs` 提供单次跨边界调用的 Canvas2D Float32 矩形批次，并区分边界调用与实际 Canvas 绘制调用。See [Canvas2D batches](docs/canvas-rect-batches.md).
 - `webgpu-capabilities.mjs` 提供有诊断状态和显式设备所有权的 WebGPU 探测。See [WebGPU capability probe](docs/webgpu-capabilities.md).
+- `webgpu-rect-batches.mjs` 提供保留式 WebGPU Float32 矩形实例图层、脏范围上传和测试用有界像素读回。See [WebGPU rectangle batches](docs/webgpu-rect-batches.md).
 
 Browser and Node namespaces should not be imported into each other; both may
 depend on `js-ffi.shared`. A project
