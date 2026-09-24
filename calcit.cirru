@@ -3488,6 +3488,71 @@
             js-ffi.contract :as contract
             js-ffi.browser :as browser
             js-ffi.webgpu :as webgpu
+    'js-ffi.webgpu-capabilities $ %{} 'FileEntry
+      :defs $ {}
+        'DeviceProbe $ %{} 'CodeEntry (:doc "|能力探测的封闭分支；只有 ready 携带需显式释放的设备句柄。")
+          :code $ quote $ defenum DeviceProbe (:ready 'js-ffi.webgpu-capabilities/ReadyDeviceHost) (:unavailable 'js-ffi.webgpu-capabilities/ProbeUnavailable) (:failed 'js-ffi.webgpu-capabilities/ProbeFailure)
+          :examples $ []
+          :schema $ :: 'Enum
+        'NavigatorHost $ %{} 'CodeEntry (:doc "|浏览器 navigator 或测试宿主；gpu 访问异常由探测函数归入失败阶段。")
+          :code $ quote $ deftrait NavigatorHost
+            :gpu $ :: 'JsNullish 'JsObject
+          :examples $ []
+          :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
+          :schema $ :: 'Trait
+        'ProbeFailure $ %{} 'CodeEntry (:doc "|探测失败阶段和归一化错误消息。")
+          :code $ quote $ defstruct ProbeFailure (:stage 'String) (:message 'String)
+          :examples $ []
+          :schema $ :: 'StructDef
+        'ProbeUnavailable $ %{} 'CodeEntry (:doc "|宿主或 adapter 不可用的阶段。")
+          :code $ quote $ defstruct ProbeUnavailable (:stage 'String)
+          :examples $ []
+          :schema $ :: 'StructDef
+        'ReadyDeviceHost $ %{} 'CodeEntry
+          :doc "|持有 adapter/device 的 ready 句柄；release 幂等，lost 为诊断 Promise；设备生命周期不属于 Scene IR。"
+          :code $ quote $ deftrait ReadyDeviceHost (:adapter 'js-ffi.webgpu/AdapterHost) (:device 'js-ffi.webgpu/DeviceHost) (:format 'String) (:state 'String) (:lost 'js-ffi.shared/PromiseHost)
+            .release $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.webgpu-capabilities/ReadyDeviceHost
+              :return 'Bool
+          :examples $ []
+          :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
+          :schema $ :: 'Trait
+        'probe-device! $ %{} 'CodeEntry
+          :doc "|异步探测宿主 GPU，返回封闭的 ready/unavailable/failed 分支；ready 的设备由调用方释放。"
+          :code $ quote $ defn probe-device! (navigator-host)
+            hint-fn $ {} (:async true)
+              :args $ [] $ :: 'JsNullish 'js-ffi.webgpu-capabilities/NavigatorHost
+              :return 'js-ffi.webgpu-capabilities/DeviceProbe
+              :features $ #{} :js-ffi
+            let
+                probe $ unsafe-coerce probeWebGpuDevice $ :: 'Fn
+                  {} (:async true)
+                    :args $ [] $ :: 'JsNullish 'js-ffi.webgpu-capabilities/NavigatorHost
+                    :return 'JsObject
+                result $ js-await $ probe navigator-host
+                kind $ contract/expect-string |WebGPU.probe.kind $ contract/object-field |WebGPU.probe result |kind
+              if (= kind |ready)
+                DeviceProbe :ready $ unsafe-coerce result ReadyDeviceHost
+                if (= kind |unavailable)
+                  let
+                      stage $ contract/expect-string |WebGPU.probe.stage $ contract/object-field |WebGPU.probe result |stage
+                    DeviceProbe :unavailable $ ProbeUnavailable :stage stage
+                  if (= kind |failed)
+                    let
+                        stage $ contract/expect-string |WebGPU.probe.stage $ contract/object-field |WebGPU.probe result |stage
+                        message $ contract/expect-string |WebGPU.probe.message $ contract/object-field |WebGPU.probe result |message
+                      DeviceProbe :failed $ ProbeFailure :stage stage :message message
+                    raise $ str "|Unexpected WebGPU probe kind: " kind
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :browser)
+          :schema $ :: 'Fn $ {} (:async true) (:return 'js-ffi.webgpu-capabilities/DeviceProbe)
+            :args $ [] $ :: 'JsNullish 'js-ffi.webgpu-capabilities/NavigatorHost
+            :features $ #{} :js-ffi
+      :ns $ %{} 'NsEntry (:doc "|WebGPU 能力探测、失败阶段与显式设备所有权的 Calcit 公共契约。")
+        :code $ quote $ ns js-ffi.webgpu-capabilities
+          :require
+            |@calcit/js-ffi/webgpu-capabilities.mjs :refer $ probeWebGpuDevice
+            js-ffi.contract :as contract
     'js-ffi.webgpu-internal $ %{} 'FileEntry
       :defs $ {}
         'PromiseHost $ %{} 'CodeEntry (:doc |)

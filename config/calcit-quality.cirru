@@ -531,6 +531,15 @@
       :typeNotFull 0
       :unresolved 0
       :unsafeCoerce 1
+    |js-ffi.webgpu-capabilities/probe-device! $ {} (:codeDynamic 0)
+      :codeNil 0
+      :declaredOptional 0
+      :deprecatedCalls 0
+      :schemaDynamic 0
+      :typeNone 0
+      :typeNotFull 0
+      :unresolved 0
+      :unsafeCoerce 2
     |js-ffi.webgpu-internal/adapter-host $ {} (:codeDynamic 0)
       :codeNil 0
       :declaredOptional 0
@@ -584,7 +593,7 @@
     :typeNone 0
     :typeNotFull 1
     :unresolved 0
-    :unsafeCoerce 66
+    :unsafeCoerce 68
   :scope $ {} (:includeDependencies false)
     :namespace nil
     :namespacePrefix nil

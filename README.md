@@ -19,7 +19,7 @@ The public API is split by runtime:
   shared by smoke tests and host adapters.
 - `js-ffi.typed-arrays` 是跨 Node/浏览器的 Calcit Float32 快照 API：登记时复制、校验有限数值、只读索引和按范围再复制；`typed-arrays.mjs` 只做内部宿主实现。See [Float32 snapshots](docs/typed-arrays.md).
 - `js-ffi.canvas-batches` 是 Calcit Canvas2D Float32 矩形批次 API，区分边界调用与实际 Canvas 绘制调用；`canvas-rect-batches.mjs` 只做内部宿主实现。See [Canvas2D batches](docs/canvas-rect-batches.md).
-- `webgpu-capabilities.mjs` 提供有诊断状态和显式设备所有权的 WebGPU 探测。See [WebGPU capability probe](docs/webgpu-capabilities.md).
+- `js-ffi.webgpu-capabilities` 公开带封闭结果分支和显式设备所有权的 Calcit WebGPU 探测；`webgpu-capabilities.mjs` 仅为内部宿主实现。See [WebGPU capability probe](docs/webgpu-capabilities.md).
 - `webgpu-rect-batches.mjs` 提供保留式 WebGPU Float32 矩形实例图层、脏范围上传和测试用有界像素读回。See [WebGPU rectangle batches](docs/webgpu-rect-batches.md).
 
 Browser and Node namespaces should not be imported into each other; both may
@@ -255,7 +255,7 @@ real Chromium tests, synchronous filesystem tests, shared Web API tests,
 and invalid-consumer type checks.
 
 The checked-in v2 baseline keeps Dynamic, nil, and unresolved types at zero.
-It also records 66 reviewed `unsafe-coerce` sites per
+It also records 68 reviewed `unsafe-coerce` sites per
 definition. These assertions are expected only inside small host adapters; a
 new assertion or moving one into another definition fails the quality gate and
 requires an explicit review. Run `yarn audit:unsafe` to inspect their runtime
@@ -269,6 +269,9 @@ marshalling; a real WebGPU browser exercises the same Calcit entry points.
 Six further assertions type this package's named Float32 snapshot and Canvas
 batch functions at their Calcit-to-JavaScript import boundary. The host
 implementations validate inputs, and Node/Chromium run the compiled wrappers.
+Two further assertions in `probe-device!` type this package's named async
+probe import and narrow its validated `ready` host result; the public return
+remains a closed Calcit enum rather than a nullable catch-all object.
 
 The commands assume the released Calcit 0.19.1 toolchain, Node.js 24 and Yarn
 are available on `PATH`. CI installs the exact Calcit version declared in
