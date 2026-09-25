@@ -15,6 +15,7 @@ const cases = [
   ['browser', 'webgpu/destroy-device! 42', /W_FN_ARG_TYPE_MISMATCH/],
   ['browser', 'webgpu/buffer-size (option:unwrap (webgpu/gpu))', /W_FN_ARG_TYPE_MISMATCH/],
   ['browser', 'webgpu/request-adapter! (option:unwrap (webgpu/gpu)) 42 42', /W_FN_ARG_TYPE_MISMATCH/],
+  ['browser', 'canvas-batches/clear-canvas! 42 40 30', /W_FN_ARG_TYPE_MISMATCH/],
   ['node', 'shared/response-host (shared/fetch-response |http:\/\/127.0.0.1)', /E_ASYNC_INVOCATION_REQUIRES_AWAIT/],
   ['node', 'let ((load shared/fetch-response)) (shared/response-host (load |http:\/\/127.0.0.1))', /E_ASYNC_INVOCATION_REQUIRES_AWAIT/],
 ];
@@ -26,6 +27,7 @@ for (const [runtime, expression, diagnostic] of cases) {
     copyFileSync(new URL('../deps.cirru', import.meta.url), join(dir, 'deps.cirru'));
     const target = `js-ffi.${runtime}-test/invalid-call!`;
     const mutate = args => execFileSync(calcitBin, [snapshot, ...args], { cwd: dir, stdio: 'pipe' });
+    if (runtime === 'browser') mutate(['edit', 'add-import', 'js-ffi.browser-test', '--code', 'quote $ js-ffi.canvas-batches :as canvas-batches']);
     mutate(['edit', 'def', target, '--code', `quote $ defn invalid-call! ()\n  do (${expression}) &unit`]);
     mutate(['edit', 'schema', target, '--code', "quote $ :: 'Fn $ {} (:args $ []) (:return 'Unit)"]);
     const result = spawnSync(calcitBin, [snapshot, '--entry', runtime, '--init-fn', target, '--check-only'], { cwd: dir, encoding: 'utf8' });

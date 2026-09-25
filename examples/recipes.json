@@ -1,5 +1,16 @@
 [
   {
+    "name": "canvas-card",
+    "namespace": "js-ffi.canvas-example",
+    "title": "用 Calcit 绘制变换并裁剪的 Canvas 纯色矩形",
+    "runtimes": ["browser"],
+    "source": "examples/canvas-card.cirru",
+    "imports": ["js-ffi.canvas-batches :as canvas"],
+    "schema": ":: 'Fn $ {} (:args $ [] 'js-ffi.canvas-batches/CanvasContextHost) (:return 'Unit) (:features $ #{} :js-ffi)",
+    "apis": ["js-ffi.canvas-batches/CanvasContextHost", "js-ffi.canvas-batches/CanvasAffine2D", "js-ffi.canvas-batches/CanvasRect", "js-ffi.canvas-batches/fill-transformed-clipped-rect!"],
+    "validation": "tests/browser.mjs"
+  },
+  {
     "name": "buffer-lifecycle",
     "namespace": "js-ffi.webgpu-example",
     "title": "Allocate and release a small unmapped COPY_DST buffer on a caller-owned device",

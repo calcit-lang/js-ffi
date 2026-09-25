@@ -13,6 +13,8 @@ import { testWebGpuRectBatches, smokeWebGpuRectBatches } from './webgpu-rect-bat
 import { testCalcitWebGpuBatches } from './webgpu-calcit-batches.mjs';
 import { testCalcitWebGpuCapabilities } from './webgpu-calcit-capabilities.mjs';
 import { probe_device_$x_ as probeCalcitWebGpuDevice } from '../js-out/js-ffi.webgpu-capabilities.mjs';
+import { clear_canvas_$x_ as clearCanvas } from '../js-out/js-ffi.canvas-batches.mjs';
+import { canvas_card as canvasCard } from '../js-out/js-ffi.canvas-example.mjs';
 
 /** Exercise shared and browser adapters in a real page and return the test summary. */
 export async function run() {
@@ -61,6 +63,26 @@ export async function run() {
   a.equal(Array.from(primitiveContext.getImageData(10, 10, 1, 1).data).join(','), '234,88,12,255');
   a.equal(Array.from(primitiveContext.getImageData(20, 10, 1, 1).data).join(','), '255,255,255,255');
   a.equal(primitiveContext.fillStyle, '#ffffff');
+  const scopedCanvas = document.createElement('canvas');
+  scopedCanvas.width = 40;
+  scopedCanvas.height = 30;
+  const scopedContext = scopedCanvas.getContext('2d', { willReadFrequently: true });
+  scopedContext.fillStyle = '#ffffff';
+  scopedContext.fillRect(0, 0, 40, 30);
+  a.equal(canvasCard(scopedContext), undefined);
+  const scopedPixel = (x, y) => Array.from(scopedContext.getImageData(x, y, 1, 1).data).join(',');
+  a.equal(scopedPixel(10, 5), '234,88,12,255');
+  a.equal(scopedPixel(6, 5), '255,255,255,255');
+  a.equal(scopedPixel(18, 5), '255,255,255,255');
+  a.equal(scopedPixel(10, 14), '255,255,255,255');
+  a.equal(scopedContext.fillStyle, '#ffffff');
+  a.equal(scopedContext.getTransform().e, 0);
+  fillSolidRect(scopedContext, 25, 5, 3, 3, '#ea580c');
+  a.equal(scopedPixel(26, 6), '234,88,12,255');
+  a.equal(clearCanvas(scopedContext, 40, 30), undefined);
+  a.equal(scopedPixel(10, 5), '0,0,0,0');
+  a.equal(scopedPixel(26, 6), '0,0,0,0');
+  a.equal(scopedContext.fillStyle, '#ffffff');
   const sceneCanvas = document.createElement('canvas');
   const sceneContext = sceneCanvas.getContext('2d', { willReadFrequently: true });
   const scene = [
