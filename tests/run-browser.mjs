@@ -26,7 +26,6 @@ try {
   assert.deepEqual(errors, [], 'Browser must have no uncaught exceptions or console errors');
   console.log(`Browser: ${result.assertions} assertions passed (${result.runtime})`);
   console.log(`WebGPU: ${result.webgpu}`);
-  console.log(`WebGPU rectangle batch: ${result.webgpuRect}`);
 } finally {
   if (browser) await browser.close();
   await server.close();

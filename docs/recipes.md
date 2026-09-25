@@ -39,38 +39,6 @@ quote $ defn canvas-card (context)
 
 Runtime verification: [tests/browser.mjs](../tests/browser.mjs).
 
-## 用 Calcit 组合 Canvas 变换、裁剪和 Float32 批量绘制
-
-Runtime: browser.
-
-Imports:
-
-```text
-js-ffi.canvas-batches :as canvas
-```
-
-Schema:
-
-```text
-:: 'Fn $ {} (:args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'js-ffi.typed-arrays/Float32ArrayHost) (:return 'js-ffi.canvas-batches/CanvasRectMetrics) (:features $ #{} :js-ffi)
-```
-
-Source: [examples/canvas-batch-card.cirru](../examples/canvas-batch-card.cirru)
-
-```text
-quote $ defn canvas-batch-card (context positions)
-  hint-fn $ {}
-    :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'js-ffi.typed-arrays/Float32ArrayHost
-    :return 'js-ffi.canvas-batches/CanvasRectMetrics
-    :features $ #{} :js-ffi
-  let
-      transform $ canvas/CanvasAffine2D :a 1 :b 0 :c 0 :d 1 :e 5 :f 0
-      clip $ canvas/CanvasRect :x 2 :y 2 :width 10 :height 10
-    canvas/draw-transformed-clipped-rects! context transform clip positions 0 2 4 4 |#ea580c 1
-```
-
-Runtime verification: [tests/browser.mjs](../tests/browser.mjs).
-
 ## Allocate and release a small unmapped COPY_DST buffer on a caller-owned device
 
 Runtime: browser.

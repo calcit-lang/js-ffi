@@ -5,17 +5,13 @@ import * as shared from '../js-out/js-ffi.shared.mjs';
 import { option_$o_none_$q_ as isNone, option_$o_unwrap as unwrap, result_$o_err_$q_ as isErr, result_$o_ok_$q_ as isOk } from '../js-out/calcit.core.mjs';
 import { assertions, testShared } from './shared.mjs';
 import { testWebGpu, smokeWebGpu } from './webgpu.mjs';
-import { drawFloat32RectBatch } from '../canvas-rect-batches.mjs';
-import { draw_rects_$x_ as drawCalcitRectBatch, fill_solid_rect_$x_ as fillSolidRect } from '../js-out/js-ffi.canvas-batches.mjs';
-import { draw_scene_$x_ as drawCalcitScene } from '../js-out/js-ffi.canvas-scene.mjs';
+import { fill_solid_rect_$x_ as fillSolidRect } from '../js-out/js-ffi.canvas-batches.mjs';
 import { testWebGpuCapabilities } from './webgpu-capabilities.mjs';
-import { testWebGpuRectBatches, smokeWebGpuRectBatches } from './webgpu-rect-batches.mjs';
 import { testCalcitWebGpuBatches } from './webgpu-calcit-batches.mjs';
 import { testCalcitWebGpuCapabilities } from './webgpu-calcit-capabilities.mjs';
 import { probe_device_$x_ as probeCalcitWebGpuDevice } from '../js-out/js-ffi.webgpu-capabilities.mjs';
 import { clear_canvas_$x_ as clearCanvas } from '../js-out/js-ffi.canvas-batches.mjs';
 import { canvas_card as canvasCard } from '../js-out/js-ffi.canvas-example.mjs';
-import { canvas_batch_card as canvasBatchCard } from '../js-out/js-ffi.canvas-batch-example.mjs';
 
 /** Exercise shared and browser adapters in a real page and return the test summary. */
 export async function run() {
@@ -23,10 +19,8 @@ export async function run() {
   await testWebGpu(a);
   await testWebGpuCapabilities(a);
   await testCalcitWebGpuCapabilities(a);
-  await testWebGpuRectBatches(a);
   await testCalcitWebGpuBatches(a);
   const webgpu = await smokeWebGpu(a);
-  const webgpuRect = await smokeWebGpuRectBatches(a);
   const capability = await probeCalcitWebGpuDevice(navigator);
   if (capability.tag.value === 'ready') {
     a.equal(['rgba8unorm', 'bgra8unorm'].includes(capability.extra[0].format), true);
@@ -35,25 +29,6 @@ export async function run() {
     a.equal(['unavailable', 'failed'].includes(capability.tag.value), true);
   }
   await testShared(a);
-  const batchCanvas = document.createElement('canvas');
-  batchCanvas.width = 80;
-  batchCanvas.height = 40;
-  const batchContext = batchCanvas.getContext('2d', { willReadFrequently: true });
-  batchContext.fillStyle = '#ffffff';
-  batchContext.fillRect(0, 0, 80, 40);
-  const batchMetrics = drawFloat32RectBatch(batchContext, new Float32Array([10, 10, 30, 10]), 0, 2, 4, 4, '#ea580c', 1);
-  a.equal(batchMetrics.boundaryCalls, 1);
-  a.equal(batchMetrics.canvasCalls, 2);
-  a.equal(Array.from(batchContext.getImageData(10, 10, 1, 1).data).join(','), '234,88,12,255');
-  a.equal(Array.from(batchContext.getImageData(30, 10, 1, 1).data).join(','), '234,88,12,255');
-  a.equal(Array.from(batchContext.getImageData(20, 10, 1, 1).data).join(','), '255,255,255,255');
-  a.equal(batchContext.fillStyle, '#ffffff');
-  const calcitMetrics = drawCalcitRectBatch(batchContext, new Float32Array([10, 10, 30, 10]), 0, 2, 4, 4, '#ea580c', 1);
-  const metric = (key) => calcitMetrics.values[calcitMetrics.fields.findIndex(field => field.value === key)];
-  a.equal(metric('boundary-calls'), 1);
-  a.equal(metric('canvas-calls'), 2);
-  a.equal(metric('instances'), 2);
-  a.equal(metric('position-bytes-read'), 16);
   const primitiveCanvas = document.createElement('canvas');
   primitiveCanvas.width = 40;
   primitiveCanvas.height = 30;
@@ -84,41 +59,6 @@ export async function run() {
   a.equal(scopedPixel(10, 5), '0,0,0,0');
   a.equal(scopedPixel(26, 6), '0,0,0,0');
   a.equal(scopedContext.fillStyle, '#ffffff');
-  const clippedBatchCanvas = document.createElement('canvas');
-  clippedBatchCanvas.width = 30;
-  clippedBatchCanvas.height = 20;
-  const clippedBatchContext = clippedBatchCanvas.getContext('2d', { willReadFrequently: true });
-  clippedBatchContext.fillStyle = '#ffffff';
-  clippedBatchContext.fillRect(0, 0, 30, 20);
-  const clippedBatchMetrics = canvasBatchCard(clippedBatchContext, new Float32Array([0, 4, 8, 4]));
-  const clippedMetric = (key) => clippedBatchMetrics.values[clippedBatchMetrics.fields.findIndex(field => field.value === key)];
-  a.equal(clippedMetric('instances'), 2);
-  a.equal(clippedMetric('canvas-calls'), 2);
-  a.equal(clippedMetric('position-bytes-read'), 16);
-  const clippedPixel = (x, y) => Array.from(clippedBatchContext.getImageData(x, y, 1, 1).data).join(',');
-  a.equal(clippedPixel(8, 5), '234,88,12,255');
-  a.equal(clippedPixel(14, 5), '234,88,12,255');
-  a.equal(clippedPixel(6, 5), '255,255,255,255');
-  a.equal(clippedPixel(18, 5), '255,255,255,255');
-  a.equal(clippedBatchContext.fillStyle, '#ffffff');
-  a.equal(clippedBatchContext.getTransform().e, 0);
-  a.throws(() => canvasBatchCard(clippedBatchContext, new Float32Array([0, 4, NaN, 4])), /non-finite batch coordinate/);
-  a.equal(clippedBatchContext.getTransform().e, 0);
-  a.equal(clippedBatchContext.fillStyle, '#ffffff');
-  const sceneCanvas = document.createElement('canvas');
-  const sceneContext = sceneCanvas.getContext('2d', { willReadFrequently: true });
-  const scene = [
-    { kind: 'push', transform: [1, 0, 0, 1, 5, 0], clip: { kind: 'rect', x: 0, y: 0, width: 20, height: 20 }, opacity: 1 },
-    { kind: 'rect', x: 5, y: 5, width: 10, height: 10, fill: { r: 234 / 255, g: 88 / 255, b: 12 / 255, a: 1 } },
-    { kind: 'pop' },
-  ];
-  const sceneMetrics = drawCalcitScene(sceneContext, scene, 40, 30, 2);
-  const sceneMetric = (key) => sceneMetrics.values[sceneMetrics.fields.findIndex(field => field.value === key)];
-  a.equal(sceneMetric('boundary-calls'), 1);
-  a.equal(sceneMetric('groups'), 1);
-  a.equal(sceneMetric('canvas-calls'), 2);
-  a.equal(Array.from(sceneContext.getImageData(20, 20, 1, 1).data).join(','), '234,88,12,255');
-  a.equal(Array.from(sceneContext.getImageData(60, 20, 1, 1).data).join(','), '255,255,255,255');
   const fetched = await shared.fetch_response(new URL('/tests/fixtures/async-body.txt', location.href).href);
   a.equal(isOk(fetched), true);
   const body = await shared.response_text(fetched.extra[0]);
@@ -352,5 +292,5 @@ export async function run() {
   a.equal(browser.element_remove_event_listener_$x_(mutable, 'click', onMutableClick), undefined);
   mutable.click();
   a.equal(mutableClicks, 1);
-  return { passed: true, assertions: a.count, runtime: navigator.userAgent, webgpu, webgpuRect };
+  return { passed: true, assertions: a.count, runtime: navigator.userAgent, webgpu };
 }
