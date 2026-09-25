@@ -3,6 +3,12 @@
 Typed JavaScript FFI definitions for Calcit. This package is independent: it exists to make the boundary between Calcit and host
 JavaScript explicit, checkable, and reusable across Calcit projects.
 
+## 0.2.0-alpha.3 模块内 JS 文件试验
+
+此预览版要求 Calcit `0.22.0-alpha.1`。`js-ffi.browser/document-available?` 的实现位于模块根目录的 `js-ffi-assets/document-available.js`，仍带有 `Fn [] -> Bool` schema 与 `:js-ffi` 标记。Calcit 编译时把文件中的单个函数表达式嵌入 `js-ffi.browser` 的生成模块；下游继续通过普通 Calcit `:require` 调用，不需要单独引用 JS 文件或安装片段专用 npm 包。
+
+文件修改后请显式重新运行 Calcit JS 构建，不把外部文件的 watch 事件视为稳定契约。验证命令为 `yarn test:contract:browser-node`；Respo 的 `yarn test-dom-host` 另行检查从已安装模块跨仓库调用的行为。发布与兼容性仍以 `deps.cirru` 中的精确版本和 GitHub release tag 为准；此 alpha 不代替 0.1.x 稳定系列。
+
 ## Design
 
 The public API is split by runtime:
