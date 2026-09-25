@@ -3,11 +3,11 @@
 Typed JavaScript FFI definitions for Calcit. This package is independent: it exists to make the boundary between Calcit and host
 JavaScript explicit, checkable, and reusable across Calcit projects.
 
-## 0.2.0-alpha.5 模块内 inline 与文件候选
+## 0.2.0 模块内 inline 与文件实现
 
-此候选版要求 Calcit `0.22.0-alpha.3`。`js-ffi.browser/document-available?` 的实现位于模块根目录的 `js-ffi-assets/document-available.js`，仍带有 `Fn [] -> Bool` schema 与 `:js-ffi` 标记。`js-ffi.node/path-basename` 则使用模块内 inline JS 表达式和显式 `node:path` 注入，保持原有 `Fn(String) -> String` 契约。Calcit 把两种表达式嵌入各自的生成命名空间；下游继续通过普通 Calcit `:require` 调用，不需要单独引用 JS 文件或安装片段专用 npm 包。
+此版本要求 Calcit `0.22.0`。`js-ffi.browser/document-available?` 的实现位于模块根目录的 `js-ffi-assets/document-available.js`，仍带有 `Fn [] -> Bool` schema 与 `:js-ffi` 标记。`js-ffi.node/path-basename` 则使用模块内 inline JS 表达式和显式 `node:path` 注入，保持原有 `Fn(String) -> String` 契约。Calcit 把两种表达式嵌入各自的生成命名空间；下游继续通过普通 Calcit `:require` 调用，不需要单独引用 JS 文件或安装片段专用 npm 包。
 
-文件修改后请显式重新运行 Calcit JS 构建，不把外部文件的 watch 事件视为稳定契约。验证命令为 `yarn test:contract:browser-node`；Respo 的 `yarn test-dom-host` 另行检查从已安装模块跨仓库调用的行为。发布与兼容性仍以 `deps.cirru` 中的精确版本和 GitHub release tag 为准；此 alpha 不代替 0.1.x 稳定系列。
+文件修改后请显式重新运行 Calcit JS 构建，不把外部文件的 watch 事件视为稳定契约。验证命令为 `yarn test:contract:browser-node`；Respo 的 `yarn test-dom-host` 另行检查从已安装模块跨仓库调用的行为。发布与兼容性以 `deps.cirru` 中的精确版本和 GitHub release tag 为准。
 
 ## Node 路径适配器
 
@@ -15,7 +15,7 @@ JavaScript explicit, checkable, and reusable across Calcit projects.
 
 `js-ffi.node/path-basename` 使用同一个 `node:path` 模块的 inline 表达式，返回值仍由精确 `Fn(String) -> String` 声明约束；`js-ffi.node-test/path-label` 在 Calcit 代码中通过正常引用组合 inline 与 file 两个适配器。查看声明、来源和外部模块时分别运行 `calcit query def js-ffi.node/path-basename` 与 `calcit query context js-ffi.node/path-join --format edn`。这些查询不会执行 JavaScript；运行时参数/异常仍须由 `yarn test:node` 验证。
 
-Calcit [#1372](https://github.com/calcit-lang/calcit/pull/1372) 修复了同一 Snapshot 中 Node/browser entry 的异宿主构建隔离。本候选版已用从 crates.io 干净安装的 Calcit `0.22.0-alpha.3` 和 npm 公开包跑通完整测试。修改 JS 文件后显式重新构建；排错时用 `calcit query context js-ffi.node/path-join --format edn` 找到模块版本、来源文件和外部模块，再用 Node source map 定位原始行。
+Calcit [#1372](https://github.com/calcit-lang/calcit/pull/1372) 修复了同一 Snapshot 中 Node/browser entry 的异宿主构建隔离。本版本使用从 crates.io 干净安装的 Calcit `0.22.0` 和 npm 公开包验证。修改 JS 文件后显式重新构建；排错时用 `calcit query context js-ffi.node/path-join --format edn` 找到模块版本、来源文件和外部模块，再用 Node source map 定位原始行。
 
 ## Design
 
@@ -284,7 +284,7 @@ wrappers. Two assertions in `probe-device!` type this package's named async
 probe import and narrow its validated `ready` host result; the public return
 remains a closed Calcit enum rather than a nullable catch-all object.
 
-本地命令要求 `PATH` 中的 Calcit 与 `deps.cirru` 声明的 `0.22.0-alpha.3` 一致，并安装 Node.js 24 和 Yarn。CI 也使用同一精确版本：
+本地命令要求 `PATH` 中的 Calcit 与 `deps.cirru` 声明的 `0.22.0` 一致，并安装 Node.js 24 和 Yarn。CI 也使用同一精确版本：
 
 ```bash
 yarn install
