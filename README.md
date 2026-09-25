@@ -9,6 +9,12 @@ JavaScript explicit, checkable, and reusable across Calcit projects.
 
 文件修改后请显式重新运行 Calcit JS 构建，不把外部文件的 watch 事件视为稳定契约。验证命令为 `yarn test:contract:browser-node`；Respo 的 `yarn test-dom-host` 另行检查从已安装模块跨仓库调用的行为。发布与兼容性仍以 `deps.cirru` 中的精确版本和 GitHub release tag 为准；此 alpha 不代替 0.1.x 稳定系列。
 
+## 开发中：Node 路径适配器
+
+`js-ffi.node/path-join` 保持 `Fn(String, String) -> String` 公共契约，内部改由模块根目录的 `js-ffi-assets/path-join.js` 提供单个函数表达式，并通过 `:modules` 显式注入 Node 内置 `node:path`。使用者仍以普通 Calcit `:require` 调用它；不需要在应用中引用该 JS 文件或另装片段包。`examples/text-file.cirru` 的文件读写示例实际使用这个适配器，`yarn test:node` 检查路径结果、宿主参数异常和完整文件读写。
+
+这是未发布的开发切片，依赖 Calcit [#1372](https://github.com/calcit-lang/calcit/pull/1372) 修复同一 Snapshot 中 Node/browser entry 的异宿主构建隔离。该修复发布后再更新精确依赖版本和发布模块；不能把本地编译器验证当成已发布包的兼容证明。修改 JS 文件后显式重新构建，排错时用 `calcit query context js-ffi.node/path-join --format edn` 找到模块版本、来源文件和外部模块，再用 Node source map 定位原始行。
+
 ## Design
 
 The public API is split by runtime:

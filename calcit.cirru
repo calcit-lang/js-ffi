@@ -2004,8 +2004,10 @@
         'path-join $ %{} 'CodeEntry
           :doc "|Join two path segments using node:path and return String. Example: (path-join |src |index.js) => |src/index.js"
           :code $ quote $ defn path-join (base child) (path/join base child)
-          :examples $ [] $ quote "(path-join |src |index.js)"
+          :examples $ [] $ quote (path-join |src |index.js)
           :ffi $ {} (:backend :js) (:target :node)
+            :js $ {} (:file |js-ffi-assets/path-join.js)
+              :modules $ {} $ :path |node:path
           :schema $ :: 'Fn $ {} (:return 'String)
             :args $ [] 'String 'String
             :features $ #{} :js-ffi

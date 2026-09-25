@@ -9,6 +9,8 @@ const calcitBin = process.env.CALCIT_BIN ?? 'calcit';
 // Each invalid consumer uses a separate snapshot. Never mutate library sources.
 const cases = [
   ['node', 'node/path-basename 42', /W_FN_ARG_TYPE_MISMATCH/],
+  ['node', 'node/path-join |src 42', /W_FN_ARG_TYPE_MISMATCH/],
+  ['browser', 'node/path-join |src |index.js', /E_JS_FFI_TARGET_MISMATCH/, 'js-ffi.node :as node'],
   ['node', 'shared/headers-get (shared/url-create |\/ |https:\/\/example.com) |x', /W_FN_ARG_TYPE_MISMATCH/],
   ['browser', 'browser/clear-timeout! |not-a-handle', /W_FN_ARG_TYPE_MISMATCH/],
   ['browser', 'browser/request-animation-frame! 42', /W_FN_ARG_TYPE_MISMATCH/],
@@ -19,7 +21,7 @@ const cases = [
   ['node', 'shared/response-host (shared/fetch-response |http:\/\/127.0.0.1)', /E_ASYNC_INVOCATION_REQUIRES_AWAIT/],
   ['node', 'let ((load shared/fetch-response)) (shared/response-host (load |http:\/\/127.0.0.1))', /E_ASYNC_INVOCATION_REQUIRES_AWAIT/],
 ];
-for (const [runtime, expression, diagnostic] of cases) {
+for (const [runtime, expression, diagnostic, extraImport] of cases) {
   const dir = mkdtempSync(join(tmpdir(), 'js-ffi-types-'));
   try {
     const snapshot = join(dir, 'calcit.cirru');
@@ -28,6 +30,7 @@ for (const [runtime, expression, diagnostic] of cases) {
     const target = `js-ffi.${runtime}-test/invalid-call!`;
     const mutate = args => execFileSync(calcitBin, [snapshot, ...args], { cwd: dir, stdio: 'pipe' });
     if (runtime === 'browser') mutate(['edit', 'add-import', 'js-ffi.browser-test', '--code', 'quote $ js-ffi.canvas-batches :as canvas-batches']);
+    if (extraImport) mutate(['edit', 'add-import', `js-ffi.${runtime}-test`, '--code', `quote $ ${extraImport}`]);
     mutate(['edit', 'def', target, '--code', `quote $ defn invalid-call! ()\n  do (${expression}) &unit`]);
     mutate(['edit', 'schema', target, '--code', "quote $ :: 'Fn $ {} (:args $ []) (:return 'Unit)"]);
     const result = spawnSync(calcitBin, [snapshot, '--entry', runtime, '--init-fn', target, '--check-only'], { cwd: dir, encoding: 'utf8' });
