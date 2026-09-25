@@ -1594,52 +1594,6 @@
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'Number 'Number
             :features $ #{} :js-ffi
-        'draw-rects! $ %{} 'CodeEntry (:doc "|按输入顺序绘制一个 Float32 x/y 范围并返回类型化指标；宿主仅跨界一次。")
-          :code $ quote $ defn draw-rects! (context positions start amount width height fill-style alpha)
-            hint-fn $ {}
-              :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'js-ffi.typed-arrays/Float32ArrayHost 'Number 'Number 'Number 'Number 'String 'Number
-              :return 'js-ffi.canvas-batches/CanvasRectMetrics
-              :features $ #{} :js-ffi
-            let
-                draw-batch $ unsafe-coerce drawFloat32RectBatch $ :: 'Fn
-                  {}
-                    :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'js-ffi.typed-arrays/Float32ArrayHost 'Number 'Number 'Number 'Number 'String 'Number
-                    :return 'JsObject
-                result $ draw-batch context positions start amount width height fill-style alpha
-                boundary-calls $ contract/expect-number |CanvasRect.boundaryCalls $ contract/object-field |CanvasRect.draw result |boundaryCalls
-                canvas-calls $ contract/expect-number |CanvasRect.canvasCalls $ contract/object-field |CanvasRect.draw result |canvasCalls
-                instances $ contract/expect-number |CanvasRect.instances $ contract/object-field |CanvasRect.draw result |instances
-                bytes-read $ contract/expect-number |CanvasRect.positionBytesRead $ contract/object-field |CanvasRect.draw result |positionBytesRead
-              CanvasRectMetrics :boundary-calls boundary-calls :canvas-calls canvas-calls :instances instances :position-bytes-read bytes-read
-          :examples $ []
-          :ffi $ {} (:backend :js) (:target :browser)
-          :schema $ :: 'Fn $ {} (:return 'js-ffi.canvas-batches/CanvasRectMetrics)
-            :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'js-ffi.typed-arrays/Float32ArrayHost 'Number 'Number 'Number 'Number 'String 'Number
-            :features $ #{} :js-ffi
-        'draw-transformed-clipped-rects! $ %{} 'CodeEntry
-          :doc "|Calcit 组合式 Canvas2D 批量绘制：在变换和矩形裁剪作用域内提交 Float32 位置批次，返回逐矩形调用及读取字节指标；失败时恢复绘制状态并重新抛出错误。当前路径不会复制位置数组；调用期间不得修改位置数据。Canvas 当前 path 不受 save/restore 保护。"
-          :code $ quote $ defn draw-transformed-clipped-rects!
-            context transform clip positions start amount width height fill-style alpha
-            hint-fn $ {}
-              :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'js-ffi.canvas-batches/CanvasAffine2D 'js-ffi.canvas-batches/CanvasRect 'js-ffi.typed-arrays/Float32ArrayHost 'Number 'Number 'Number 'Number 'String 'Number
-              :return 'js-ffi.canvas-batches/CanvasRectMetrics
-              :features $ #{} :js-ffi
-            context .save!
-            let
-                result $ try
-                  do
-                    context .transform! (:a transform) (:b transform) (:c transform) (:d transform) (:e transform) (:f transform)
-                    context .begin-path!
-                    context .rect! (:x clip) (:y clip) (:width clip) (:height clip)
-                    context .clip!
-                    draw-rects! context positions start amount width height fill-style alpha
-                  fn (error) (context .restore!) (raise error)
-              context .restore!
-              , result
-          :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'js-ffi.canvas-batches/CanvasRectMetrics)
-            :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'js-ffi.canvas-batches/CanvasAffine2D 'js-ffi.canvas-batches/CanvasRect 'js-ffi.typed-arrays/Float32ArrayHost 'Number 'Number 'Number 'Number 'String 'Number
-            :features $ #{} :js-ffi
         'fill-solid-rect! $ %{} 'CodeEntry (:doc "|通过 Calcit 类型化 Canvas2D 基础方法绘制一个纯色矩形，并恢复绘制状态。")
           :code $ quote $ defn fill-solid-rect! (context x y width height fill-style)
             hint-fn $ {}
@@ -1676,56 +1630,9 @@
             :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'js-ffi.canvas-batches/CanvasAffine2D 'js-ffi.canvas-batches/CanvasRect 'js-ffi.canvas-batches/CanvasRect 'String
             :features $ #{} :js-ffi
       :ns $ %{} 'NsEntry
-        :doc "|浏览器 Canvas2D 类型化基础操作与 Float32 矩形批次；通用批量宿主绘制由包内 JS 实现，Scene 遍历由调用方负责。"
+        :doc "|浏览器 Canvas2D 原生方法的 Calcit 类型化接口与基础组合；Quamolit 实例批量宿主循环已迁至 Quamolit，不再由本模块提供。"
         :code $ quote $ ns js-ffi.canvas-batches
-          :require
-            |@calcit/js-ffi/canvas-rect-batches.mjs :refer $ drawFloat32RectBatch
-            js-ffi.contract :as contract
-            js-ffi.typed-arrays :as typed-arrays
-    'js-ffi.canvas-scene $ %{} 'FileEntry
-      :defs $ {}
-        'CanvasSceneCommandsHost $ %{} 'CodeEntry
-          :doc "|0.1.45 实验兼容的 push/pop/rect/instances 宿主命令数组；命令格式不作为新 Calcit 项目的通用 Scene IR。调用方负责专属场景 lowering，包内先全量校验再绘制。"
-          :code $ quote $ deftrait CanvasSceneCommandsHost
-          :examples $ []
-          :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
-          :schema $ :: 'Trait
-        'CanvasSceneMetrics $ %{} 'CodeEntry (:doc "|一次边界调用的 Canvas 绘制数与实例读取字节；不是 GPU 上传或执行时间。")
-          :code $ quote $ defstruct CanvasSceneMetrics (:boundary-calls 'Number) (:canvas-calls 'Number) (:groups 'Number) (:rectangles 'Number) (:instances 'Number) (:position-bytes-read 'Number)
-          :examples $ []
-          :schema $ :: 'StructDef
-        'draw-scene! $ %{} 'CodeEntry
-          :doc "|实验兼容入口：一次宿主边界调用执行旧命令格式；非法命令在清屏前拒绝，组隔离透明度不支持。新项目优先使用类型化 Canvas 基础方法与通用矩形批次。"
-          :code $ quote $ defn draw-scene! (context commands width height dpr)
-            hint-fn $ {}
-              :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'js-ffi.canvas-scene/CanvasSceneCommandsHost 'Number 'Number 'Number
-              :return 'js-ffi.canvas-scene/CanvasSceneMetrics
-              :features $ #{} :js-ffi
-            let
-                draw-batch $ unsafe-coerce drawCanvasSceneCommands $ :: 'Fn
-                  {}
-                    :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'js-ffi.canvas-scene/CanvasSceneCommandsHost 'Number 'Number 'Number
-                    :return 'JsObject
-                result $ draw-batch context commands width height dpr
-                boundary-calls $ contract/expect-number |CanvasScene.boundaryCalls $ contract/object-field |CanvasScene.draw result |boundaryCalls
-                canvas-calls $ contract/expect-number |CanvasScene.canvasCalls $ contract/object-field |CanvasScene.draw result |canvasCalls
-                groups $ contract/expect-number |CanvasScene.groups $ contract/object-field |CanvasScene.draw result |groups
-                rectangles $ contract/expect-number |CanvasScene.rectangles $ contract/object-field |CanvasScene.draw result |rectangles
-                instances $ contract/expect-number |CanvasScene.instances $ contract/object-field |CanvasScene.draw result |instances
-                bytes-read $ contract/expect-number |CanvasScene.positionBytesRead $ contract/object-field |CanvasScene.draw result |positionBytesRead
-              CanvasSceneMetrics :boundary-calls boundary-calls :canvas-calls canvas-calls :groups groups :rectangles rectangles :instances instances :position-bytes-read bytes-read
-          :examples $ []
-          :ffi $ {} (:backend :js) (:target :browser)
-          :schema $ :: 'Fn $ {} (:return 'js-ffi.canvas-scene/CanvasSceneMetrics)
-            :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'js-ffi.canvas-scene/CanvasSceneCommandsHost 'Number 'Number 'Number
-            :features $ #{} :js-ffi
-      :ns $ %{} 'NsEntry
-        :doc "|0.1.45 起的 Canvas 整场景命令实验兼容入口；保留旧消费者，不鼓励新项目把命令格式当通用 Scene IR。"
-        :code $ quote $ ns js-ffi.canvas-scene
-          :require
-            |@calcit/js-ffi/canvas-scene-commands.mjs :refer $ drawCanvasSceneCommands
-            js-ffi.canvas-batches :as canvas-batches
-            js-ffi.contract :as contract
+          :require (js-ffi.contract :as contract) (js-ffi.typed-arrays :as typed-arrays)
     'js-ffi.contract $ %{} 'FileEntry
       :defs $ {}
         'expect-bool $ %{} 'CodeEntry
@@ -3492,23 +3399,6 @@
           :code $ quote $ defstruct RectVec2 (:x 'Number) (:y 'Number)
           :examples $ []
           :schema $ :: 'StructDef
-        'create-rect-batch! $ %{} 'CodeEntry (:doc "|异步创建保留式矩形图层；断言同包底层 JS 构造器的契约，调用者负责释放。")
-          :code $ quote $ defn create-rect-batch! (canvas device format capacity)
-            hint-fn $ {} (:async true)
-              :args $ [] 'js-ffi.browser/DomElementHost 'js-ffi.webgpu/DeviceHost 'String 'Number
-              :return 'js-ffi.webgpu-batches/RectBatchHost
-              :features $ #{} :js-ffi
-            let
-                create $ unsafe-coerce createFloat32RectBatch $ :: 'Fn
-                  {} (:async true)
-                    :args $ [] 'js-ffi.browser/DomElementHost 'js-ffi.webgpu/DeviceHost 'String 'Number
-                    :return 'js-ffi.webgpu-batches/RectBatchHost
-              js-await $ create canvas device format capacity
-          :examples $ []
-          :ffi $ {} (:backend :js) (:target :browser)
-          :schema $ :: 'Fn $ {} (:async true) (:return 'js-ffi.webgpu-batches/RectBatchHost)
-            :args $ [] 'js-ffi.browser/DomElementHost 'js-ffi.webgpu/DeviceHost 'String 'Number
-            :features $ #{} :js-ffi
         'dispose-batch! $ %{} 'CodeEntry (:doc "|幂等释放矩形图层的 GPU 资源并解除 canvas 配置。")
           :code $ quote $ defn dispose-batch! (batch)
             hint-fn $ {}
@@ -3637,13 +3527,10 @@
           :schema $ :: 'Fn $ {} (:return 'Number)
             :args $ [] 'js-ffi.webgpu-batches/RectBatchHost 'js-ffi.webgpu-batches/Float32PositionsHost 'Number 'Number
             :features $ #{} :js-ffi
-      :ns $ %{} 'NsEntry (:doc |)
+      :ns $ %{} 'NsEntry
+        :doc "|历史矩形批次宿主契约的 Calcit 类型、封送和诊断辅助；GPU 矩形 renderer 的创建及 WGSL 实现已迁至 Quamolit。本命名空间不再创建批次，不是通用 WebGPU renderer 入口；新项目优先使用 js-ffi.webgpu 的原生对象类型化 API。"
         :code $ quote $ ns js-ffi.webgpu-batches
-          :require
-            |@calcit/js-ffi/webgpu-rect-batches.mjs :refer $ createFloat32RectBatch
-            js-ffi.contract :as contract
-            js-ffi.browser :as browser
-            js-ffi.webgpu :as webgpu
+          :require (js-ffi.contract :as contract) (js-ffi.browser :as browser) (js-ffi.webgpu :as webgpu)
     'js-ffi.webgpu-capabilities $ %{} 'FileEntry
       :defs $ {}
         'DeviceProbe $ %{} 'CodeEntry (:doc "|能力探测的封闭分支；只有 ready 携带需显式释放的设备句柄。")

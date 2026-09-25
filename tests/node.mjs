@@ -10,7 +10,6 @@ import { result_$o_err_$q_ as isErr, result_$o_ok_$q_ as isOk, option_$o_unwrap 
 import * as procs from '@calcit/procs';
 import { assertions, testShared } from './shared.mjs';
 import { testWebGpuCapabilities } from './webgpu-capabilities.mjs';
-import { testWebGpuRectBatches } from './webgpu-rect-batches.mjs';
 
 const structField = (value, name) => value.values[value.fields.findIndex(field => field.value === name)];
 
@@ -24,12 +23,6 @@ test('WebGPU capability and ownership states on Node', async () => {
   const a = assertions();
   await testWebGpuCapabilities(a);
   console.log(`WebGPU capability: ${a.count} assertions`);
-});
-
-test('retained WebGPU rectangle batches on Node host doubles', async () => {
-  const a = assertions();
-  await testWebGpuRectBatches(a);
-  console.log(`WebGPU rectangle batch: ${a.count} assertions`);
 });
 
 test('Node paths, process, UTF-8 files and error boundaries', () => {

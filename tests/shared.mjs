@@ -7,7 +7,6 @@ import {
   float32_at as float32At,
   float32_copy_range as float32CopyRange,
 } from '../js-out/js-ffi.typed-arrays.mjs';
-import { drawFloat32RectBatch } from '../canvas-rect-batches.mjs';
 
 /** Create browser-compatible equality/exception assertions with a running count. */
 export function assertions() {
@@ -31,33 +30,6 @@ export function assertions() {
 
 /** Verify compiled shared adapters against native Web APIs in either runtime. */
 export async function testShared(a) {
-  const calls = [];
-  const context = {
-    fillStyle: '#000000', globalAlpha: 1,
-    save() { calls.push(['save']); },
-    restore() { calls.push(['restore']); this.fillStyle = '#000000'; this.globalAlpha = 1; },
-    fillRect(...args) { calls.push(['fillRect', ...args]); },
-  };
-  const batch = new Float32Array([10, 20, 30, 40, 50, 60]);
-  const metrics = drawFloat32RectBatch(context, batch, 1, 2, 2, 3, '#ea580c', 0.5);
-  a.equal(metrics.boundaryCalls, 1);
-  a.equal(metrics.canvasCalls, 2);
-  a.equal(metrics.instances, 2);
-  a.equal(metrics.positionBytesRead, 16);
-  a.equal(JSON.stringify(calls), JSON.stringify([['save'], ['fillRect', 30, 40, 2, 3], ['fillRect', 50, 60, 2, 3], ['restore']]));
-  a.equal(context.fillStyle, '#000000');
-  a.equal(context.globalAlpha, 1);
-  a.equal(drawFloat32RectBatch(context, batch, 3, 0, 2, 3, '#ea580c', 1).canvasCalls, 0);
-  a.throws(() => drawFloat32RectBatch({}, batch, 0, 1, 2, 3, '#ea580c', 1), /Canvas2D context/);
-  a.throws(() => drawFloat32RectBatch(context, [10, 20], 0, 1, 2, 3, '#ea580c', 1), /Float32Array positions/);
-  a.throws(() => drawFloat32RectBatch(context, new Float32Array([10]), 0, 0, 2, 3, '#ea580c', 1), /interleaved/);
-  a.throws(() => drawFloat32RectBatch(context, batch, 2, 2, 2, 3, '#ea580c', 1), /rect batch range/);
-  a.throws(() => drawFloat32RectBatch(context, batch, 0, 1, -1, 3, '#ea580c', 1), /width/);
-  a.throws(() => drawFloat32RectBatch(context, batch, 0, 1, 2, 3, '#ea580c', 2), /alpha/);
-  a.throws(() => drawFloat32RectBatch(context, new Float32Array([Number.NaN, 0]), 0, 1, 2, 3, '#ea580c', 1), /non-finite/);
-  if (typeof SharedArrayBuffer !== 'undefined') {
-    a.throws(() => drawFloat32RectBatch(context, new Float32Array(new SharedArrayBuffer(8)), 0, 1, 2, 3, '#ea580c', 1), /not a stable batch/);
-  }
   const source = new Float32Array([1.25, -2.5, 3]);
   const snapshot = snapshotFloat32(source);
   source[0] = 99;

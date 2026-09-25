@@ -1,9 +1,7 @@
-# Canvas2D 整场景命令批次
+# Canvas Scene 实验接口迁移
 
-状态：0.1.45 引入的实验兼容入口，暂不移除以免破坏已发布消费者；新 Calcit 下游不应以这里的 `push/pop/rect/instances` 格式作为通用 Scene IR。基础变换、矩形裁剪和绘制已由 [Canvas2D 类型化原语](canvas-rect-batches.md) 提供，应用自己的场景遍历与层级策略应留在应用模块。大规模相同图元仍可复用通用 `draw-rects!` 批次；若未来需要新的通用命令缓冲区，须先定义与任何特定 Scene IR 无关的公共类型、失败原子性和性能证据。
+`js-ffi.canvas-scene` 与 `canvas-scene-commands.mjs` 在 0.1.45–0.1.48 中提供了 `push/pop/rect/instances` 命令解释。该格式不是浏览器原生 API，也不是通用 Calcit 语言功能；它把场景命令、Canvas 绘制和 DPR/背景策略捆在一起。
 
-公开 Calcit 入口 `js-ffi.canvas-scene/draw-scene!` 接收 Canvas 宿主句柄、`CanvasSceneCommandsHost`、逻辑宽高与 DPR，返回类型化 `CanvasSceneMetrics`。原始 `canvas-scene-commands.mjs` 只在 js-ffi 包内实现宿主效果，下游项目经 Calcit 模块消费。命令数组在宿主边界做完整预检；非法图元、非有限坐标、错误实例长度、失衡 group 等在更改画布前拒绝。
+在检查当前 Quamolit 运行代码、同工作区项目与可检索的公开使用后，没有发现 Quamolit 实际消费这个旧命令接口。因此 0.2.0-alpha.1 从 js-ffi 移除它，**不把无人使用的解释器复制进 Quamolit**。Quamolit 的 Scene IR 与 Canvas 参考路径继续由 Quamolit 的 Calcit 代码定义；若未来需要完整组语义，在 Quamolit 按现有 Scene IR 实现，而不是复活旧命令格式。
 
-命令按预序平铺：`push` 带六个仿射系数、`none|rect` 局部裁剪和 opacity=1；`pop` 关闭最近 group；`rect` 带逻辑像素几何及 `[0,1]` 直通道 RGBA；`instances` 带交错 Float32 x/y、count、共享宽高和颜色。调用方保持 Scene IR 的绘制顺序，不能为合批重排透明对象。宿主在一个边界调用中调整实际画布像素宽高、清白底、按 DPR 设变换、执行组的 transform/clip 和绘制。每帧逐个实例 `fillRect`，所以边界调用 1 不等于 Canvas 绘制调用 1，也不代表 GPU draw call。
-
-组 opacity<1 需要离屏隔离；当前明确抛错，不将其下推到重叠子节点。图片、圆、文字、路径及复杂 clip 尚不支持，调用方不得静默漏绘。`CanvasSceneMetrics` 记录 boundary/canvas 调用、group/rect/实例数和读取位置字节；不是 GPU 上传、执行时间或帧率。资源引用、版本快照和 Scene IR 降低属于消费方；js-ffi 不持有逻辑资源或 Model。
+外部消费者若仍依赖历史接口，可以固定 0.1.48；已发布 tag 不改写。此次移除属于破坏性变化，需按新版本显式迁移。Canvas 原生操作仍可通过 `js-ffi.canvas-batches` 的 Calcit 类型化接口访问。
