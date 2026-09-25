@@ -27,6 +27,9 @@ test('WebGPU capability and ownership states on Node', async () => {
 
 test('Node paths, process, UTF-8 files and error boundaries', () => {
   const a = assertions();
+  const generated = fs.readFileSync(new URL('../js-out/js-ffi.node.mjs', import.meta.url), 'utf8');
+  a.equal(/JS FFI: js-ffi\.node\/path-join/.test(generated), true);
+  a.equal(/JS FFI module: calcit:\/\/js-ffi@[^\n]+ alias path\nimport \* as [^\n]+ from "node:path"/.test(generated), true);
   a.equal(node.path_basename('/work/file.txt'), 'file.txt');
   a.equal(node.path_dirname('/work/file.txt'), '/work');
   a.equal(node.path_extname('archive.tar.gz'), '.gz');
@@ -34,6 +37,9 @@ test('Node paths, process, UTF-8 files and error boundaries', () => {
   a.equal(node.path_normalize('/work/../data/./x'), path.normalize('/work/../data/./x'));
   a.equal(node.path_resolve('/work', '../data'), path.resolve('/work', '../data'));
   a.equal(node.path_relative('/work', '/work/data/file'), path.relative('/work', '/work/data/file'));
+  a.equal(node.path_join('src', 'index.js'), path.join('src', 'index.js'));
+  a.equal(node.path_join('/work/../data', '你好.txt'), path.join('/work/../data', '你好.txt'));
+  a.throws(() => node.path_join('src', 42), /The "path" argument must be of type string/);
   a.equal(node.path_absolute_$q_('/work'), true);
   a.equal(node.path_absolute_$q_('work'), false);
   a.equal(node.pid(), process.pid);
