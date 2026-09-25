@@ -15,6 +15,7 @@ import { testCalcitWebGpuCapabilities } from './webgpu-calcit-capabilities.mjs';
 import { probe_device_$x_ as probeCalcitWebGpuDevice } from '../js-out/js-ffi.webgpu-capabilities.mjs';
 import { clear_canvas_$x_ as clearCanvas } from '../js-out/js-ffi.canvas-batches.mjs';
 import { canvas_card as canvasCard } from '../js-out/js-ffi.canvas-example.mjs';
+import { canvas_batch_card as canvasBatchCard } from '../js-out/js-ffi.canvas-batch-example.mjs';
 
 /** Exercise shared and browser adapters in a real page and return the test summary. */
 export async function run() {
@@ -83,6 +84,27 @@ export async function run() {
   a.equal(scopedPixel(10, 5), '0,0,0,0');
   a.equal(scopedPixel(26, 6), '0,0,0,0');
   a.equal(scopedContext.fillStyle, '#ffffff');
+  const clippedBatchCanvas = document.createElement('canvas');
+  clippedBatchCanvas.width = 30;
+  clippedBatchCanvas.height = 20;
+  const clippedBatchContext = clippedBatchCanvas.getContext('2d', { willReadFrequently: true });
+  clippedBatchContext.fillStyle = '#ffffff';
+  clippedBatchContext.fillRect(0, 0, 30, 20);
+  const clippedBatchMetrics = canvasBatchCard(clippedBatchContext, new Float32Array([0, 4, 8, 4]));
+  const clippedMetric = (key) => clippedBatchMetrics.values[clippedBatchMetrics.fields.findIndex(field => field.value === key)];
+  a.equal(clippedMetric('instances'), 2);
+  a.equal(clippedMetric('canvas-calls'), 2);
+  a.equal(clippedMetric('position-bytes-read'), 16);
+  const clippedPixel = (x, y) => Array.from(clippedBatchContext.getImageData(x, y, 1, 1).data).join(',');
+  a.equal(clippedPixel(8, 5), '234,88,12,255');
+  a.equal(clippedPixel(14, 5), '234,88,12,255');
+  a.equal(clippedPixel(6, 5), '255,255,255,255');
+  a.equal(clippedPixel(18, 5), '255,255,255,255');
+  a.equal(clippedBatchContext.fillStyle, '#ffffff');
+  a.equal(clippedBatchContext.getTransform().e, 0);
+  a.throws(() => canvasBatchCard(clippedBatchContext, new Float32Array([0, 4, NaN, 4])), /non-finite batch coordinate/);
+  a.equal(clippedBatchContext.getTransform().e, 0);
+  a.equal(clippedBatchContext.fillStyle, '#ffffff');
   const sceneCanvas = document.createElement('canvas');
   const sceneContext = sceneCanvas.getContext('2d', { willReadFrequently: true });
   const scene = [
