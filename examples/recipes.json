@@ -11,6 +11,17 @@
     "validation": "tests/browser.mjs"
   },
   {
+    "name": "canvas-batch-card",
+    "namespace": "js-ffi.canvas-batch-example",
+    "title": "用 Calcit 组合 Canvas 变换、裁剪和 Float32 批量绘制",
+    "runtimes": ["browser"],
+    "source": "examples/canvas-batch-card.cirru",
+    "imports": ["js-ffi.canvas-batches :as canvas"],
+    "schema": ":: 'Fn $ {} (:args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'js-ffi.typed-arrays/Float32ArrayHost) (:return 'js-ffi.canvas-batches/CanvasRectMetrics) (:features $ #{} :js-ffi)",
+    "apis": ["js-ffi.canvas-batches/CanvasContextHost", "js-ffi.canvas-batches/CanvasAffine2D", "js-ffi.canvas-batches/CanvasRect", "js-ffi.canvas-batches/draw-transformed-clipped-rects!"],
+    "validation": "tests/browser.mjs"
+  },
+  {
     "name": "buffer-lifecycle",
     "namespace": "js-ffi.webgpu-example",
     "title": "Allocate and release a small unmapped COPY_DST buffer on a caller-owned device",

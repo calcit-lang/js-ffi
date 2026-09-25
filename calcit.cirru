@@ -1616,6 +1616,30 @@
           :schema $ :: 'Fn $ {} (:return 'js-ffi.canvas-batches/CanvasRectMetrics)
             :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'js-ffi.typed-arrays/Float32ArrayHost 'Number 'Number 'Number 'Number 'String 'Number
             :features $ #{} :js-ffi
+        'draw-transformed-clipped-rects! $ %{} 'CodeEntry
+          :doc "|Calcit 组合式 Canvas2D 批量绘制：在变换和矩形裁剪作用域内提交 Float32 位置批次，返回逐矩形调用及读取字节指标；失败时恢复绘制状态并重新抛出错误。当前路径不会复制位置数组；调用期间不得修改位置数据。Canvas 当前 path 不受 save/restore 保护。"
+          :code $ quote $ defn draw-transformed-clipped-rects!
+            context transform clip positions start amount width height fill-style alpha
+            hint-fn $ {}
+              :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'js-ffi.canvas-batches/CanvasAffine2D 'js-ffi.canvas-batches/CanvasRect 'js-ffi.typed-arrays/Float32ArrayHost 'Number 'Number 'Number 'Number 'String 'Number
+              :return 'js-ffi.canvas-batches/CanvasRectMetrics
+              :features $ #{} :js-ffi
+            context .save!
+            let
+                result $ try
+                  do
+                    context .transform! (:a transform) (:b transform) (:c transform) (:d transform) (:e transform) (:f transform)
+                    context .begin-path!
+                    context .rect! (:x clip) (:y clip) (:width clip) (:height clip)
+                    context .clip!
+                    draw-rects! context positions start amount width height fill-style alpha
+                  fn (error) (context .restore!) (raise error)
+              context .restore!
+              , result
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.canvas-batches/CanvasRectMetrics)
+            :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'js-ffi.canvas-batches/CanvasAffine2D 'js-ffi.canvas-batches/CanvasRect 'js-ffi.typed-arrays/Float32ArrayHost 'Number 'Number 'Number 'Number 'String 'Number
+            :features $ #{} :js-ffi
         'fill-solid-rect! $ %{} 'CodeEntry (:doc "|通过 Calcit 类型化 Canvas2D 基础方法绘制一个纯色矩形，并恢复绘制状态。")
           :code $ quote $ defn fill-solid-rect! (context x y width height fill-style)
             hint-fn $ {}
