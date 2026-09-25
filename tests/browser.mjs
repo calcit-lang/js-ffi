@@ -7,7 +7,6 @@ import { assertions, testShared } from './shared.mjs';
 import { testWebGpu, smokeWebGpu } from './webgpu.mjs';
 import { fill_solid_rect_$x_ as fillSolidRect } from '../js-out/js-ffi.canvas-batches.mjs';
 import { testWebGpuCapabilities } from './webgpu-capabilities.mjs';
-import { testCalcitWebGpuBatches } from './webgpu-calcit-batches.mjs';
 import { testCalcitWebGpuCapabilities } from './webgpu-calcit-capabilities.mjs';
 import { probe_device_$x_ as probeCalcitWebGpuDevice } from '../js-out/js-ffi.webgpu-capabilities.mjs';
 import { clear_canvas_$x_ as clearCanvas } from '../js-out/js-ffi.canvas-batches.mjs';
@@ -19,7 +18,6 @@ export async function run() {
   await testWebGpu(a);
   await testWebGpuCapabilities(a);
   await testCalcitWebGpuCapabilities(a);
-  await testCalcitWebGpuBatches(a);
   const webgpu = await smokeWebGpu(a);
   const capability = await probeCalcitWebGpuDevice(navigator);
   if (capability.tag.value === 'ready') {

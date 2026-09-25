@@ -35,7 +35,6 @@ for (const runtime of [compile]) {
     if (runtime === 'browser') {
       edit(['edit', 'add-import', `js-ffi.${runtime}-test`, '--code', 'quote $ js-ffi.canvas-batches :as canvas-batches']);
       edit(['edit', 'add-import', `js-ffi.${runtime}-test`, '--code', 'quote $ js-ffi.webgpu-capabilities :as webgpu-capabilities']);
-      edit(['edit', 'add-import', `js-ffi.${runtime}-test`, '--code', 'quote $ js-ffi.webgpu-batches :as webgpu-batches']);
     }
     edit(['edit', 'add-import', `js-ffi.${runtime}-test`, '--code', 'quote $ js-ffi.typed-arrays :as typed-arrays']);
     edit(['edit', 'def', target, '--code', `quote $ defn check-api! ()\n  do ${refs.join(' ')} &unit`]);

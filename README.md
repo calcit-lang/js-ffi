@@ -21,7 +21,7 @@ The public API is split by runtime:
 - `js-ffi.canvas-batches` 保留 Calcit 类型化 Canvas2D 原生宿主方法及单矩形变换/裁剪组合；Quamolit 的 Float32 批量绘制已迁出。See [Canvas2D migration](docs/canvas-rect-batches.md).
 - 0.2.0-alpha.1 移除了实验性 `js-ffi.canvas-scene` 整场景命令解释器；已发布的 0.1.x tag 不改写。See [Canvas scene migration](docs/canvas-scene-commands.md).
 - `js-ffi.webgpu-capabilities` 公开带封闭结果分支和显式设备所有权的 Calcit WebGPU 探测；`webgpu-capabilities.mjs` 仅为内部宿主实现。See [WebGPU capability probe](docs/webgpu-capabilities.md).
-- `js-ffi.webgpu-batches` 暂保留 Calcit 类型、封送和诊断辅助；矩形 renderer 的 WGSL、资源和创建实现已迁往 Quamolit。新项目使用 `js-ffi.webgpu` 的原生能力。See [WebGPU migration](docs/webgpu-rect-batches.md).
+- 0.2.0-alpha.2 移除了 Quamolit 专属的矩形批次 Calcit 类型与封送辅助；新项目使用 `js-ffi.webgpu` 的原生能力，Quamolit 使用自有类型。See [WebGPU migration](docs/webgpu-rect-batches.md).
 - [平台 API 归属清单](docs/platform-api-inventory.md) 列出每个 JS 实现为何仍保留、Calcit 公共入口、失败/释放语义及下一步迁移边界。
 
 Browser and Node namespaces should not be imported into each other; both may
@@ -257,21 +257,16 @@ real Chromium tests, synchronous filesystem tests, shared Web API tests,
 and invalid-consumer type checks.
 
 The checked-in v2 baseline keeps Dynamic, nil, and unresolved types at zero.
-It also records 68 reviewed `unsafe-coerce` sites per
+It also records 65 reviewed `unsafe-coerce` sites per
 definition. These assertions are expected only inside small host adapters; a
 new assertion or moving one into another definition fails the quality gate and
 requires an explicit review. Run `yarn audit:unsafe` to inspect their runtime
 contract evidence.
 
-The two additional sites in `js-ffi.webgpu-batches` are confined to the
-Calcit/JS boundary: one asserts this package's named async batch constructor,
-the other asserts the browser's `Float32Array` constructor result. The public
-API checks every definition and browser/Node host doubles exercise the typed
-marshalling; a real WebGPU browser exercises the same Calcit entry points.
-Six further assertions type this package's named Float32 snapshot and Canvas
-batch functions at their Calcit-to-JavaScript import boundary. The host
-implementations validate inputs, and Node/Chromium run the compiled wrappers.
-Two further assertions in `probe-device!` type this package's named async
+The remaining assertions stay at reviewed Calcit/JS platform boundaries,
+including Float32 snapshots and the typed WebGPU capability probe. The
+public API checks every definition and Node/Chromium exercise compiled
+wrappers. Two assertions in `probe-device!` type this package's named async
 probe import and narrow its validated `ready` host result; the public return
 remains a closed Calcit enum rather than a nullable catch-all object.
 
