@@ -6,6 +6,39 @@ Each source is a quoted Calcit definition accepted by `calcit edit def --file`. 
 
 Run `yarn check:api`, `yarn test:node`, and `yarn test:browser`. Browser tests require Chromium (`yarn playwright install chromium`). Node file tests use a temporary directory and remove it in finally. The file recipe itself overwrites `example.txt` in the caller-provided directory.
 
+## 用 Calcit 绘制变换并裁剪的 Canvas 纯色矩形
+
+Runtime: browser.
+
+Imports:
+
+```text
+js-ffi.canvas-batches :as canvas
+```
+
+Schema:
+
+```text
+:: 'Fn $ {} (:args $ [] 'js-ffi.canvas-batches/CanvasContextHost) (:return 'Unit) (:features $ #{} :js-ffi)
+```
+
+Source: [examples/canvas-card.cirru](../examples/canvas-card.cirru)
+
+```text
+quote $ defn canvas-card (context)
+  hint-fn $ {}
+    :args $ [] 'js-ffi.canvas-batches/CanvasContextHost
+    :return 'Unit
+    :features $ #{} :js-ffi
+  let
+      transform $ canvas/CanvasAffine2D :a 1 :b 0 :c 0 :d 1 :e 5 :f 0
+      clip $ canvas/CanvasRect :x 2 :y 2 :width 10 :height 10
+      rect $ canvas/CanvasRect :x 0 :y 0 :width 20 :height 20
+    canvas/fill-transformed-clipped-rect! context transform clip rect |#ea580c
+```
+
+Runtime verification: [tests/browser.mjs](../tests/browser.mjs).
+
 ## Allocate and release a small unmapped COPY_DST buffer on a caller-owned device
 
 Runtime: browser.

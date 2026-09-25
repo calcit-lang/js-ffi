@@ -1,5 +1,7 @@
 # Canvas2D 整场景命令批次
 
+状态：0.1.45 引入的实验兼容入口，暂不移除以免破坏已发布消费者；新 Calcit 下游不应以这里的 `push/pop/rect/instances` 格式作为通用 Scene IR。基础变换、矩形裁剪和绘制已由 [Canvas2D 类型化原语](canvas-rect-batches.md) 提供，应用自己的场景遍历与层级策略应留在应用模块。大规模相同图元仍可复用通用 `draw-rects!` 批次；若未来需要新的通用命令缓冲区，须先定义与任何特定 Scene IR 无关的公共类型、失败原子性和性能证据。
+
 公开 Calcit 入口 `js-ffi.canvas-scene/draw-scene!` 接收 Canvas 宿主句柄、`CanvasSceneCommandsHost`、逻辑宽高与 DPR，返回类型化 `CanvasSceneMetrics`。原始 `canvas-scene-commands.mjs` 只在 js-ffi 包内实现宿主效果，下游项目经 Calcit 模块消费。命令数组在宿主边界做完整预检；非法图元、非有限坐标、错误实例长度、失衡 group 等在更改画布前拒绝。
 
 命令按预序平铺：`push` 带六个仿射系数、`none|rect` 局部裁剪和 opacity=1；`pop` 关闭最近 group；`rect` 带逻辑像素几何及 `[0,1]` 直通道 RGBA；`instances` 带交错 Float32 x/y、count、共享宽高和颜色。调用方保持 Scene IR 的绘制顺序，不能为合批重排透明对象。宿主在一个边界调用中调整实际画布像素宽高、清白底、按 DPR 设变换、执行组的 transform/clip 和绘制。每帧逐个实例 `fillRect`，所以边界调用 1 不等于 Canvas 绘制调用 1，也不代表 GPU draw call。

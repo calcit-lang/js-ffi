@@ -2,7 +2,7 @@
 
 公开入口是浏览器 Calcit 命名空间 `js-ffi.canvas-batches/draw-rects!`，接受 `CanvasContextHost`、`js-ffi.typed-arrays/Float32ArrayHost`、实例范围和矩形样式，返回类型化 `CanvasRectMetrics`。`canvas-rect-batches.mjs` 仅为同包内部宿主实现，下游 Calcit 模块不应直接引用它。
 
-同一 `CanvasContextHost` 现在还类型化了浏览器原生的 `save`、`restore`、`fillRect` 和可写 `fillStyle`。Calcit 可直接使用 `context .save!`、`js-set context :fill-style |#ea580c`、`context .fill-rect! x y width height`、`context .restore!` 编排基础绘制；`fill-solid-rect!` 是这一操作的通用 Calcit 组合，并不解释 Quamolit 的 Scene IR。此阶段只提供这些基础方法，裁剪、变换、图像和路径仍需后续按独立宿主契约补充。浏览器测试用真实 Canvas 像素和样式恢复验证了方法映射。
+同一 `CanvasContextHost` 类型化浏览器原生的 `save`、`restore`、`fillRect`、`clearRect`、`setTransform`、`transform`、`beginPath`、`rect`、`clip` 和可写纯色 `fillStyle`。Calcit 可直接调用这些方法编排绘制；`fill-solid-rect!`、`fill-transformed-clipped-rect!` 与 `clear-canvas!` 是通用 Calcit 组合，不解释 Quamolit 的 Scene IR。`CanvasAffine2D` 保存六系数矩阵，`CanvasRect` 保存基础矩形。裁剪组合按当前变换定义局部矩形，随后恢复变换、裁剪和 fillStyle；但 Canvas 当前路径不属于 save/restore 状态，组合调用会改写当前路径。调用方负责提供有效坐标/尺寸，它不是“整场景预检后原子绘制”的接口。浏览器测试用真实 Canvas 像素、裁剪外背景、样式及变换恢复验证方法映射。图像、复杂路径与隔离组透明度仍待独立宿主契约。
 
 `positions` 是交错 x/y 的 `Float32Array`，`start` 与 `count` 按矩形计数；一次 JavaScript 边界调用绘制一个连续范围。宿主实现校验范围、有限坐标、尺寸和透明度，拒绝共享内存，然后在 `save/restore` 作用域内按输入顺序调用 Canvas2D `fillRect`，不改变调用者的样式状态。返回的 `CanvasRectMetrics` 含 `boundary-calls`、`canvas-calls`、`instances`、`position-bytes-read`；其中 `boundary-calls=1`、`canvas-calls=count`、`position-bytes-read=count*8` 是本次读取量，**不是 GPU 上传字节数**。
 

@@ -1530,8 +1530,12 @@
           :require (js-ffi.browser :as browser) (js-ffi.contract :as contract) (js-ffi.shared :as shared) (js-ffi.webgpu :as webgpu)
     'js-ffi.canvas-batches $ %{} 'FileEntry
       :defs $ {}
+        'CanvasAffine2D $ %{} 'CodeEntry (:doc "|Canvas2D 六系数仿射矩阵；传给原生 transform，单位和坐标系由调用方决定。")
+          :code $ quote $ defstruct CanvasAffine2D (:a 'Number) (:b 'Number) (:c 'Number) (:d 'Number) (:e 'Number) (:f 'Number)
+          :examples $ []
+          :schema $ :: 'StructDef
         'CanvasContextHost $ %{} 'CodeEntry
-          :doc "|浏览器 CanvasRenderingContext2D 类型化宿主能力；提供 save/restore、fillStyle 和 fillRect 基础操作。"
+          :doc "|浏览器 CanvasRenderingContext2D 类型化宿主能力；提供 save/restore、fillRect/clearRect、仿射变换和基础矩形路径裁剪。fillStyle 当前仅覆盖纯色 String 子集。"
           :code $ quote $ deftrait CanvasContextHost (:fill-style 'String)
             .save! $ :: 'Fn $ {}
               :args $ [] 'js-ffi.canvas-batches/CanvasContextHost
@@ -1542,16 +1546,54 @@
             .fill-rect! $ :: 'Fn $ {}
               :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'Number 'Number 'Number 'Number
               :return 'Unit
+            .set-transform! $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'Number 'Number 'Number 'Number 'Number 'Number
+              :return 'Unit
+            .transform! $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'Number 'Number 'Number 'Number 'Number 'Number
+              :return 'Unit
+            .begin-path! $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.canvas-batches/CanvasContextHost
+              :return 'Unit
+            .rect! $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'Number 'Number 'Number 'Number
+              :return 'Unit
+            .clip! $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.canvas-batches/CanvasContextHost
+              :return 'Unit
+            .clear-rect! $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'Number 'Number 'Number 'Number
+              :return 'Unit
           :examples $ []
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
-            :names $ {} (:fill-rect! |fillRect) (:fill-style |fillStyle) (:restore! |restore) (:save! |save)
+            :names $ {} (:begin-path! |beginPath) (:clear-rect! |clearRect) (:clip! |clip) (:fill-rect! |fillRect) (:fill-style |fillStyle) (:rect! |rect) (:restore! |restore) (:save! |save) (:set-transform! |setTransform) (:transform! |transform)
             :writable $ #{} :fill-style
           :schema $ :: 'Trait
+        'CanvasRect $ %{} 'CodeEntry
+          :doc "|Canvas2D 矩形的 x/y/width/height 基础数据，不绑定任何 Scene IR。"
+          :code $ quote $ defstruct CanvasRect (:x 'Number) (:y 'Number) (:width 'Number) (:height 'Number)
+          :examples $ []
+          :schema $ :: 'StructDef
         'CanvasRectMetrics $ %{} 'CodeEntry
           :doc "|一次批次边界调用和逐矩形 Canvas 调用计数；position-bytes-read 并非 GPU 上传字节。"
           :code $ quote $ defstruct CanvasRectMetrics (:boundary-calls 'Number) (:canvas-calls 'Number) (:instances 'Number) (:position-bytes-read 'Number)
           :examples $ []
           :schema $ :: 'StructDef
+        'clear-canvas! $ %{} 'CodeEntry (:doc "|在单位变换下清除给定实际像素区域，再恢复 Canvas 绘制状态；调用方传入像素宽高。")
+          :code $ quote $ defn clear-canvas! (context pixel-width pixel-height)
+            hint-fn $ {}
+              :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'Number 'Number
+              :return 'Unit
+              :features $ #{} :js-ffi
+            context .save!
+            context .set-transform! 1 0 0 1 0 0
+            context .clear-rect! 0 0 pixel-width pixel-height
+            context .restore!
+            , &unit
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'Number 'Number
+            :features $ #{} :js-ffi
         'draw-rects! $ %{} 'CodeEntry (:doc "|按输入顺序绘制一个 Float32 x/y 范围并返回类型化指标；宿主仅跨界一次。")
           :code $ quote $ defn draw-rects! (context positions start amount width height fill-style alpha)
             hint-fn $ {}
@@ -1589,8 +1631,28 @@
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'Number 'Number 'Number 'Number 'String
             :features $ #{} :js-ffi
+        'fill-transformed-clipped-rect! $ %{} 'CodeEntry
+          :doc "|通用 Calcit 组合：在 save/restore 作用域内应用变换、矩形裁剪并绘制纯色矩形；当前路径不是 Canvas 保存状态的一部分，调用后路径会变更。"
+          :code $ quote $ defn fill-transformed-clipped-rect! (context transform clip rect fill-style)
+            hint-fn $ {}
+              :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'js-ffi.canvas-batches/CanvasAffine2D 'js-ffi.canvas-batches/CanvasRect 'js-ffi.canvas-batches/CanvasRect 'String
+              :return 'Unit
+              :features $ #{} :js-ffi
+            context .save!
+            context .transform! (:a transform) (:b transform) (:c transform) (:d transform) (:e transform) (:f transform)
+            context .begin-path!
+            context .rect! (:x clip) (:y clip) (:width clip) (:height clip)
+            context .clip!
+            js-set context :fill-style fill-style
+            context .fill-rect! (:x rect) (:y rect) (:width rect) (:height rect)
+            context .restore!
+            , &unit
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'js-ffi.canvas-batches/CanvasAffine2D 'js-ffi.canvas-batches/CanvasRect 'js-ffi.canvas-batches/CanvasRect 'String
+            :features $ #{} :js-ffi
       :ns $ %{} 'NsEntry
-        :doc "|浏览器 Canvas2D 类型化基础操作与 Float32 矩形批次；通用批量宿主绘制由包内 JS 实现。"
+        :doc "|浏览器 Canvas2D 类型化基础操作与 Float32 矩形批次；通用批量宿主绘制由包内 JS 实现，Scene 遍历由调用方负责。"
         :code $ quote $ ns js-ffi.canvas-batches
           :require
             |@calcit/js-ffi/canvas-rect-batches.mjs :refer $ drawFloat32RectBatch
@@ -1599,7 +1661,7 @@
     'js-ffi.canvas-scene $ %{} 'FileEntry
       :defs $ {}
         'CanvasSceneCommandsHost $ %{} 'CodeEntry
-          :doc "|宿主命令数组，逐项由包内实现原子校验；调用方只传由已验证 Scene IR 降低的封闭 push/pop/rect/instances 命令。"
+          :doc "|0.1.45 实验兼容的 push/pop/rect/instances 宿主命令数组；命令格式不作为新 Calcit 项目的通用 Scene IR。调用方负责专属场景 lowering，包内先全量校验再绘制。"
           :code $ quote $ deftrait CanvasSceneCommandsHost
           :examples $ []
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
@@ -1609,7 +1671,7 @@
           :examples $ []
           :schema $ :: 'StructDef
         'draw-scene! $ %{} 'CodeEntry
-          :doc "|一次宿主边界调用绘制完整预序场景；非法命令在清屏前拒绝，暂不支持需要离屏隔离的 group opacity。"
+          :doc "|实验兼容入口：一次宿主边界调用执行旧命令格式；非法命令在清屏前拒绝，组隔离透明度不支持。新项目优先使用类型化 Canvas 基础方法与通用矩形批次。"
           :code $ quote $ defn draw-scene! (context commands width height dpr)
             hint-fn $ {}
               :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'js-ffi.canvas-scene/CanvasSceneCommandsHost 'Number 'Number 'Number
@@ -1634,7 +1696,7 @@
             :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'js-ffi.canvas-scene/CanvasSceneCommandsHost 'Number 'Number 'Number
             :features $ #{} :js-ffi
       :ns $ %{} 'NsEntry
-        :doc "|浏览器 Canvas2D 整场景批次入口；Calcit 暴露宿主契约与类型化计数，JS 内部实现校验封闭命令列表。"
+        :doc "|0.1.45 起的 Canvas 整场景命令实验兼容入口；保留旧消费者，不鼓励新项目把命令格式当通用 Scene IR。"
         :code $ quote $ ns js-ffi.canvas-scene
           :require
             |@calcit/js-ffi/canvas-scene-commands.mjs :refer $ drawCanvasSceneCommands
