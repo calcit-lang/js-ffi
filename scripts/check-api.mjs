@@ -1,4 +1,4 @@
-import { copyFileSync, mkdtempSync, mkdirSync, readFileSync, rmSync } from 'node:fs';
+import { copyFileSync, cpSync, mkdtempSync, mkdirSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, dirname, resolve } from 'node:path';
 import { calcit, checkPublic, inventory, root, runtimes } from './api-lib.mjs';
@@ -28,6 +28,7 @@ for (const runtime of [compile]) {
     const snapshot = join(dir, 'calcit.cirru');
     copyFileSync(sourceSnapshot, snapshot);
     copyFileSync(join(dirname(sourceSnapshot), 'deps.cirru'), join(dir, 'deps.cirru'));
+    cpSync(join(root, 'js-ffi-assets'), join(dir, 'js-ffi-assets'), { recursive: true });
     const edit = args => calcit([snapshot, ...args], dir);
     const selected = definitions.filter(def => runtimes(def.namespace).includes(runtime));
     const refs = selected.map(def => def.id.replace('js-ffi.', ''));

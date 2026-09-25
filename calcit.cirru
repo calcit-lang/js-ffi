@@ -580,8 +580,9 @@
         'document-available? $ %{} 'CodeEntry
           :doc "|Return whether document is present. Use this guard before touching DOM objects so shared code can be checked in both Node.js and browsers. Example: (document-available?) => true"
           :code $ quote $ defn document-available? () (exists? js/document)
-          :examples $ [] $ quote "(document-available?)"
+          :examples $ [] $ quote (document-available?)
           :ffi $ {} (:backend :js) (:target :browser)
+            :js $ {} $ :file |js-ffi-assets/document-available.js
           :schema $ :: 'Fn $ {} (:return 'Bool)
             :args $ []
             :features $ #{} :js-ffi
