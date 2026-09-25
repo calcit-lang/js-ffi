@@ -1975,11 +1975,13 @@
             :args $ [] 'String
             :features $ #{} :js-ffi
         'path-basename $ %{} 'CodeEntry
-          :doc "|Call node:path.basename using native platform path rules and validate its result."
+          :doc "|通过模块内 inline JS 调用 node:path.basename，按当前平台路径规则返回 String；参数由 Calcit Fn schema 检查，宿主异常原样传播。"
           :code $ quote $ defn path-basename (value)
             contract/expect-string |path.basename $ path/basename value
           :examples $ []
           :ffi $ {} (:backend :js) (:target :node)
+            :js $ {} (:inline "|(value) => path.basename(value)")
+              :modules $ {} $ :path |node:path
           :schema $ :: 'Fn $ {} (:return 'String)
             :args $ [] 'String
             :features $ #{} :js-ffi
@@ -2278,6 +2280,13 @@
           :examples $ [] $ quote (main!)
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ []
+        'path-label $ %{} 'CodeEntry
+          :doc "|测试用 Calcit 包装器：通过普通调用组合模块内 inline path-basename 与文件实现 path-join。"
+          :code $ quote $ defn path-label (directory filename)
+            node/path-basename $ node/path-join directory filename
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'String)
+            :args $ [] 'String 'String
         'reload! $ %{} 'CodeEntry (:doc "|No-op Node reload hook returning Unit.")
           :code $ quote $ defn reload! () &unit
           :examples $ [] $ quote (reload!)

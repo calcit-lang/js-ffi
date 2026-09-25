@@ -5,6 +5,7 @@ import path from 'node:path';
 import { createServer } from 'node:http';
 import { syncBuiltinESMExports } from 'node:module';
 import * as node from '../js-out/js-ffi.node.mjs';
+import { path_label as pathLabel } from '../js-out/js-ffi.node-test.mjs';
 import * as shared from '../js-out/js-ffi.shared.mjs';
 import { result_$o_err_$q_ as isErr, result_$o_ok_$q_ as isOk, option_$o_unwrap as unwrap, option_$o_none_$q_ as isNone, option_$o_some_$q_ as isSome, _PCT_some, _PCT_none } from '../js-out/calcit.core.mjs';
 import * as procs from '@calcit/procs';
@@ -28,9 +29,14 @@ test('WebGPU capability and ownership states on Node', async () => {
 test('Node paths, process, UTF-8 files and error boundaries', () => {
   const a = assertions();
   const generated = fs.readFileSync(new URL('../js-out/js-ffi.node.mjs', import.meta.url), 'utf8');
+  a.equal(/JS FFI: js-ffi\.node\/path-basename \(calcit:\/\/js-ffi@[^\n]+\/js-ffi\.node\/path-basename\/inline\?hash=/.test(generated), true);
+  a.equal(/\(value\) => path\.basename\(value\)/.test(generated), true);
   a.equal(/JS FFI: js-ffi\.node\/path-join/.test(generated), true);
   a.equal(/JS FFI module: calcit:\/\/js-ffi@[^\n]+ alias path\nimport \* as [^\n]+ from "node:path"/.test(generated), true);
   a.equal(node.path_basename('/work/file.txt'), 'file.txt');
+  a.equal(node.path_basename('/work/你好.txt'), '你好.txt');
+  a.throws(() => node.path_basename(42), /The "path" argument must be of type string/);
+  a.equal(pathLabel('/work', '你好.txt'), '你好.txt');
   a.equal(node.path_dirname('/work/file.txt'), '/work');
   a.equal(node.path_extname('archive.tar.gz'), '.gz');
   a.equal(node.path_extname('.env'), '');
