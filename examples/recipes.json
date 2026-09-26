@@ -1,5 +1,16 @@
 [
   {
+    "name": "canvas-text",
+    "namespace": "js-ffi.canvas-text-example",
+    "title": "用 Calcit 类型化 Canvas2D 绘制文字并测量宽度",
+    "runtimes": ["browser"],
+    "source": "examples/canvas-text.cirru",
+    "imports": ["js-ffi.canvas-batches :as canvas"],
+    "schema": ":: 'Fn $ {} (:args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'String) (:return 'Number) (:features $ #{} :js-ffi)",
+    "apis": ["js-ffi.canvas-batches/CanvasContextHost", "js-ffi.canvas-batches/CanvasTextMetricsHost"],
+    "validation": "tests/canvas-text.mjs"
+  },
+  {
     "name": "canvas-path",
     "namespace": "js-ffi.canvas-path-example",
     "title": "用 Calcit 原生方法绘制线帽、连接和闭合描边",

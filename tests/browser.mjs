@@ -12,11 +12,13 @@ import { probe_device_$x_ as probeCalcitWebGpuDevice } from '../js-out/js-ffi.we
 import { clear_canvas_$x_ as clearCanvas } from '../js-out/js-ffi.canvas-batches.mjs';
 import { canvas_card as canvasCard } from '../js-out/js-ffi.canvas-example.mjs';
 import { testCanvasPath } from './canvas-path.mjs';
+import { testCanvasText } from './canvas-text.mjs';
 
 /** Exercise shared and browser adapters in a real page and return the test summary. */
 export async function run() {
   const a = assertions();
   testCanvasPath(a);
+  testCanvasText(a);
   await testWebGpu(a);
   await testWebGpuCapabilities(a);
   await testCalcitWebGpuCapabilities(a);

@@ -1,5 +1,19 @@
 # Canvas2D 类型化基础接口与批次迁移
 
+## 原生文字绘制与测量（#124）
+
+`CanvasContextHost` 提供 `.fill-text! text x y`（`String, Number, Number -> Unit`）和
+`.measure-text text`（`String -> CanvasTextMetricsHost`）。后者只公开只读的 `:width`，
+类型为 `Number`，单位是 CSS 像素；不把浏览器的其他 `TextMetrics` 字段误写成稳定契约。
+`:font`、`:text-align`、`:text-baseline`、`:direction` 是可读写的原生 String 字段，
+通过 `js-set` 赋值。接口直接映射浏览器 Canvas2D，没有 JS wrapper、Scene 命令或批量策略。
+
+完整的独立 Calcit 调用见 [`examples/canvas-text.cirru`](../examples/canvas-text.cirru)。
+它保存状态、设置字体与对齐、读取 `metrics :width`、绘制后恢复状态；浏览器测试把其测量值、
+像素和恢复后的样式与独立原生 Canvas 调用比较。作为调用方示例，它只覆盖合法输入和正常返回，
+不承诺任意宿主异常下自动恢复状态。字体解析、非法对齐值及字体加载时序沿用浏览器语义；
+`String` 类型不保证字体已经加载或字符串属于浏览器支持的枚举值。需要在字体加载后重新测量。
+
 ## 原生路径描边（0.2.1-alpha.1；以发布 tag 为准）
 
 `CanvasContextHost` 新增 `.move-to!` / `.line-to!`（两个 Number）、`.close-path!` / `.stroke!`（无参数），均返回 Unit。新增可读写字段 `:stroke-style`、`:line-cap`、`:line-join`（String）和 `:line-width`、`:miter-limit`（Number）。它们直接映射浏览器原生属性和方法，不增加 JS wrapper、路径解释器、动画采样或 Quamolit 类型。
