@@ -288,15 +288,6 @@
       :typeNotFull 0
       :unresolved 0
       :unsafeCoerce 1
-    |js-ffi.node/env-or $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 0
-      :unresolved 0
-      :unsafeCoerce 0
     |js-ffi.node/http-create-server $ {} (:codeDynamic 0)
       :codeNil 0
       :declaredOptional 0
@@ -342,43 +333,7 @@
       :typeNotFull 0
       :unresolved 0
       :unsafeCoerce 1
-    |js-ffi.shared/console-clear! $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 0
-      :unresolved 0
-      :unsafeCoerce 1
-    |js-ffi.shared/console-error! $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 0
-      :unresolved 0
-      :unsafeCoerce 1
     |js-ffi.shared/console-host $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 0
-      :unresolved 0
-      :unsafeCoerce 1
-    |js-ffi.shared/console-log! $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 0
-      :unresolved 0
-      :unsafeCoerce 1
-    |js-ffi.shared/console-warn! $ {} (:codeDynamic 0)
       :codeNil 0
       :declaredOptional 0
       :deprecatedCalls 0
@@ -566,7 +521,7 @@
     :typeNone 0
     :typeNotFull 1
     :unresolved 0
-    :unsafeCoerce 64
+    :unsafeCoerce 60
   :scope $ {} (:includeDependencies false)
     :namespace nil
     :namespacePrefix nil
