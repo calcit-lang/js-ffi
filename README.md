@@ -19,6 +19,16 @@ Calcit [#1372](https://github.com/calcit-lang/calcit/pull/1372) 修复了同一 
 
 ## Design
 
+`0.2.1-alpha.2` 为 Canvas2D 增加 Calcit 类型化文字绘制、宽度测量及字体/对齐字段；
+独立模块消费者示例见 [`examples/canvas-text.cirru`](examples/canvas-text.cirru)。该版本不含
+Quamolit Scene 逻辑，也不发布 npm；安装前请以 Git tag 与
+[发布说明](docs/releases/0.2.1-alpha.2.md) 核对。
+
+`0.2.1-alpha.2` adds typed Canvas2D text drawing, width measurement, and font/alignment fields.
+The independent Calcit consumer is [`examples/canvas-text.cirru`](examples/canvas-text.cirru).
+It does not include Quamolit Scene logic or an npm publication; verify the Git tag and
+[release notes](docs/releases/0.2.1-alpha.2.md) before installing.
+
 `0.2.1-alpha.1` 增加 Calcit 类型化 Canvas2D 原生路径描边：`moveTo/lineTo/closePath/stroke` 与描边样式、宽度、线帽、连接字段。无需额外 JS wrapper；见 [原生路径契约与检验](docs/canvas-rect-batches.md) 和 `examples/canvas-path.cirru`。下游须等对应 tag 发布后再安装；已发布的 `0.2.0` 不包含这些接口。发布检验见 [alpha 发布说明](docs/releases/0.2.1-alpha.1.md)。
 
 `0.2.1-alpha.1` adds typed native Canvas2D path/stroke members in Calcit, without a JavaScript wrapper. Wait for the corresponding tag before installing. See the [contract and validation](docs/canvas-rect-batches.md) and [release checklist](docs/releases/0.2.1-alpha.1.md); these additions are not part of `0.2.0`.
