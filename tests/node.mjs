@@ -337,6 +337,29 @@ test('shared console-info forwards one typed String and returns Unit', () => {
   console.log(`Console info: ${a.count} assertions`);
 });
 
+test('shared console adapters reuse the typed ConsoleHost boundary', () => {
+  const a = assertions();
+  const methods = ['clear', 'error', 'log', 'warn'];
+  const originals = Object.fromEntries(methods.map((method) => [method, console[method]]));
+  const calls = [];
+  for (const method of methods) console[method] = (...args) => calls.push([method, args]);
+  try {
+    a.equal(shared.console_clear_$x_(), undefined);
+    a.equal(shared.console_error_$x_('failed'), undefined);
+    a.equal(shared.console_log_$x_('ready'), undefined);
+    a.equal(shared.console_warn_$x_('deprecated'), undefined);
+    a.equal(JSON.stringify(calls), JSON.stringify([
+      ['clear', []],
+      ['error', ['failed']],
+      ['log', ['ready']],
+      ['warn', ['deprecated']],
+    ]));
+  } finally {
+    for (const method of methods) console[method] = originals[method];
+  }
+  console.log(`Console adapters: ${a.count} assertions`);
+});
+
 test('Node env-get and env-or share the typed process.env boundary', () => {
   const a = assertions();
   a.equal(isNone(node.env_get('JS_FFI_MISSING_KEY')), true);

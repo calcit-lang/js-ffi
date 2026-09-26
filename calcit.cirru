@@ -2578,7 +2578,7 @@
           :doc "|Clear the shared console through ConsoleHost.clear."
           :code $ quote $ defn console-clear! ()
             let
-                host-console $ unsafe-coerce js/console ConsoleHost
+                host-console $ console-host
               host-console .clear!
               , &unit
           :examples $ []
@@ -2589,7 +2589,7 @@
           :doc "|Write one error String to the host console and return Unit in browser or Node."
           :code $ quote $ defn console-error! (message)
             let
-                host-console $ unsafe-coerce js/console ConsoleHost
+                host-console $ console-host
               host-console .error! message
               , &unit
           :examples $ [] $ quote (console-error! |failed)
@@ -2618,7 +2618,7 @@
           :doc "|Write one String to the host console and normalize the host undefined return to Unit."
           :code $ quote $ defn console-log! (message)
             let
-                host-console $ unsafe-coerce js/console ConsoleHost
+                host-console $ console-host
               host-console .log! message
               , &unit
           :examples $ [] $ quote (console-log! |ready)
@@ -2629,7 +2629,7 @@
           :doc "|Write one warning String to the host console and return Unit in browser or Node."
           :code $ quote $ defn console-warn! (message)
             let
-                host-console $ unsafe-coerce js/console ConsoleHost
+                host-console $ console-host
               host-console .warn! message
               , &unit
           :examples $ [] $ quote (console-warn! |deprecated)
