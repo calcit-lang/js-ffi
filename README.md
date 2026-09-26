@@ -19,6 +19,10 @@ Calcit [#1372](https://github.com/calcit-lang/calcit/pull/1372) 修复了同一 
 
 ## Design
 
+下一版本增加 Calcit 类型化 Canvas2D 原生路径描边：`moveTo/lineTo/closePath/stroke` 与描边样式、宽度、线帽、连接字段。无需额外 JS wrapper；见 [原生路径契约与检验](docs/canvas-rect-batches.md) 和 `examples/canvas-path.cirru`。尚未发布时，下游不要将它视为 `0.2.0` 已有能力。
+
+The next release adds typed native Canvas2D path/stroke members in Calcit, without a JavaScript wrapper. See the [contract and validation](docs/canvas-rect-batches.md); these additions are not part of the published `0.2.0` tag.
+
 The public API is split by runtime:
 
 - `js-ffi.shared` contains runtime enums, normalized error/URL/date/HTTP data,

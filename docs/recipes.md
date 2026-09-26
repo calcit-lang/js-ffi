@@ -6,6 +6,49 @@ Each source is a quoted Calcit definition accepted by `calcit edit def --file`. 
 
 Run `yarn check:api`, `yarn test:node`, and `yarn test:browser`. Browser tests require Chromium (`yarn playwright install chromium`). Node file tests use a temporary directory and remove it in finally. The file recipe itself overwrites `example.txt` in the caller-provided directory.
 
+## 用 Calcit 原生方法绘制线帽、连接和闭合描边
+
+Runtime: browser.
+
+Imports:
+
+```text
+js-ffi.canvas-batches :as canvas
+```
+
+Schema:
+
+```text
+:: 'Fn $ {} (:args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'String 'String 'Bool) (:return 'Unit) (:features $ #{} :js-ffi)
+```
+
+Source: [examples/canvas-path.cirru](../examples/canvas-path.cirru)
+
+```text
+quote $ defn canvas-path (context cap line-join closed)
+  hint-fn $ {}
+    :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'String 'String 'Bool
+    :return 'Unit
+    :features $ #{} :js-ffi
+  context .save!
+  context .transform! 1 0 0 1 7 9
+  js-set context :stroke-style |#ea580c
+  js-set context :line-width 10
+  js-set context :line-cap cap
+  js-set context :line-join line-join
+  js-set context :miter-limit 8
+  context .begin-path!
+  context .move-to! 15 45
+  context .line-to! 35 15
+  context .line-to! 55 45
+  when closed $ context .close-path!
+  context .stroke!
+  context .restore!
+  , &unit
+```
+
+Runtime verification: [tests/canvas-path.mjs](../tests/canvas-path.mjs).
+
 ## 用 Calcit 绘制变换并裁剪的 Canvas 纯色矩形
 
 Runtime: browser.
