@@ -2353,6 +2353,9 @@
             .log! $ :: 'Fn $ {}
               :args $ [] 'js-ffi.shared/ConsoleHost 'String
               :return 'Unit
+            .info! $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.shared/ConsoleHost 'String
+              :return 'Unit
             .warn! $ :: 'Fn $ {}
               :args $ [] 'js-ffi.shared/ConsoleHost 'String
               :return 'Unit
@@ -2602,7 +2605,11 @@
             :features $ #{} :js-ffi
         'console-info! $ %{} 'CodeEntry
           :doc "|Write one informational String to the host console and return Unit in browser or Node."
-          :code $ quote $ defn console-info! (message) (js/console.info message) &unit
+          :code $ quote $ defn console-info! (message)
+            let
+                host-console $ console-host
+              host-console .info! message
+            , &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'String

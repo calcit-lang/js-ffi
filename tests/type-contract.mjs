@@ -11,6 +11,7 @@ const cases = [
   ['node', 'node/path-basename 42', /W_FN_ARG_TYPE_MISMATCH/],
   ['browser', 'node/path-basename |index.js', /E_JS_FFI_TARGET_MISMATCH/, 'js-ffi.node :as node'],
   ['node', 'node/path-join |src 42', /W_FN_ARG_TYPE_MISMATCH/],
+  ['node', 'shared/console-info! 42', /W_FN_ARG_TYPE_MISMATCH/],
   ['browser', 'node/path-join |src |index.js', /E_JS_FFI_TARGET_MISMATCH/, 'js-ffi.node :as node'],
   ['node', 'shared/headers-get (shared/url-create |\/ |https:\/\/example.com) |x', /W_FN_ARG_TYPE_MISMATCH/],
   ['browser', 'browser/clear-timeout! |not-a-handle', /W_FN_ARG_TYPE_MISMATCH/],

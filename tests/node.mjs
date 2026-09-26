@@ -321,6 +321,22 @@ test('shared console-host exposes the host console for method calls', () => {
   console.log(`Console host: ${a.count} assertions`);
 });
 
+test('shared console-info forwards one typed String and returns Unit', () => {
+  const a = assertions();
+  const originalInfo = console.info;
+  const calls = [];
+  console.info = (...args) => calls.push(args);
+  try {
+    a.equal(shared.console_info_$x_('ready'), undefined);
+    a.equal(calls.length, 1);
+    a.equal(calls[0].length, 1);
+    a.equal(calls[0][0], 'ready');
+  } finally {
+    console.info = originalInfo;
+  }
+  console.log(`Console info: ${a.count} assertions`);
+});
+
 test('Node env-get and env-or share the typed process.env boundary', () => {
   const a = assertions();
   a.equal(isNone(node.env_get('JS_FFI_MISSING_KEY')), true);

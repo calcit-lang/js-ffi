@@ -57,7 +57,7 @@ URLSearchParams.size, Headers, AbortController, performance and requestAnimation
 | `response-text` | ResponseHost → async Result<String, JsError> | Await one body read; repeated/failed reads are errors. |
 | `response-json` | ResponseHost → async Result<JsObject, JsError> | Await the body, parse JSON, and expose the resulting object. |
 | `normalize-error` | JsObject → JsError | Normalize a caught host failure. |
-| `console-info!` | String → Unit | Write one informational line through the shared console contract. |
+| `console-info!` | String → Unit | 经类型化的 `ConsoleHost.info!` 输出单条消息，并返回 Unit。 |
 | `console-host` | () → ConsoleHost | Return the console external-object for method-style calls. |
 | `console-clear!` | () → Unit | Clear the shared console. |
 
