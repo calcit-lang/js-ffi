@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 
 import {
   child_element_at,
+  document_append_body_$x_,
   document_available_$q_,
 } from "./js-out/js-ffi.browser.mjs";
 import {
@@ -22,6 +23,7 @@ try {
     value: {},
   });
   assert.equal(document_available_$q_(), true);
+  assert.throws(() => document_append_body_$x_({}), /document\.body expected Object, got nullish/);
 
   const child = { localName: "span" };
   const children = {
