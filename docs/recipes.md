@@ -6,6 +6,45 @@ Each source is a quoted Calcit definition accepted by `calcit edit def --file`. 
 
 Run `yarn check:api`, `yarn test:node`, and `yarn test:browser`. Browser tests require Chromium (`yarn playwright install chromium`). Node file tests use a temporary directory and remove it in finally. The file recipe itself overwrites `example.txt` in the caller-provided directory.
 
+## 用 Calcit 类型化 Canvas2D 绘制文字并测量宽度
+
+Runtime: browser.
+
+Imports:
+
+```text
+js-ffi.canvas-batches :as canvas
+```
+
+Schema:
+
+```text
+:: 'Fn $ {} (:args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'String) (:return 'Number) (:features $ #{} :js-ffi)
+```
+
+Source: [examples/canvas-text.cirru](../examples/canvas-text.cirru)
+
+```text
+quote $ defn canvas-text (context text)
+  hint-fn $ {}
+    :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'String
+    :return 'Number
+    :features $ #{} :js-ffi
+  context .save!
+  js-set context :font "|20px monospace"
+  js-set context :text-align |left
+  js-set context :text-baseline |alphabetic
+  js-set context :direction |ltr
+  let
+      metrics $ context .measure-text text
+      width $ metrics :width
+    context .fill-text! text 8 28
+    context .restore!
+    , width
+```
+
+Runtime verification: [tests/canvas-text.mjs](../tests/canvas-text.mjs).
+
 ## 用 Calcit 原生方法绘制线帽、连接和闭合描边
 
 Runtime: browser.

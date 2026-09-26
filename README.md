@@ -36,7 +36,7 @@ The public API is split by runtime:
 - `js-ffi.contract` contains runtime-independent checks and boundary decoders
   shared by smoke tests and host adapters.
 - `js-ffi.typed-arrays` 是跨 Node/浏览器的 Calcit Float32 快照 API：登记时复制、校验有限数值、只读索引和按范围再复制；`typed-arrays.mjs` 只做内部宿主实现。See [Float32 snapshots](docs/typed-arrays.md).
-- `js-ffi.canvas-batches` 保留 Calcit 类型化 Canvas2D 原生宿主方法及单矩形变换/裁剪组合；Quamolit 的 Float32 批量绘制已迁出。See [Canvas2D migration](docs/canvas-rect-batches.md).
+- `js-ffi.canvas-batches` 保留 Calcit 类型化 Canvas2D 原生宿主方法、文字绘制/测量和单矩形变换/裁剪组合；Quamolit 的 Float32 批量绘制已迁出。见 [Canvas2D 接口与迁移](docs/canvas-rect-batches.md)。未发布的能力请以对应 PR/版本为准，不要从本地 main 推断已发布 tag。
 - 0.2.0-alpha.1 移除了实验性 `js-ffi.canvas-scene` 整场景命令解释器；已发布的 0.1.x tag 不改写。See [Canvas scene migration](docs/canvas-scene-commands.md).
 - `js-ffi.webgpu-capabilities` 公开带封闭结果分支和显式设备所有权的 Calcit WebGPU 探测；`webgpu-capabilities.mjs` 仅为内部宿主实现。See [WebGPU capability probe](docs/webgpu-capabilities.md).
 - 0.2.0-alpha.2 移除了 Quamolit 专属的矩形批次 Calcit 类型与封送辅助；新项目使用 `js-ffi.webgpu` 的原生能力，Quamolit 使用自有类型。See [WebGPU migration](docs/webgpu-rect-batches.md).

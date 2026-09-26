@@ -52,6 +52,14 @@ const invalidCanvas = [
   'js-set context :line-cap 42',
   'js-set context :line-join 42',
   'js-set context :miter-limit |eight',
+  'context .fill-text! 42 1 2',
+  'context .fill-text! |hello |x 2',
+  'context .measure-text 42',
+  'js-set (context .measure-text |hello) :width 42',
+  'js-set context :font 42',
+  'js-set context :text-align 42',
+  'js-set context :text-baseline 42',
+  'js-set context :direction 42',
 ];
 for (const expression of invalidCanvas) {
   const dir = mkdtempSync(join(tmpdir(), 'js-ffi-canvas-types-'));
@@ -68,7 +76,7 @@ for (const expression of invalidCanvas) {
     const result = spawnSync(calcitBin, [snapshot, '--entry', 'browser', '--init-fn', 'js-ffi.browser-test/check-canvas!', '--check-only'], { cwd: dir, encoding: 'utf8' });
     assert.ifError(result.error);
     assert.notEqual(result.status, 0, `Invalid Canvas consumer passed: ${expression}`);
-    assert.match(result.stdout + result.stderr, /(?:TYPE_MISMATCH|ARITY_MISMATCH|expects type|expects \d+ args)/, expression);
+    assert.match(result.stdout + result.stderr, /(?:TYPE_MISMATCH|ARITY_MISMATCH|FIELD_READONLY|expects type|expects \d+ args)/, expression);
   } finally { rmSync(dir, { recursive: true, force: true }); }
 }
 

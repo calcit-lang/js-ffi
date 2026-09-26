@@ -1536,7 +1536,7 @@
           :examples $ []
           :schema $ :: 'StructDef
         'CanvasContextHost $ %{} 'CodeEntry
-          :doc "|浏览器 CanvasRenderingContext2D 类型化原生能力：矩形、仿射变换、裁剪及 moveTo/lineTo/closePath/stroke。fillStyle/strokeStyle 仅覆盖纯色 String；lineCap/lineJoin 为原生 String，非法值按浏览器规则忽略，Number 不等于有限正数保证。当前 path 不随 save/restore 恢复；调用方管理路径、合法值及异常时的恢复，不包含场景或动画逻辑。"
+          :doc "|浏览器 CanvasRenderingContext2D 的类型化原生能力：矩形、路径描边、仿射变换、裁剪及文字绘制/测量。fillStyle/strokeStyle 仅覆盖纯色 String；font、textAlign、textBaseline、direction 保留原生 String 值域，非法值按浏览器规则处理。measureText 仅暴露 TextMetrics 的 width。当前 path 不随 save/restore 恢复；调用方管理路径、合法值及异常时的状态恢复，不包含 Scene 或动画逻辑。"
           :code $ quote $ deftrait CanvasContextHost (:fill-style 'String)
             .save! $ :: 'Fn $ {}
               :args $ [] 'js-ffi.canvas-batches/CanvasContextHost
@@ -1582,16 +1582,33 @@
             .stroke! $ :: 'Fn $ {}
               :args $ [] 'js-ffi.canvas-batches/CanvasContextHost
               :return 'Unit
+            :font 'String
+            :text-align 'String
+            :text-baseline 'String
+            :direction 'String
+            .fill-text! $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'String 'Number 'Number
+              :return 'Unit
+            .measure-text $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'String
+              :return 'js-ffi.canvas-batches/CanvasTextMetricsHost
           :examples $ []
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
-            :names $ {} (:begin-path! |beginPath) (:clear-rect! |clearRect) (:clip! |clip) (:close-path! |closePath) (:fill-rect! |fillRect) (:fill-style |fillStyle) (:line-cap |lineCap) (:line-join |lineJoin) (:line-to! |lineTo) (:line-width |lineWidth) (:miter-limit |miterLimit) (:move-to! |moveTo) (:rect! |rect) (:restore! |restore) (:save! |save) (:set-transform! |setTransform) (:stroke! |stroke) (:stroke-style |strokeStyle) (:transform! |transform)
-            :writable $ #{} :fill-style :line-cap :line-join :line-width :miter-limit :stroke-style
+            :names $ {} (:begin-path! |beginPath) (:clear-rect! |clearRect) (:clip! |clip) (:close-path! |closePath) (:direction |direction) (:fill-rect! |fillRect) (:fill-style |fillStyle) (:fill-text! |fillText) (:font |font) (:line-cap |lineCap) (:line-join |lineJoin) (:line-to! |lineTo) (:line-width |lineWidth) (:measure-text |measureText) (:miter-limit |miterLimit) (:move-to! |moveTo) (:rect! |rect) (:restore! |restore) (:save! |save) (:set-transform! |setTransform) (:stroke! |stroke) (:stroke-style |strokeStyle) (:text-align |textAlign) (:text-baseline |textBaseline) (:transform! |transform)
+            :writable $ #{} :direction :fill-style :font :line-cap :line-join :line-width :miter-limit :stroke-style :text-align :text-baseline
           :schema $ :: 'Trait
         'CanvasRect $ %{} 'CodeEntry
           :doc "|Canvas2D 矩形的 x/y/width/height 基础数据，不绑定任何 Scene IR。"
           :code $ quote $ defstruct CanvasRect (:x 'Number) (:y 'Number) (:width 'Number) (:height 'Number)
           :examples $ []
           :schema $ :: 'StructDef
+        'CanvasTextMetricsHost $ %{} 'CodeEntry
+          :doc "|浏览器原生 TextMetrics 的只读宽度投影；width 以 CSS 像素计。其余平台字段暂不纳入公共契约。"
+          :code $ quote $ deftrait CanvasTextMetricsHost (:width 'Number)
+          :examples $ []
+          :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
+            :names $ {} $ :width |width
+          :schema $ :: 'Trait
         'clear-canvas! $ %{} 'CodeEntry (:doc "|在单位变换下清除给定实际像素区域，再恢复 Canvas 绘制状态；调用方传入像素宽高。")
           :code $ quote $ defn clear-canvas! (context pixel-width pixel-height)
             hint-fn $ {}
