@@ -1302,7 +1302,7 @@
           :doc "|Read one localStorage key as Option<String>; missing and JavaScript nullish values become none. Host exceptions remain an adapter concern."
           :code $ quote $ defn storage-get (key)
             let
-                storage $ unsafe-coerce js/localStorage StorageHost
+                storage $ window-local-storage
               js-nullish->option $ storage .get-item key
           :examples $ [] $ quote (storage-get |theme)
           :schema $ :: 'Fn $ {}
@@ -1321,7 +1321,7 @@
           :code $ quote $ defn storage-remove! (key)
             when (local-storage-available?)
               let
-                  storage $ unsafe-coerce js/localStorage StorageHost
+                  storage $ window-local-storage
                 storage .remove-item! key
             , &unit
           :examples $ [] $ quote (storage-remove! |js-ffi-smoke)
@@ -1343,7 +1343,7 @@
           :code $ quote $ defn storage-set! (key value)
             when (local-storage-available?)
               let
-                  storage $ unsafe-coerce js/localStorage StorageHost
+                  storage $ window-local-storage
                 storage .set-item! key value
             , &unit
           :examples $ [] $ quote (storage-set! |theme |dark)
