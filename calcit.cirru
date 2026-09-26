@@ -1902,26 +1902,19 @@
                 env $ contract/expect-object |process.env js/process.env
                 raw $ js-get env key
               if (js-nullish? raw) (%none)
-                %some $ contract/expect-string |process.env raw
+                %some $ contract/expect-string (str |process.env[ key |]) raw
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] 'String
             :features $ #{} :js-ffi
             :return $ :: 'calcit.core/Option 'String
         'env-or $ %{} 'CodeEntry
-          :doc "|Read a process.env value with a typed String fallback. Example: (env-or |NODE_ENV |development) => |development"
+          :doc "|通过类型化 env-get 读取 process.env；键不存在时返回 String fallback。"
           :code $ quote $ defn env-or (key fallback)
-            let
-                env $ unsafe-coerce js/process.env JsObject
-                raw $ aget env key
-              if (js-present? raw)
-                contract/expect-string (str |process.env[ key |]) raw
-                , fallback
+            option:unwrap-or (env-get key) fallback
           :examples $ [] $ quote "(env-or |NODE_ENV |development)"
-          :ffi $ {} (:backend :js) (:target :node)
           :schema $ :: 'Fn $ {} (:return 'String)
             :args $ [] 'String 'String
-            :features $ #{} :js-ffi
         'exit! $ %{} 'CodeEntry
           :doc "|Terminate the Node.js process with a numeric exit code. This effectful escape hatch has the Unit contract because it has no business result. Example: (exit! 1)"
           :code $ quote $ defn exit! (code) (js/process.exit code) &unit

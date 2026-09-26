@@ -321,12 +321,14 @@ test('shared console-host exposes the host console for method calls', () => {
   console.log(`Console host: ${a.count} assertions`);
 });
 
-test('Node env-get reads optional process.env values', () => {
+test('Node env-get and env-or share the typed process.env boundary', () => {
   const a = assertions();
   a.equal(isNone(node.env_get('JS_FFI_MISSING_KEY')), true);
+  a.equal(node.env_or('JS_FFI_MISSING_KEY', 'fallback'), 'fallback');
   process.env.JS_FFI_TEST_KEY = '值';
   try {
     a.equal(unwrap(node.env_get('JS_FFI_TEST_KEY')), '值');
+    a.equal(node.env_or('JS_FFI_TEST_KEY', 'fallback'), '值');
   } finally {
     delete process.env.JS_FFI_TEST_KEY;
   }

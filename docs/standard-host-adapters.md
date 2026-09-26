@@ -167,6 +167,7 @@ teardown. Browser handles are numeric and must not be used as Node timer handles
 | `pid`, `uptime` | () → Number |
 | `platform`, `node-version` | () → String |
 | `env-get` | String → Option<String> |
+| `env-or` | String key, String fallback → String；复用 `env-get` 的类型化边界，缺失时返回 fallback。 |
 | `http-create-server` | Fn(NodeRequestHost, NodeServerResponseHost) → Unit → NodeServerHost | Create a Node HTTP server. |
 | `http-get!` | String, Fn(NodeIncomingResponseHost) → Unit → JsObject | Start a Node HTTP GET and return the client request. |
 | `response-header` | NodeIncomingResponseHost, String → Option<String> | Read one response header. |
