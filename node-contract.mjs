@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 
-import { argv_count, cwd, env_or } from "./js-out/js-ffi.node.mjs";
+import { argv_count, cwd, env_get, env_or } from "./js-out/js-ffi.node.mjs";
 import {
   expect_bool,
   expect_function,
@@ -46,6 +46,7 @@ try {
   assert.throws(() => argv_count(), /process\.argv\.length expected Number, got string/);
 
   process.env = { CALCIT_CONTRACT_TEST: 42 };
+  assert.throws(() => env_get("CALCIT_CONTRACT_TEST"), /process\.env\[CALCIT_CONTRACT_TEST\] expected String, got number/);
   assert.throws(() => env_or("CALCIT_CONTRACT_TEST", "fallback"), /process\.env\[CALCIT_CONTRACT_TEST\] expected String, got number/);
 
   console.log("js-ffi-node-contract-passed");
