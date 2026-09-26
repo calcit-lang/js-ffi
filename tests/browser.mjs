@@ -112,6 +112,11 @@ export async function run() {
     a.equal(browser.element_style(input), input.style);
     a.equal(browser.element_set_style_$x_(input, 'opacity', '0.5'), undefined);
     a.equal(input.style.opacity, '0.5');
+    a.equal(unwrap(browser.element_style_get(input, 'opacity')), '0.5');
+    a.equal(isNone(browser.element_style_get(input, 'missingStyleProperty')), true);
+    a.throws(() => browser.element_style_get({ style: null }, 'opacity'), /element\.style expected Object, got nullish/);
+    a.throws(() => browser.element_style_get({ style: 42 }, 'opacity'), /element\.style expected Object, got number/);
+    a.throws(() => browser.element_style_get({ style: { opacity: 42 } }, 'opacity'), /element\.style expected String, got number/);
 
     let parentEvents = 0;
     let inputEvents = 0;

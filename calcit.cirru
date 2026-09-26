@@ -570,8 +570,16 @@
             :features $ #{} :js-ffi
             :return $ :: 'calcit.core/Option 'js-ffi.browser/DomElementHost
         'document-append-body! $ %{} 'CodeEntry
-          :doc "|Append an element to document.body and return Unit."
-          :code $ quote $ defn document-append-body! (element) (js/document.body.appendChild element) &unit
+          :doc "|将元素附加到 document.body，返回 Unit；若 body 尚不存在，则明确报告 JS FFI 契约错误。"
+          :code $ quote $ defn document-append-body! (element)
+            let
+                maybe-body $ document-body
+              if (option:some? maybe-body)
+                let
+                    body-element $ option:unwrap maybe-body
+                  append-child! body-element element
+                  , &unit
+                raise "|JS FFI contract violation: document.body expected Object, got nullish"
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'js-ffi.browser/DomElementHost
@@ -891,11 +899,12 @@
             let
                 style $ element :style
                 kind $ if (js-nullish? style) |nullish $ js/typeof style
-              if (= |object kind) &unit $ raise $ str "|JS FFI contract violation: " |element.style "| expected Object, got " kind
-              let
-                  value $ js-get style key
-                if (js-nullish? value) (%none)
-                  %some $ contract/expect-string |element.style value
+              if (= |object kind)
+                let
+                    value $ js-get style key
+                  if (js-nullish? value) (%none)
+                    %some $ contract/expect-string |element.style value
+                raise $ str "|JS FFI contract violation: " |element.style "| expected Object, got " kind
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] 'js-ffi.browser/DomElementHost 'String
