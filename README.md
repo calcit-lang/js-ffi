@@ -298,7 +298,7 @@ wrappers. Two assertions in `probe-device!` type this package's named async
 probe import and narrow its validated `ready` host result; the public return
 remains a closed Calcit enum rather than a nullable catch-all object.
 
-本地命令要求 `PATH` 中的 Calcit 与 `deps.cirru` 声明的 `0.22.0` 一致，并安装 Node.js 24 和 Yarn。CI 也使用同一精确版本：
+本地命令要求 `PATH` 中的 Calcit 与 `deps.cirru` 声明的 `0.24.1` 一致，并安装 Node.js 24 和 Yarn。CI 也使用同一精确版本：
 
 ```bash
 yarn install
