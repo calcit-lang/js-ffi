@@ -41,6 +41,37 @@ for (const [runtime, expression, diagnostic, extraImport] of cases) {
   } finally { rmSync(dir, { recursive: true, force: true }); }
 }
 
+// Invalid typed Canvas consumers are checked without executing host effects.
+const invalidCanvas = [
+  'context .move-to! |x 2',
+  'context .line-to! 1 |y',
+  'context .stroke! 42',
+  'context .close-path! 42',
+  'js-set context :stroke-style 42',
+  'js-set context :line-width |wide',
+  'js-set context :line-cap 42',
+  'js-set context :line-join 42',
+  'js-set context :miter-limit |eight',
+];
+for (const expression of invalidCanvas) {
+  const dir = mkdtempSync(join(tmpdir(), 'js-ffi-canvas-types-'));
+  try {
+    const snapshot = join(dir, 'calcit.cirru');
+    copyFileSync(new URL('../calcit.cirru', import.meta.url), snapshot);
+    copyFileSync(new URL('../deps.cirru', import.meta.url), join(dir, 'deps.cirru'));
+    const mutate = args => execFileSync(calcitBin, [snapshot, ...args], { cwd: dir, stdio: 'pipe' });
+    const target = 'js-ffi.browser-test/invalid-canvas!';
+    mutate(['edit', 'def', target, '--code', `quote $ defn invalid-canvas! (context)\n  do (${expression}) &unit`]);
+    mutate(['edit', 'schema', target, '--code', "quote $ :: 'Fn $ {} (:args $ [] 'js-ffi.canvas-batches/CanvasContextHost) (:return 'Unit) (:features $ #{} :js-ffi)"]);
+    mutate(['edit', 'def', 'js-ffi.browser-test/check-canvas!', '--code', 'quote $ defn check-canvas! ()\n  do invalid-canvas! &unit']);
+    mutate(['edit', 'schema', 'js-ffi.browser-test/check-canvas!', '--code', "quote $ :: 'Fn $ {} (:args $ []) (:return 'Unit)"]);
+    const result = spawnSync(calcitBin, [snapshot, '--entry', 'browser', '--init-fn', 'js-ffi.browser-test/check-canvas!', '--check-only'], { cwd: dir, encoding: 'utf8' });
+    assert.ifError(result.error);
+    assert.notEqual(result.status, 0, `Invalid Canvas consumer passed: ${expression}`);
+    assert.match(result.stdout + result.stderr, /(?:TYPE_MISMATCH|ARITY_MISMATCH|expects type|expects \d+ args)/, expression);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+}
+
 // Passing an async definition to a synchronous callback slot must retain the
 // invocation contract instead of silently treating its logical Result as sync.
 {
@@ -81,4 +112,4 @@ for (const [runtime, expression, diagnostic, extraImport] of cases) {
   } finally { rmSync(dir, { recursive: true, force: true }); }
 }
 
-console.log(`Type contracts: ${cases.length + 2} invalid consumers rejected`);
+console.log(`Type contracts: ${cases.length + invalidCanvas.length + 2} invalid consumers rejected`);

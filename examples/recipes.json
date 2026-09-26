@@ -1,5 +1,16 @@
 [
   {
+    "name": "canvas-path",
+    "namespace": "js-ffi.canvas-path-example",
+    "title": "用 Calcit 原生方法绘制线帽、连接和闭合描边",
+    "runtimes": ["browser"],
+    "source": "examples/canvas-path.cirru",
+    "imports": ["js-ffi.canvas-batches :as canvas"],
+    "schema": ":: 'Fn $ {} (:args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'String 'String 'Bool) (:return 'Unit) (:features $ #{} :js-ffi)",
+    "apis": ["js-ffi.canvas-batches/CanvasContextHost"],
+    "validation": "tests/canvas-path.mjs"
+  },
+  {
     "name": "canvas-card",
     "namespace": "js-ffi.canvas-example",
     "title": "用 Calcit 绘制变换并裁剪的 Canvas 纯色矩形",

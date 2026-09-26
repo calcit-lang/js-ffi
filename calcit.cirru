@@ -1536,7 +1536,7 @@
           :examples $ []
           :schema $ :: 'StructDef
         'CanvasContextHost $ %{} 'CodeEntry
-          :doc "|浏览器 CanvasRenderingContext2D 类型化宿主能力；提供 save/restore、fillRect/clearRect、仿射变换和基础矩形路径裁剪。fillStyle 当前仅覆盖纯色 String 子集。"
+          :doc "|浏览器 CanvasRenderingContext2D 类型化原生能力：矩形、仿射变换、裁剪及 moveTo/lineTo/closePath/stroke。fillStyle/strokeStyle 仅覆盖纯色 String；lineCap/lineJoin 为原生 String，非法值按浏览器规则忽略，Number 不等于有限正数保证。当前 path 不随 save/restore 恢复；调用方管理路径、合法值及异常时的恢复，不包含场景或动画逻辑。"
           :code $ quote $ deftrait CanvasContextHost (:fill-style 'String)
             .save! $ :: 'Fn $ {}
               :args $ [] 'js-ffi.canvas-batches/CanvasContextHost
@@ -1565,10 +1565,27 @@
             .clear-rect! $ :: 'Fn $ {}
               :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'Number 'Number 'Number 'Number
               :return 'Unit
+            :stroke-style 'String
+            :line-width 'Number
+            :line-cap 'String
+            :line-join 'String
+            :miter-limit 'Number
+            .move-to! $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'Number 'Number
+              :return 'Unit
+            .line-to! $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'Number 'Number
+              :return 'Unit
+            .close-path! $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.canvas-batches/CanvasContextHost
+              :return 'Unit
+            .stroke! $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.canvas-batches/CanvasContextHost
+              :return 'Unit
           :examples $ []
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
-            :names $ {} (:begin-path! |beginPath) (:clear-rect! |clearRect) (:clip! |clip) (:fill-rect! |fillRect) (:fill-style |fillStyle) (:rect! |rect) (:restore! |restore) (:save! |save) (:set-transform! |setTransform) (:transform! |transform)
-            :writable $ #{} :fill-style
+            :names $ {} (:begin-path! |beginPath) (:clear-rect! |clearRect) (:clip! |clip) (:close-path! |closePath) (:fill-rect! |fillRect) (:fill-style |fillStyle) (:line-cap |lineCap) (:line-join |lineJoin) (:line-to! |lineTo) (:line-width |lineWidth) (:miter-limit |miterLimit) (:move-to! |moveTo) (:rect! |rect) (:restore! |restore) (:save! |save) (:set-transform! |setTransform) (:stroke! |stroke) (:stroke-style |strokeStyle) (:transform! |transform)
+            :writable $ #{} :fill-style :line-cap :line-join :line-width :miter-limit :stroke-style
           :schema $ :: 'Trait
         'CanvasRect $ %{} 'CodeEntry
           :doc "|Canvas2D 矩形的 x/y/width/height 基础数据，不绑定任何 Scene IR。"
