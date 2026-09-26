@@ -1,6 +1,6 @@
 # Canvas2D 类型化基础接口与批次迁移
 
-## 原生路径描边（待下一版本发布）
+## 原生路径描边（0.2.1-alpha.1；以发布 tag 为准）
 
 `CanvasContextHost` 新增 `.move-to!` / `.line-to!`（两个 Number）、`.close-path!` / `.stroke!`（无参数），均返回 Unit。新增可读写字段 `:stroke-style`、`:line-cap`、`:line-join`（String）和 `:line-width`、`:miter-limit`（Number）。它们直接映射浏览器原生属性和方法，不增加 JS wrapper、路径解释器、动画采样或 Quamolit 类型。
 
