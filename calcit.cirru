@@ -890,9 +890,12 @@
           :code $ quote $ defn element-style-get (element key)
             let
                 style $ element :style
-                value $ js-get style key
-              if (js-nullish? value) (%none)
-                %some $ contract/expect-string |element.style value
+                kind $ if (js-nullish? style) |nullish $ js/typeof style
+              if (= |object kind) &unit $ raise $ str "|JS FFI contract violation: " |element.style "| expected Object, got " kind
+              let
+                  value $ js-get style key
+                if (js-nullish? value) (%none)
+                  %some $ contract/expect-string |element.style value
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] 'js-ffi.browser/DomElementHost 'String
