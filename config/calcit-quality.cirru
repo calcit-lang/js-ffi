@@ -1,14 +1,5 @@
 {} (:schemaVersion 2)
   :definitions $ {}
-    |js-ffi.browser/append-child! $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 0
-      :unresolved 0
-      :unsafeCoerce 1
     |js-ffi.browser/blob-create $ {} (:codeDynamic 0)
       :codeNil 0
       :declaredOptional 0
@@ -28,15 +19,6 @@
       :unresolved 0
       :unsafeCoerce 1
     |js-ffi.browser/element-dataset $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 0
-      :unresolved 0
-      :unsafeCoerce 1
-    |js-ffi.browser/element-style $ {} (:codeDynamic 0)
       :codeNil 0
       :declaredOptional 0
       :deprecatedCalls 0
@@ -422,7 +404,7 @@
     :typeNone 0
     :typeNotFull 1
     :unresolved 0
-    :unsafeCoerce 49
+    :unsafeCoerce 47
   :scope $ {} (:includeDependencies false)
     :namespace nil
     :namespacePrefix nil

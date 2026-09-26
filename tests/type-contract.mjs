@@ -16,6 +16,7 @@ const cases = [
   ['node', 'shared/headers-get (shared/url-create |\/ |https:\/\/example.com) |x', /W_FN_ARG_TYPE_MISMATCH/],
   ['browser', 'browser/clear-timeout! |not-a-handle', /W_FN_ARG_TYPE_MISMATCH/],
   ['browser', 'browser/storage-get 42', /W_FN_ARG_TYPE_MISMATCH/],
+  ['browser', 'js-set ((browser/create-element |div) :style) :css-text 42', /W_JS_FFI_FIELD_TYPE_MISMATCH/, undefined, true],
   ['browser', 'browser/request-animation-frame! 42', /W_FN_ARG_TYPE_MISMATCH/],
   ['browser', 'webgpu/destroy-device! 42', /W_FN_ARG_TYPE_MISMATCH/],
   ['browser', 'webgpu/buffer-size (option:unwrap (webgpu/gpu))', /W_FN_ARG_TYPE_MISMATCH/],
@@ -24,7 +25,7 @@ const cases = [
   ['node', 'shared/response-host (shared/fetch-response |http:\/\/127.0.0.1)', /E_ASYNC_INVOCATION_REQUIRES_AWAIT/],
   ['node', 'let ((load shared/fetch-response)) (shared/response-host (load |http:\/\/127.0.0.1))', /E_ASYNC_INVOCATION_REQUIRES_AWAIT/],
 ];
-for (const [runtime, expression, diagnostic, extraImport] of cases) {
+for (const [runtime, expression, diagnostic, extraImport, hostFeature] of cases) {
   const dir = mkdtempSync(join(tmpdir(), 'js-ffi-types-'));
   try {
     const snapshot = join(dir, 'calcit.cirru');
@@ -35,7 +36,8 @@ for (const [runtime, expression, diagnostic, extraImport] of cases) {
     if (runtime === 'browser') mutate(['edit', 'add-import', 'js-ffi.browser-test', '--code', 'quote $ js-ffi.canvas-batches :as canvas-batches']);
     if (extraImport) mutate(['edit', 'add-import', `js-ffi.${runtime}-test`, '--code', `quote $ ${extraImport}`]);
     mutate(['edit', 'def', target, '--code', `quote $ defn invalid-call! ()\n  do (${expression}) &unit`]);
-    mutate(['edit', 'schema', target, '--code', "quote $ :: 'Fn $ {} (:args $ []) (:return 'Unit)"]);
+    const feature = hostFeature ? ' (:features $ #{} :js-ffi)' : '';
+    mutate(['edit', 'schema', target, '--code', `quote $ :: 'Fn $ {} (:args $ []) (:return 'Unit)${feature}`]);
     const result = spawnSync(calcitBin, [snapshot, '--entry', runtime, '--init-fn', target, '--check-only'], { cwd: dir, encoding: 'utf8' });
     assert.ifError(result.error);
     assert.notEqual(result.status, 0, `Invalid consumer unexpectedly passed: ${expression}`);

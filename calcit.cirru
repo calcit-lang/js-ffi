@@ -82,7 +82,7 @@
             :client-width 'Number
             :client-height 'Number
             :dataset 'JsObject
-            :style 'JsObject
+            :style 'js-ffi.browser/StyleHost
             :parent-element $ :: 'JsNullish 'js-ffi.browser/DomElementHost
             .append-child! $ :: 'Fn $ {}
               :generics $ [] 'T
@@ -417,8 +417,7 @@
             :features $ #{} :js-ffi
         'append-child! $ %{} 'CodeEntry
           :doc "|Appends one typed DOM host element to another and returns the child. This keeps DOM insertion inside the browser FFI boundary."
-          :code $ quote $ defn append-child! (parent child)
-            unsafe-coerce (parent .append-child! child) DomElementHost
+          :code $ quote $ defn append-child! (parent child) (parent .append-child! child)
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/DomElementHost)
             :args $ [] 'js-ffi.browser/DomElementHost 'js-ffi.browser/DomElementHost
@@ -881,8 +880,7 @@
             :features $ #{} :js-ffi
         'element-style $ %{} 'CodeEntry
           :doc "|Returns the raw DOM element style object. Prefer element-style-get / element-set-style! for typed access; this raw accessor is deprecated and will be removed in a future release."
-          :code $ quote $ defn element-style (element)
-            unsafe-coerce (element :style) StyleHost
+          :code $ quote $ defn element-style (element) (element :style)
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/StyleHost)
             :args $ [] 'js-ffi.browser/DomElementHost
@@ -891,10 +889,13 @@
           :doc "|Read one inline CSS property as Option<String> through element.style."
           :code $ quote $ defn element-style-get (element key)
             let
-                style $ contract/expect-object |element.style $ js-get element |style
-                value $ js-get style key
-              if (js-nullish? value) (%none)
-                %some $ contract/expect-string |element.style value
+                style $ element :style
+                kind $ if (js-nullish? style) |nullish $ js/typeof style
+              if (= |object kind) &unit $ raise $ str "|JS FFI contract violation: " |element.style "| expected Object, got " kind
+              let
+                  value $ js-get style key
+                if (js-nullish? value) (%none)
+                  %some $ contract/expect-string |element.style value
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] 'js-ffi.browser/DomElementHost 'String

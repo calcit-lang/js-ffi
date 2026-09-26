@@ -279,6 +279,7 @@ export async function run() {
   a.equal(browser.element_set_style_$x_(boundaryElement, 'color', 'red'), undefined);
   a.equal(unwrap(browser.element_style_get(boundaryElement, 'color')), 'red');
   a.equal(isNone(browser.element_style_get(boundaryElement, 'unknown-prop')), true);
+  a.throws(() => browser.element_style_get({ style: null }, 'color'), /JS FFI contract violation: element\.style expected Object, got nullish/);
   const previousTitle = document.title;
   a.equal(browser.document_title_$x_('js-ffi title'), undefined);
   a.equal(browser.document_title(), 'js-ffi title');
