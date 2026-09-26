@@ -19,6 +19,12 @@ Calcit [#1372](https://github.com/calcit-lang/calcit/pull/1372) 修复了同一 
 
 ## Design
 
+`0.2.1-alpha.3` 要求 Calcit `0.24.3`，将 `element-style-get` 的正常分支直接保留为
+`Option<String>`，并使 `document-append-body!` 通过类型化的 DOM 宿主入口执行；
+缺少 `document.body` 时会明确报契约错误。当前是发布准备，只有同名 Git tag 与
+prerelease 创建后，下游才应升级。验证范围与行为变化见
+[发布说明](docs/releases/0.2.1-alpha.3.md)，本模块仍不发布 npm 包。
+
 `0.2.1-alpha.2` 为 Canvas2D 增加 Calcit 类型化文字绘制、宽度测量及字体/对齐字段；
 独立模块消费者示例见 [`examples/canvas-text.cirru`](examples/canvas-text.cirru)。该版本不含
 Quamolit Scene 逻辑，也不发布 npm；安装前请以 Git tag 与
