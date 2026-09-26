@@ -15,6 +15,7 @@ const cases = [
   ['browser', 'node/path-join |src |index.js', /E_JS_FFI_TARGET_MISMATCH/, 'js-ffi.node :as node'],
   ['node', 'shared/headers-get (shared/url-create |\/ |https:\/\/example.com) |x', /W_FN_ARG_TYPE_MISMATCH/],
   ['browser', 'browser/clear-timeout! |not-a-handle', /W_FN_ARG_TYPE_MISMATCH/],
+  ['browser', 'browser/storage-get 42', /W_FN_ARG_TYPE_MISMATCH/],
   ['browser', 'browser/request-animation-frame! 42', /W_FN_ARG_TYPE_MISMATCH/],
   ['browser', 'webgpu/destroy-device! 42', /W_FN_ARG_TYPE_MISMATCH/],
   ['browser', 'webgpu/buffer-size (option:unwrap (webgpu/gpu))', /W_FN_ARG_TYPE_MISMATCH/],
