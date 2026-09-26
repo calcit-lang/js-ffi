@@ -1,14 +1,5 @@
 {} (:schemaVersion 2)
   :definitions $ {}
-    |js-ffi.browser/add-event-listener! $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 0
-      :unresolved 0
-      :unsafeCoerce 1
     |js-ffi.browser/append-child! $ {} (:codeDynamic 0)
       :codeNil 0
       :declaredOptional 0
@@ -27,25 +18,7 @@
       :typeNotFull 0
       :unresolved 0
       :unsafeCoerce 1
-    |js-ffi.browser/create-element $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 0
-      :unresolved 0
-      :unsafeCoerce 1
     |js-ffi.browser/document-host $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 0
-      :unresolved 0
-      :unsafeCoerce 1
-    |js-ffi.browser/document-ready-state $ {} (:codeDynamic 0)
       :codeNil 0
       :declaredOptional 0
       :deprecatedCalls 0
@@ -99,34 +72,7 @@
       :typeNotFull 0
       :unresolved 0
       :unsafeCoerce 1
-    |js-ffi.browser/query-selector $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 0
-      :unresolved 0
-      :unsafeCoerce 1
     |js-ffi.browser/random $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 0
-      :unresolved 0
-      :unsafeCoerce 1
-    |js-ffi.browser/remove-event-listener! $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 0
-      :unresolved 0
-      :unsafeCoerce 1
-    |js-ffi.browser/set-before-unload! $ {} (:codeDynamic 0)
       :codeNil 0
       :declaredOptional 0
       :deprecatedCalls 0
@@ -172,24 +118,6 @@
       :unresolved 0
       :unsafeCoerce 1
     |js-ffi.browser/storage-set! $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 0
-      :unresolved 0
-      :unsafeCoerce 1
-    |js-ffi.browser/viewport $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 0
-      :unresolved 0
-      :unsafeCoerce 1
-    |js-ffi.browser/visibility-state $ {} (:codeDynamic 0)
       :codeNil 0
       :declaredOptional 0
       :deprecatedCalls 0
@@ -521,7 +449,7 @@
     :typeNone 0
     :typeNotFull 1
     :unresolved 0
-    :unsafeCoerce 60
+    :unsafeCoerce 52
   :scope $ {} (:includeDependencies false)
     :namespace nil
     :namespacePrefix nil

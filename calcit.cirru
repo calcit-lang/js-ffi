@@ -398,7 +398,7 @@
           :doc "|Register a typed browser window event listener. The callback receives an EventHost and the wrapper returns Unit."
           :code $ quote $ defn add-event-listener! (event-name callback)
             let
-                host-window $ unsafe-coerce js/window WindowHost
+                host-window $ window-host
               host-window .add-event-listener! event-name callback
           :examples $ []
             quote $ add-event-listener! |visibilitychange
@@ -521,7 +521,7 @@
           :doc "|Create a DOM element through DocumentHost and return its typed host capability."
           :code $ quote $ defn create-element (tag-name)
             let
-                host-document $ unsafe-coerce js/document DocumentHost
+                host-document $ document-host
               host-document .create-element tag-name
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/DomElementHost)
@@ -620,7 +620,7 @@
           :doc "|Read and decode document.readyState through the typed DocumentHost contract."
           :code $ quote $ defn document-ready-state ()
             let
-                host-document $ unsafe-coerce js/document DocumentHost
+                host-document $ document-host
               decode-document-ready-state $ host-document :ready-state
           :examples $ [] $ quote (document-ready-state)
           :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/DocumentReadyState)
@@ -1165,7 +1165,7 @@
           :doc "|Query document for a selector and normalize a missing element into Option<DomElementHost>."
           :code $ quote $ defn query-selector (selector)
             let
-                host-document $ unsafe-coerce js/document DocumentHost
+                host-document $ document-host
               js-nullish->option $ host-document .query-selector selector
           :examples $ []
             quote $ query-selector |.app
@@ -1187,7 +1187,7 @@
           :doc "|Remove a previously registered typed browser window listener."
           :code $ quote $ defn remove-event-listener! (event-name callback)
             let
-                host-window $ unsafe-coerce js/window WindowHost
+                host-window $ window-host
               host-window .remove-event-listener! event-name callback
               , &unit
           :examples $ []
@@ -1244,7 +1244,7 @@
         'set-before-unload! $ %{} 'CodeEntry (:doc "|Install a typed browser beforeunload callback.")
           :code $ quote $ defn set-before-unload! (callback)
             let
-                host-window $ unsafe-coerce js/window WindowHost
+                host-window $ window-host
               js-set host-window :on-before-unload callback
               , &unit
           :examples $ []
@@ -1361,7 +1361,7 @@
           :doc "|Read Window viewport fields once and return normalized Viewport data."
           :code $ quote $ defn viewport ()
             let
-                host-window $ unsafe-coerce js/window WindowHost
+                host-window $ window-host
               &%{} Viewport :width (host-window :inner-width) :height (host-window :inner-height) :device-pixel-ratio $ host-window :device-pixel-ratio
           :examples $ [] $ quote (viewport)
           :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/Viewport)
@@ -1385,7 +1385,7 @@
           :doc "|Read and decode document.visibilityState through the typed DocumentHost contract."
           :code $ quote $ defn visibility-state ()
             let
-                host-document $ unsafe-coerce js/document DocumentHost
+                host-document $ document-host
               decode-visibility-state $ host-document :visibility-state
           :examples $ [] $ quote (visibility-state)
           :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/VisibilityState)

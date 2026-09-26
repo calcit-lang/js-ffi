@@ -176,6 +176,10 @@ export async function run() {
   }));
 
   a.equal(browser.document_host(), document);
+  a.equal(unwrap(browser.query_selector('body')), document.body);
+  a.equal(isNone(browser.query_selector('#js-ffi-missing-element')), true);
+  a.equal(browser.document_ready_state().tag.value, browser.decode_document_ready_state(document.readyState).tag.value);
+  a.equal(browser.visibility_state().tag.value, browser.decode_visibility_state(document.visibilityState).tag.value);
   a.equal(unwrap(browser.document_element()), document.documentElement);
   a.equal(unwrap(browser.document_body()), document.body);
   a.equal(browser.location_host(), location);
@@ -190,6 +194,16 @@ export async function run() {
   a.equal(locationField(locationSnapshot, 'search'), location.search);
   a.equal(locationField(locationSnapshot, 'hash'), location.hash);
   a.equal(browser.window_host(), window);
+  a.equal(browser.viewport_width(), window.innerWidth);
+  a.equal(browser.viewport_height(), window.innerHeight);
+  const priorBeforeUnload = window.onbeforeunload;
+  const beforeUnload = () => undefined;
+  try {
+    a.equal(browser.set_before_unload_$x_(beforeUnload), undefined);
+    a.equal(window.onbeforeunload, beforeUnload);
+  } finally {
+    window.onbeforeunload = priorBeforeUnload;
+  }
   a.equal(browser.user_agent(), navigator.userAgent);
   a.equal(browser.screen_width(), window.screen.width);
   a.equal(browser.screen_height(), window.screen.height);
