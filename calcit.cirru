@@ -1881,7 +1881,8 @@
             :writable $ #{} :status-code :status-message
           :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
-        'NodeTimerHost $ %{} 'CodeEntry (:doc "|Node 定时器返回的不透明句柄；只能交给 clear-timeout! 取消。")
+        'NodeTimerHost $ %{} 'CodeEntry
+          :doc "|Node 定时器返回的不透明句柄；由 clear-timeout! 或 clear-interval! 取消。"
           :code $ quote $ deftrait NodeTimerHost
           :examples $ []
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :node)
@@ -1947,6 +1948,13 @@
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'js-ffi.node/BufferHost)
             :args $ [] 'String
+            :features $ #{} :js-ffi
+        'clear-interval! $ %{} 'CodeEntry (:doc "|取消 set-interval! 返回的 Node 定时器句柄，返回 Unit。")
+          :code $ quote $ defn clear-interval! (handle) (js/clearInterval handle) &unit
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :node)
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'js-ffi.node/NodeTimerHost
             :features $ #{} :js-ffi
         'clear-timeout! $ %{} 'CodeEntry (:doc "|取消 set-timeout! 返回的 Node 定时器句柄，返回 Unit。")
           :code $ quote $ defn clear-timeout! (handle) (js/clearTimeout handle) &unit
@@ -2307,6 +2315,23 @@
             :args $ [] 'js-ffi.node/NodeServerHost 'Number 'String $ :: 'Fn
               {} (:return 'Unit)
                 :args $ []
+            :features $ #{} :js-ffi
+        'set-interval! $ %{} 'CodeEntry
+          :doc "|安排重复执行的 Node 回调，返回不透明 NodeTimerHost；使用 clear-interval! 取消。"
+          :code $ quote $ defn set-interval! (callback millis)
+            unsafe-coerce (js/setInterval callback millis) 'js-ffi.node/NodeTimerHost
+          :examples $ [] $ quote
+            let
+                handle $ set-interval!
+                  fn () &unit
+                  , 1000
+              clear-interval! handle
+          :ffi $ {} (:backend :js) (:target :node)
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.node/NodeTimerHost)
+            :args $ []
+              :: 'Fn $ {} (:return 'Unit)
+                :args $ []
+              , 'Number
             :features $ #{} :js-ffi
         'set-timeout! $ %{} 'CodeEntry
           :doc "|安排 Node 定时器并返回不透明 NodeTimerHost；与浏览器数值 timer id 不同。"

@@ -138,6 +138,31 @@ test('Node timers return opaque handles and can be cancelled', async () => {
   a.equal(callbacks, 1);
 });
 
+test('Node intervals return opaque handles and stop after cancellation', async () => {
+  const a = assertions();
+  let callbacks = 0;
+  let handle;
+  await new Promise((resolve, reject) => {
+    const guard = setTimeout(() => {
+      node.clear_interval_$x_(handle);
+      reject(new Error('Node interval did not fire twice'));
+    }, 1000);
+    handle = node.set_interval_$x_(() => {
+      callbacks += 1;
+      if (callbacks === 2) {
+        node.clear_interval_$x_(handle);
+        clearTimeout(guard);
+        resolve();
+      }
+    }, 5);
+    a.equal(typeof handle, 'object');
+    a.equal(handle.constructor.name, 'Timeout');
+  });
+  await new Promise(resolve => setTimeout(resolve, 30));
+  a.equal(callbacks, 2);
+  a.equal(node.clear_interval_$x_(handle), undefined);
+});
+
 test('checked async fetch, Response body and filesystem adapters', async () => {
   const a = assertions();
   const unhandled = [];

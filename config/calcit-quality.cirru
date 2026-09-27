@@ -198,6 +198,15 @@
       :typeNotFull 0
       :unresolved 0
       :unsafeCoerce 1
+    |js-ffi.node/set-interval! $ {} (:codeDynamic 0)
+      :codeNil 0
+      :declaredOptional 0
+      :deprecatedCalls 0
+      :schemaDynamic 0
+      :typeNone 0
+      :typeNotFull 0
+      :unresolved 0
+      :unsafeCoerce 1
     |js-ffi.node/set-timeout! $ {} (:codeDynamic 0)
       :codeNil 0
       :declaredOptional 0
@@ -395,7 +404,7 @@
     :typeNone 0
     :typeNotFull 0
     :unresolved 0
-    :unsafeCoerce 47
+    :unsafeCoerce 48
   :scope $ {} (:includeDependencies false)
     :namespace nil
     :namespacePrefix nil
