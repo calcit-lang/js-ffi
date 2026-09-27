@@ -1,7 +1,7 @@
 {
   "name": "@calcit/js-ffi",
   "private": true,
-  "version": "0.2.1-alpha.7",
+  "version": "0.2.1-alpha.8",
   "exports": {
     "./*.mjs": "./*.mjs"
   },
