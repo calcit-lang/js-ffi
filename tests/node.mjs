@@ -118,6 +118,26 @@ test('argv-at normalizes missing arguments and rejects invalid host values', () 
   }
 });
 
+test('Node timers return opaque handles and can be cancelled', async () => {
+  const a = assertions();
+  let callbacks = 0;
+  const fired = new Promise(resolve => {
+    const handle = node.set_timeout_$x_(() => {
+      callbacks += 1;
+      resolve();
+    }, 1);
+    a.equal(typeof handle, 'object');
+    a.equal(handle.constructor.name, 'Timeout');
+  });
+  await fired;
+  a.equal(callbacks, 1);
+
+  const cancelled = node.set_timeout_$x_(() => { callbacks += 1; }, 20);
+  a.equal(node.clear_timeout_$x_(cancelled), undefined);
+  await new Promise(resolve => setTimeout(resolve, 40));
+  a.equal(callbacks, 1);
+});
+
 test('checked async fetch, Response body and filesystem adapters', async () => {
   const a = assertions();
   const unhandled = [];
