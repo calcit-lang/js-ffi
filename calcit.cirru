@@ -184,7 +184,7 @@
             :text-content $ :: 'Option 'String
             :child-count 'Number
           :examples $ [] $ quote
-            &%{} ElementSnapshot :id |main :class-name |panel :text-content (%some |Ready) :child-count 1
+            ElementSnapshot :id |main :class-name |panel :text-content (Option :some |Ready) :child-count 1
           :schema $ :: 'Enum
         'EventHost $ %{} 'CodeEntry
           :doc "|External Event capability. Targets stay nullable opaque objects unless a specific adapter narrows them."
@@ -714,8 +714,8 @@
             let
                 dataset $ contract/expect-object |element.dataset $ js-get element |dataset
                 value $ js-get dataset key
-              if (js-nullish? value) (%none)
-                %some $ contract/expect-string |element.dataset value
+              if (js-nullish? value) (Option :none)
+                Option :some $ contract/expect-string |element.dataset value
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] 'js-ffi.browser/DomElementHost 'String
@@ -937,8 +937,8 @@
               if (= |object kind)
                 let
                     value $ js-get style key
-                  if (js-nullish? value) (%none)
-                    %some $ contract/expect-string |element.style value
+                  if (js-nullish? value) (Option :none)
+                    Option :some $ contract/expect-string |element.style value
                 raise $ str "|JS FFI contract violation: " |element.style "| expected Object, got " kind
           :examples $ []
           :schema $ :: 'Fn $ {}
@@ -980,8 +980,8 @@
           :code $ quote $ defn event-target-element (event)
             let
                 target $ js-get event |target
-              if (js-nullish? target) (%none)
-                %some $ assert-type (contract/expect-object |event.target target) (quote js-ffi.browser/DomElementHost)
+              if (js-nullish? target) (Option :none)
+                Option :some $ assert-type (contract/expect-object |event.target target) (quote js-ffi.browser/DomElementHost)
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] 'js-ffi.browser/EventHost
@@ -1199,8 +1199,8 @@
           :code $ quote $ defn prompt! (message)
             let
                 raw $ js/prompt message
-              if (js-nullish? raw) (%none)
-                %some $ contract/expect-string |prompt raw
+              if (js-nullish? raw) (Option :none)
+                Option :some $ contract/expect-string |prompt raw
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] 'String
@@ -1214,7 +1214,9 @@
               js-nullish->option $ host-document .query-selector selector
           :examples $ []
             quote $ query-selector |.app
-            quote $ option:unwrap-or (query-selector |#main) nil
+            quote $
+              query-selector |#main
+              , .some?
           :schema $ :: 'Fn $ {}
             :args $ [] 'String
             :features $ #{} :js-ffi
@@ -1957,9 +1959,9 @@
                   argv $ contract/expect-object |process.argv js/process.argv
                   value $ aget argv index
                 if (js-present? value)
-                  %some $ contract/expect-string |process.argv[index] value
-                  %none
-              %none
+                  Option :some $ contract/expect-string |process.argv[index] value
+                  Option :none
+              Option :none
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] 'Number
@@ -2027,8 +2029,8 @@
             let
                 env $ contract/expect-object |process.env js/process.env
                 raw $ js-get env key
-              if (js-nullish? raw) (%none)
-                %some $ contract/expect-string (str |process.env[ key |]) raw
+              if (js-nullish? raw) (Option :none)
+                Option :some $ contract/expect-string (str |process.env[ key |]) raw
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] 'String
@@ -2286,8 +2288,8 @@
             let
                 headers $ request :headers
                 value $ contract/object-field |request.header headers key
-              if (js-nullish? value) (%none)
-                %some $ contract/expect-string |request.header value
+              if (js-nullish? value) (Option :none)
+                Option :some $ contract/expect-string |request.header value
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] 'js-ffi.node/NodeRequestHost 'String
@@ -2315,8 +2317,8 @@
             let
                 headers $ response :headers
                 value $ contract/object-field |response.header headers key
-              if (js-nullish? value) (%none)
-                %some $ contract/expect-string |response.header value
+              if (js-nullish? value) (Option :none)
+                Option :some $ contract/expect-string |response.header value
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] 'js-ffi.node/NodeIncomingResponseHost 'String
@@ -2964,7 +2966,7 @@
                   |QuotaExceededError $ %:: JsErrorKind :quota
                   |NetworkError $ %:: JsErrorKind :network
                   |AbortError $ %:: JsErrorKind :abort
-              JsError :kind kind :name name :message message :stack $ %none
+              JsError :kind kind :name name :message message :stack $ Option :none
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'js-ffi.shared/JsError)
             :args $ [] $ :: 'JsNullish 'JsObject
@@ -3425,9 +3427,9 @@
             if (exists? js/navigator)
               let
                   value $ contract/object-field |navigator js/navigator |gpu
-                if (js-nullish? value) (%none)
-                  %some $ internal/gpu-host value
-              %none
+                if (js-nullish? value) (Option :none)
+                  Option :some $ internal/gpu-host value
+              Option :none
           :examples $ []
           :ffi $ {} (:backend :js) (:target :browser)
           :schema $ :: 'Fn $ {}
@@ -3440,8 +3442,8 @@
             internal/observe! (device .pop-error-scope)
               fn (value)
                 if (js-nullish? value)
-                  ready! $ %none
-                  ready! $ %some $ contract/expect-string |GPUError.message (contract/object-field |GPUError value |message)
+                  ready! $ Option :none
+                  ready! $ Option :some $ contract/expect-string |GPUError.message (contract/object-field |GPUError value |message)
               , failed!
           :examples $ []
           :ffi $ {} (:backend :js) (:target :browser)
@@ -3476,8 +3478,8 @@
               gpu .request-adapter $ &js-object
               fn (value)
                 if (js-nullish? value)
-                  ready! $ %none
-                  ready! $ %some $ internal/adapter-host value
+                  ready! $ Option :none
+                  ready! $ Option :some $ internal/adapter-host value
               , failed!
           :examples $ []
           :ffi $ {} (:backend :js) (:target :browser)
