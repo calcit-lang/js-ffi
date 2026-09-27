@@ -1846,6 +1846,12 @@
             :writable $ #{} :status-code :status-message
           :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
+        'NodeTimerHost $ %{} 'CodeEntry (:doc "|Node 定时器返回的不透明句柄；只能交给 clear-timeout! 取消。")
+          :code $ quote $ deftrait NodeTimerHost
+          :examples $ []
+          :ffi $ {} (:backend :js) (:kind :external-object) (:target :node)
+          :schema $ :: 'Trait
+          :tags $ #{} :ffi :js-host
         'ProcessArgvHost $ %{} 'CodeEntry
           :doc "|External process.argv capability exposing only an opaque/nullish length that argv-count validates at runtime."
           :code $ quote $ deftrait ProcessArgvHost
@@ -1906,6 +1912,13 @@
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'js-ffi.node/BufferHost)
             :args $ [] 'String
+            :features $ #{} :js-ffi
+        'clear-timeout! $ %{} 'CodeEntry (:doc "|取消 set-timeout! 返回的 Node 定时器句柄，返回 Unit。")
+          :code $ quote $ defn clear-timeout! (handle) (js/clearTimeout handle) &unit
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :node)
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'js-ffi.node/NodeTimerHost
             :features $ #{} :js-ffi
         'copy-file! $ %{} 'CodeEntry
           :doc "|Synchronous node:fs.copyFileSync adapter. Text uses UTF-8; filesystem failures raise the original host exception. No recursive deletion."
@@ -2261,12 +2274,12 @@
                 :args $ []
             :features $ #{} :js-ffi
         'set-timeout! $ %{} 'CodeEntry
-          :doc "|Schedule a callback after a delay and return the numeric handle."
+          :doc "|安排 Node 定时器并返回不透明 NodeTimerHost；与浏览器数值 timer id 不同。"
           :code $ quote $ defn set-timeout! (callback millis)
-            unsafe-coerce (js/setTimeout callback millis) Number
+            unsafe-coerce (js/setTimeout callback millis) 'js-ffi.node/NodeTimerHost
           :examples $ []
           :ffi $ {} (:backend :js) (:target :node)
-          :schema $ :: 'Fn $ {} (:return 'Number)
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.node/NodeTimerHost)
             :args $ []
               :: 'Fn $ {} (:return 'Unit)
                 :args $ []

@@ -148,7 +148,7 @@ Missing attributes and selector results become none; invalid CSS selectors
 raise the native DOMException. Keep timer/frame handles and cancel them during
 teardown. Browser handles are numeric and must not be used as Node timer handles.
 
-## Node APIs (36 adapters)
+## Node APIs (37 adapters)
 
 | Function | Parameters → result |
 | --- | --- |
@@ -175,7 +175,8 @@ teardown. Browser handles are numeric and must not be used as Node timer handles
 | `server-listen!`, `server-close!` | NodeServerHost [, Number, String, Fn() → Unit] → NodeServerHost/Unit | Bind or close a Node HTTP server. |
 | `request-header` | NodeRequestHost, String → Option<String> | Read one request header. |
 | `request-body-text` | NodeRequestHost, Option<Fn(String) → Unit> → PromiseHost | Collect the request body as UTF-8 text. |
-| `set-timeout!` | Fn() → Unit, Number → Number | Schedule a Node timer. |
+| `set-timeout!` | Fn() → Unit, Number → NodeTimerHost | 安排 Node 定时器，返回不透明宿主句柄；不同于浏览器数值 timer id。 |
+| `clear-timeout!` | NodeTimerHost → Unit | 取消尚未执行的 Node 定时器。 |
 | `import-meta-url` | () → String |
 | `buffer-from-string` | String → BufferHost |
 | `buffer->string` | BufferHost → String |
