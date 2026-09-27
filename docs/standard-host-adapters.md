@@ -49,7 +49,7 @@ URLSearchParams.size, Headers, AbortController, performance and requestAnimation
 | `decode-uri-component` | String → String | Decode one component; malformed escapes raise URIError. |
 | `now-ms` | () → Number | Epoch milliseconds from Date.now. |
 | `promise-create` | DynFn executor → PromiseHost | Create a PromiseHost from a (resolve reject) executor. |
-| `promise?` | Dynamic → Bool | True only for a thenable that resolves to itself, matching the Promise contract. |
+| `promise?` | T → Bool | 泛型输入保留调用方类型；仅当值符合 Promise 合约时返回 true。 |
 | `performance-now` | () → Number | Monotonic milliseconds relative to the host time origin. |
 | `response-host` | JsObject → ResponseHost | Validate Response metadata, Headers methods, and its async text reader. |
 | `fetch-response` | String → async Result<ResponseHost, JsError> | Await one fetch; normalize throw/rejection. |

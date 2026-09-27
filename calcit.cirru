@@ -2911,8 +2911,7 @@
                 :args $ [] 'E
             :features $ #{} :js-ffi
             :generics $ [] 'T 'E
-        'promise? $ %{} 'CodeEntry
-          :doc "|Detect a thenable that resolves to itself, matching the Promise contract."
+        'promise? $ %{} 'CodeEntry (:doc "|检测任意类型的值是否符合 Promise 合约；泛型参数保留调用方的静态类型。")
           :code $ quote $ defn promise? (value)
             if (nil? value) false $ let
                 resolved $ js/Promise.resolve value
@@ -2921,8 +2920,9 @@
                 identical? value resolved
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Bool)
-            :args $ [] 'Dynamic
+            :args $ [] 'T
             :features $ #{} :js-ffi
+            :generics $ [] 'T
         'queue-microtask! $ %{} 'CodeEntry
           :doc "|Queue a Unit callback in the JavaScript microtask queue."
           :code $ quote $ defn queue-microtask! (callback) (js/queueMicrotask callback) &unit
