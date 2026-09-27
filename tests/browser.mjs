@@ -181,6 +181,17 @@ export async function run() {
   }));
 
   a.equal(browser.document_host(), document);
+  let documentEvents = 0;
+  const onDocumentEvent = event => {
+    a.equal(event.type, 'js-ffi-document-event');
+    documentEvents++;
+  };
+  a.equal(browser.document_add_event_listener_$x_('js-ffi-document-event', onDocumentEvent), undefined);
+  document.dispatchEvent(new Event('js-ffi-document-event'));
+  a.equal(documentEvents, 1);
+  a.equal(browser.document_remove_event_listener_$x_('js-ffi-document-event', onDocumentEvent), undefined);
+  document.dispatchEvent(new Event('js-ffi-document-event'));
+  a.equal(documentEvents, 1);
   a.equal(unwrap(browser.query_selector('body')), document.body);
   a.equal(isNone(browser.query_selector('#js-ffi-missing-element')), true);
   a.equal(browser.document_ready_state().tag.value, browser.decode_document_ready_state(document.readyState).tag.value);

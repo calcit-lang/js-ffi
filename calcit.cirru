@@ -50,9 +50,21 @@
             .create-element-ns $ :: 'Fn $ {}
               :args $ [] 'js-ffi.browser/DocumentHost 'String 'String
               :return 'js-ffi.browser/DomElementHost
+            .add-event-listener! $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.browser/DocumentHost 'String $ :: 'Fn
+                {}
+                  :args $ [] 'js-ffi.browser/EventHost
+                  :return 'Unit
+              :return 'Unit
+            .remove-event-listener! $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.browser/DocumentHost 'String $ :: 'Fn
+                {}
+                  :args $ [] 'js-ffi.browser/EventHost
+                  :return 'Unit
+              :return 'Unit
           :examples $ [] $ quote DocumentHost
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
-            :names $ {} (:active-element |activeElement) (:body |body) (:create-element |createElement) (:create-element-ns |createElementNS) (:document-element |documentElement) (:query-selector |querySelector) (:ready-state |readyState) (:visibility-state |visibilityState)
+            :names $ {} (:active-element |activeElement) (:add-event-listener! |addEventListener) (:body |body) (:create-element |createElement) (:create-element-ns |createElementNS) (:document-element |documentElement) (:query-selector |querySelector) (:ready-state |readyState) (:remove-event-listener! |removeEventListener) (:visibility-state |visibilityState)
             :writable $ #{} :title
           :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
@@ -569,6 +581,18 @@
             :args $ []
             :features $ #{} :js-ffi
             :return $ :: 'calcit.core/Option 'js-ffi.browser/DomElementHost
+        'document-add-event-listener! $ %{} 'CodeEntry
+          :doc "|在document上注册事件监听器；visibilitychange等事件无需将document转换成DOM元素。"
+          :code $ quote $ defn document-add-event-listener! (event-name callback)
+            let
+                document $ document-host
+              document .add-event-listener! event-name callback
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'String $ :: 'Fn
+              {} (:return 'Unit)
+                :args $ [] 'js-ffi.browser/EventHost
+            :features $ #{} :js-ffi
         'document-append-body! $ %{} 'CodeEntry
           :doc "|将元素附加到 document.body，返回 Unit；若 body 尚不存在，则明确报告 JS FFI 契约错误。"
           :code $ quote $ defn document-append-body! (element)
@@ -632,6 +656,17 @@
           :examples $ [] $ quote (document-ready-state)
           :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/DocumentReadyState)
             :args $ []
+            :features $ #{} :js-ffi
+        'document-remove-event-listener! $ %{} 'CodeEntry (:doc "|移除先前在document上注册的监听器；必须传入注册时的同一个回调函数。")
+          :code $ quote $ defn document-remove-event-listener! (event-name callback)
+            let
+                document $ document-host
+              document .remove-event-listener! event-name callback
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'String $ :: 'Fn
+              {} (:return 'Unit)
+                :args $ [] 'js-ffi.browser/EventHost
             :features $ #{} :js-ffi
         'document-title $ %{} 'CodeEntry
           :doc "|Read document.title through DocumentHost. Returns an empty String when document is unavailable."
