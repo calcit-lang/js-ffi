@@ -3,6 +3,10 @@
 Typed JavaScript FFI definitions for Calcit. This package is independent: it exists to make the boundary between Calcit and host
 JavaScript explicit, checkable, and reusable across Calcit projects.
 
+## 0.2.1-alpha.10 类型化 Canvas 路径填充
+
+`CanvasContextHost` 增加 `.fill!`、`.arc!` 与 `.bezier-curve-to!`，可在 Calcit 中直接组合原生路径填充和描边，不需要项目内 inline JS 适配。签名、浏览器像素验证和发布边界见 [alpha.10 说明](docs/releases/0.2.1-alpha.10.md)。下游须等 Git tag/prerelease 发布后再升级；Quamolit 的本地适配迁移仍单独验证。
+
 ## 0.2.0 模块内 inline 与文件实现
 
 此版本要求 Calcit `0.22.0`。`js-ffi.browser/document-available?` 的实现位于模块根目录的 `js-ffi-assets/document-available.js`，仍带有 `Fn [] -> Bool` schema 与 `:js-ffi` 标记。`js-ffi.node/path-basename` 则使用模块内 inline JS 表达式和显式 `node:path` 注入，保持原有 `Fn(String) -> String` 契约。Calcit 把两种表达式嵌入各自的生成命名空间；下游继续通过普通 Calcit `:require` 调用，不需要单独引用 JS 文件或安装片段专用 npm 包。

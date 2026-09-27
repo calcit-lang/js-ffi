@@ -43,11 +43,11 @@ Chromium 像素测试覆盖三个重载的红蓝色块、九参数裁剪和透�
 
 Quamolit 应在本改动合并、发布新 tag 后更新依赖，再将原树每个分叉作为一条连接路径恢复圆头/圆连接；其树形采样、Scene IR、保留计划和 GPU 降级策略仍属于 Quamolit。本切片不宣称动画完整恢复或性能提升。
 
-## 类型化填充与原生曲线（待发布；#143）
+## 类型化填充与原生曲线（0.2.1-alpha.10；#143）
 
 `CanvasContextHost` 新增 `.fill!`（无参数）、`.arc! x y radius start-angle end-angle counterclockwise?`（五个 Number 与一个 Bool）及 `.bezier-curve-to! control1-x control1-y control2-x control2-y end-x end-y`（六个 Number），都返回 Unit，并直接映射浏览器的 `fill`、`arc`、`bezierCurveTo`。它们与已有的 `.stroke!`、`.save!` / `.restore!` 组合使用，不新增 JS wrapper 或 Quamolit Scene 解释器。`examples/canvas-filled-path.cirru` 是独立的 Calcit 消费者。
 
-`fill` 使用当前路径和当前填充样式；`arc` 半径、角度与 Bézier 控制点遵从浏览器 Canvas2D 的运行时规则，Number 类型本身不保证半径非负或数值有限。`save/restore` 会恢复样式、变换与裁剪，但不会恢复当前路径；调用方仍须管理路径生命周期。发布新 tag 前，下游不要把本地 main 中的新增方法当作已发布 API。浏览器合同测试把 Calcit 调用与原生 Canvas 逐像素比较，并分别排除“只有填充”和“只有描边”的假阳性；类型负例拒绝错误参数类型与数量。
+`fill` 使用当前路径和当前填充样式；`arc` 半径、角度与 Bézier 控制点遵从浏览器 Canvas2D 的运行时规则，Number 类型本身不保证半径非负或数值有限。`save/restore` 会恢复样式、变换与裁剪，但不会恢复当前路径；调用方仍须管理路径生命周期。下游只在对应 Git tag 与 GitHub prerelease 发布后升级，不把未发布的本地 main 当成稳定入口。浏览器合同测试把 Calcit 调用与原生 Canvas 逐像素比较，并分别排除“只有填充”和“只有描边”的假阳性；类型负例拒绝错误参数类型与数量。
 
 从 0.2.0-alpha.1 起，`js-ffi.canvas-batches` 只提供 Calcit 类型化的 `CanvasContextHost`、`CanvasAffine2D`、`CanvasRect` 和基础组合 `fill-solid-rect!`、`fill-transformed-clipped-rect!`、`clear-canvas!`。这些操作直接映射浏览器 Canvas2D 的 save/restore、fillRect、clearRect、setTransform、transform、beginPath、rect、clip、fillStyle，不解释 Quamolit Scene IR。
 
