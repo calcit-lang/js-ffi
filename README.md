@@ -19,6 +19,10 @@ Calcit [#1372](https://github.com/calcit-lang/calcit/pull/1372) 修复了同一 
 
 ## Design
 
+`0.2.1-alpha.7` 增加 `document-add-event-listener!` 与
+`document-remove-event-listener!`：监听文档可见性等事件时不再需要把
+`js/document` 转换成 DOM 元素。两个函数使用 `EventHost` 回调，并要求移除时复用同一个回调值。
+
 `0.2.1-alpha.3` 要求 Calcit `0.24.3`，将 `element-style-get` 的正常分支直接保留为
 `Option<String>`，并使 `document-append-body!` 通过类型化的 DOM 宿主入口执行；
 缺少 `document.body` 时会明确报契约错误。当前是发布准备，只有同名 Git tag 与
