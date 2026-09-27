@@ -1863,6 +1863,25 @@
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'String 'String
             :features $ #{} :js-ffi
+        'argv-at $ %{} 'CodeEntry (:doc "|按索引读取进程参数，缺失时返回Option.none；非字符串值会在边界报错。")
+          :code $ quote $ defn argv-at (index)
+            if
+              and
+                = index $ floor index
+                >= index 0
+                < index $ argv-count
+              let
+                  argv $ contract/expect-object |process.argv js/process.argv
+                  value $ aget argv index
+                if (js-present? value)
+                  %some $ contract/expect-string |process.argv[index] value
+                  %none
+              %none
+          :examples $ []
+          :schema $ :: 'Fn $ {}
+            :args $ [] 'Number
+            :features $ #{} :js-ffi
+            :return $ :: 'Option 'String
         'argv-count $ %{} 'CodeEntry
           :doc "|Return process.argv.length as Number. This deliberately narrows the host array at the boundary. Example: (argv-count) => 3"
           :code $ quote $ defn argv-count ()

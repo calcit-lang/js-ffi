@@ -100,6 +100,24 @@ test('node-version reports the actual host member on invalid data', () => {
   }
 });
 
+test('argv-at normalizes missing arguments and rejects invalid host values', () => {
+  const a = assertions();
+  const original = process.argv;
+  try {
+    process.argv = ['node', 'app.mjs', 'config.cirru'];
+    a.equal(isSome(node.argv_at(2)), true);
+    a.equal(unwrap(node.argv_at(2)), 'config.cirru');
+    a.equal(isNone(node.argv_at(3)), true);
+    a.equal(isNone(node.argv_at(-1)), true);
+    process.argv[1.5] = 'not-an-argument';
+    a.equal(isNone(node.argv_at(1.5)), true);
+    process.argv = ['node', 'app.mjs', 42];
+    a.throws(() => node.argv_at(2), /JS FFI contract violation: process\.argv\[index\] expected String, got number/);
+  } finally {
+    process.argv = original;
+  }
+});
+
 test('checked async fetch, Response body and filesystem adapters', async () => {
   const a = assertions();
   const unhandled = [];
