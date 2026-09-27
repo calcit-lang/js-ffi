@@ -1357,7 +1357,7 @@
         'storage-get-or $ %{} 'CodeEntry
           :doc "|Read localStorage as Option<String> internally and return the supplied fallback for a missing key."
           :code $ quote $ defn storage-get-or (key fallback)
-            option:unwrap-or (storage-get key) fallback
+            (storage-get key) .unwrap-or fallback
           :examples $ [] $ quote (storage-get-or |theme |light)
           :schema $ :: 'Fn $ {} (:return 'String)
             :args $ [] 'String 'String
@@ -2037,7 +2037,7 @@
         'env-or $ %{} 'CodeEntry
           :doc "|通过类型化 env-get 读取 process.env；键不存在时返回 String fallback。"
           :code $ quote $ defn env-or (key fallback)
-            option:unwrap-or (env-get key) fallback
+            (env-get key) .unwrap-or fallback
           :examples $ [] $ quote "(env-or |NODE_ENV |development)"
           :schema $ :: 'Fn $ {} (:return 'String)
             :args $ [] 'String 'String
