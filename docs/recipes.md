@@ -88,6 +88,46 @@ quote $ defn canvas-path (context cap line-join closed)
 
 Runtime verification: [tests/canvas-path.mjs](../tests/canvas-path.mjs).
 
+## 用类型化 Canvas2D 路径绘制填充、描边和曲线
+
+Runtime: browser.
+
+Imports:
+
+```text
+js-ffi.canvas-batches :as canvas
+```
+
+Schema:
+
+```text
+:: 'Fn $ {} (:args $ [] 'js-ffi.canvas-batches/CanvasContextHost) (:return 'Unit) (:features $ #{} :js-ffi)
+```
+
+Source: [examples/canvas-filled-path.cirru](../examples/canvas-filled-path.cirru)
+
+```text
+quote $ defn canvas-filled-path (context)
+  hint-fn $ {}
+    :args $ [] 'js-ffi.canvas-batches/CanvasContextHost
+    :return 'Unit
+    :features $ #{} :js-ffi
+  context .save!
+  context .begin-path!
+  context .move-to! 18 74
+  context .bezier-curve-to! 18 20 82 20 82 74
+  context .arc! 70 68 12 0 3.141592653589793 false
+  context .close-path!
+  js-set context :fill-style |#0ea5e9
+  js-set context :stroke-style |#ea580c
+  context .fill!
+  context .stroke!
+  context .restore!
+  , &unit
+```
+
+Runtime verification: [tests/canvas-filled-path.mjs](../tests/canvas-filled-path.mjs).
+
 ## 用 Calcit 绘制变换并裁剪的 Canvas 纯色矩形
 
 Runtime: browser.

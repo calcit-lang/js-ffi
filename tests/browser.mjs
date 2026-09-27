@@ -12,6 +12,7 @@ import { probe_device_$x_ as probeCalcitWebGpuDevice } from '../js-out/js-ffi.we
 import { clear_canvas_$x_ as clearCanvas } from '../js-out/js-ffi.canvas-batches.mjs';
 import { canvas_card as canvasCard } from '../js-out/js-ffi.canvas-example.mjs';
 import { testCanvasPath } from './canvas-path.mjs';
+import { testCanvasFilledPath } from './canvas-filled-path.mjs';
 import { testCanvasText } from './canvas-text.mjs';
 import { testCanvasImage } from './canvas-image.mjs';
 
@@ -19,6 +20,7 @@ import { testCanvasImage } from './canvas-image.mjs';
 export async function run() {
   const a = assertions();
   testCanvasPath(a);
+  testCanvasFilledPath(a);
   testCanvasText(a);
   await testCanvasImage(a);
   await testWebGpu(a);
