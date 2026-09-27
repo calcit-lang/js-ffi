@@ -47,6 +47,24 @@ for (const [runtime, expression, diagnostic, extraImport, hostFeature] of cases)
   } finally { rmSync(dir, { recursive: true, force: true }); }
 }
 
+// The generic predicate must accept distinct concrete input types while
+// retaining a Boolean result at every call site.
+{
+  const dir = mkdtempSync(join(tmpdir(), 'js-ffi-promise-generic-'));
+  try {
+    const snapshot = join(dir, 'calcit.cirru');
+    copyFileSync(new URL('../calcit.cirru', import.meta.url), snapshot);
+    copyFileSync(new URL('../deps.cirru', import.meta.url), join(dir, 'deps.cirru'));
+    const target = 'js-ffi.node-test/generic-promise-calls?';
+    const mutate = args => execFileSync(calcitBin, [snapshot, ...args], { cwd: dir, stdio: 'pipe' });
+    mutate(['edit', 'def', target, '--code', 'quote $ defn generic-promise-calls? ()\n  and\n    not $ shared/promise? 42\n    not $ shared/promise? |text\n    not $ shared/promise? $ {} (:x 1)']);
+    mutate(['edit', 'schema', target, '--code', "quote $ :: 'Fn $ {} (:args $ []) (:return 'Bool)"]);
+    const result = spawnSync(calcitBin, [snapshot, '--entry', 'node', '--init-fn', target, '--check-only'], { cwd: dir, encoding: 'utf8' });
+    assert.ifError(result.error);
+    assert.equal(result.status, 0, result.stdout + result.stderr);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+}
+
 // Invalid typed Canvas consumers are checked without executing host effects.
 const invalidCanvas = [
   'context .move-to! |x 2',
