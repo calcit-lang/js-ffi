@@ -105,21 +105,23 @@ Writable fields are assigned through `js-set` inside a `:js-ffi` adapter.
 
 ```cirru
 ; Method call on a DocumentHost capability.
+
 let
     document $ browser/document-host
   document .query-selector |.app
 
 ; Read a trait field; normalize nullish values when a concrete type is needed.
+
 let
     element $ browser/query-selector |.app
   element :text-content
 
 ; Writable fields (inner-html, text-content, class-name, hidden) via js-set.
-defn relabel! (element text)
-  js-set element :text-content text
-  , &unit
+
+defn relabel! (element text) (js-set element :text-content text) &unit
 
 ; WebSocketHost methods.
+
 let
     socket $ browser/web-socket-create |ws://127.0.0.1:1/
   do (socket .close!) &unit
@@ -144,6 +146,10 @@ node/cwd
 
 node/argv-count
 
+; Option<String> for an existing argument
+
+node/argv-at 2
+
 ; String with fallback
 
 node/env-or |NODE_ENV |dev
@@ -165,7 +171,7 @@ Browser code can guard capabilities and keep nullable host results out of the
 rest of the application:
 
 ```cirru
-when browser/document-available? $ browser/console-log! (browser/document-title)
+when browser/document-available? $ browser/console-log! $ browser/document-title
 
 ; String
 
@@ -217,7 +223,7 @@ browser/remove-event-listener! |resize on-resize
 
 browser/set-before-unload! $ fn (event) (persist!)
 
-shared/queue-microtask! $ fn () (flush-render!)
+shared/queue-microtask! $ fn () $ flush-render!
 ```
 
 The listener passed to `remove-event-listener!` must be the same function
@@ -257,6 +263,8 @@ The Node adapter applies the same rule to `process.argv`: `ProcessArgvHost`
 exposes only its opaque/nullish `length`, so `node/argv-count` can read a declared
 member and then validate it with `contract/expect-number` instead of performing
 a literal access on a bare `JsObject` or trusting an unchecked numeric value.
+
+`node/argv-at` 按索引读取命令行参数，缺失或越界时返回 `Option.none`；宿主值不是字符串时在边界报错，不会把未经验证的 JS 值传给业务代码。
 
 Every public adapter in `calcit.cirru` has a schema and a runtime feature marker
 where its own body crosses the JavaScript boundary. Inline Calcit examples are
