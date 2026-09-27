@@ -598,9 +598,9 @@
           :code $ quote $ defn document-append-body! (element)
             let
                 maybe-body $ document-body
-              if (option:some? maybe-body)
+              if (maybe-body .some?)
                 let
-                    body-element $ option:unwrap maybe-body
+                    body-element $ maybe-body .unwrap
                   append-child! body-element element
                   , &unit
                 raise "|JS FFI contract violation: document.body expected Object, got nullish"
@@ -2848,9 +2848,9 @@
                 method-label $ http-method-label method
               try
                 %:: Result :ok $ response-host $ js-await
-                  if (option:some? body)
+                  if (body .some?)
                     js/fetch url $ js-object (:method method-label) (:headers headers)
-                      :body $ option:unwrap body
+                      :body $ body .unwrap
                     js/fetch url $ js-object (:method method-label) (:headers headers)
                 fn (error)
                   %:: Result :err $ normalize-error error
