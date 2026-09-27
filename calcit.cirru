@@ -1581,7 +1581,7 @@
           :examples $ []
           :schema $ :: 'StructDef
         'CanvasContextHost $ %{} 'CodeEntry
-          :doc "|浏览器 CanvasRenderingContext2D 的类型化原生能力：矩形、路径描边、仿射变换、裁剪及文字绘制/测量。fillStyle/strokeStyle 仅覆盖纯色 String；font、textAlign、textBaseline、direction 保留原生 String 值域，非法值按浏览器规则处理。measureText 仅暴露 TextMetrics 的 width。当前 path 不随 save/restore 恢复；调用方管理路径、合法值及异常时的状态恢复，不包含 Scene 或动画逻辑。"
+          :doc "|浏览器 CanvasRenderingContext2D 的类型化原生能力：矩形、路径描边、仿射变换、裁剪、文字及图像绘制。图像方法接收 js-ffi.browser/ImageHost，公开三、五、九参数 drawImage 形式。fillStyle/strokeStyle 仅覆盖纯色 String；font、textAlign、textBaseline、direction 保留原生 String 值域，非法值按浏览器规则处理。measureText 仅暴露 TextMetrics 的 width。当前 path 不随 save/restore 恢复；调用方管理路径、合法值及异常时的状态恢复，不包含 Scene 或动画逻辑。"
           :code $ quote $ deftrait CanvasContextHost (:fill-style 'String)
             .save! $ :: 'Fn $ {}
               :args $ [] 'js-ffi.canvas-batches/CanvasContextHost
@@ -1637,9 +1637,18 @@
             .measure-text $ :: 'Fn $ {}
               :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'String
               :return 'js-ffi.canvas-batches/CanvasTextMetricsHost
+            .draw-image! $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'js-ffi.browser/ImageHost 'Number 'Number 'Number 'Number 'Number 'Number 'Number 'Number
+              :return 'Unit
+            .draw-image-at! $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'js-ffi.browser/ImageHost 'Number 'Number
+              :return 'Unit
+            .draw-image-sized! $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'js-ffi.browser/ImageHost 'Number 'Number 'Number 'Number
+              :return 'Unit
           :examples $ []
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
-            :names $ {} (:begin-path! |beginPath) (:clear-rect! |clearRect) (:clip! |clip) (:close-path! |closePath) (:direction |direction) (:fill-rect! |fillRect) (:fill-style |fillStyle) (:fill-text! |fillText) (:font |font) (:line-cap |lineCap) (:line-join |lineJoin) (:line-to! |lineTo) (:line-width |lineWidth) (:measure-text |measureText) (:miter-limit |miterLimit) (:move-to! |moveTo) (:rect! |rect) (:restore! |restore) (:save! |save) (:set-transform! |setTransform) (:stroke! |stroke) (:stroke-style |strokeStyle) (:text-align |textAlign) (:text-baseline |textBaseline) (:transform! |transform)
+            :names $ {} (:begin-path! |beginPath) (:clear-rect! |clearRect) (:clip! |clip) (:close-path! |closePath) (:direction |direction) (:draw-image-at! |drawImage) (:draw-image-sized! |drawImage) (:fill-rect! |fillRect) (:fill-style |fillStyle) (:fill-text! |fillText) (:font |font) (:line-cap |lineCap) (:line-join |lineJoin) (:line-to! |lineTo) (:line-width |lineWidth) (:measure-text |measureText) (:miter-limit |miterLimit) (:move-to! |moveTo) (:rect! |rect) (:restore! |restore) (:save! |save) (:set-transform! |setTransform) (:stroke! |stroke) (:stroke-style |strokeStyle) (:text-align |textAlign) (:text-baseline |textBaseline) (:transform! |transform)
             :writable $ #{} :direction :fill-style :font :line-cap :line-join :line-width :miter-limit :stroke-style :text-align :text-baseline
           :schema $ :: 'Trait
         'CanvasRect $ %{} 'CodeEntry
@@ -1668,6 +1677,29 @@
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'Number 'Number
+            :features $ #{} :js-ffi
+        'draw-image-at! $ %{} 'CodeEntry
+          :doc "|按图像固有尺寸在 Canvas2D 的 (x,y) 绘制 ImageHost；图像须由调用方管理解码与加载。"
+          :code $ quote $ defn draw-image-at! (context image x y) (context .draw-image-at! image x y)
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'js-ffi.browser/ImageHost 'Number 'Number
+            :features $ #{} :js-ffi
+        'draw-image-crop! $ %{} 'CodeEntry
+          :doc "|将解码后的 ImageHost 的来源矩形绘制到 CanvasContextHost 的目标矩形；宽高为 0 或图像未就绪时保留浏览器原生行为与异常。"
+          :code $ quote $ defn draw-image-crop!
+            context image sx sy sw sh dx dy dw dh
+            context .draw-image! image sx sy sw sh dx dy dw dh
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'js-ffi.browser/ImageHost 'Number 'Number 'Number 'Number 'Number 'Number 'Number 'Number
+            :features $ #{} :js-ffi
+        'draw-image-sized! $ %{} 'CodeEntry
+          :doc "|将完整 ImageHost 缩放绘制到 Canvas2D 指定矩形；尺寸值域和异常遵循浏览器原生 drawImage。"
+          :code $ quote $ defn draw-image-sized! (context image x y width height) (context .draw-image-sized! image x y width height)
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'js-ffi.browser/ImageHost 'Number 'Number 'Number 'Number
             :features $ #{} :js-ffi
         'fill-solid-rect! $ %{} 'CodeEntry (:doc "|通过 Calcit 类型化 Canvas2D 基础方法绘制一个纯色矩形，并恢复绘制状态。")
           :code $ quote $ defn fill-solid-rect! (context x y width height fill-style)

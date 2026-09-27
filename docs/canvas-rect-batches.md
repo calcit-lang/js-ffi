@@ -1,5 +1,17 @@
 # Canvas2D 类型化基础接口与批次迁移
 
+## 图像绘制与裁剪（#141）
+
+`js-ffi.canvas-batches` 为 `CanvasContextHost` 与 `js-ffi.browser/ImageHost` 提供三个浏览器目标的类型化入口，分别对应原生 `drawImage` 的三、五、九参数形式：
+
+- `draw-image-at! context image x y`：按图像固有尺寸绘制。
+- `draw-image-sized! context image x y width height`：把完整图像缩放到目标矩形。
+- `draw-image-crop! context image sx sy sw sh dx dy dw dh`：从来源矩形裁剪，并绘制到目标矩形。
+
+公共 schema 使用 `CanvasContextHost`、`ImageHost`、`Number` 和 `Unit`，带 `:js-ffi` feature。实现直接经 external-object trait 降为浏览器原生 `context.drawImage(...)`，不增加 Scene、时间、切片或 JS snippet。调用方先用 `image-create`、`image-src!`、`image-decode!` 管理来源；`image-decode!` 的 `Result` 仍需显式处理。数值有效性、尚未就绪的图像及宿主异常保持浏览器行为，不由这里伪造默认值或额外包装异常。
+
+Chromium 像素测试覆盖三个重载的红蓝色块、九参数裁剪和透明边界。测试还确认当前 Chromium 对零宽来源矩形、没有 `src` 的图像不绘制也不抛错，而把 `null` 当作图像参数会抛 `TypeError`；这些是浏览器实测结果，不是 Calcit 类型检查对运行时值域的保证。`yarn test:types` 验证错误图像类型、错误数值类型和缺参均在严格预处理阶段拒绝。
+
 ## 原生文字绘制与测量（#124）
 
 `CanvasContextHost` 提供 `.fill-text! text x y`（`String, Number, Number -> Unit`）和
