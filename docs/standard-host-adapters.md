@@ -75,6 +75,7 @@ and `screen-height`. `document-body` returns `Option<DomElementHost>` because
 | Function | Parameters → result |
 | --- | --- |
 | `document-host` | () → DocumentHost |
+| `document-add-event-listener!`, `document-remove-event-listener!` | String, Fn(EventHost) → Unit |
 | `document-body` | () → DomElementHost |
 | `location-host` | () → LocationHost |
 | `location-snapshot` | () → LocationSnapshot |
@@ -126,6 +127,9 @@ and `screen-height`. `document-body` returns `Option<DomElementHost>` because
 | `element-set-value!`, `element-set-placeholder!` | DomElementHost, String → Unit |
 | `element-set-css-text!` | DomElementHost, String → Unit |
 | `element-add-event-listener!`, `element-remove-event-listener!` | DomElementHost, String, Fn(EventHost) → Unit |
+
+监听 `visibilitychange` 等 document 事件时使用 `document-add-event-listener!`；
+取消监听时传入相同的回调函数。不要把 `document` 强行转换成 `DomElementHost`。
 
 ## Browser APIs (11 adapters)
 
