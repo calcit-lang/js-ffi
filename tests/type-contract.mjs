@@ -27,6 +27,7 @@ const cases = [
   ['browser', 'webgpu/buffer-size (option:unwrap (webgpu/gpu))', /W_FN_ARG_TYPE_MISMATCH/],
   ['browser', 'webgpu/request-adapter! (option:unwrap (webgpu/gpu)) 42 42', /W_FN_ARG_TYPE_MISMATCH/],
   ['browser', 'canvas-batches/clear-canvas! 42 40 30', /W_FN_ARG_TYPE_MISMATCH/],
+  ['node', 'js-ffi.canvas-batches/draw-image-at! (raise |context) (raise |image) 0 0', /E_JS_FFI_TARGET_MISMATCH/],
   ['node', 'shared/response-host (shared/fetch-response |http:\/\/127.0.0.1)', /E_ASYNC_INVOCATION_REQUIRES_AWAIT/],
   ['node', 'let ((load shared/fetch-response)) (shared/response-host (load |http:\/\/127.0.0.1))', /E_ASYNC_INVOCATION_REQUIRES_AWAIT/],
 ];
@@ -87,6 +88,10 @@ const invalidCanvas = [
   'js-set context :text-align 42',
   'js-set context :text-baseline 42',
   'js-set context :direction 42',
+  'js-ffi.canvas-batches/draw-image-crop! context 42 0 0 1 1 0 0 1 1',
+  'js-ffi.canvas-batches/draw-image-crop! context (js-ffi.browser/image-create) |x 0 1 1 0 0 1 1',
+  'js-ffi.canvas-batches/draw-image-at! context (js-ffi.browser/image-create) |x 0',
+  'js-ffi.canvas-batches/draw-image-sized! context (js-ffi.browser/image-create) 0 0 1',
 ];
 for (const expression of invalidCanvas) {
   const dir = mkdtempSync(join(tmpdir(), 'js-ffi-canvas-types-'));
@@ -103,7 +108,7 @@ for (const expression of invalidCanvas) {
     const result = spawnSync(calcitBin, [snapshot, '--entry', 'browser', '--init-fn', 'js-ffi.browser-test/check-canvas!', '--check-only'], { cwd: dir, encoding: 'utf8' });
     assert.ifError(result.error);
     assert.notEqual(result.status, 0, `Invalid Canvas consumer passed: ${expression}`);
-    assert.match(result.stdout + result.stderr, /(?:TYPE_MISMATCH|ARITY_MISMATCH|FIELD_READONLY|expects type|expects \d+ args)/, expression);
+    assert.match(result.stdout + result.stderr, /(?:TYPE_MISMATCH|ARITY_MISMATCH|FIELD_READONLY|expects type|expects \d+ args|expected \d+ args)/, expression);
   } finally { rmSync(dir, { recursive: true, force: true }); }
 }
 
