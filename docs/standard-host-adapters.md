@@ -181,9 +181,15 @@ teardown. Browser handles are numeric and must not be used as Node timer handles
 | `request-body-text` | NodeRequestHost, Option<Fn(String) → Unit> → PromiseHost | Collect the request body as UTF-8 text. |
 | `set-timeout!` | Fn() → Unit, Number → NodeTimerHost | 安排 Node 定时器，返回不透明宿主句柄；不同于浏览器数值 timer id。 |
 | `clear-timeout!` | NodeTimerHost → Unit | 取消尚未执行的 Node 定时器。 |
+| `set-interval!` | Fn() → Unit, Number → NodeTimerHost | 周期调用回调；Node 返回不透明宿主句柄，而不是浏览器数值 timer id。 |
+| `clear-interval!` | NodeTimerHost → Unit | 取消周期定时器；重复取消沿用 Node 原生语义。 |
 | `import-meta-url` | () → String |
 | `buffer-from-string` | String → BufferHost |
 | `buffer->string` | BufferHost → String |
+
+Node 的 `setInterval` 返回对象而非浏览器的数值 timer id。`set-interval!` 只在
+`js-ffi.node` 宿主边界断言为 `NodeTimerHost`；该新增的一处 `unsafe-coerce`
+由运行时对象与取消测试及错误类型调用的编译拒绝覆盖，不向调用者暴露 Dynamic。
 
 The original filesystem calls are synchronous and use UTF-8 for text. They preserve native
 exceptions (including ENOENT and ENOTEMPTY). `write-text!` overwrites existing
