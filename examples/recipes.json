@@ -22,6 +22,17 @@
     "validation": "tests/canvas-path.mjs"
   },
   {
+    "name": "canvas-filled-path",
+    "namespace": "js-ffi.canvas-filled-path-example",
+    "title": "用类型化 Canvas2D 路径绘制填充、描边和曲线",
+    "runtimes": ["browser"],
+    "source": "examples/canvas-filled-path.cirru",
+    "imports": ["js-ffi.canvas-batches :as canvas"],
+    "schema": ":: 'Fn $ {} (:args $ [] 'js-ffi.canvas-batches/CanvasContextHost) (:return 'Unit) (:features $ #{} :js-ffi)",
+    "apis": ["js-ffi.canvas-batches/CanvasContextHost"],
+    "validation": "tests/canvas-filled-path.mjs"
+  },
+  {
     "name": "canvas-card",
     "namespace": "js-ffi.canvas-example",
     "title": "用 Calcit 绘制变换并裁剪的 Canvas 纯色矩形",

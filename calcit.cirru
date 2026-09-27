@@ -1581,7 +1581,7 @@
           :examples $ []
           :schema $ :: 'StructDef
         'CanvasContextHost $ %{} 'CodeEntry
-          :doc "|浏览器 CanvasRenderingContext2D 的类型化原生能力：矩形、路径描边、仿射变换、裁剪、文字及图像绘制。图像方法接收 js-ffi.browser/ImageHost，公开三、五、九参数 drawImage 形式。fillStyle/strokeStyle 仅覆盖纯色 String；font、textAlign、textBaseline、direction 保留原生 String 值域，非法值按浏览器规则处理。measureText 仅暴露 TextMetrics 的 width。当前 path 不随 save/restore 恢复；调用方管理路径、合法值及异常时的状态恢复，不包含 Scene 或动画逻辑。"
+          :doc "|浏览器 CanvasRenderingContext2D 的类型化原生能力：矩形、路径 fill/stroke、arc/bezier 曲线、仿射变换、裁剪、文字及图像绘制。图像方法接收 js-ffi.browser/ImageHost，公开三、五、九参数 drawImage 形式。fillStyle/strokeStyle 仅覆盖纯色 String；font、textAlign、textBaseline、direction 保留原生 String 值域，非法值按浏览器规则处理。measureText 仅暴露 TextMetrics 的 width。当前 path 不随 save/restore 恢复；调用方管理路径、合法值及异常时的状态恢复，不包含 Scene 或动画逻辑。"
           :code $ quote $ deftrait CanvasContextHost (:fill-style 'String)
             .save! $ :: 'Fn $ {}
               :args $ [] 'js-ffi.canvas-batches/CanvasContextHost
@@ -1627,6 +1627,15 @@
             .stroke! $ :: 'Fn $ {}
               :args $ [] 'js-ffi.canvas-batches/CanvasContextHost
               :return 'Unit
+            .fill! $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.canvas-batches/CanvasContextHost
+              :return 'Unit
+            .arc! $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'Number 'Number 'Number 'Number 'Number 'Bool
+              :return 'Unit
+            .bezier-curve-to! $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'Number 'Number 'Number 'Number 'Number 'Number
+              :return 'Unit
             :font 'String
             :text-align 'String
             :text-baseline 'String
@@ -1648,7 +1657,7 @@
               :return 'Unit
           :examples $ []
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
-            :names $ {} (:begin-path! |beginPath) (:clear-rect! |clearRect) (:clip! |clip) (:close-path! |closePath) (:direction |direction) (:draw-image-at! |drawImage) (:draw-image-sized! |drawImage) (:fill-rect! |fillRect) (:fill-style |fillStyle) (:fill-text! |fillText) (:font |font) (:line-cap |lineCap) (:line-join |lineJoin) (:line-to! |lineTo) (:line-width |lineWidth) (:measure-text |measureText) (:miter-limit |miterLimit) (:move-to! |moveTo) (:rect! |rect) (:restore! |restore) (:save! |save) (:set-transform! |setTransform) (:stroke! |stroke) (:stroke-style |strokeStyle) (:text-align |textAlign) (:text-baseline |textBaseline) (:transform! |transform)
+            :names $ {} (:arc! |arc) (:begin-path! |beginPath) (:bezier-curve-to! |bezierCurveTo) (:clear-rect! |clearRect) (:clip! |clip) (:close-path! |closePath) (:direction |direction) (:draw-image-at! |drawImage) (:draw-image-sized! |drawImage) (:fill! |fill) (:fill-rect! |fillRect) (:fill-style |fillStyle) (:fill-text! |fillText) (:font |font) (:line-cap |lineCap) (:line-join |lineJoin) (:line-to! |lineTo) (:line-width |lineWidth) (:measure-text |measureText) (:miter-limit |miterLimit) (:move-to! |moveTo) (:rect! |rect) (:restore! |restore) (:save! |save) (:set-transform! |setTransform) (:stroke! |stroke) (:stroke-style |strokeStyle) (:text-align |textAlign) (:text-baseline |textBaseline) (:transform! |transform)
             :writable $ #{} :direction :fill-style :font :line-cap :line-join :line-width :miter-limit :stroke-style :text-align :text-baseline
           :schema $ :: 'Trait
         'CanvasRect $ %{} 'CodeEntry
