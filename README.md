@@ -306,12 +306,7 @@ The static gate does not replace the host smoke tests below. CI also runs
 real Chromium tests, synchronous filesystem tests, shared Web API tests,
 and invalid-consumer type checks.
 
-The checked-in v2 baseline keeps Dynamic, nil, and unresolved types at zero.
-It also records 65 reviewed `unsafe-coerce` sites per
-definition. These assertions are expected only inside small host adapters; a
-new assertion or moving one into another definition fails the quality gate and
-requires an explicit review. Run `yarn audit:unsafe` to inspect their runtime
-contract evidence.
+现有 v2 baseline 按定义保存已审阅的宿主断言位置，当前实际记录 48 处 `unsafe-coerce`，未增加额度。新增断言或跨定义移动仍须显式审阅；运行 `yarn audit:unsafe` 查看现有边界证据。静态 baseline 不能证明宿主数据的运行时形状，仍须执行下面的 Node/Chromium 契约测试。
 
 The remaining assertions stay at reviewed Calcit/JS platform boundaries,
 including Float32 snapshots and the typed WebGPU capability probe. The
@@ -320,7 +315,7 @@ wrappers. Two assertions in `probe-device!` type this package's named async
 probe import and narrow its validated `ready` host result; the public return
 remains a closed Calcit enum rather than a nullable catch-all object.
 
-本地命令要求 `PATH` 中的 Calcit 与 `deps.cirru` 声明的 `0.24.1` 一致，并安装 Node.js 24 和 Yarn。CI 也使用同一精确版本：
+本地命令要求 `PATH` 中的 Calcit 与 `deps.cirru` 的精确 `:calcit-version` 一致，npm `@calcit/procs` 也使用同一版本，并安装 Node.js 24 和 Yarn。CI 也使用同一精确版本；main 的升级不代表已有模块 tag 被改写：
 
 ```bash
 yarn install
