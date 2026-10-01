@@ -1546,7 +1546,7 @@
                     :return 'Unit
                   , &unit
               assert-type result js-ffi.browser/BrowserProbe
-              assert-type element js-ffi.browser/DomElementHost
+              assert-type element 'js-ffi.browser/DomElementHost
               browser/add-event-listener! |resize on-resize
               browser/remove-event-listener! |resize on-resize
               browser/set-before-unload! $ fn (event)
