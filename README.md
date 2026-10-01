@@ -3,6 +3,10 @@
 Typed JavaScript FFI definitions for Calcit. This package is independent: it exists to make the boundary between Calcit and host
 JavaScript explicit, checkable, and reusable across Calcit projects.
 
+## 0.2.1-alpha.11：匹配 Calcit 0.28 工具链
+
+本模块版本要求 Calcit CLI 与 npm `@calcit/procs` **同时使用 `0.28.0-alpha.3`**。它包含已合并的 Option 方法迁移及浏览器 trait 类型引用修正，保持现有宿主、错误和异步语义；不新增宿主能力或扩大动态边界。验证和升级步骤见 [alpha.11 说明](docs/releases/0.2.1-alpha.11.md)。这是发布准备，只有对应 annotated tag/prerelease 和精确 main CI 通过后，下游才应升级；已有 alpha.10 tag 不会随 main 更新。
+
 ## 0.2.1-alpha.10 类型化 Canvas 路径填充
 
 `CanvasContextHost` 增加 `.fill!`、`.arc!` 与 `.bezier-curve-to!`，可在 Calcit 中直接组合原生路径填充和描边，不需要项目内 inline JS 适配。签名、浏览器像素验证和发布边界见 [alpha.10 说明](docs/releases/0.2.1-alpha.10.md)。下游须等 Git tag/prerelease 发布后再升级；Quamolit 的本地适配迁移仍单独验证。
