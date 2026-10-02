@@ -6,6 +6,10 @@ import {
   document_append_body_$x_,
   document_available_$q_,
   element_host,
+  event_host,
+  event_target_element,
+  host_kind_$q_,
+  keyboard_event_host,
   local_storage_available_$q_,
   storage_get,
 } from "./js-out/js-ffi.browser.mjs";
@@ -61,8 +65,28 @@ try {
 
 // A Calcit runtime value is a JavaScript object but never a host capability.
 assert.throws(() => element_host(calcitMap("a", 1)), /DOM\.element-host expected host Object, got Calcit value :map/);
-const hostElement = { localName: "div" };
+const hostElement = { nodeType: 1, tagName: "DIV", localName: "div" };
 assert.equal(element_host(hostElement), hostElement);
+
+// Host adapters check the documented shape of the expected host kind, not only typeof.
+const textNode = { nodeType: 3, data: "text" };
+const clickEvent = { type: "click", preventDefault() {}, target: hostElement };
+const keyEvent = { type: "keydown", key: "Enter", preventDefault() {}, target: textNode };
+assert.equal(host_kind_$q_("element", hostElement), true);
+assert.equal(host_kind_$q_("element", textNode), false);
+assert.equal(host_kind_$q_("event", clickEvent), true);
+assert.equal(host_kind_$q_("keyboard-event", clickEvent), false);
+assert.equal(host_kind_$q_("unknown-kind", hostElement), false);
+assert.throws(() => element_host(textNode), /DOM\.element-host expected element host/);
+assert.equal(event_host(clickEvent), clickEvent);
+assert.throws(() => event_host(hostElement), /DOM\.event-host expected event host/);
+assert.equal(keyboard_event_host(keyEvent), keyEvent);
+assert.throws(() => keyboard_event_host(clickEvent), /DOM\.keyboard-event-host expected keyboard-event host/);
+
+// Only element targets become Some; text nodes and missing targets are none.
+assert.equal(option_$o_unwrap(event_target_element(clickEvent)), hostElement);
+assert.equal(option_$o_none_$q_(event_target_element(keyEvent)), true);
+assert.equal(option_$o_none_$q_(event_target_element({ type: "load", preventDefault() {}, target: null })), true);
 
 // Denied or missing localStorage reports unavailable storage instead of throwing.
 const originalLocalStorage = Object.getOwnPropertyDescriptor(globalThis, "localStorage");

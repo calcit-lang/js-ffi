@@ -10,5 +10,6 @@
 | `canvas-rect-batches.mjs` | 当前真实消费者为 Quamolit 的 10k 实例；循环、预检和指标不是原生 Canvas 方法 | Quamolit `quamolit.instance-ffi/draw-canvas!` | 迁至 Quamolit `src/host/`；0.2.0-alpha.2 移除旧指标类型 |
 | `webgpu-rect-batches.mjs` | 当前真实消费者为 Quamolit；内含矩形 shader、Vec2 tween 与图层策略，不是原生 WebGPU 方法 | Quamolit `quamolit.webgpu-batches` | 迁至 Quamolit `src/host/`；0.2.0-alpha.2 移除旧 Calcit 类型/封送命名空间 |
 | `canvas-scene-commands.mjs` | 场景命令解释器；当前 Quamolit 运行代码无消费者，格式不等于现行 Scene IR | 无 | 从 js-ffi 移除，不在 Quamolit 新增无人调用的旧实现 |
+| `js-ffi-assets/host-kind.js` | 按文档化属性判断 DOM 宿主种类（element、event、keyboard-event、mouse-event、pointer-event、selectable），不依赖 `instanceof`，跨 frame 的对象也能识别 | `js-ffi.browser/host-kind?`、`expect-host-kind` | 保留；`element-host`、`event-host` 等适配器在转换为外部 trait 前用它检查 |
 
 矩形类型现由 Quamolit 的自有 Struct/Trait 承担。性能结论必须附设备、帧时间、调用次数及复制/上传字节；本轮只验证归属和语义，没有宣称提速。
