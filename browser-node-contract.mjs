@@ -77,6 +77,15 @@ try {
   });
   assert.equal(local_storage_available_$q_(), false);
   assert.equal(option_$o_none_$q_(storage_get("missing")), true);
+  Object.defineProperty(globalThis, "localStorage", {
+    configurable: true,
+    value: {
+      getItem() {
+        throw new DOMException("Storage read failed.", "SecurityError");
+      },
+    },
+  });
+  assert.equal(option_$o_none_$q_(storage_get("blocked")), true);
   Reflect.deleteProperty(globalThis, "localStorage");
   assert.equal(local_storage_available_$q_(), false);
   assert.equal(option_$o_none_$q_(storage_get("missing")), true);

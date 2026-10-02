@@ -1348,12 +1348,14 @@
             :args $ [] 'String
             :features $ #{} :js-ffi
         'storage-get $ %{} 'CodeEntry
-          :doc "|Read one localStorage key as Option<String>. A missing key, a JavaScript nullish value, and unavailable storage (server-side rendering, sandboxed or privacy-restricted pages) all become none."
+          :doc "|Read one localStorage key as Option<String>. A missing key, a JavaScript nullish value, unavailable storage (server-side rendering, sandboxed or privacy-restricted pages) and a host exception while reading all become none."
           :code $ quote $ defn storage-get (key)
             if (local-storage-available?)
-              let
-                  storage $ window-local-storage
-                js-nullish->option $ storage .get-item key
+              try
+                let
+                    storage $ window-local-storage
+                  js-nullish->option $ storage .get-item key
+                fn (error) (Option :none)
               Option :none
           :examples $ [] $ quote (storage-get |theme)
           :schema $ :: 'Fn $ {}
