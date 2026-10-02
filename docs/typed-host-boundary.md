@@ -48,6 +48,8 @@ def current-directory $ fn ()
 
 Use `contract/expect-string`, `expect-number`, `expect-bool`, `expect-object`, `expect-function`, and `object-field` when adding a new adapter. A failed contract reports `JS FFI contract violation` at the boundary instead of allowing an incorrectly typed value into business code.
 
+Browser adapters that turn an opaque value into a DOM external trait check its kind first. `browser/host-kind?` reports whether a value has the documented shape of an element, event, keyboard event, mouse event, pointer event, or selectable text control, and `browser/expect-host-kind` raises a contract violation otherwise. `element-host`, `event-host` and the other `*-host` adapters use it, so a text node, a plain object, or a Calcit value is rejected at the boundary instead of failing later inside a DOM method. `event-target-element` returns none when the event target is not an element.
+
 Keep `JsNullish<T>` on external trait members whose JavaScript contract permits
 `null` or `undefined`. Normalize it immediately with `js-nullish->option`, or
 decode it through an `expect-*` guard when absence is itself a contract error.

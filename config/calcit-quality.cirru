@@ -80,7 +80,7 @@
       :typeNone 0
       :typeNotFull 0
       :unresolved 0
-      :unsafeCoerce 1
+      :unsafeCoerce 2
     |js-ffi.browser/form-data-create $ {} (:codeDynamic 0)
       :codeNil 0
       :declaredOptional 0
@@ -512,7 +512,7 @@
     :typeNone 0
     :typeNotFull 0
     :unresolved 0
-    :unsafeCoerce 60
+    :unsafeCoerce 61
   :scope $ {} (:includeDependencies false)
     :namespace nil
     :namespacePrefix nil
