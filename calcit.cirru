@@ -703,7 +703,7 @@
         'element-clone $ %{} 'CodeEntry
           :doc "|Clone a DOM element, optionally including its descendants."
           :code $ quote $ defn element-clone (element deep?)
-            assert-type (.!cloneNode element deep?) 'js-ffi.browser/DomElementHost
+            unsafe-coerce (.!cloneNode element deep?) 'js-ffi.browser/DomElementHost
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/DomElementHost)
             :args $ [] 'js-ffi.browser/DomElementHost 'Bool
@@ -750,7 +750,7 @@
         'element-dispatch-event! $ %{} 'CodeEntry
           :doc "|Dispatch a host Event through an element and return whether it was not canceled."
           :code $ quote $ defn element-dispatch-event! (element event)
-            assert-type (.!dispatchEvent element event) 'Bool
+            contract/expect-bool |element.dispatchEvent $ .!dispatchEvent element event
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Bool)
             :args $ [] 'js-ffi.browser/DomElementHost 'js-ffi.browser/EventHost
@@ -758,7 +758,7 @@
         'element-first-child $ %{} 'CodeEntry
           :doc "|Return the first child element as Option, normalizing a missing child."
           :code $ quote $ defn element-first-child (element)
-            js-nullish->option $ assert-type (.-firstElementChild element) (:: 'JsNullish 'js-ffi.browser/DomElementHost)
+            js-nullish->option $ unsafe-coerce (.-firstElementChild element) (:: 'JsNullish 'js-ffi.browser/DomElementHost)
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] 'js-ffi.browser/DomElementHost
@@ -783,7 +783,7 @@
         'element-host $ %{} 'CodeEntry
           :doc "|Validate an opaque host value as an object and expose the shared DOM element capability."
           :code $ quote $ defn element-host (value)
-            assert-type (contract/expect-object |DOM.element-host value) 'js-ffi.browser/DomElementHost
+            unsafe-coerce (contract/expect-object |DOM.element-host value) 'js-ffi.browser/DomElementHost
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/DomElementHost)
             :args $ [] 'T
@@ -948,7 +948,7 @@
         'event-host $ %{} 'CodeEntry
           :doc "|Validate an opaque host value as an object and expose the shared browser Event capability."
           :code $ quote $ defn event-host (value)
-            assert-type (contract/expect-object |DOM.event-host value) 'js-ffi.browser/EventHost
+            unsafe-coerce (contract/expect-object |DOM.event-host value) 'js-ffi.browser/EventHost
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/EventHost)
             :args $ [] 'T
@@ -957,7 +957,7 @@
         'event-listener-host $ %{} 'CodeEntry
           :doc "|Validate an opaque host value as a browser Event listener callback."
           :code $ quote $ defn event-listener-host (value)
-            assert-type (contract/expect-function |DOM.event-listener-host value)
+            unsafe-coerce (contract/expect-function |DOM.event-listener-host value)
               :: 'Fn $ {}
                 :args $ [] 'js-ffi.browser/EventHost
                 :return 'Unit
@@ -981,7 +981,7 @@
             let
                 target $ js-get event |target
               if (js-nullish? target) (Option :none)
-                Option :some $ assert-type (contract/expect-object |event.target target) (quote js-ffi.browser/DomElementHost)
+                Option :some $ unsafe-coerce (contract/expect-object |event.target target) (quote js-ffi.browser/DomElementHost)
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] 'js-ffi.browser/EventHost
@@ -1068,7 +1068,7 @@
         'keyboard-event-host $ %{} 'CodeEntry
           :doc "|Validate an opaque host value as an object and expose keyboard-event fields."
           :code $ quote $ defn keyboard-event-host (value)
-            assert-type (contract/expect-object |DOM.keyboard-event-host value) 'js-ffi.browser/KeyboardEventHost
+            unsafe-coerce (contract/expect-object |DOM.keyboard-event-host value) 'js-ffi.browser/KeyboardEventHost
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/KeyboardEventHost)
             :args $ [] 'T
@@ -1085,8 +1085,10 @@
             :args $ [] 'js-ffi.browser/KeyboardEventHost
             :features $ #{} :js-ffi
         'local-storage-available? $ %{} 'CodeEntry
-          :doc "|Return whether localStorage is available. Browsers may deny storage in privacy or sandboxed modes, so callers should branch on this Boolean. Example: (local-storage-available?) => true"
-          :code $ quote $ defn local-storage-available? () (exists? js/localStorage)
+          :doc "|Return whether localStorage is available. Browsers may deny storage in privacy or sandboxed modes, where merely reading window.localStorage throws a SecurityError; that case returns false instead of throwing, so callers can branch on this Boolean. Example: (local-storage-available?) => true"
+          :code $ quote $ defn local-storage-available? ()
+            try (exists? js/localStorage)
+              fn (error) false
           :examples $ [] $ quote "(local-storage-available?)"
           :ffi $ {} (:backend :js) (:target :browser)
           :schema $ :: 'Fn $ {} (:return 'Bool)
@@ -1131,7 +1133,7 @@
         'mouse-event-from-event $ %{} 'CodeEntry
           :doc "|Create a MouseEvent that preserves the source Event type and compatible initialization fields."
           :code $ quote $ defn mouse-event-from-event (event)
-            assert-type
+            unsafe-coerce
               new js/MouseEvent (event :event-type) event
               quote js-ffi.browser/EventHost
           :examples $ []
@@ -1141,7 +1143,7 @@
         'mouse-event-host $ %{} 'CodeEntry
           :doc "|Validate an opaque host value as a MouseEvent capability."
           :code $ quote $ defn mouse-event-host (value)
-            assert-type (contract/expect-object |MouseEvent.host value) (quote js-ffi.browser/MouseEventHost)
+            unsafe-coerce (contract/expect-object |MouseEvent.host value) (quote js-ffi.browser/MouseEventHost)
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/MouseEventHost)
             :args $ [] 'T
@@ -1181,7 +1183,7 @@
         'pointer-event-host $ %{} 'CodeEntry
           :doc "|Validate an opaque host value as a PointerEvent capability (layerX/layerY)."
           :code $ quote $ defn pointer-event-host (value)
-            assert-type (contract/expect-object |PointerEvent.host value) (quote js-ffi.browser/PointerEventHost)
+            unsafe-coerce (contract/expect-object |PointerEvent.host value) (quote js-ffi.browser/PointerEventHost)
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/PointerEventHost)
             :args $ [] 'T
@@ -1282,7 +1284,7 @@
         'selectable-element-host $ %{} 'CodeEntry
           :doc "|Validate an opaque host value as an object and expose the selectable input or textarea capability."
           :code $ quote $ defn selectable-element-host (value)
-            assert-type (contract/expect-object |DOM.selectable-element-host value) DomSelectableHost
+            unsafe-coerce (contract/expect-object |DOM.selectable-element-host value) 'js-ffi.browser/DomSelectableHost
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/DomSelectableHost)
             :args $ [] 'T
@@ -1346,11 +1348,15 @@
             :args $ [] 'String
             :features $ #{} :js-ffi
         'storage-get $ %{} 'CodeEntry
-          :doc "|Read one localStorage key as Option<String>; missing and JavaScript nullish values become none. Host exceptions remain an adapter concern."
+          :doc "|Read one localStorage key as Option<String>. A missing key, a JavaScript nullish value, unavailable storage (server-side rendering, sandboxed or privacy-restricted pages) and a host exception while reading all become none."
           :code $ quote $ defn storage-get (key)
-            let
-                storage $ window-local-storage
-              js-nullish->option $ storage .get-item key
+            if (local-storage-available?)
+              try
+                let
+                    storage $ window-local-storage
+                  js-nullish->option $ storage .get-item key
+                fn (error) (Option :none)
+              Option :none
           :examples $ [] $ quote (storage-get |theme)
           :schema $ :: 'Fn $ {}
             :args $ [] 'String
@@ -1386,7 +1392,7 @@
             :args $ []
             :features $ #{} :js-ffi
         'storage-set! $ %{} 'CodeEntry
-          :doc "|Write a String key/value pair through StorageHost and normalize the host return to Unit."
+          :doc "|Write a String key/value pair through StorageHost and normalize the host return to Unit. Unavailable storage is skipped; a full storage quota still raises the host QuotaExceededError."
           :code $ quote $ defn storage-set! (key value)
             when (local-storage-available?)
               let
@@ -1787,11 +1793,17 @@
             :args $ [] 'String $ :: 'JsNullish 'JsObject
             :features $ #{} :js-ffi
         'expect-object $ %{} 'CodeEntry
-          :doc "|Validate that an opaque JavaScript value is a non-null object and return it as JsObject. This proves only the shallow host kind; decode or check members before exposing concrete data."
+          :doc "|Validate that an opaque JavaScript value is a non-null host object and return it as JsObject. Calcit-owned values (lists, maps, structs, enums, refs and other runtime data) are rejected even though JavaScript reports them as objects, so a Calcit value cannot be mistaken for a host capability. This proves only the shallow host kind; decode or check members before exposing concrete data."
           :code $ quote $ defn expect-object (label value)
             let
                 kind $ if (js-nullish? value) |nullish $ js/typeof value
-              if (= |object kind) (unsafe-coerce value JsObject)
+              if (= |object kind)
+                let
+                    calcit-kind $ type-of value
+                  if
+                    or (= calcit-kind :js-object) (= calcit-kind :buffer)
+                    unsafe-coerce value JsObject
+                    raise $ str "|JS FFI contract violation: " label "| expected host Object, got Calcit value " calcit-kind
                 raise $ str "|JS FFI contract violation: " label "| expected Object, got " kind
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'JsObject)
@@ -2076,7 +2088,7 @@
                 :args $ [] 'js-ffi.node/NodeRequestHost 'js-ffi.node/NodeServerResponseHost
             :features $ #{} :js-ffi
         'http-get! $ %{} 'CodeEntry
-          :doc "|Start a Node HTTP GET and return the opaque client request object."
+          :doc "|Start a Node HTTP GET and return the opaque client request object. The request has no error listener, so a connection failure (for example ECONNREFUSED) is an unhandled 'error' event that terminates the Node process. Prefer js-ffi.shared/fetch-response, which returns Result<ResponseHost, JsError>."
           :code $ quote $ defn http-get! (url callback)
             unsafe-coerce
               http/get url $ fn (raw-response)
@@ -3001,7 +3013,7 @@
           :doc "|Resolve a value through the host Promise queue and deliver exactly one fulfillment or rejection callback."
           :code $ quote $ defn promise-observe! (value ready! failed!)
             let
-                host $ assert-type (js/Promise.resolve value) 'js-ffi.shared/PromiseHost
+                host $ unsafe-coerce (js/Promise.resolve value) 'js-ffi.shared/PromiseHost
                 handled $ host .then! ready!
               handled .catch! failed!
               , &unit
