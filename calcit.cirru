@@ -703,7 +703,7 @@
         'element-clone $ %{} 'CodeEntry
           :doc "|Clone a DOM element, optionally including its descendants."
           :code $ quote $ defn element-clone (element deep?)
-            assert-type (.!cloneNode element deep?) 'js-ffi.browser/DomElementHost
+            unsafe-coerce (.!cloneNode element deep?) 'js-ffi.browser/DomElementHost
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/DomElementHost)
             :args $ [] 'js-ffi.browser/DomElementHost 'Bool
@@ -750,7 +750,7 @@
         'element-dispatch-event! $ %{} 'CodeEntry
           :doc "|Dispatch a host Event through an element and return whether it was not canceled."
           :code $ quote $ defn element-dispatch-event! (element event)
-            assert-type (.!dispatchEvent element event) 'Bool
+            contract/expect-bool |element.dispatchEvent $ .!dispatchEvent element event
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Bool)
             :args $ [] 'js-ffi.browser/DomElementHost 'js-ffi.browser/EventHost
@@ -758,7 +758,7 @@
         'element-first-child $ %{} 'CodeEntry
           :doc "|Return the first child element as Option, normalizing a missing child."
           :code $ quote $ defn element-first-child (element)
-            js-nullish->option $ assert-type (.-firstElementChild element) (:: 'JsNullish 'js-ffi.browser/DomElementHost)
+            js-nullish->option $ unsafe-coerce (.-firstElementChild element) (:: 'JsNullish 'js-ffi.browser/DomElementHost)
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] 'js-ffi.browser/DomElementHost
@@ -783,7 +783,7 @@
         'element-host $ %{} 'CodeEntry
           :doc "|Validate an opaque host value as an object and expose the shared DOM element capability."
           :code $ quote $ defn element-host (value)
-            assert-type (contract/expect-object |DOM.element-host value) 'js-ffi.browser/DomElementHost
+            unsafe-coerce (contract/expect-object |DOM.element-host value) 'js-ffi.browser/DomElementHost
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/DomElementHost)
             :args $ [] 'T
@@ -948,7 +948,7 @@
         'event-host $ %{} 'CodeEntry
           :doc "|Validate an opaque host value as an object and expose the shared browser Event capability."
           :code $ quote $ defn event-host (value)
-            assert-type (contract/expect-object |DOM.event-host value) 'js-ffi.browser/EventHost
+            unsafe-coerce (contract/expect-object |DOM.event-host value) 'js-ffi.browser/EventHost
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/EventHost)
             :args $ [] 'T
@@ -957,7 +957,7 @@
         'event-listener-host $ %{} 'CodeEntry
           :doc "|Validate an opaque host value as a browser Event listener callback."
           :code $ quote $ defn event-listener-host (value)
-            assert-type (contract/expect-function |DOM.event-listener-host value)
+            unsafe-coerce (contract/expect-function |DOM.event-listener-host value)
               :: 'Fn $ {}
                 :args $ [] 'js-ffi.browser/EventHost
                 :return 'Unit
@@ -981,7 +981,7 @@
             let
                 target $ js-get event |target
               if (js-nullish? target) (Option :none)
-                Option :some $ assert-type (contract/expect-object |event.target target) (quote js-ffi.browser/DomElementHost)
+                Option :some $ unsafe-coerce (contract/expect-object |event.target target) (quote js-ffi.browser/DomElementHost)
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] 'js-ffi.browser/EventHost
@@ -1068,7 +1068,7 @@
         'keyboard-event-host $ %{} 'CodeEntry
           :doc "|Validate an opaque host value as an object and expose keyboard-event fields."
           :code $ quote $ defn keyboard-event-host (value)
-            assert-type (contract/expect-object |DOM.keyboard-event-host value) 'js-ffi.browser/KeyboardEventHost
+            unsafe-coerce (contract/expect-object |DOM.keyboard-event-host value) 'js-ffi.browser/KeyboardEventHost
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/KeyboardEventHost)
             :args $ [] 'T
@@ -1133,7 +1133,7 @@
         'mouse-event-from-event $ %{} 'CodeEntry
           :doc "|Create a MouseEvent that preserves the source Event type and compatible initialization fields."
           :code $ quote $ defn mouse-event-from-event (event)
-            assert-type
+            unsafe-coerce
               new js/MouseEvent (event :event-type) event
               quote js-ffi.browser/EventHost
           :examples $ []
@@ -1143,7 +1143,7 @@
         'mouse-event-host $ %{} 'CodeEntry
           :doc "|Validate an opaque host value as a MouseEvent capability."
           :code $ quote $ defn mouse-event-host (value)
-            assert-type (contract/expect-object |MouseEvent.host value) (quote js-ffi.browser/MouseEventHost)
+            unsafe-coerce (contract/expect-object |MouseEvent.host value) (quote js-ffi.browser/MouseEventHost)
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/MouseEventHost)
             :args $ [] 'T
@@ -1183,7 +1183,7 @@
         'pointer-event-host $ %{} 'CodeEntry
           :doc "|Validate an opaque host value as a PointerEvent capability (layerX/layerY)."
           :code $ quote $ defn pointer-event-host (value)
-            assert-type (contract/expect-object |PointerEvent.host value) (quote js-ffi.browser/PointerEventHost)
+            unsafe-coerce (contract/expect-object |PointerEvent.host value) (quote js-ffi.browser/PointerEventHost)
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/PointerEventHost)
             :args $ [] 'T
@@ -1284,7 +1284,7 @@
         'selectable-element-host $ %{} 'CodeEntry
           :doc "|Validate an opaque host value as an object and expose the selectable input or textarea capability."
           :code $ quote $ defn selectable-element-host (value)
-            assert-type (contract/expect-object |DOM.selectable-element-host value) DomSelectableHost
+            unsafe-coerce (contract/expect-object |DOM.selectable-element-host value) 'js-ffi.browser/DomSelectableHost
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/DomSelectableHost)
             :args $ [] 'T
@@ -3011,7 +3011,7 @@
           :doc "|Resolve a value through the host Promise queue and deliver exactly one fulfillment or rejection callback."
           :code $ quote $ defn promise-observe! (value ready! failed!)
             let
-                host $ assert-type (js/Promise.resolve value) 'js-ffi.shared/PromiseHost
+                host $ unsafe-coerce (js/Promise.resolve value) 'js-ffi.shared/PromiseHost
                 handled $ host .then! ready!
               handled .catch! failed!
               , &unit
