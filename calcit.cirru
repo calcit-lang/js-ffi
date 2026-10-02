@@ -1085,8 +1085,10 @@
             :args $ [] 'js-ffi.browser/KeyboardEventHost
             :features $ #{} :js-ffi
         'local-storage-available? $ %{} 'CodeEntry
-          :doc "|Return whether localStorage is available. Browsers may deny storage in privacy or sandboxed modes, so callers should branch on this Boolean. Example: (local-storage-available?) => true"
-          :code $ quote $ defn local-storage-available? () (exists? js/localStorage)
+          :doc "|Return whether localStorage is available. Browsers may deny storage in privacy or sandboxed modes, where merely reading window.localStorage throws a SecurityError; that case returns false instead of throwing, so callers can branch on this Boolean. Example: (local-storage-available?) => true"
+          :code $ quote $ defn local-storage-available? ()
+            try (exists? js/localStorage)
+              fn (error) false
           :examples $ [] $ quote "(local-storage-available?)"
           :ffi $ {} (:backend :js) (:target :browser)
           :schema $ :: 'Fn $ {} (:return 'Bool)
@@ -1346,11 +1348,13 @@
             :args $ [] 'String
             :features $ #{} :js-ffi
         'storage-get $ %{} 'CodeEntry
-          :doc "|Read one localStorage key as Option<String>; missing and JavaScript nullish values become none. Host exceptions remain an adapter concern."
+          :doc "|Read one localStorage key as Option<String>. A missing key, a JavaScript nullish value, and unavailable storage (server-side rendering, sandboxed or privacy-restricted pages) all become none."
           :code $ quote $ defn storage-get (key)
-            let
-                storage $ window-local-storage
-              js-nullish->option $ storage .get-item key
+            if (local-storage-available?)
+              let
+                  storage $ window-local-storage
+                js-nullish->option $ storage .get-item key
+              Option :none
           :examples $ [] $ quote (storage-get |theme)
           :schema $ :: 'Fn $ {}
             :args $ [] 'String
@@ -1386,7 +1390,7 @@
             :args $ []
             :features $ #{} :js-ffi
         'storage-set! $ %{} 'CodeEntry
-          :doc "|Write a String key/value pair through StorageHost and normalize the host return to Unit."
+          :doc "|Write a String key/value pair through StorageHost and normalize the host return to Unit. Unavailable storage is skipped; a full storage quota still raises the host QuotaExceededError."
           :code $ quote $ defn storage-set! (key value)
             when (local-storage-available?)
               let
@@ -1787,11 +1791,17 @@
             :args $ [] 'String $ :: 'JsNullish 'JsObject
             :features $ #{} :js-ffi
         'expect-object $ %{} 'CodeEntry
-          :doc "|Validate that an opaque JavaScript value is a non-null object and return it as JsObject. This proves only the shallow host kind; decode or check members before exposing concrete data."
+          :doc "|Validate that an opaque JavaScript value is a non-null host object and return it as JsObject. Calcit-owned values (lists, maps, structs, enums, refs and other runtime data) are rejected even though JavaScript reports them as objects, so a Calcit value cannot be mistaken for a host capability. This proves only the shallow host kind; decode or check members before exposing concrete data."
           :code $ quote $ defn expect-object (label value)
             let
                 kind $ if (js-nullish? value) |nullish $ js/typeof value
-              if (= |object kind) (unsafe-coerce value JsObject)
+              if (= |object kind)
+                let
+                    calcit-kind $ type-of value
+                  if
+                    or (= calcit-kind :js-object) (= calcit-kind :buffer)
+                    unsafe-coerce value JsObject
+                    raise $ str "|JS FFI contract violation: " label "| expected host Object, got Calcit value " calcit-kind
                 raise $ str "|JS FFI contract violation: " label "| expected Object, got " kind
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'JsObject)
@@ -2076,7 +2086,7 @@
                 :args $ [] 'js-ffi.node/NodeRequestHost 'js-ffi.node/NodeServerResponseHost
             :features $ #{} :js-ffi
         'http-get! $ %{} 'CodeEntry
-          :doc "|Start a Node HTTP GET and return the opaque client request object."
+          :doc "|Start a Node HTTP GET and return the opaque client request object. The request has no error listener, so a connection failure (for example ECONNREFUSED) is an unhandled 'error' event that terminates the Node process. Prefer js-ffi.shared/fetch-response, which returns Result<ResponseHost, JsError>."
           :code $ quote $ defn http-get! (url callback)
             unsafe-coerce
               http/get url $ fn (raw-response)

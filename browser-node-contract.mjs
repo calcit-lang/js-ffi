@@ -1,9 +1,13 @@
 import assert from "node:assert/strict";
 
+import { _$n__$M_ as calcitMap } from "@calcit/procs";
 import {
   child_element_at,
   document_append_body_$x_,
   document_available_$q_,
+  element_host,
+  local_storage_available_$q_,
+  storage_get,
 } from "./js-out/js-ffi.browser.mjs";
 import {
   option_$o_none_$q_,
@@ -53,6 +57,34 @@ try {
 } finally {
   if (originalNavigator) Object.defineProperty(globalThis, "navigator", originalNavigator);
   else Reflect.deleteProperty(globalThis, "navigator");
+}
+
+// A Calcit runtime value is a JavaScript object but never a host capability.
+assert.throws(() => element_host(calcitMap("a", 1)), /DOM\.element-host expected host Object, got Calcit value :map/);
+const hostElement = { localName: "div" };
+assert.equal(element_host(hostElement), hostElement);
+
+// Denied or missing localStorage reports unavailable storage instead of throwing.
+const originalLocalStorage = Object.getOwnPropertyDescriptor(globalThis, "localStorage");
+const originalWindow = Object.getOwnPropertyDescriptor(globalThis, "window");
+try {
+  Object.defineProperty(globalThis, "window", { configurable: true, value: globalThis });
+  Object.defineProperty(globalThis, "localStorage", {
+    configurable: true,
+    get() {
+      throw new DOMException("Access is denied for this document.", "SecurityError");
+    },
+  });
+  assert.equal(local_storage_available_$q_(), false);
+  assert.equal(option_$o_none_$q_(storage_get("missing")), true);
+  Reflect.deleteProperty(globalThis, "localStorage");
+  assert.equal(local_storage_available_$q_(), false);
+  assert.equal(option_$o_none_$q_(storage_get("missing")), true);
+} finally {
+  if (originalLocalStorage) Object.defineProperty(globalThis, "localStorage", originalLocalStorage);
+  else Reflect.deleteProperty(globalThis, "localStorage");
+  if (originalWindow) Object.defineProperty(globalThis, "window", originalWindow);
+  else Reflect.deleteProperty(globalThis, "window");
 }
 
 console.log("js-ffi-browser-node-contract-passed");
