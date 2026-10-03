@@ -3,6 +3,10 @@
 Typed JavaScript FFI definitions for Calcit. This package is independent: it exists to make the boundary between Calcit and host
 JavaScript explicit, checkable, and reusable across Calcit projects.
 
+## 0.2.1-alpha.12：匹配 Calcit 0.29.0-alpha.1
+
+本模块版本要求 Calcit CLI 与 npm `@calcit/procs` **同时使用 `0.29.0-alpha.1`**。`KeyboardEventHost` 与 `MouseEventHost` 通过 `'requires EventHost` 继承事件共享成员，可直接传给要求 `EventHost` 的位置；`normalize-error` 补充 String 校验以满足新的 lowering 证明。同时带上 main 上已合并的 23 个增量宿主 API（#159）；本次改动本身不新增宿主能力或扩大动态边界。验证和升级步骤见 [alpha.12 说明](docs/releases/0.2.1-alpha.12.md)；只有对应 annotated tag/prerelease 和精确 main CI 通过后，下游才应升级。
+
 ## 0.2.1-alpha.11：匹配 Calcit 0.28 工具链
 
 本模块版本要求 Calcit CLI 与 npm `@calcit/procs` **同时使用 `0.28.0-alpha.3`**。它包含已合并的 Option 方法迁移及浏览器 trait 类型引用修正，保持现有宿主、错误和异步语义；不新增宿主能力或扩大动态边界。验证和升级步骤见 [alpha.11 说明](docs/releases/0.2.1-alpha.11.md)。这是发布准备，只有对应 annotated tag/prerelease 和精确 main CI 通过后，下游才应升级；已有 alpha.10 tag 不会随 main 更新。
