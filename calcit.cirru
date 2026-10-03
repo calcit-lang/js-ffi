@@ -247,14 +247,11 @@
             &%{} KeyModifiers :alt? false :ctrl? true :meta? false :shift? false
           :schema $ :: 'Enum
         'KeyboardEventHost $ %{} 'CodeEntry
-          :doc "|External KeyboardEvent capability without trait inheritance; adapters normalize keys and modifiers into Calcit data."
-          :code $ quote $ deftrait KeyboardEventHost (:key 'String) (:code 'String) (:key-code 'Number) (:repeat? 'Bool) (:alt-key? 'Bool) (:ctrl-key? 'Bool) (:meta-key? 'Bool) (:shift-key? 'Bool)
-            .prevent-default! $ :: 'Fn $ {}
-              :args $ [] 'js-ffi.browser/KeyboardEventHost
-              :return 'Unit
+          :doc "|External KeyboardEvent capability that requires EventHost, so a keyboard event also exposes the shared event members; adapters normalize keys and modifiers into Calcit data."
+          :code $ quote $ deftrait KeyboardEventHost ('requires EventHost) (:key 'String) (:code 'String) (:key-code 'Number) (:repeat? 'Bool) (:alt-key? 'Bool) (:ctrl-key? 'Bool) (:meta-key? 'Bool) (:shift-key? 'Bool)
           :examples $ [] $ quote KeyboardEventHost
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
-            :names $ {} (:alt-key? |altKey) (:ctrl-key? |ctrlKey) (:key-code |keyCode) (:meta-key? |metaKey) (:prevent-default! |preventDefault) (:repeat? |repeat) (:shift-key? |shiftKey)
+            :names $ {} (:alt-key? |altKey) (:ctrl-key? |ctrlKey) (:key-code |keyCode) (:meta-key? |metaKey) (:repeat? |repeat) (:shift-key? |shiftKey)
           :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
         'LocationHost $ %{} 'CodeEntry
@@ -288,14 +285,11 @@
           :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
         'MouseEventHost $ %{} 'CodeEntry
-          :doc "|External MouseEvent capability exposing coordinates, button, and modifier fields used by adapters."
-          :code $ quote $ deftrait MouseEventHost (:client-x 'Number) (:client-y 'Number) (:button 'Number) (:alt-key? 'Bool) (:ctrl-key? 'Bool) (:meta-key? 'Bool) (:shift-key? 'Bool)
-            .prevent-default! $ :: 'Fn $ {}
-              :args $ [] 'js-ffi.browser/MouseEventHost
-              :return 'Unit
+          :doc "|External MouseEvent capability that requires EventHost and exposes coordinates, button, and modifier fields used by adapters."
+          :code $ quote $ deftrait MouseEventHost ('requires EventHost) (:client-x 'Number) (:client-y 'Number) (:button 'Number) (:alt-key? 'Bool) (:ctrl-key? 'Bool) (:meta-key? 'Bool) (:shift-key? 'Bool)
           :examples $ [] $ quote MouseEventHost
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
-            :names $ {} (:alt-key? |altKey) (:client-x |clientX) (:client-y |clientY) (:ctrl-key? |ctrlKey) (:meta-key? |metaKey) (:prevent-default! |preventDefault) (:shift-key? |shiftKey)
+            :names $ {} (:alt-key? |altKey) (:client-x |clientX) (:client-y |clientY) (:ctrl-key? |ctrlKey) (:meta-key? |metaKey) (:shift-key? |shiftKey)
           :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
         'PointerEventHost $ %{} 'CodeEntry
@@ -3253,12 +3247,12 @@
           :doc "|Normalize a synchronous throw or Promise rejection into JsError."
           :code $ quote $ defn normalize-error (error)
             let
-                name $ try
+                name $ contract/expect-string |Error.name $ try
                   let
                       raw-name $ contract/object-field |Error error |name
                     if (js-nullish? raw-name) |Error $ contract/expect-string |Error.name raw-name
                   fn (_) |Error
-                message $ try
+                message $ contract/expect-string |Error.message $ try
                   let
                       raw-message $ contract/object-field |Error error |message
                     if (js-nullish? raw-message)
