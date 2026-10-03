@@ -178,6 +178,12 @@
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
             :names $ {} $ :select! |select
           :schema $ :: 'Trait
+        'ElementRect $ %{} 'CodeEntry
+          :doc "|Normalized element bounding box in CSS pixels copied from getBoundingClientRect."
+          :code $ quote $ defstruct ElementRect (:x 'Number) (:y 'Number) (:width 'Number) (:height 'Number)
+          :examples $ [] $ quote
+            &%{} ElementRect :x 0 :y 0 :width 100 :height 50
+          :schema $ :: 'StructDef
         'ElementSnapshot $ %{} 'CodeEntry
           :doc "|Calcit-owned subset of DOM element data suitable for business code without retaining host identity."
           :code $ quote $ defstruct ElementSnapshot (:id 'String) (:class-name 'String)
@@ -700,6 +706,65 @@
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'js-ffi.browser/DomElementHost
             :features $ #{} :js-ffi
+        'element-bounding-rect $ %{} 'CodeEntry
+          :doc "|Copy getBoundingClientRect into a normalized ElementRect; a non-object result or non-Number field raises a contract violation."
+          :code $ quote $ defn element-bounding-rect (element)
+            let
+                rect $ contract/expect-object |element.getBoundingClientRect $ js/Reflect.apply (js/Reflect.get element |getBoundingClientRect) element (js/Array.of)
+              %{} ElementRect
+                :x $ contract/expect-number |rect.x $ js/Reflect.get rect |x
+                :y $ contract/expect-number |rect.y $ js/Reflect.get rect |y
+                :width $ contract/expect-number |rect.width $ js/Reflect.get rect |width
+                :height $ contract/expect-number |rect.height $ js/Reflect.get rect |height
+          :examples $ [] $ quote (element-bounding-rect element)
+          :ffi $ {} (:backend :js) (:target :browser)
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/ElementRect)
+            :args $ [] 'js-ffi.browser/DomElementHost
+            :features $ #{} :js-ffi
+        'element-checked? $ %{} 'CodeEntry
+          :doc "|Read element.checked as Bool; a missing or non-Bool value raises a contract violation."
+          :code $ quote $ defn element-checked? (element)
+            contract/expect-bool |element.checked $ js/Reflect.get element |checked
+          :examples $ [] $ quote (element-checked? checkbox)
+          :ffi $ {} (:backend :js) (:target :browser)
+          :schema $ :: 'Fn $ {} (:return 'Bool)
+            :args $ [] 'js-ffi.browser/DomElementHost
+            :features $ #{} :js-ffi
+        'element-class-add! $ %{} 'CodeEntry
+          :doc "|Add one class token through element.classList; an empty or whitespace-containing token raises the host DOMException."
+          :code $ quote $ defn element-class-add! (element class-name)
+            let
+                tokens $ contract/expect-object |element.classList $ js/Reflect.get element |classList
+              js/Reflect.apply (js/Reflect.get tokens |add) tokens $ js/Array.of class-name
+            , &unit
+          :examples $ [] $ quote (element-class-add! element |active)
+          :ffi $ {} (:backend :js) (:target :browser)
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'js-ffi.browser/DomElementHost 'String
+            :features $ #{} :js-ffi
+        'element-class-remove! $ %{} 'CodeEntry
+          :doc "|Remove one class token through element.classList; an empty or whitespace-containing token raises the host DOMException."
+          :code $ quote $ defn element-class-remove! (element class-name)
+            let
+                tokens $ contract/expect-object |element.classList $ js/Reflect.get element |classList
+              js/Reflect.apply (js/Reflect.get tokens |remove) tokens $ js/Array.of class-name
+            , &unit
+          :examples $ [] $ quote (element-class-remove! element |active)
+          :ffi $ {} (:backend :js) (:target :browser)
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'js-ffi.browser/DomElementHost 'String
+            :features $ #{} :js-ffi
+        'element-class-toggle! $ %{} 'CodeEntry
+          :doc "|Toggle one class token and return whether it is present afterwards; an invalid token raises the host DOMException and a non-Bool host result raises a contract violation."
+          :code $ quote $ defn element-class-toggle! (element class-name)
+            let
+                tokens $ contract/expect-object |element.classList $ js/Reflect.get element |classList
+              contract/expect-bool |element.classList.toggle $ js/Reflect.apply (js/Reflect.get tokens |toggle) tokens $ js/Array.of class-name
+          :examples $ [] $ quote (element-class-toggle! element |active)
+          :ffi $ {} (:backend :js) (:target :browser)
+          :schema $ :: 'Fn $ {} (:return 'Bool)
+            :args $ [] 'js-ffi.browser/DomElementHost 'String
+            :features $ #{} :js-ffi
         'element-clone $ %{} 'CodeEntry
           :doc "|Clone a DOM element, optionally including its descendants."
           :code $ quote $ defn element-clone (element deep?)
@@ -780,6 +845,17 @@
             :args $ [] 'js-ffi.browser/DomElementHost 'String
             :features $ #{} :js-ffi
             :return $ :: 'calcit.core/Option 'String
+        'element-has-class? $ %{} 'CodeEntry
+          :doc "|Return whether an element has one class token; a non-Bool host result raises a contract violation."
+          :code $ quote $ defn element-has-class? (element class-name)
+            let
+                tokens $ contract/expect-object |element.classList $ js/Reflect.get element |classList
+              contract/expect-bool |element.classList.contains $ js/Reflect.apply (js/Reflect.get tokens |contains) tokens $ js/Array.of class-name
+          :examples $ [] $ quote (element-has-class? element |active)
+          :ffi $ {} (:backend :js) (:target :browser)
+          :schema $ :: 'Fn $ {} (:return 'Bool)
+            :args $ [] 'js-ffi.browser/DomElementHost 'String
+            :features $ #{} :js-ffi
         'element-host $ %{} 'CodeEntry
           :doc "|Validate an opaque host value as an object and expose the shared DOM element capability."
           :code $ quote $ defn element-host (value)
@@ -835,6 +911,16 @@
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'js-ffi.browser/DomElementHost
             :features $ #{} :js-ffi
+        'element-scroll-into-view! $ %{} 'CodeEntry
+          :doc "|Scroll an element into view with the default host options; host exceptions propagate."
+          :code $ quote $ defn element-scroll-into-view! (element)
+            js/Reflect.apply (js/Reflect.get element |scrollIntoView) element $ js/Array.of
+            , &unit
+          :examples $ [] $ quote (element-scroll-into-view! element)
+          :ffi $ {} (:backend :js) (:target :browser)
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'js-ffi.browser/DomElementHost
+            :features $ #{} :js-ffi
         'element-select! $ %{} 'CodeEntry
           :doc "|Select the editable text of an input or textarea element and return Unit."
           :code $ quote $ defn element-select! (element) (element .select!) &unit
@@ -848,6 +934,14 @@
           :ffi $ {} (:backend :js) (:target :browser)
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'js-ffi.browser/DomElementHost 'String 'String
+            :features $ #{} :js-ffi
+        'element-set-checked! $ %{} 'CodeEntry
+          :doc "|Set element.checked from a Bool and return Unit."
+          :code $ quote $ defn element-set-checked! (element checked) (js/Reflect.set element |checked checked) &unit
+          :examples $ [] $ quote (element-set-checked! checkbox true)
+          :ffi $ {} (:backend :js) (:target :browser)
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'js-ffi.browser/DomElementHost 'Bool
             :features $ #{} :js-ffi
         'element-set-class-name! $ %{} 'CodeEntry
           :doc "|Replace one element className through DomElementHost.className."
@@ -945,6 +1039,15 @@
             :args $ [] 'js-ffi.browser/DomElementHost 'String
             :features $ #{} :js-ffi
             :return $ :: 'calcit.core/Option 'String
+        'element-value $ %{} 'CodeEntry
+          :doc "|Read element.value as String; a missing or non-String value raises a contract violation."
+          :code $ quote $ defn element-value (element)
+            contract/expect-string |element.value $ js/Reflect.get element |value
+          :examples $ [] $ quote (element-value input)
+          :ffi $ {} (:backend :js) (:target :browser)
+          :schema $ :: 'Fn $ {} (:return 'String)
+            :args $ [] 'js-ffi.browser/DomElementHost
+            :features $ #{} :js-ffi
         'event-host $ %{} 'CodeEntry
           :doc "|Validate an opaque host value as an object and expose the shared browser Event capability."
           :code $ quote $ defn event-host (value)
@@ -988,6 +1091,24 @@
             :args $ [] 'js-ffi.browser/EventHost
             :features $ #{} :js-ffi
             :return $ :: 'calcit.core/Option 'js-ffi.browser/DomElementHost
+        'event-target-value $ %{} 'CodeEntry
+          :doc "|Read event.target.value as Option<String>; a null target or a non-String value becomes none and never throws."
+          :code $ quote $ defn event-target-value (event)
+            let
+                target $ js-get event |target
+              if (js-nullish? target) (Option :none)
+                let
+                    value $ js/Reflect.get target |value
+                  if
+                    = |string $ js/typeof value
+                    Option :some $ contract/expect-string |event.target.value value
+                    Option :none
+          :examples $ [] $ quote (event-target-value event)
+          :ffi $ {} (:backend :js) (:target :browser)
+          :schema $ :: 'Fn $ {}
+            :args $ [] 'js-ffi.browser/EventHost
+            :features $ #{} :js-ffi
+            :return $ :: 'calcit.core/Option 'String
         'expect-host-kind $ %{} 'CodeEntry
           :doc "|Validate that an opaque host value is an object of the given DOM host kind (see host-kind?) and return it as JsObject; otherwise raise a JS FFI contract violation naming the label. Adapters use it before coercing to an external trait."
           :code $ quote $ defn expect-host-kind (label kind value)
@@ -1153,6 +1274,27 @@
           :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/LocationSnapshot)
             :args $ []
             :features $ #{} :js-ffi
+        'media-matches? $ %{} 'CodeEntry
+          :doc "|Return window.matchMedia(query).matches as Bool; false when window or matchMedia is unavailable or yields no list, while a non-Bool matches value raises a contract violation."
+          :code $ quote $ defn media-matches? (query)
+            if
+              try
+                = |function $ js/typeof js/window.matchMedia
+                fn (error) false
+              let
+                  result $ js/window.matchMedia query
+                if
+                  and
+                    = |object $ js/typeof result
+                    not= "|[object Null]" $ contract/expect-string |Object.prototype.toString $ js/Reflect.apply js/Object.prototype.toString result (js/Array.of)
+                  contract/expect-bool |matchMedia.matches $ js/Reflect.get result |matches
+                  , false
+              , false
+          :examples $ [] $ quote (media-matches? "|(prefers-color-scheme: dark)")
+          :ffi $ {} (:backend :js) (:target :browser)
+          :schema $ :: 'Fn $ {} (:return 'Bool)
+            :args $ [] 'String
+            :features $ #{} :js-ffi
         'mouse-event-from-event $ %{} 'CodeEntry
           :doc "|Create a MouseEvent that preserves the source Event type and compatible initialization fields."
           :code $ quote $ defn mouse-event-from-event (event)
@@ -1313,6 +1455,38 @@
             :args $ [] 'T
             :features $ #{} :js-ffi
             :generics $ [] 'T
+        'session-storage-get $ %{} 'CodeEntry
+          :doc "|Read one sessionStorage key as Option<String>. A missing key, unavailable storage and a host exception while reading all become none, while a non-String host value raises a contract violation."
+          :code $ quote $ defn session-storage-get (key)
+            let
+                raw $ try
+                  if (exists? js/sessionStorage) (js/sessionStorage.getItem key) js/undefined
+                  fn (error) js/undefined
+                kind $ js/typeof raw
+              if
+                or (= |undefined kind)
+                  = "|[object Null]" $ contract/expect-string |Object.prototype.toString $ js/Reflect.apply js/Object.prototype.toString raw (js/Array.of)
+                Option :none
+                Option :some $ contract/expect-string |sessionStorage.getItem raw
+          :examples $ [] $ quote (session-storage-get |draft)
+          :ffi $ {} (:backend :js) (:target :browser)
+          :schema $ :: 'Fn $ {}
+            :args $ [] 'String
+            :features $ #{} :js-ffi
+            :return $ :: 'calcit.core/Option 'String
+        'session-storage-set! $ %{} 'CodeEntry
+          :doc "|Write a String key/value pair to sessionStorage and return Unit. Unavailable storage is skipped; a full storage quota still raises the host QuotaExceededError."
+          :code $ quote $ defn session-storage-set! (key value)
+            when
+              try (exists? js/sessionStorage)
+                fn (error) false
+              js/sessionStorage.setItem key value
+            , &unit
+          :examples $ [] $ quote (session-storage-set! |draft |text)
+          :ffi $ {} (:backend :js) (:target :browser)
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'String 'String
+            :features $ #{} :js-ffi
         'set-before-unload! $ %{} 'CodeEntry (:doc "|Install a typed browser beforeunload callback.")
           :code $ quote $ defn set-before-unload! (callback)
             let
@@ -2094,6 +2268,28 @@
           :schema $ :: 'Fn $ {} (:return 'Bool)
             :args $ [] 'String
             :features $ #{} :js-ffi
+        'file-mtime-ms! $ %{} 'CodeEntry
+          :doc "|Return the modification time of a path in epoch milliseconds from node:fs.statSync as Number; filesystem failures raise the original host exception."
+          :code $ quote $ defn file-mtime-ms! (file-path)
+            let
+                stats $ fs/statSync file-path
+              contract/expect-number |stats.mtimeMs $ js/Reflect.get stats |mtimeMs
+          :examples $ [] $ quote (file-mtime-ms! |package.json)
+          :ffi $ {} (:backend :js) (:target :node)
+          :schema $ :: 'Fn $ {} (:return 'Number)
+            :args $ [] 'String
+            :features $ #{} :js-ffi
+        'file-size! $ %{} 'CodeEntry
+          :doc "|Return the byte size of a path from node:fs.statSync as Number; filesystem failures raise the original host exception."
+          :code $ quote $ defn file-size! (file-path)
+            let
+                stats $ fs/statSync file-path
+              contract/expect-number |stats.size $ js/Reflect.get stats |size
+          :examples $ [] $ quote (file-size! |package.json)
+          :ffi $ {} (:backend :js) (:target :node)
+          :schema $ :: 'Fn $ {} (:return 'Number)
+            :args $ [] 'String
+            :features $ #{} :js-ffi
         'http-create-server $ %{} 'CodeEntry
           :doc "|Create a Node HTTP server from a typed request/response handler."
           :code $ quote $ defn http-create-server (handler)
@@ -2130,6 +2326,19 @@
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'String)
             :args $ []
+            :features $ #{} :js-ffi
+        'is-directory? $ %{} 'CodeEntry
+          :doc "|Return whether a path is a directory as Bool; a missing path returns false while other node:fs.statSync failures raise the original host exception."
+          :code $ quote $ defn is-directory? (dir-path)
+            let
+                stats $ fs/statSync dir-path $ js-object (:throwIfNoEntry false)
+              if
+                = |undefined $ js/typeof stats
+                , false $ contract/expect-bool |stats.isDirectory $ js/Reflect.apply (js/Reflect.get stats |isDirectory) stats (js/Array.of)
+          :examples $ [] $ quote (is-directory? |src)
+          :ffi $ {} (:backend :js) (:target :node)
+          :schema $ :: 'Fn $ {} (:return 'Bool)
+            :args $ [] 'String
             :features $ #{} :js-ffi
         'make-temp-dir! $ %{} 'CodeEntry
           :doc "|Synchronous node:fs.mkdtempSync adapter. Text uses UTF-8; filesystem failures raise the original host exception. No recursive deletion."
@@ -2251,6 +2460,32 @@
           :examples $ [] $ quote (probe)
           :schema $ :: 'Fn $ {} (:return 'js-ffi.node/NodeProbe)
             :args $ []
+        'read-dir! $ %{} 'CodeEntry
+          :doc "|Synchronous node:fs.readdirSync adapter returning entry names as List<String>; filesystem failures raise the original host exception and a non-String entry raises a contract violation."
+          :code $ quote $ defn read-dir! (dir-path)
+            let
+                entries $ fs/readdirSync dir-path
+              if (js/Array.isArray entries)
+                map
+                  range $ contract/expect-number |fs.readdirSync.length $ js/Reflect.get entries |length
+                  fn (index)
+                    contract/expect-string |fs.readdirSync $ js/Reflect.get entries index
+                raise "|JS FFI contract violation: fs.readdirSync expected Array, got another value"
+          :examples $ [] $ quote (read-dir! |.)
+          :ffi $ {} (:backend :js) (:target :node)
+          :schema $ :: 'Fn $ {}
+            :args $ [] 'String
+            :features $ #{} :js-ffi
+            :return $ :: 'List 'String
+        'read-stdin-text! $ %{} 'CodeEntry
+          :doc "|Synchronously read all of standard input as UTF-8 String through node:fs.readFileSync(0); host failures such as EAGAIN raise the original exception."
+          :code $ quote $ defn read-stdin-text! ()
+            contract/expect-string |fs.readFileSync.stdin $ fs/readFileSync 0 |utf8
+          :examples $ [] $ quote (read-stdin-text!)
+          :ffi $ {} (:backend :js) (:target :node)
+          :schema $ :: 'Fn $ {} (:return 'String)
+            :args $ []
+            :features $ #{} :js-ffi
         'read-text! $ %{} 'CodeEntry
           :doc "|Synchronous node:fs.readFileSync adapter. Text uses UTF-8; filesystem failures raise the original host exception. No recursive deletion."
           :code $ quote $ defn read-text! (file-path)
@@ -2422,6 +2657,22 @@
               :: 'Fn $ {} (:return 'Unit)
                 :args $ []
               , 'Number
+            :features $ #{} :js-ffi
+        'stderr-write! $ %{} 'CodeEntry
+          :doc "|Write one String to process.stderr without adding a newline and return Unit; host stream failures propagate."
+          :code $ quote $ defn stderr-write! (text) (js/process.stderr.write text) &unit
+          :examples $ [] $ quote (stderr-write! "|warning\n")
+          :ffi $ {} (:backend :js) (:target :node)
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'String
+            :features $ #{} :js-ffi
+        'stdout-write! $ %{} 'CodeEntry
+          :doc "|Write one String to process.stdout without adding a newline and return Unit; host stream failures propagate."
+          :code $ quote $ defn stdout-write! (text) (js/process.stdout.write text) &unit
+          :examples $ [] $ quote (stdout-write! "|ready\n")
+          :ffi $ {} (:backend :js) (:target :node)
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'String
             :features $ #{} :js-ffi
         'unlink! $ %{} 'CodeEntry
           :doc "|Synchronous node:fs.unlinkSync adapter. Text uses UTF-8; filesystem failures raise the original host exception. No recursive deletion."
@@ -2754,6 +3005,34 @@
           :schema $ :: 'Fn $ {} (:return 'Bool)
             :args $ [] 'js-ffi.shared/AbortSignalHost
             :features $ #{} :js-ffi
+        'base64-decode $ %{} 'CodeEntry
+          :doc "|Decode standard Base64 into a UTF-8 String using atob and a fatal TextDecoder; invalid Base64 or invalid UTF-8 raises the host exception."
+          :code $ quote $ defn base64-decode (text)
+            let
+                binary $ contract/expect-string |atob $ js/atob text
+                bytes $ js/Uint8Array.from binary $ fn (char index)
+                  js/Reflect.apply js/String.prototype.charCodeAt char $ js/Array.of 0
+                decoder $ new js/TextDecoder |utf-8 $ js-object (:fatal true)
+              contract/expect-string |TextDecoder.decode $ js/Reflect.apply (js/Reflect.get decoder |decode) decoder $ js/Array.of bytes
+          :examples $ [] $ quote (base64-decode |aGVsbG8=)
+          :ffi $ {} $ :backend :js
+          :schema $ :: 'Fn $ {} (:return 'String)
+            :args $ [] 'String
+            :features $ #{} :js-ffi
+        'base64-encode $ %{} 'CodeEntry
+          :doc "|Encode a String as standard padded Base64 over its UTF-8 bytes using TextEncoder."
+          :code $ quote $ defn base64-encode (text)
+            let
+                encoder $ new js/TextEncoder
+                bytes $ js/Reflect.apply (js/Reflect.get encoder |encode) encoder $ js/Array.of text
+                chars $ js/Array.from bytes $ fn (byte index) (js/String.fromCharCode byte)
+                binary $ js/Reflect.apply (js/Reflect.get chars |join) chars $ js/Array.of |
+              contract/expect-string |btoa $ js/btoa binary
+          :examples $ [] $ quote (base64-encode |hello)
+          :ffi $ {} $ :backend :js
+          :schema $ :: 'Fn $ {} (:return 'String)
+            :args $ [] 'String
+            :features $ #{} :js-ffi
         'console-clear! $ %{} 'CodeEntry
           :doc "|Clear the shared console through ConsoleHost.clear."
           :code $ quote $ defn console-clear! ()
@@ -3069,6 +3348,15 @@
             :args $ [] $ :: 'Fn
               {} (:return 'Unit)
                 :args $ []
+            :features $ #{} :js-ffi
+        'random-uuid $ %{} 'CodeEntry
+          :doc "|Return a random RFC 4122 version 4 UUID String from crypto.randomUUID (browsers and Node 19+); a missing crypto host raises the host exception."
+          :code $ quote $ defn random-uuid ()
+            contract/expect-string |crypto.randomUUID $ js/crypto.randomUUID
+          :examples $ [] $ quote (random-uuid)
+          :ffi $ {} $ :backend :js
+          :schema $ :: 'Fn $ {} (:return 'String)
+            :args $ []
             :features $ #{} :js-ffi
         'response-host $ %{} 'CodeEntry
           :doc "|Validate a host Response object and expose its typed capability."

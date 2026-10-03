@@ -9,8 +9,21 @@ import {
   event_host,
   event_target_element,
   host_kind_$q_,
+  element_bounding_rect,
+  element_checked_$q_,
+  element_class_add_$x_,
+  element_class_remove_$x_,
+  element_class_toggle_$x_,
+  element_has_class_$q_,
+  element_scroll_into_view_$x_,
+  element_set_checked_$x_,
+  element_value,
+  event_target_value,
   keyboard_event_host,
   local_storage_available_$q_,
+  media_matches_$q_,
+  session_storage_get,
+  session_storage_set_$x_,
   storage_get,
 } from "./js-out/js-ffi.browser.mjs";
 import {
@@ -118,6 +131,120 @@ try {
   else Reflect.deleteProperty(globalThis, "localStorage");
   if (originalWindow) Object.defineProperty(globalThis, "window", originalWindow);
   else Reflect.deleteProperty(globalThis, "window");
+}
+
+// Class-list, geometry, scroll and form-state adapters read documented host fields only.
+const tokenSet = new Set();
+const classElement = {
+  nodeType: 1,
+  tagName: "DIV",
+  classList: {
+    add(name) { if (name === "" || /\s/.test(name)) throw new DOMException("bad token", "SyntaxError"); tokenSet.add(name); },
+    remove(name) { tokenSet.delete(name); },
+    toggle(name) { if (tokenSet.has(name)) { tokenSet.delete(name); return false; } tokenSet.add(name); return true; },
+    contains(name) { return tokenSet.has(name); },
+  },
+};
+assert.equal(element_class_add_$x_(classElement, "active"), undefined);
+assert.equal(element_has_class_$q_(classElement, "active"), true);
+assert.equal(element_has_class_$q_(classElement, "other"), false);
+assert.equal(element_class_toggle_$x_(classElement, "other"), true);
+assert.equal(element_class_toggle_$x_(classElement, "other"), false);
+assert.equal(element_class_remove_$x_(classElement, "active"), undefined);
+assert.equal(element_has_class_$q_(classElement, "active"), false);
+assert.throws(() => element_class_add_$x_(classElement, "has space"), /bad token/);
+assert.throws(() => element_class_add_$x_({ classList: null }, "x"), /element\.classList expected Object, got nullish/);
+assert.throws(() => element_has_class_$q_({ classList: { contains: () => 1 } }, "x"), /element\.classList\.contains expected Bool, got number/);
+assert.throws(() => element_class_toggle_$x_({ classList: { toggle: () => "yes" } }, "x"), /element\.classList\.toggle expected Bool, got string/);
+
+const rect = element_bounding_rect({ getBoundingClientRect: () => ({ x: 1, y: 2, width: 30, height: 40 }) });
+assert.deepEqual(["x", "y", "width", "height"].map(key => rect.get(key)), [1, 2, 30, 40]);
+assert.throws(() => element_bounding_rect({ getBoundingClientRect: () => ({ x: "1", y: 2, width: 3, height: 4 }) }), /rect\.x expected Number, got string/);
+assert.throws(() => element_bounding_rect({ getBoundingClientRect: () => null }), /expected Object, got nullish/);
+
+let scrolled = 0;
+assert.equal(element_scroll_into_view_$x_({ scrollIntoView(...args) { assert.equal(args.length, 0); scrolled += 1; } }), undefined);
+assert.equal(scrolled, 1);
+
+const field = { value: "typed", checked: false };
+assert.equal(element_value(field), "typed");
+assert.throws(() => element_value({ value: 42 }), /element\.value expected String, got number/);
+assert.throws(() => element_value({}), /element\.value expected String, got nullish/);
+assert.equal(element_checked_$q_(field), false);
+assert.equal(element_set_checked_$x_(field, true), undefined);
+assert.equal(field.checked, true);
+assert.equal(element_checked_$q_(field), true);
+assert.throws(() => element_checked_$q_({ checked: "true" }), /element\.checked expected Bool, got string/);
+
+// event-target-value never throws for a null target and ignores non-String values.
+assert.equal(option_$o_unwrap(event_target_value({ type: "input", target: { value: "abc" } })), "abc");
+assert.equal(option_$o_unwrap(event_target_value({ type: "input", target: { value: "" } })), "");
+assert.equal(option_$o_none_$q_(event_target_value({ type: "input", target: null })), true);
+assert.equal(option_$o_none_$q_(event_target_value({ type: "input" })), true);
+assert.equal(option_$o_none_$q_(event_target_value({ type: "input", target: { value: 3 } })), true);
+assert.equal(option_$o_none_$q_(event_target_value({ type: "input", target: {} })), true);
+
+// matchMedia is optional; absence or a null list is false and a non-Bool matches is rejected.
+const originalMatchMedia = Object.getOwnPropertyDescriptor(globalThis, "matchMedia");
+const savedWindow = Object.getOwnPropertyDescriptor(globalThis, "window");
+try {
+  Reflect.deleteProperty(globalThis, "window");
+  assert.equal(media_matches_$q_("(min-width: 1px)"), false);
+  Object.defineProperty(globalThis, "window", { configurable: true, value: globalThis });
+  Reflect.deleteProperty(globalThis, "matchMedia");
+  assert.equal(media_matches_$q_("(min-width: 1px)"), false);
+  const queries = [];
+  Object.defineProperty(globalThis, "matchMedia", { configurable: true, writable: true, value(query) { queries.push(query); return { matches: query.includes("dark") }; } });
+  assert.equal(media_matches_$q_("(prefers-color-scheme: dark)"), true);
+  assert.equal(media_matches_$q_("(prefers-color-scheme: light)"), false);
+  assert.deepEqual(queries, ["(prefers-color-scheme: dark)", "(prefers-color-scheme: light)"]);
+  globalThis.matchMedia = () => null;
+  assert.equal(media_matches_$q_("x"), false);
+  globalThis.matchMedia = () => ({ matches: "yes" });
+  assert.throws(() => media_matches_$q_("x"), /matchMedia\.matches expected Bool, got string/);
+} finally {
+  if (originalMatchMedia) Object.defineProperty(globalThis, "matchMedia", originalMatchMedia);
+  else Reflect.deleteProperty(globalThis, "matchMedia");
+  if (savedWindow) Object.defineProperty(globalThis, "window", savedWindow);
+  else Reflect.deleteProperty(globalThis, "window");
+}
+
+// sessionStorage mirrors localStorage: denied or missing storage reads as none and writes are skipped.
+const originalSessionStorage = Object.getOwnPropertyDescriptor(globalThis, "sessionStorage");
+try {
+  Reflect.deleteProperty(globalThis, "sessionStorage");
+  assert.equal(option_$o_none_$q_(session_storage_get("missing")), true);
+  assert.equal(session_storage_set_$x_("k", "v"), undefined);
+  Object.defineProperty(globalThis, "sessionStorage", {
+    configurable: true,
+    get() { throw new DOMException("Access is denied for this document.", "SecurityError"); },
+  });
+  assert.equal(option_$o_none_$q_(session_storage_get("blocked")), true);
+  assert.equal(session_storage_set_$x_("k", "v"), undefined);
+  const backing = new Map();
+  Object.defineProperty(globalThis, "sessionStorage", {
+    configurable: true,
+    value: {
+      getItem: key => (backing.has(key) ? backing.get(key) : null),
+      setItem: (key, value) => { backing.set(key, value); },
+    },
+  });
+  assert.equal(option_$o_none_$q_(session_storage_get("absent")), true);
+  backing.set("null", "null");
+  assert.equal(option_$o_unwrap(session_storage_get("null")), "null");
+  assert.equal(session_storage_set_$x_("draft", "text"), undefined);
+  assert.equal(option_$o_unwrap(session_storage_get("draft")), "text");
+  session_storage_set_$x_("empty", "");
+  assert.equal(option_$o_unwrap(session_storage_get("empty")), "");
+  Object.defineProperty(globalThis, "sessionStorage", { configurable: true, value: { getItem() { throw new DOMException("Storage read failed.", "SecurityError"); } } });
+  assert.equal(option_$o_none_$q_(session_storage_get("blocked")), true);
+  Object.defineProperty(globalThis, "sessionStorage", { configurable: true, value: { getItem: () => 42 } });
+  assert.throws(() => session_storage_get("number"), /sessionStorage\.getItem expected String, got number/);
+  Object.defineProperty(globalThis, "sessionStorage", { configurable: true, value: { setItem() { throw new DOMException("quota", "QuotaExceededError"); } } });
+  assert.throws(() => session_storage_set_$x_("k", "v"), /quota/);
+} finally {
+  if (originalSessionStorage) Object.defineProperty(globalThis, "sessionStorage", originalSessionStorage);
+  else Reflect.deleteProperty(globalThis, "sessionStorage");
 }
 
 console.log("js-ffi-browser-node-contract-passed");

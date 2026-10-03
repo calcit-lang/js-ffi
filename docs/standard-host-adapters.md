@@ -12,7 +12,7 @@ entry_for:
 
 # Standard host adapters
 
-These 126 adapters extend the existing host contracts. Import `js-ffi.shared`
+These 149 adapters extend the existing host contracts. Import `js-ffi.shared`
 with either `js-ffi.browser` or `js-ffi.node`. The package retains no native
 objects in application state automatically; constructors explicitly return
 named host capabilities, and missing lookups return `Option`.
@@ -21,7 +21,7 @@ Development and CI use Node.js 24 (Vite requires Node.js >=22.12 here) and
 Playwright Chromium. Runtime helpers use standard APIs; the browser needs
 URLSearchParams.size, Headers, AbortController, performance and requestAnimationFrame.
 
-## Shared APIs (35 adapters)
+## Shared APIs (38 adapters)
 
 | Function | Parameters → result | Behavior |
 | --- | --- | --- |
@@ -48,6 +48,9 @@ URLSearchParams.size, Headers, AbortController, performance and requestAnimation
 | `encode-uri-component` | String → String | Encode one URI component, including Unicode. |
 | `decode-uri-component` | String → String | Decode one component; malformed escapes raise URIError. |
 | `now-ms` | () → Number | Epoch milliseconds from Date.now. |
+| `random-uuid` | () → String | RFC 4122 version 4 UUID from `crypto.randomUUID` (browsers and Node 19+); a non-String host result raises. |
+| `base64-encode` | String → String | Standard padded Base64 over the UTF-8 bytes of the text (via TextEncoder), so non-ASCII text is safe. |
+| `base64-decode` | String → String | Decode standard Base64 as UTF-8 (fatal TextDecoder); invalid Base64 or invalid UTF-8 raises. |
 | `promise-create` | DynFn executor → PromiseHost | Create a PromiseHost from a (resolve reject) executor. |
 | `promise?` | T → Bool | 泛型输入保留调用方类型；仅当值符合 Promise 合约时返回 true。 |
 | `performance-now` | () → Number | Monotonic milliseconds relative to the host time origin. |
@@ -131,7 +134,7 @@ and `screen-height`. `document-body` returns `Option<DomElementHost>` because
 监听 `visibilitychange` 等 document 事件时使用 `document-add-event-listener!`；
 取消监听时传入相同的回调函数。不要把 `document` 强行转换成 `DomElementHost`。
 
-## Browser APIs (11 adapters)
+## Browser APIs (24 adapters)
 
 DOM functions accept `DomElementHost`. Use focus/blur with an HTML element
 that supplies those methods (for example an input).
@@ -144,15 +147,35 @@ that supplies those methods (for example an input).
 | `element-matches?` | element, String selector → Bool |
 | `element-query-selector` | element, String selector → Option<DomElementHost> |
 | `element-focus!`, `element-blur!` | element → Unit |
+| `element-class-add!`, `element-class-remove!` | element, String token → Unit |
+| `element-class-toggle!` | element, String token → Bool (present afterwards) |
+| `element-has-class?` | element, String token → Bool |
+| `element-bounding-rect` | element → ElementRect (`x`, `y`, `width`, `height` copied from getBoundingClientRect) |
+| `element-scroll-into-view!` | element → Unit (default host options) |
+| `element-value` | element → String |
+| `element-checked?` | element → Bool |
+| `element-set-checked!` | element, Bool → Unit |
+| `event-target-value` | EventHost → Option<String> |
+| `media-matches?` | String media query → Bool |
+| `session-storage-get` | String key → Option<String> |
+| `session-storage-set!` | String key, String value → Unit |
 | `clear-timeout!`, `clear-interval!` | Number handle → Unit |
 | `request-animation-frame!` | (Number timestamp → Unit) callback → Number handle |
 | `cancel-animation-frame!` | Number handle → Unit |
 
 Missing attributes and selector results become none; invalid CSS selectors
-raise the native DOMException. Keep timer/frame handles and cancel them during
+raise the native DOMException. Class helpers go through `classList`, so an empty
+or whitespace-containing token raises the native DOMException. `element-value`,
+`element-checked?` and `element-bounding-rect` validate every host field and
+raise a contract violation when it has the wrong type. `event-target-value`
+never throws: a null target or a non-String `value` is none. `media-matches?`
+is false when `window.matchMedia` is unavailable. `session-storage-get` and
+`session-storage-set!` mirror `storage-get` and `storage-set!`: denied or missing
+storage reads as none and writes are skipped, while a full quota still raises
+QuotaExceededError. Keep timer/frame handles and cancel them during
 teardown. Browser handles are numeric and must not be used as Node timer handles.
 
-## Node APIs (37 adapters)
+## Node APIs (44 adapters)
 
 | Function | Parameters → result |
 | --- | --- |
@@ -168,6 +191,12 @@ teardown. Browser handles are numeric and must not be used as Node timer handles
 | `mkdir!`, `rmdir!` | String directory → Unit |
 | `make-temp-dir!` | String prefix → String created path |
 | `real-path!` | String path → String |
+| `read-dir!` | String directory → List<String> entry names (non-recursive) |
+| `is-directory?` | String path → Bool; a missing path is false |
+| `file-size!` | String path → Number bytes |
+| `file-mtime-ms!` | String path → Number epoch milliseconds |
+| `stdout-write!`, `stderr-write!` | String text → Unit; no newline is added |
+| `read-stdin-text!` | () → String; all of stdin as UTF-8 |
 | `pid`, `uptime` | () → Number |
 | `platform`, `node-version` | () → String |
 | `env-get` | String → Option<String> |
@@ -198,6 +227,10 @@ one directory and `rmdir!` removes only empty directories. `unlink!` unlinks a
 file or symlink. No adapter performs recursive deletion. `make-temp-dir!`
 appends a random suffix to its prefix; join the system temporary directory
 with a filename prefix first. Path operations follow the running platform's rules.
+`read-dir!`, `file-size!` and `file-mtime-ms!` raise the native filesystem exception;
+`is-directory?` returns false for a missing path (ENOENT/ENOTDIR) and raises for
+other `statSync` failures. `read-stdin-text!` blocks reading `fs.readFileSync(0)`
+and may raise EAGAIN on a non-blocking terminal. No adapter spawns processes.
 The two async text adapters await `node:fs/promises` exactly once and normalize
 both synchronous throws and Promise rejections into `Result.err<JsError>`.
 
