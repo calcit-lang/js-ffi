@@ -690,11 +690,12 @@
     'js-ffi.browser/KeyboardEventHost $ {}
       :mode :ensure
       :kind :data
-      :doc "|External KeyboardEvent capability without trait inheritance; adapters normalize keys and modifiers into Calcit data."
+      :doc "|External KeyboardEvent capability that requires EventHost, so a keyboard event also exposes the shared event members; adapters normalize keys and modifiers into Calcit data."
       :schema $ :: 'Trait
       :tags $ #{} :ffi :js-host
       :code $ quote
         deftrait KeyboardEventHost
+          'requires EventHost
           :key 'String
           :code 'String
           :repeat? 'Bool
@@ -702,20 +703,17 @@
           :ctrl-key? 'Bool
           :meta-key? 'Bool
           :shift-key? 'Bool
-          .prevent-default! $ :: 'Fn
-            {}
-              :args $ [] 'js-ffi.browser/KeyboardEventHost
-              :return 'Unit
       :examples $ []
         quote KeyboardEventHost
     'js-ffi.browser/MouseEventHost $ {}
       :mode :ensure
       :kind :data
-      :doc "|External MouseEvent capability exposing coordinates, button, and modifier fields used by adapters."
+      :doc "|External MouseEvent capability that requires EventHost and exposes coordinates, button, and modifier fields used by adapters."
       :schema $ :: 'Trait
       :tags $ #{} :ffi :js-host
       :code $ quote
         deftrait MouseEventHost
+          'requires EventHost
           :client-x 'Number
           :client-y 'Number
           :button 'Number
@@ -723,10 +721,6 @@
           :ctrl-key? 'Bool
           :meta-key? 'Bool
           :shift-key? 'Bool
-          .prevent-default! $ :: 'Fn
-            {}
-              :args $ [] 'js-ffi.browser/MouseEventHost
-              :return 'Unit
       :examples $ []
         quote MouseEventHost
     'js-ffi.browser/MediaQueryListHost $ {}

@@ -23,6 +23,7 @@ const cases = [
   ['browser', 'browser/storage-get 42', /W_FN_ARG_TYPE_MISMATCH/],
   ['browser', 'js-set ((browser/create-element |div) :style) :css-text 42', /W_JS_FFI_FIELD_TYPE_MISMATCH/, undefined, true],
   ['browser', 'browser/request-animation-frame! 42', /W_FN_ARG_TYPE_MISMATCH/],
+  ['browser', 'browser/keyboard-event-key (browser/event-host (raise |event))', /W_FN_ARG_TYPE_MISMATCH/],
   ['browser', 'webgpu/destroy-device! 42', /W_FN_ARG_TYPE_MISMATCH/],
   ['browser', 'webgpu/buffer-size (option:unwrap (webgpu/gpu))', /W_FN_ARG_TYPE_MISMATCH/],
   ['browser', 'webgpu/request-adapter! (option:unwrap (webgpu/gpu)) 42 42', /W_FN_ARG_TYPE_MISMATCH/],
@@ -64,6 +65,24 @@ for (const [runtime, expression, diagnostic, extraImport, hostFeature] of cases)
     mutate(['edit', 'def', target, '--code', 'quote $ defn generic-promise-calls? ()\n  and\n    not $ shared/promise? 42\n    not $ shared/promise? |text\n    not $ shared/promise? $ {} (:x 1)']);
     mutate(['edit', 'schema', target, '--code', "quote $ :: 'Fn $ {} (:args $ []) (:return 'Bool)"]);
     const result = spawnSync(calcitBin, [snapshot, '--entry', 'node', '--init-fn', target, '--check-only'], { cwd: dir, encoding: 'utf8' });
+    assert.ifError(result.error);
+    assert.equal(result.status, 0, result.stdout + result.stderr);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+}
+
+// Keyboard and mouse events require EventHost, so they flow into EventHost
+// parameters without a cast; the reverse direction is rejected above.
+{
+  const dir = mkdtempSync(join(tmpdir(), 'js-ffi-event-upcast-'));
+  try {
+    const snapshot = join(dir, 'calcit.cirru');
+    copyFileSync(new URL('../calcit.cirru', import.meta.url), snapshot);
+    copyFileSync(new URL('../deps.cirru', import.meta.url), join(dir, 'deps.cirru'));
+    const target = 'js-ffi.browser-test/event-upcast!';
+    const mutate = args => execFileSync(calcitBin, [snapshot, ...args], { cwd: dir, stdio: 'pipe' });
+    mutate(['edit', 'def', target, '--code', 'quote $ defn event-upcast! ()\n  do\n    browser/event-stop-propagation! $ browser/keyboard-event-host $ raise |keyboard\n    browser/event-stop-propagation! $ browser/mouse-event-host $ raise |mouse\n    , &unit']);
+    mutate(['edit', 'schema', target, '--code', "quote $ :: 'Fn $ {} (:args $ []) (:return 'Unit) (:features $ #{} :js-ffi)"]);
+    const result = spawnSync(calcitBin, [snapshot, '--entry', 'browser', '--init-fn', target, '--check-only'], { cwd: dir, encoding: 'utf8' });
     assert.ifError(result.error);
     assert.equal(result.status, 0, result.stdout + result.stderr);
   } finally { rmSync(dir, { recursive: true, force: true }); }
