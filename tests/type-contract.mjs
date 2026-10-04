@@ -6,6 +6,9 @@ import { join } from 'node:path';
 
 const calcitBin = process.env.CALCIT_BIN ?? 'calcit';
 
+// The state decoders are pure Calcit despite living in the browser namespace.
+execFileSync(calcitBin, ['test', '--tag', 'state-decoder', '--require-match'], { stdio: 'inherit' });
+
 // Each invalid consumer uses a separate snapshot. Never mutate library sources.
 const cases = [
   ['node', 'node/path-basename 42', /W_FN_ARG_TYPE_MISMATCH/],
@@ -23,6 +26,8 @@ const cases = [
   ['node', 'shared/headers-get (shared/url-create |\/ |https:\/\/example.com) |x', /W_FN_ARG_TYPE_MISMATCH/],
   ['browser', 'browser/clear-timeout! |not-a-handle', /W_FN_ARG_TYPE_MISMATCH/],
   ['browser', 'browser/storage-get 42', /W_FN_ARG_TYPE_MISMATCH/],
+  ['browser', 'browser/decode-document-ready-state 42', /W_FN_ARG_TYPE_MISMATCH/],
+  ['browser', 'browser/decode-visibility-state 42', /W_FN_ARG_TYPE_MISMATCH/],
   ['browser', 'js-set ((browser/create-element |div) :style) :css-text 42', /W_JS_FFI_FIELD_TYPE_MISMATCH/, undefined, true],
   ['browser', 'browser/request-animation-frame! 42', /W_FN_ARG_TYPE_MISMATCH/],
   ['browser', 'browser/keyboard-event-key (browser/event-host (raise |event))', /W_FN_ARG_TYPE_MISMATCH/],

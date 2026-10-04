@@ -551,25 +551,43 @@
         'decode-document-ready-state $ %{} 'CodeEntry
           :doc "|Decode document.readyState String to DocumentReadyState while preserving unknown values."
           :code $ quote $ defn decode-document-ready-state (raw)
-            case-default raw (DocumentReadyState :unknown raw)
+            match raw
               |loading $ DocumentReadyState :loading
               |interactive $ DocumentReadyState :interactive
               |complete $ DocumentReadyState :complete
+              _ $ DocumentReadyState :unknown raw
           :examples $ []
             quote $ decode-document-ready-state |complete
             quote $ decode-document-ready-state |future-state
           :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/DocumentReadyState)
             :args $ [] 'String
+          :tests $ [] $ %{} 'TestEntry (:name |literal-state-contract)
+            :code $ quote $ do
+              assert= (DocumentReadyState :loading) (decode-document-ready-state |loading)
+              assert= (DocumentReadyState :interactive) (decode-document-ready-state |interactive)
+              assert= (DocumentReadyState :complete) (decode-document-ready-state |complete)
+              assert= (DocumentReadyState :unknown |future-state) (decode-document-ready-state |future-state)
+              assert= (DocumentReadyState :unknown |) (decode-document-ready-state |)
+            :tags $ #{} :state-decoder :unit
         'decode-visibility-state $ %{} 'CodeEntry
           :doc "|Decode document.visibilityState String to VisibilityState while preserving unknown values."
           :code $ quote $ defn decode-visibility-state (raw)
-            case-default raw (VisibilityState :unknown raw)
+            match raw
               |visible $ VisibilityState :visible
               |hidden $ VisibilityState :hidden
               |prerender $ VisibilityState :prerender
+              _ $ VisibilityState :unknown raw
           :examples $ [] $ quote (decode-visibility-state |hidden)
           :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/VisibilityState)
             :args $ [] 'String
+          :tests $ [] $ %{} 'TestEntry (:name |literal-state-contract)
+            :code $ quote $ do
+              assert= (VisibilityState :visible) (decode-visibility-state |visible)
+              assert= (VisibilityState :hidden) (decode-visibility-state |hidden)
+              assert= (VisibilityState :prerender) (decode-visibility-state |prerender)
+              assert= (VisibilityState :unknown |future-state) (decode-visibility-state |future-state)
+              assert= (VisibilityState :unknown |) (decode-visibility-state |)
+            :tags $ #{} :state-decoder :unit
         'document-active-element $ %{} 'CodeEntry
           :doc "|Return the focused element as Option<DomElementHost>; an absent active element yields none."
           :code $ quote $ defn document-active-element ()
@@ -3260,7 +3278,7 @@
                       contract/expect-string |Error.message raw-message
                   fn (_)
                     contract/expect-string |Error $ js/String error
-                kind $ case-default name (%:: JsErrorKind :unknown name)
+                kind $ match name
                   |TypeError $ %:: JsErrorKind :type-error
                   |RangeError $ %:: JsErrorKind :range-error
                   |NotAllowedError $ %:: JsErrorKind :permission
@@ -3268,6 +3286,7 @@
                   |QuotaExceededError $ %:: JsErrorKind :quota
                   |NetworkError $ %:: JsErrorKind :network
                   |AbortError $ %:: JsErrorKind :abort
+                  _ $ %:: JsErrorKind :unknown name
               JsError :kind kind :name name :message message :stack $ Option :none
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'js-ffi.shared/JsError)
