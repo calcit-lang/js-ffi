@@ -17,6 +17,16 @@ JavaScript explicit, checkable, and reusable across Calcit projects.
 
 文件修改后请显式重新运行 Calcit JS 构建，不把外部文件的 watch 事件视为稳定契约。验证命令为 `yarn test:contract:browser-node`；Respo 的 `yarn test-dom-host` 另行检查从已安装模块跨仓库调用的行为。发布与兼容性以 `deps.cirru` 中的精确版本和 GitHub release tag 为准。
 
+## Promise 的类型边界
+
+当前开发中的 `promise-create` 接受完整的 executor 签名：`Fn(Fn(T) → Unit, Fn(E) → Unit) → Unit`。resolve 与 reject 都应声明实际接收的类型，两者可以不同，不把精确 callback 擦成 `DynFn`。旧代码只标注 resolve、把未使用的 reject 标为 `DynFn` 时，也需要为 reject 提供完整 Fn 合同；真正开放的宿主错误可声明为 `Fn(JsNullish<JsObject>) → Unit`，不需要业务强转。
+
+`PromiseHost` 表示宿主能力，不携带 awaited payload 的类型证明；`promise-observe!` 与 `.then!/.catch!` 的 callback 接收 `JsNullish<JsObject>`。使用现有 `js-ffi.contract/expect-string` 等 decoder 校验后再交给业务 callback，失败可经 `normalize-error` 转成 `JsError`。不能把输入 Promise 对象的类型当成它最终产生的值类型。
+
+可执行的 Calcit [创建示例](examples/promise-string.cirru)和[观察示例](examples/observe-string.cirru)在 Node 与浏览器使用同一源码验证。`calcit query schema js-ffi.shared/promise-create`、`calcit query def js-ffi.shared/PromiseHost` 与 `calcit query tests js-ffi.shared/promise-observe!` 可发现完整合同。
+
+观察仍按 `Promise.resolve(value).then(ready).catch(failed)` 执行：保留 thenable assimilation 和微任务顺序，ready 抛错会继续进入 failed。开发分支中的类型修正尚未进入旧 alpha.11 tag，下游升级须等待匹配的新版本。
+
 ## Node 路径适配器
 
 `js-ffi.node/path-join` 保持 `Fn(String, String) -> String` 公共契约，内部改由模块根目录的 `js-ffi-assets/path-join.js` 提供单个函数表达式，并通过 `:modules` 显式注入 Node 内置 `node:path`。使用者仍以普通 Calcit `:require` 调用它；不需要在应用中引用该 JS 文件或另装片段包。`examples/text-file.cirru` 的文件读写示例实际使用这个适配器，`yarn test:node` 检查路径结果、宿主参数异常和完整文件读写。

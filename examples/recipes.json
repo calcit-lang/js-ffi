@@ -1,5 +1,27 @@
 [
   {
+    "name": "promise-string",
+    "namespace": "js-ffi.promise-string-example",
+    "title": "使用精确 resolve 与 reject callback 创建 Promise",
+    "runtimes": ["browser", "node"],
+    "source": "examples/promise-string.cirru",
+    "imports": ["js-ffi.shared :as shared"],
+    "schema": ":: 'Fn $ {} (:args ([] 'String)) (:return 'js-ffi.shared/PromiseHost) (:features (#{} :js-ffi))",
+    "apis": ["js-ffi.shared/promise-create"],
+    "validation": "tests/shared.mjs"
+  },
+  {
+    "name": "observe-string!",
+    "namespace": "js-ffi.observe-string-example",
+    "title": "校验异步 String payload 并显式处理宿主错误",
+    "runtimes": ["browser", "node"],
+    "source": "examples/observe-string.cirru",
+    "imports": ["js-ffi.shared :as shared", "js-ffi.contract :as contract"],
+    "schema": ":: 'Fn $ {} (:args ([] 'js-ffi.shared/PromiseHost (:: 'Fn ({} (:args ([] 'String)) (:return 'Unit))) (:: 'Fn ({} (:args ([] 'js-ffi.shared/JsError)) (:return 'Unit))))) (:return 'Unit) (:features (#{} :js-ffi))",
+    "apis": ["js-ffi.shared/promise-observe!", "js-ffi.contract/expect-string", "js-ffi.shared/normalize-error"],
+    "validation": "tests/shared.mjs"
+  },
+  {
     "name": "canvas-text",
     "namespace": "js-ffi.canvas-text-example",
     "title": "用 Calcit 类型化 Canvas2D 绘制文字并测量宽度",
