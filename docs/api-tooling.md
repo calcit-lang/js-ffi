@@ -3,7 +3,7 @@ title: "Discover and validate the public API"
 summary: "Search generated host API contracts and run all-definition checks plus executable Calcit recipes"
 scope: "module"
 kind: "guide"
-category: "ffi"
+category: "tools"
 aliases:
   - "API catalog"
   - "agent workflow"

@@ -3,7 +3,7 @@ title: "Typed JavaScript host boundary"
 summary: "Choose browser, Node, and shared adapters while decoding JavaScript values into typed Calcit data at one explicit boundary"
 scope: "module"
 kind: "guide"
-category: "ffi"
+category: "features"
 aliases:
   - "js ffi"
   - "JavaScript interop"
