@@ -1,6 +1,7 @@
 import * as shared from '../js-out/js-ffi.shared.mjs';
 import { promise_string as promiseString } from '../js-out/js-ffi.promise-string-example.mjs';
 import { observe_string_$x_ as observeString } from '../js-out/js-ffi.observe-string-example.mjs';
+import { query_string as queryString } from '../js-out/js-ffi.query-example.mjs';
 const errorMessage = value => value.values[value.fields.findIndex(field => field.value === 'message')];
 import { option_$o_none_$q_ as isNone, option_$o_unwrap as unwrap } from '../js-out/calcit.core.mjs';
 import {
@@ -33,6 +34,7 @@ export function assertions() {
 
 /** Verify compiled shared adapters against native Web APIs in either runtime. */
 export async function testShared(a) {
+  testCheckedSearchParams(a);
   const source = new Float32Array([1.25, -2.5, 3]);
   const snapshot = snapshotFloat32(source);
   source[0] = 99;
@@ -169,4 +171,72 @@ export async function testShared(a) {
     shared.promise_observe_$x_(shared.promise_create(() => { throw executorError; }), reject, resolve);
   });
   a.equal(thrownExecutor, executorError);
+}
+
+/** Exercise the compiled adapter and an ordinary Calcit module consumer. */
+function testCheckedSearchParams(a) {
+  const Original = globalThis.URLSearchParams;
+  let constructions = 0;
+  let sizeReads = 0;
+  let mutations = 0;
+  let serializations = 0;
+  let host;
+  class Params extends Original {
+    get size() { sizeReads++; return super.size; }
+    set(key, value) { a.equal(this, host); mutations++; return super.set(key, value); }
+    toString() { a.equal(this, host); serializations++; return super.toString(); }
+  }
+  host = Object.freeze(new Params('page=1'));
+  const construct = value => {
+    globalThis.URLSearchParams = function (query) {
+      constructions++;
+      a.equal(query, 'page=1');
+      return value;
+    };
+  };
+  try {
+    construct(host);
+    a.equal(shared.search_params_create('page=1'), host);
+    a.equal(constructions, 1);
+    a.equal(sizeReads, 0, 'shape checks must not invoke field getters');
+    a.equal(Object.isFrozen(host), true);
+    a.equal(shared.search_params_size(host), 1);
+    a.equal(sizeReads, 1);
+    a.equal(mutations, 0, 'shape checks must not call methods');
+    a.equal(serializations, 0);
+    a.equal(queryString('中文 +&'), 'page=1&q=%E4%B8%AD%E6%96%87+%2B%26');
+    a.equal(constructions, 2, 'consumer construction is evaluated once');
+    a.equal(mutations, 1);
+    a.equal(serializations, 1);
+    a.equal(unwrap(shared.search_params_get(host, 'q')), '中文 +&');
+    a.equal(isNone(shared.search_params_get(host, 'missing')), true);
+
+    // Each declared host name is checked; this is not value/signature decoding.
+    for (const name of ['get', 'has', 'set', 'delete', 'forEach', 'toString']) {
+      const malformed = new Original('page=1');
+      Object.defineProperty(malformed, name, { value: 42 });
+      construct(malformed);
+      a.throws(() => shared.search_params_create('page=1'), new RegExp(`js-cast .*${name}`));
+    }
+    construct({ get() {}, has() {}, set() {}, delete() {}, forEach() {}, toString() {} });
+    a.throws(() => shared.search_params_create('page=1'), /js-cast .*size/);
+
+    const getterFailure = new Error('method getter failed');
+    const malformed = new Original('page=1');
+    Object.defineProperty(malformed, 'get', { get() { throw getterFailure; } });
+    construct(malformed);
+    let captured;
+    try { shared.search_params_create('page=1'); } catch (error) { captured = error; }
+    a.equal(captured instanceof TypeError, true);
+    a.equal(captured.cause, getterFailure);
+
+    const constructorFailure = new Error('constructor failed');
+    globalThis.URLSearchParams = function () { throw constructorFailure; };
+    captured = undefined;
+    try { shared.search_params_create('page=1'); } catch (error) { captured = error; }
+    a.equal(captured, constructorFailure, 'constructor exceptions retain identity');
+  } finally {
+    globalThis.URLSearchParams = Original;
+  }
+  a.throws(() => shared.search_params_create(Symbol('invalid input')), /TypeError/);
 }

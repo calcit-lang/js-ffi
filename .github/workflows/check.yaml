@@ -69,6 +69,7 @@ jobs:
         run: |
           calcit test js-ffi.shared/promise-create --require-match
           calcit test js-ffi.shared/promise-observe! --require-match
+          calcit test js-ffi.shared/search-params-create --require-match
           yarn test:types
 
       - name: Compile Node smoke tests
