@@ -5,7 +5,7 @@ JavaScript explicit, checkable, and reusable across Calcit projects.
 
 ## 0.2.1-alpha.12：匹配 Calcit 0.29.0-alpha.1
 
-本模块版本要求 Calcit CLI 与 npm `@calcit/procs` **同时使用 `0.29.0-alpha.1`**。`KeyboardEventHost` 与 `MouseEventHost` 通过 `'requires EventHost` 继承事件共享成员，可直接传给要求 `EventHost` 的位置；`normalize-error` 补充 String 校验以满足新的 lowering 证明。同时带上 main 上已合并的 23 个增量宿主 API（#159）；本次改动本身不新增宿主能力或扩大动态边界。验证和升级步骤见 [alpha.12 说明](docs/releases/0.2.1-alpha.12.md)；只有对应 annotated tag/prerelease 和精确 main CI 通过后，下游才应升级。
+本模块版本要求 Calcit CLI 与 npm `@calcit/procs` **同时使用 `0.29.0-alpha.1`**。`KeyboardEventHost` 与 `MouseEventHost` 通过 `'requires EventHost` 继承事件共享成员，可直接传给要求 `EventHost` 的位置；`normalize-error` 补充 String 校验以满足新的 lowering 证明。同时包含 23 个增量宿主 API 与 Promise 合同收紧：executor 的 resolve/reject 都使用完整 Fn，观察 payload 经过 decoder 后再进入具体类型。验证和升级步骤见 [alpha.12 说明](docs/releases/0.2.1-alpha.12.md)；只有对应 annotated tag/prerelease 和精确 main CI 通过后，下游才应升级。
 
 ## 0.2.1-alpha.11：匹配 Calcit 0.28 工具链
 
