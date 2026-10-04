@@ -5,11 +5,11 @@ JavaScript explicit, checkable, and reusable across Calcit projects.
 
 ## 0.2.1-alpha.12：匹配 Calcit 0.29.0-alpha.1
 
-本模块版本要求 Calcit CLI 与 npm `@calcit/procs` **同时使用 `0.29.0-alpha.1`**。`KeyboardEventHost` 与 `MouseEventHost` 通过 `'requires EventHost` 继承事件共享成员，可直接传给要求 `EventHost` 的位置；`normalize-error` 补充 String 校验以满足新的 lowering 证明。同时包含 23 个增量宿主 API 与 Promise 合同收紧：executor 的 resolve/reject 都使用完整 Fn，观察 payload 经过 decoder 后再进入具体类型。验证和升级步骤见 [alpha.12 说明](docs/releases/0.2.1-alpha.12.md)；只有对应 annotated tag/prerelease 和精确 main CI 通过后，下游才应升级。
+已发布的 [0.2.1-alpha.12](https://github.com/calcit-lang/js-ffi/releases/tag/0.2.1-alpha.12) 要求 Calcit CLI 与 npm `@calcit/procs` **同时使用 `0.29.0-alpha.1`**。`KeyboardEventHost` 与 `MouseEventHost` 通过 `'requires EventHost` 继承事件共享成员，可直接传给要求 `EventHost` 的位置；`normalize-error` 补充 String 校验以满足新的 lowering 证明。同时包含 23 个增量宿主 API 与 Promise 合同收紧：executor 的 resolve/reject 都使用完整 Fn，观察 payload 经过 decoder 后再进入具体类型。验证和升级步骤见 [alpha.12 说明](docs/releases/0.2.1-alpha.12.md)。模块版本与 CLI/runtime 版本不同，升级时一起核对 `deps.cirru`、npm 精确版本和 `caps verify --toolchain`。
 
 ## 0.2.1-alpha.11：匹配 Calcit 0.28 工具链
 
-本模块版本要求 Calcit CLI 与 npm `@calcit/procs` **同时使用 `0.28.0-alpha.3`**。它包含已合并的 Option 方法迁移及浏览器 trait 类型引用修正，保持现有宿主、错误和异步语义；不新增宿主能力或扩大动态边界。验证和升级步骤见 [alpha.11 说明](docs/releases/0.2.1-alpha.11.md)。这是发布准备，只有对应 annotated tag/prerelease 和精确 main CI 通过后，下游才应升级；已有 alpha.10 tag 不会随 main 更新。
+历史版本 [0.2.1-alpha.11](https://github.com/calcit-lang/js-ffi/releases/tag/0.2.1-alpha.11) 要求 Calcit CLI 与 npm `@calcit/procs` **同时使用 `0.28.0-alpha.3`**。它包含 Option 方法迁移及浏览器 trait 类型引用修正，保持原有宿主、错误和异步语义。对应的验证和升级步骤见 [alpha.11 说明](docs/releases/0.2.1-alpha.11.md)；旧 tag 不会随 main 更新，也不包含 alpha.12 的 Promise 合同修正。
 
 ## 0.2.1-alpha.10 类型化 Canvas 路径填充
 
@@ -23,13 +23,13 @@ JavaScript explicit, checkable, and reusable across Calcit projects.
 
 ## Promise 的类型边界
 
-当前开发中的 `promise-create` 接受完整的 executor 签名：`Fn(Fn(T) → Unit, Fn(E) → Unit) → Unit`。resolve 与 reject 都应声明实际接收的类型，两者可以不同，不把精确 callback 擦成 `DynFn`。旧代码只标注 resolve、把未使用的 reject 标为 `DynFn` 时，也需要为 reject 提供完整 Fn 合同；真正开放的宿主错误可声明为 `Fn(JsNullish<JsObject>) → Unit`，不需要业务强转。
+从 `0.2.1-alpha.12` 起，`promise-create` 接受完整的 executor 签名：`Fn(Fn(T) → Unit, Fn(E) → Unit) → Unit`。resolve 与 reject 都应声明实际接收的类型，两者可以不同，不把精确 callback 擦成 `DynFn`。旧代码只标注 resolve、把未使用的 reject 标为 `DynFn` 时，也需要为 reject 提供完整 Fn 合同；真正开放的宿主错误可声明为 `Fn(JsNullish<JsObject>) → Unit`，不需要业务强转。
 
 `PromiseHost` 表示宿主能力，不携带 awaited payload 的类型证明；`promise-observe!` 与 `.then!/.catch!` 的 callback 接收 `JsNullish<JsObject>`。使用现有 `js-ffi.contract/expect-string` 等 decoder 校验后再交给业务 callback，失败可经 `normalize-error` 转成 `JsError`。不能把输入 Promise 对象的类型当成它最终产生的值类型。
 
 可执行的 Calcit [创建示例](examples/promise-string.cirru)和[观察示例](examples/observe-string.cirru)在 Node 与浏览器使用同一源码验证。`calcit query schema js-ffi.shared/promise-create`、`calcit query def js-ffi.shared/PromiseHost` 与 `calcit query tests js-ffi.shared/promise-observe!` 可发现完整合同。
 
-观察仍按 `Promise.resolve(value).then(ready).catch(failed)` 执行：保留 thenable assimilation 和微任务顺序，ready 抛错会继续进入 failed。开发分支中的类型修正尚未进入旧 alpha.11 tag，下游升级须等待匹配的新版本。
+观察仍按 `Promise.resolve(value).then(ready).catch(failed)` 执行：保留 thenable assimilation 和微任务顺序，ready 抛错会继续进入 failed。升级旧 alpha.11 消费者时，使用上述 alpha.12 工具链组合，并保留应用自身的成功、拒绝和 callback 抛错测试。
 
 ## Node 路径适配器
 
