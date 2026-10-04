@@ -53,6 +53,24 @@ test('definition query consumes one complete versioned JSON envelope', () => {
   assert.equal(plain.ffi, null, 'definitions without FFI metadata stay explicit');
 });
 
+test('inherited event methods are discoverable with their origin and callable contract', () => {
+  for (const target of ['js-ffi.browser/KeyboardEventHost', 'js-ffi.browser/MouseEventHost']) {
+    // JSON is the explicit Node interoperability format, not the Calcit data default.
+    const report = JSON.parse(calcit(['query', 'type', target, '--format', 'json']));
+    assert.equal(report.schema_version, 1);
+    assert.equal(report.command, 'query.type');
+    assert.equal(report.data.target, target);
+    assert.deepEqual(report.diagnostics, []);
+    const inherited = report.data.methods.filter(method => method.origin === 'js-ffi.browser/EventHost');
+    assert.deepEqual(inherited.map(method => method.name).sort(), ['.prevent-default!', '.stop-propagation!']);
+    for (const method of inherited) {
+      assert.equal(method.status, 'proven');
+      assert.equal(method.definition, 'js-ffi.browser/EventHost');
+      assert.deepEqual(method.call_types, { parameters: [], rest: null, returns: "'Unit" });
+    }
+  }
+});
+
 test('tagged query metadata preserves Unicode, escaping, sets, and nested keys', () => {
   const decoded = decodeEdnJson({
     ':label': '引号 " 和换行\n',

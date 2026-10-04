@@ -35,6 +35,27 @@ export function assertions() {
 /** Verify compiled shared adapters against native Web APIs in either runtime. */
 export async function testShared(a) {
   testCheckedSearchParams(a);
+  // Real host properties must be read once while every error-name branch is preserved.
+  for (const [name, expected] of [
+    ['TypeError', 'type-error'], ['RangeError', 'range-error'],
+    ['NotAllowedError', 'permission'], ['SecurityError', 'permission'],
+    ['QuotaExceededError', 'quota'], ['NetworkError', 'network'],
+    ['AbortError', 'abort'], ['CustomError', 'unknown'], ['', 'unknown'],
+  ]) {
+    let nameReads = 0;
+    let messageReads = 0;
+    const normalized = shared.normalize_error({
+      get name() { nameReads++; return name; },
+      get message() { messageReads++; return 'original message'; },
+    });
+    const field = key => normalized.values[normalized.fields.findIndex(item => item.value === key)];
+    a.equal(nameReads, 1);
+    a.equal(messageReads, 1);
+    a.equal(field('name'), name);
+    a.equal(field('message'), 'original message');
+    a.equal(field('kind').tag.value, expected);
+    if (expected === 'unknown') a.equal(field('kind').extra[0], name);
+  }
   const source = new Float32Array([1.25, -2.5, 3]);
   const snapshot = snapshotFloat32(source);
   source[0] = 99;

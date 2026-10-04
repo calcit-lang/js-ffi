@@ -3,6 +3,10 @@
 Typed JavaScript FFI definitions for Calcit. This package is independent: it exists to make the boundary between Calcit and host
 JavaScript explicit, checkable, and reusable across Calcit projects.
 
+## 0.2.1-alpha.13：匹配 Calcit 0.29.0-alpha.2
+
+本版本准备将 Calcit CLI 与 npm `@calcit/procs` 一起对齐已发布的 **`0.29.0-alpha.2`**，使消费者能使用新的类型推导、EDN 边界和继承方法查询修复。模块 API 与宿主实现不变；具体升级顺序见 [alpha.13 说明](docs/releases/0.2.1-alpha.13.md)。等模块同名 tag/prerelease 发布后再更新应用依赖；现有 alpha.12 仍对应下面的 alpha.1 工具链。
+
 ## 0.2.1-alpha.12：匹配 Calcit 0.29.0-alpha.1
 
 已发布的 [0.2.1-alpha.12](https://github.com/calcit-lang/js-ffi/releases/tag/0.2.1-alpha.12) 要求 Calcit CLI 与 npm `@calcit/procs` **同时使用 `0.29.0-alpha.1`**。`KeyboardEventHost` 与 `MouseEventHost` 通过 `'requires EventHost` 继承事件共享成员，可直接传给要求 `EventHost` 的位置；`normalize-error` 补充 String 校验以满足新的 lowering 证明。同时包含 23 个增量宿主 API 与 Promise 合同收紧：executor 的 resolve/reject 都使用完整 Fn，观察 payload 经过 decoder 后再进入具体类型。验证和升级步骤见 [alpha.12 说明](docs/releases/0.2.1-alpha.12.md)。模块版本与 CLI/runtime 版本不同，升级时一起核对 `deps.cirru`、npm 精确版本和 `caps verify --toolchain`。
@@ -29,7 +33,7 @@ JavaScript explicit, checkable, and reusable across Calcit projects.
 
 可执行的 Calcit [创建示例](examples/promise-string.cirru)和[观察示例](examples/observe-string.cirru)在 Node 与浏览器使用同一源码验证。`calcit query schema js-ffi.shared/promise-create`、`calcit query def js-ffi.shared/PromiseHost` 与 `calcit query tests js-ffi.shared/promise-observe!` 可发现完整合同。
 
-观察仍按 `Promise.resolve(value).then(ready).catch(failed)` 执行：保留 thenable assimilation 和微任务顺序，ready 抛错会继续进入 failed。升级旧 alpha.11 消费者时，使用上述 alpha.12 工具链组合，并保留应用自身的成功、拒绝和 callback 抛错测试。
+观察仍按 `Promise.resolve(value).then(ready).catch(failed)` 执行：保留 thenable assimilation 和微任务顺序，ready 抛错会继续进入 failed。升级旧 alpha.11 消费者时，使用目标模块版本对应的精确工具链组合，并保留应用自身的成功、拒绝和 callback 抛错测试。
 
 ## Node 路径适配器
 
@@ -334,7 +338,7 @@ The static gate does not replace the host smoke tests below. CI also runs
 real Chromium tests, synchronous filesystem tests, shared Web API tests,
 and invalid-consumer type checks.
 
-现有 v2 baseline 按定义保存已审阅的宿主断言位置，当前实际记录 48 处 `unsafe-coerce`，未增加额度。新增断言或跨定义移动仍须显式审阅；运行 `yarn audit:unsafe` 查看现有边界证据。静态 baseline 不能证明宿主数据的运行时形状，仍须执行下面的 Node/Chromium 契约测试。
+现有 v2 baseline 按定义保存已审阅的宿主断言位置。新增断言或跨定义移动仍须显式审阅；运行 `yarn audit:unsafe` 查看当前断言及边界证据，不以文档中的手工计数代替查询。静态 baseline 不能证明宿主数据的运行时形状，仍须执行下面的 Node/Chromium 契约测试。
 
 The remaining assertions stay at reviewed Calcit/JS platform boundaries,
 including Float32 snapshots and the typed WebGPU capability probe. The

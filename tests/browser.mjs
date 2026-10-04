@@ -200,6 +200,17 @@ export async function run() {
   a.equal(isNone(browser.query_selector('#js-ffi-missing-element')), true);
   a.equal(browser.document_ready_state().tag.value, browser.decode_document_ready_state(document.readyState).tag.value);
   a.equal(browser.visibility_state().tag.value, browser.decode_visibility_state(document.visibilityState).tag.value);
+  for (const [decode, states] of [
+    [browser.decode_document_ready_state, ['loading', 'interactive', 'complete']],
+    [browser.decode_visibility_state, ['visible', 'hidden', 'prerender']],
+  ]) {
+    for (const state of states) a.equal(decode(state).tag.value, state);
+    for (const state of ['future-state', '']) {
+      const decoded = decode(state);
+      a.equal(decoded.tag.value, 'unknown');
+      a.equal(decoded.extra[0], state);
+    }
+  }
   a.equal(unwrap(browser.document_element()), document.documentElement);
   a.equal(unwrap(browser.document_body()), document.body);
   a.equal(browser.location_host(), location);
