@@ -74,4 +74,12 @@ adapter, reads the declared member, and validates it with `contract/expect-numbe
 
 ## Validation layers
 
+### URLSearchParams 的受检转换
+
+`shared/search-params-create` 构造原生 URLSearchParams 后，通过 `js-cast` 与现有 `UrlSearchParamsHost` 声明检查 `size` 字段是否存在、映射后的 `get/has/set/delete/forEach/toString` 是否可调用。成功返回同一宿主对象，字段检查不读取 getter，也不调用方法来探测能力。普通 Calcit 模块继续通过 `:require` 调用现有入口及方法，不增加 JS 包或新的转换 API。
+
+原生构造器仍负责 URLSearchParams 的具体值语义，抛出的异常原样传播；`search-params-get` 继续把 nullish 结果归一化为 Option。受检转换会提早拒绝不完整的构造结果，但不验证任意替代构造器的字段值、方法签名或返回值。方法 getter 失败时，错误保留原始 cause。声明的 `:js-ffi` 边界没有变成 native/WASM 的执行支持。
+
+用 `calcit test js-ffi.shared/search-params-create --require-match` 验证附带的类型/方法合同；用 `yarn test:node` 与 `yarn test:browser` 执行真实宿主和已有 query-string recipe，核对冻结对象身份、this、单次构造、非法成员和错误。附带测试检查函数合同，不执行 native 中不可用的 JavaScript 构造器；实际执行证据由 Node/Chromium 提供。
+
 Static schemas prove the Calcit-facing API. Node and browser smoke tests prove that real host objects still satisfy the declared contracts. Run both: a concrete return schema cannot by itself prove the runtime shape of a JavaScript global.

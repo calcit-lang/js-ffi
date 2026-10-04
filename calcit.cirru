@@ -3489,12 +3489,23 @@
         'search-params-create $ %{} 'CodeEntry
           :doc "|Construct a native URLSearchParams and retain its typed host identity. Invalid constructor inputs raise host exceptions."
           :code $ quote $ defn search-params-create (query)
-            unsafe-coerce (new js/URLSearchParams query) UrlSearchParamsHost
+            js-cast (new js/URLSearchParams query) 'UrlSearchParamsHost
           :examples $ []
           :ffi $ {} $ :backend :js
           :schema $ :: 'Fn $ {} (:return 'js-ffi.shared/UrlSearchParamsHost)
             :args $ [] 'String
             :features $ #{} :js-ffi
+          :tests $ [] $ %{} 'TestEntry (:name |typed-method-consumer)
+            :code $ quote $ assert= true
+              fn? $ fn ()
+                hint-fn $ {}
+                  :args $ []
+                  :return 'String
+                  :features $ #{} :js-ffi
+                let
+                    params $ search-params-create |page=1
+                  params .set! |q |checked
+                  params .to-string
         'search-params-delete! $ %{} 'CodeEntry (:doc "|Remove a key and return Unit.")
           :code $ quote $ defn search-params-delete! (value key) (value .delete! key) &unit
           :examples $ []

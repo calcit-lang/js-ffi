@@ -17,6 +17,8 @@ const cases = [
   ['browser', 'node/clear-timeout! (node/set-timeout! (fn () &unit) 1)', /E_JS_FFI_TARGET_MISMATCH/, 'js-ffi.node :as node'],
   ['browser', 'node/clear-interval! (node/set-interval! (fn () &unit) 1)', /E_JS_FFI_TARGET_MISMATCH/, 'js-ffi.node :as node'],
   ['node', 'shared/console-info! 42', /W_FN_ARG_TYPE_MISMATCH/],
+  ['node', 'shared/search-params-create 42', /W_FN_ARG_TYPE_MISMATCH/],
+  ['browser', 'let ((params (shared/search-params-create |page=1))) (params .set! |q 42)', /Method `\.set!` arg 3 expects type `:string`, but got `:number`/, undefined, true],
   ['browser', 'node/path-join |src |index.js', /E_JS_FFI_TARGET_MISMATCH/, 'js-ffi.node :as node'],
   ['node', 'shared/headers-get (shared/url-create |\/ |https:\/\/example.com) |x', /W_FN_ARG_TYPE_MISMATCH/],
   ['browser', 'browser/clear-timeout! |not-a-handle', /W_FN_ARG_TYPE_MISMATCH/],
