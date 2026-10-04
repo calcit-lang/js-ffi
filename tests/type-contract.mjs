@@ -80,7 +80,7 @@ const promiseCases = [
   [preciseExecutor.replace('resolve |ok', 'reject 42') + '\n  , &unit', false],
   [preciseExecutor.replace(`(${stringCallback}) (${stringCallback})`, `(${stringCallback}) 'DynFn`) + '\n  , &unit', false],
   ["shared/promise-create $ fn (resolve)\n    hint-fn $ {} (:args $ [] (" + stringCallback + ")) (:return 'Unit)\n    resolve |ok\n    , &unit\n  , &unit", false],
-  ["shared/promise-observe! |ok\n    fn (value)\n      hint-fn $ {} (:args ([] 'js-ffi.shared/PromiseHost)) (:return 'Unit)\n      , &unit\n    fn (error) &unit", false],
+  ["fn (host)\n    hint-fn $ {} (:args ([] 'js-ffi.shared/PromiseHost)) (:return 'Unit) (:features (#{} :js-ffi))\n    shared/promise-observe! host\n      fn (value)\n        hint-fn $ {} (:args ([] 'js-ffi.shared/PromiseHost)) (:return 'Unit) (:features (#{} :js-ffi))\n        value .then! $ fn (item) &unit\n        , &unit\n      fn (error) &unit\n  , &unit", false],
   ["shared/promise-observe! |ok\n    fn (value)\n      hint-fn $ {} (:args ([] 'String)) (:return 'Unit)\n      , &unit\n    fn (error) &unit", false],
   ["shared/promise-observe! |ok\n    fn (value) &unit\n    fn (error)\n      hint-fn $ {} (:args ([] 'String)) (:return 'Unit)\n      , &unit", false],
   [hostSetup + "\n    host .then! $ fn (value)\n      hint-fn $ {} (:args ([] 'String)) (:return 'Unit)\n      , &unit\n    , &unit", false, /Method `\.then!` arg 2 expects type `fn\(js-nullish<:js-object>\) -> :unit`/],
