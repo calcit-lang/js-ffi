@@ -2868,22 +2868,16 @@
             quote $ %:: JsErrorKind :unknown |DataCloneError
           :schema $ :: 'Enum
         'PromiseHost $ %{} 'CodeEntry
-          :doc "|External Promise capability exposing typed fulfillment and rejection callbacks."
+          :doc "|External Promise capability. Fulfillment and rejection callbacks receive opaque, potentially nullish host values and must decode them before concrete use."
           :code $ quote $ deftrait PromiseHost
-            .then! $ :: 'Fn $ {}
-              :generics $ [] 'T
+            .then! $ :: 'Fn $ {} (:return 'js-ffi.shared/PromiseHost)
               :args $ [] 'js-ffi.shared/PromiseHost $ :: 'Fn
-                {}
-                  :args $ [] 'T
-                  :return 'Unit
-              :return 'js-ffi.shared/PromiseHost
-            .catch! $ :: 'Fn $ {}
-              :generics $ [] 'E
+                {} (:return 'Unit)
+                  :args $ [] $ :: 'JsNullish 'JsObject
+            .catch! $ :: 'Fn $ {} (:return 'js-ffi.shared/PromiseHost)
               :args $ [] 'js-ffi.shared/PromiseHost $ :: 'Fn
-                {}
-                  :args $ [] 'E
-                  :return 'Unit
-              :return 'js-ffi.shared/PromiseHost
+                {} (:return 'Unit)
+                  :args $ [] $ :: 'JsNullish 'JsObject
           :examples $ []
           :ffi $ {} (:backend :js) (:kind :external-object)
             :names $ {} (:catch! |catch) (:then! |then)
@@ -3304,15 +3298,40 @@
             :args $ []
             :features $ #{} :js-ffi
         'promise-create $ %{} 'CodeEntry
-          :doc "|Create a PromiseHost from a (resolve reject) executor function."
+          :doc "|Create a PromiseHost from an executor with typed resolve and reject callbacks. The host handle does not retain awaited payload evidence; decode observer inputs at the host boundary."
           :code $ quote $ defn promise-create (executor)
             unsafe-coerce (new js/Promise executor) PromiseHost
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'js-ffi.shared/PromiseHost)
-            :args $ [] 'DynFn
+            :args $ [] $ :: 'Fn
+              {} (:return 'Unit)
+                :args $ []
+                  :: 'Fn $ {} (:return 'Unit)
+                    :args $ [] 'T
+                  :: 'Fn $ {} (:return 'Unit)
+                    :args $ [] 'E
             :features $ #{} :js-ffi
+            :generics $ [] 'T 'E
+          :tests $ [] $ %{} 'TestEntry (:name |precise-executor-contract)
+            :code $ quote $ assert= true
+              fn? $ fn ()
+                hint-fn $ {}
+                  :args $ []
+                  :return 'js-ffi.shared/PromiseHost
+                  :features $ #{} :js-ffi
+                promise-create $ fn (resolve reject)
+                  hint-fn $ {} (:return 'Unit)
+                    :args $ []
+                      :: 'Fn $ {}
+                        :args $ [] 'String
+                        :return 'Unit
+                      :: 'Fn $ {}
+                        :args $ [] 'String
+                        :return 'Unit
+                  resolve |checked
+                  , &unit
         'promise-observe! $ %{} 'CodeEntry
-          :doc "|Resolve a value through the host Promise queue and deliver exactly one fulfillment or rejection callback."
+          :doc "|Resolve a value through the host Promise queue. Callbacks receive opaque, potentially nullish host values; decode before concrete use. A thrown fulfillment callback is delivered to the rejection callback."
           :code $ quote $ defn promise-observe! (value ready! failed!)
             let
                 host $ unsafe-coerce (js/Promise.resolve value) 'js-ffi.shared/PromiseHost
@@ -3323,11 +3342,31 @@
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'T
               :: 'Fn $ {} (:return 'Unit)
-                :args $ [] 'T
+                :args $ [] $ :: 'JsNullish 'JsObject
               :: 'Fn $ {} (:return 'Unit)
-                :args $ [] 'E
+                :args $ [] $ :: 'JsNullish 'JsObject
             :features $ #{} :js-ffi
-            :generics $ [] 'T 'E
+            :generics $ [] 'T
+          :tests $ [] $ %{} 'TestEntry (:name |decoded-callback-contract)
+            :code $ quote $ assert= true
+              fn? $ fn (host)
+                hint-fn $ {}
+                  :args $ [] 'js-ffi.shared/PromiseHost
+                  :return 'Unit
+                  :features $ #{} :js-ffi
+                promise-observe! host
+                  fn (raw)
+                    hint-fn $ {} (:return 'Unit)
+                      :features $ #{} :js-ffi
+                      :args $ [] $ :: 'JsNullish 'JsObject
+                    assert= |checked $ contract/expect-string |Promise.payload raw
+                    , &unit
+                  fn (raw-error)
+                    hint-fn $ {} (:return 'Unit)
+                      :features $ #{} :js-ffi
+                      :args $ [] $ :: 'JsNullish 'JsObject
+                    normalize-error raw-error
+                    , &unit
         'promise? $ %{} 'CodeEntry (:doc "|检测任意类型的值是否符合 Promise 合约；泛型参数保留调用方的静态类型。")
           :code $ quote $ defn promise? (value)
             if (nil? value) false $ let

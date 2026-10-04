@@ -6,6 +6,71 @@ Each source is a quoted Calcit definition accepted by `calcit edit def --file`. 
 
 Run `yarn check:api`, `yarn test:node`, and `yarn test:browser`. Browser tests require Chromium (`yarn playwright install chromium`). Node file tests use a temporary directory and remove it in finally. The file recipe itself overwrites `example.txt` in the caller-provided directory.
 
+## 使用精确 resolve 与 reject callback 创建 Promise
+
+Runtime: browser, node.
+
+Imports:
+
+```text
+js-ffi.shared :as shared
+```
+
+Schema:
+
+```text
+:: 'Fn $ {} (:args ([] 'String)) (:return 'js-ffi.shared/PromiseHost) (:features (#{} :js-ffi))
+```
+
+Source: [examples/promise-string.cirru](../examples/promise-string.cirru)
+
+```text
+quote $ defn promise-string (text)
+  shared/promise-create $ fn (resolve reject)
+    hint-fn $ {} (:return 'Unit)
+      :args $ []
+        :: 'Fn $ {} (:return 'Unit) (:args ([] 'String))
+        :: 'Fn $ {} (:return 'Unit) (:args ([] 'String))
+    resolve text
+    , &unit
+```
+
+Runtime verification: [tests/shared.mjs](../tests/shared.mjs).
+
+## 校验异步 String payload 并显式处理宿主错误
+
+Runtime: browser, node.
+
+Imports:
+
+```text
+js-ffi.shared :as shared
+js-ffi.contract :as contract
+```
+
+Schema:
+
+```text
+:: 'Fn $ {} (:args ([] 'js-ffi.shared/PromiseHost (:: 'Fn ({} (:args ([] 'String)) (:return 'Unit))) (:: 'Fn ({} (:args ([] 'js-ffi.shared/JsError)) (:return 'Unit))))) (:return 'Unit) (:features (#{} :js-ffi))
+```
+
+Source: [examples/observe-string.cirru](../examples/observe-string.cirru)
+
+```text
+quote $ defn observe-string! (host ready! failed!)
+  shared/promise-observe! host
+    fn (raw)
+      hint-fn $ {} (:return 'Unit) (:features (#{} :js-ffi))
+        :args $ [] $ :: 'JsNullish 'JsObject
+      ready! $ contract/expect-string |Promise.payload raw
+    fn (raw-error)
+      hint-fn $ {} (:return 'Unit) (:features (#{} :js-ffi))
+        :args $ [] $ :: 'JsNullish 'JsObject
+      failed! $ shared/normalize-error raw-error
+```
+
+Runtime verification: [tests/shared.mjs](../tests/shared.mjs).
+
 ## 用 Calcit 类型化 Canvas2D 绘制文字并测量宽度
 
 Runtime: browser.

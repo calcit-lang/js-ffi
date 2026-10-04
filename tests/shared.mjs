@@ -1,4 +1,7 @@
 import * as shared from '../js-out/js-ffi.shared.mjs';
+import { promise_string as promiseString } from '../js-out/js-ffi.promise-string-example.mjs';
+import { observe_string_$x_ as observeString } from '../js-out/js-ffi.observe-string-example.mjs';
+const errorMessage = value => value.values[value.fields.findIndex(field => field.value === 'message')];
 import { option_$o_none_$q_ as isNone, option_$o_unwrap as unwrap } from '../js-out/calcit.core.mjs';
 import {
   snapshot_float32 as snapshotFloat32,
@@ -118,4 +121,52 @@ export async function testShared(a) {
     shared.promise_observe_$x_('ready', () => { throw new Error('callback failed'); }, resolve);
   });
   a.equal(callbackError.message, 'callback failed');
+
+  // Both recipes are compiled Calcit consumers, not handwritten JS substitutes.
+  const typed = await new Promise((resolve, reject) => {
+    a.equal(observeString(promiseString('typed 中文'), resolve, reject), undefined);
+  });
+  a.equal(typed, 'typed 中文');
+  let accepted = false;
+  const decodeError = await new Promise((resolve) => {
+    observeString(Promise.resolve(42), () => { accepted = true; }, resolve);
+  });
+  a.equal(accepted, false);
+  a.equal(errorMessage(decodeError).includes('Promise.payload expected String'), true);
+  const normalized = await new Promise((resolve) => {
+    observeString(Promise.reject(new TypeError('rejected payload')), () => {}, resolve);
+  });
+  a.equal(errorMessage(normalized), 'rejected payload');
+  const thrown = await new Promise((resolve) => {
+    observeString(promiseString('ready'), () => { throw new Error('typed callback failed'); }, resolve);
+  });
+  a.equal(errorMessage(thrown), 'typed callback failed');
+  for (const value of [null, undefined]) {
+    const nullish = await new Promise((resolve) => {
+      observeString(Promise.resolve(value), () => { accepted = true; }, resolve);
+    });
+    a.equal(errorMessage(nullish).includes('expected String, got nullish'), true);
+    a.equal(accepted, false);
+  }
+
+  let settled = false;
+  const queued = new Promise((resolve, reject) => {
+    shared.promise_observe_$x_('queued', value => { settled = true; resolve(value); }, reject);
+  });
+  a.equal(settled, false);
+  a.equal(await queued, 'queued');
+  const assimilated = await new Promise((resolve, reject) => {
+    shared.promise_observe_$x_({ then(fulfill) { fulfill('thenable'); } }, resolve, reject);
+  });
+  a.equal(assimilated, 'thenable');
+  const thenableError = new Error('then getter failed');
+  const rejectedThenable = await new Promise((resolve, reject) => {
+    shared.promise_observe_$x_({ get then() { throw thenableError; } }, reject, resolve);
+  });
+  a.equal(rejectedThenable, thenableError);
+  const executorError = new Error('executor failed');
+  const thrownExecutor = await new Promise((resolve, reject) => {
+    shared.promise_observe_$x_(shared.promise_create(() => { throw executorError; }), reject, resolve);
+  });
+  a.equal(thrownExecutor, executorError);
 }

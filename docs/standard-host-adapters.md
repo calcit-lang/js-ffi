@@ -51,7 +51,7 @@ URLSearchParams.size, Headers, AbortController, performance and requestAnimation
 | `random-uuid` | () → String | RFC 4122 version 4 UUID from `crypto.randomUUID` (browsers and Node 19+); a non-String host result raises. |
 | `base64-encode` | String → String | Standard padded Base64 over the UTF-8 bytes of the text (via TextEncoder), so non-ASCII text is safe. |
 | `base64-decode` | String → String | Decode standard Base64 as UTF-8 (fatal TextDecoder); invalid Base64 or invalid UTF-8 raises. |
-| `promise-create` | DynFn executor → PromiseHost | Create a PromiseHost from a (resolve reject) executor. |
+| `promise-create` | executor: Fn(Fn(T) → Unit, Fn(E) → Unit) → Unit；返回 PromiseHost | resolve/reject 各自保留精确参数合同；观察宿主 payload 时仍需校验。 |
 | `promise?` | T → Bool | 泛型输入保留调用方类型；仅当值符合 Promise 合约时返回 true。 |
 | `performance-now` | () → Number | Monotonic milliseconds relative to the host time origin. |
 | `response-host` | JsObject → ResponseHost | Validate Response metadata, Headers methods, and its async text reader. |

@@ -69,6 +69,43 @@ for (const [runtime, expression, diagnostic, extraImport, hostFeature] of cases)
   } finally { rmSync(dir, { recursive: true, force: true }); }
 }
 
+// Promise host handles do not prove the type of an awaited payload.
+const stringCallback = ":: 'Fn $ {} (:args ([] 'String)) (:return 'Unit)";
+const preciseExecutor = `shared/promise-create $ fn (resolve reject)\n    hint-fn $ {} (:args $ [] (${stringCallback}) (${stringCallback})) (:return 'Unit)\n    resolve |ok\n    , &unit`;
+const hostSetup = `let\n      host $ shared/promise-create $ fn (resolve reject)\n        hint-fn $ {} (:args $ [] (${stringCallback}) (${stringCallback})) (:return 'Unit)\n        resolve |ok\n        , &unit`;
+const promiseCases = [
+  [preciseExecutor + '\n  , &unit', true],
+  [preciseExecutor.replace(`(${stringCallback}) (${stringCallback})`, `(${stringCallback}) (:: 'Fn $ {} (:args $ [] (:: 'JsNullish 'JsObject)) (:return 'Unit))`) + '\n  , &unit', true],
+  [preciseExecutor.replace('resolve |ok', 'resolve 42') + '\n  , &unit', false],
+  [preciseExecutor.replace('resolve |ok', 'reject 42') + '\n  , &unit', false],
+  [preciseExecutor.replace(`(${stringCallback}) (${stringCallback})`, `(${stringCallback}) 'DynFn`) + '\n  , &unit', false],
+  ["shared/promise-create $ fn (resolve)\n    hint-fn $ {} (:args $ [] (" + stringCallback + ")) (:return 'Unit)\n    resolve |ok\n    , &unit\n  , &unit", false],
+  ["shared/promise-observe! |ok\n    fn (value)\n      hint-fn $ {} (:args ([] 'js-ffi.shared/PromiseHost)) (:return 'Unit)\n      , &unit\n    fn (error) &unit", false],
+  ["shared/promise-observe! |ok\n    fn (value)\n      hint-fn $ {} (:args ([] 'String)) (:return 'Unit)\n      , &unit\n    fn (error) &unit", false],
+  ["shared/promise-observe! |ok\n    fn (value) &unit\n    fn (error)\n      hint-fn $ {} (:args ([] 'String)) (:return 'Unit)\n      , &unit", false],
+  [hostSetup + "\n    host .then! $ fn (value)\n      hint-fn $ {} (:args ([] 'String)) (:return 'Unit)\n      , &unit\n    , &unit", false, /Method `\.then!` arg 2 expects type `fn\(js-nullish<:js-object>\) -> :unit`/],
+  [hostSetup + "\n    host .catch! $ fn (error)\n      hint-fn $ {} (:args ([] 'String)) (:return 'Unit)\n      , &unit\n    , &unit", false, /Method `\.catch!` arg 2 expects type `fn\(js-nullish<:js-object>\) -> :unit`/],
+];
+for (const [body, accepted, diagnostic = /(?:TYPE_MISMATCH|ARITY_MISMATCH|CALL_ARGUMENT_UNPROVEN)/] of promiseCases) {
+  const dir = mkdtempSync(join(tmpdir(), 'js-ffi-promise-contract-'));
+  try {
+    const snapshot = join(dir, 'calcit.cirru');
+    copyFileSync(new URL('../calcit.cirru', import.meta.url), snapshot);
+    copyFileSync(new URL('../deps.cirru', import.meta.url), join(dir, 'deps.cirru'));
+    const target = 'js-ffi.node-test/promise-contract!';
+    const mutate = args => execFileSync(calcitBin, [snapshot, ...args], { cwd: dir, stdio: 'pipe' });
+    mutate(['edit', 'def', target, '--input-format', 'cirru', '--code', `quote $ defn promise-contract! ()\n  ${body}`]);
+    mutate(['edit', 'schema', target, '--code', "quote $ :: 'Fn $ {} (:args ([])) (:return 'Unit) (:features (#{} :js-ffi))"]);
+    const result = spawnSync(calcitBin, [snapshot, '--entry', 'node', '--init-fn', target, '--check-only'], { cwd: dir, encoding: 'utf8' });
+    assert.ifError(result.error);
+    if (accepted) assert.equal(result.status, 0, result.stdout + result.stderr);
+    else {
+      assert.notEqual(result.status, 0, `Unproven Promise consumer passed: ${body}`);
+      assert.match(result.stdout + result.stderr, diagnostic, result.stdout + result.stderr);
+    }
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+}
+
 // Invalid typed Canvas consumers are checked without executing host effects.
 const invalidCanvas = [
   'context .move-to! |x 2',
@@ -157,4 +194,4 @@ for (const expression of invalidCanvas) {
   } finally { rmSync(dir, { recursive: true, force: true }); }
 }
 
-console.log(`Type contracts: ${cases.length + invalidCanvas.length + 2} invalid consumers rejected`);
+console.log(`Type contracts: ${cases.length + invalidCanvas.length + 2 + promiseCases.filter(([, accepted]) => !accepted).length} invalid consumers rejected`);
