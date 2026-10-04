@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { copyFileSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { copyFileSync, cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -18,6 +18,28 @@ import {
 } from '../scripts/api-lib.mjs';
 
 const calcitBin = process.env.CALCIT_BIN ?? 'calcit';
+
+test('installed module documentation is searchable and readable by the released CLI', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'js-ffi-docs-'));
+  try {
+    const moduleDir = join(dir, '.calcit/modules/js-ffi');
+    mkdirSync(moduleDir, { recursive: true });
+    cpSync(join(root, 'docs'), join(moduleDir, 'docs'), { recursive: true });
+    const docs = (...args) => {
+      const result = spawnSync(calcitBin, ['docs', ...args, '--module', 'js-ffi'], { cwd: dir, encoding: 'utf8' });
+      assert.ifError(result.error);
+      assert.equal(result.status, 0, result.stderr);
+      return result.stdout;
+    };
+    const listing = docs('list');
+    for (const filename of ['api-tooling', 'typed-host-boundary', 'standard-host-adapters', 'checked-async-adapters']) {
+      assert.ok(listing.includes(`${filename}.md`), `module index must include ${filename}`);
+      assert.ok(docs('read', `${filename}.md`).includes('# '), `module page must be readable: ${filename}`);
+    }
+    assert.match(docs('search', 'query'), /api-tooling\.md/);
+    assert.match(docs('search', 'JavaScript interop', '--summary'), /typed-host-boundary\.md/);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
 
 test('definition query consumes one complete versioned JSON envelope', () => {
   const element = definition('js-ffi.browser/DomElementHost');

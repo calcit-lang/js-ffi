@@ -101,6 +101,16 @@ runtime split, decoding policy, and guidance for keeping host effects outside
 pure application logic. The page is indexed for `calcit docs read` and
 `calcit docs search` when this module is installed.
 
+在消费者项目中运行 `caps` 生成项目级模块视图后，可用现有 CLI 查询模块文档：
+
+```sh
+calcit docs list --module js-ffi
+calcit docs search query --module js-ffi
+calcit docs read typed-host-boundary.md --module js-ffi
+```
+
+文档分类复用 Calcit 支持的 `tools`、`features` 和 `reference`；无需新增命令或分类。
+
 See [Standard host adapters](docs/standard-host-adapters.md) for 133 additional
 URL, fetch/Response, Node HTTP client/server, query string, headers,
 cancellation, DOM, timer, process, path and UTF-8 filesystem adapters with

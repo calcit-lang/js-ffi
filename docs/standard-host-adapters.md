@@ -3,7 +3,7 @@ title: "Standard host adapters"
 summary: "Typed URL, fetch/Response, Headers, abort, DOM, timers, process, paths and UTF-8 filesystem adapters"
 scope: "module"
 kind: "reference"
-category: "ffi"
+category: "reference"
 entry_for:
   - "js-ffi.shared"
   - "js-ffi.browser"

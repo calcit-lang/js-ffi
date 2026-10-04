@@ -3,7 +3,7 @@ title: "Checked async adapters"
 summary: "Await fetch, Response bodies and Node filesystem promises exactly once and handle failures as Result"
 scope: "module"
 kind: "guide"
-category: "ffi"
+category: "features"
 entry_for:
   - "js-ffi.shared"
   - "js-ffi.node"
