@@ -25,6 +25,7 @@ import {
   session_storage_get,
   session_storage_set_$x_,
   storage_get,
+  window_local_storage,
 } from "./js-out/js-ffi.browser.mjs";
 import {
   option_$o_none_$q_,
@@ -106,6 +107,20 @@ const originalLocalStorage = Object.getOwnPropertyDescriptor(globalThis, "localS
 const originalWindow = Object.getOwnPropertyDescriptor(globalThis, "window");
 try {
   Object.defineProperty(globalThis, "window", { configurable: true, value: globalThis });
+  const storageHost = {
+    length: 0,
+    getItem() { return "stored"; },
+    key() { return null; },
+    setItem() {},
+    removeItem() {},
+    clear() {},
+  };
+  Object.defineProperty(globalThis, "localStorage", { configurable: true, value: storageHost });
+  assert.equal(window_local_storage(), storageHost);
+  assert.equal(option_$o_unwrap(storage_get("key")), "stored");
+  Object.defineProperty(globalThis, "localStorage", { configurable: true, value: {} });
+  assert.throws(() => window_local_storage(), TypeError);
+  assert.equal(option_$o_none_$q_(storage_get("key")), true);
   Object.defineProperty(globalThis, "localStorage", {
     configurable: true,
     get() {
@@ -117,6 +132,7 @@ try {
   Object.defineProperty(globalThis, "localStorage", {
     configurable: true,
     value: {
+      ...storageHost,
       getItem() {
         throw new DOMException("Storage read failed.", "SecurityError");
       },

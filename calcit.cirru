@@ -1727,7 +1727,7 @@
             :features $ #{} :js-ffi
         'window-local-storage $ %{} 'CodeEntry
           :doc "|Return window.localStorage as the typed StorageHost capability."
-          :code $ quote $ defn window-local-storage () (unsafe-coerce js/window.localStorage StorageHost)
+          :code $ quote $ defn window-local-storage () (js-cast js/window.localStorage 'js-ffi.browser/StorageHost)
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/StorageHost)
             :args $ []
