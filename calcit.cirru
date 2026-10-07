@@ -871,7 +871,7 @@
         'element-host $ %{} 'CodeEntry
           :doc "|Validate an opaque host value as an object and expose the shared DOM element capability."
           :code $ quote $ defn element-host (value)
-            js-cast (expect-host-kind |DOM.element-host |element value) 'js-ffi.browser/DomElementHost
+            unsafe-coerce (expect-host-kind |DOM.element-host |element value) 'js-ffi.browser/DomElementHost
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/DomElementHost)
             :args $ [] 'T
@@ -1063,7 +1063,7 @@
         'event-host $ %{} 'CodeEntry
           :doc "|Validate an opaque host value as an object and expose the shared browser Event capability."
           :code $ quote $ defn event-host (value)
-            js-cast (expect-host-kind |DOM.event-host |event value) 'js-ffi.browser/EventHost
+            unsafe-coerce (expect-host-kind |DOM.event-host |event value) 'js-ffi.browser/EventHost
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/EventHost)
             :args $ [] 'T
@@ -1130,8 +1130,9 @@
           :examples $ []
           :ffi $ {} (:backend :js) (:target :browser)
           :schema $ :: 'Fn $ {} (:return 'JsObject)
-            :args $ [] 'String 'String 'Dynamic
+            :args $ [] 'String 'String 'T
             :features $ #{} :js-ffi
+            :generics $ [] 'T
         'form-data-append! $ %{} 'CodeEntry
           :doc "|Append one String field to a FormData capability."
           :code $ quote $ defn form-data-append! (form name value) (form .append! name value) &unit
@@ -1224,7 +1225,7 @@
         'keyboard-event-host $ %{} 'CodeEntry
           :doc "|Validate an opaque host value as an object and expose keyboard-event fields."
           :code $ quote $ defn keyboard-event-host (value)
-            js-cast (expect-host-kind |DOM.keyboard-event-host |keyboard-event value) 'js-ffi.browser/KeyboardEventHost
+            unsafe-coerce (expect-host-kind |DOM.keyboard-event-host |keyboard-event value) 'js-ffi.browser/KeyboardEventHost
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/KeyboardEventHost)
             :args $ [] 'T
@@ -1320,7 +1321,7 @@
         'mouse-event-host $ %{} 'CodeEntry
           :doc "|Validate an opaque host value as a MouseEvent capability."
           :code $ quote $ defn mouse-event-host (value)
-            js-cast (expect-host-kind |MouseEvent.host |mouse-event value) (quote js-ffi.browser/MouseEventHost)
+            unsafe-coerce (expect-host-kind |MouseEvent.host |mouse-event value) (quote js-ffi.browser/MouseEventHost)
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/MouseEventHost)
             :args $ [] 'T
@@ -1360,7 +1361,7 @@
         'pointer-event-host $ %{} 'CodeEntry
           :doc "|Validate an opaque host value as a PointerEvent capability (layerX/layerY)."
           :code $ quote $ defn pointer-event-host (value)
-            js-cast (expect-host-kind |PointerEvent.host |pointer-event value) (quote js-ffi.browser/PointerEventHost)
+            unsafe-coerce (expect-host-kind |PointerEvent.host |pointer-event value) (quote js-ffi.browser/PointerEventHost)
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/PointerEventHost)
             :args $ [] 'T
@@ -1461,7 +1462,7 @@
         'selectable-element-host $ %{} 'CodeEntry
           :doc "|Validate an opaque host value as an object and expose the selectable input or textarea capability."
           :code $ quote $ defn selectable-element-host (value)
-            js-cast (expect-host-kind |DOM.selectable-element-host |selectable value) 'js-ffi.browser/DomSelectableHost
+            unsafe-coerce (expect-host-kind |DOM.selectable-element-host |selectable value) 'js-ffi.browser/DomSelectableHost
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/DomSelectableHost)
             :args $ [] 'T
@@ -1972,35 +1973,38 @@
           :doc "|Decode an opaque JavaScript value as Bool after a runtime kind check. Null and undefined are reported as nullish; other mismatches raise a stable JS FFI contract violation."
           :code $ quote $ defn expect-bool (label value)
             if (bool? value) value $ raise $ str "|JS FFI contract violation: " label "| expected Bool, got "
-              if (nil? value) |nullish $ js/typeof value
+              if (js-nullish? value) |nullish $ js/typeof value
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Bool)
-            :args $ [] 'String 'Dynamic
+            :args $ [] 'String 'T
             :features $ #{} :js-ffi
+            :generics $ [] 'T
         'expect-function $ %{} 'CodeEntry
           :doc "|Validate that an opaque JavaScript value is a non-null JavaScript function and return its opaque host identity. Use a small typed adapter for its call schema and receiver contract."
           :code $ quote $ defn expect-function (label value)
             let
-                kind $ if (nil? value) |nullish $ js/typeof value
+                kind $ if (js-nullish? value) |nullish $ js/typeof value
               if (= |function kind) (unsafe-coerce value JsObject)
                 raise $ str "|JS FFI contract violation: " label "| expected Function, got " kind
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'JsObject)
-            :args $ [] 'String 'Dynamic
+            :args $ [] 'String 'T
             :features $ #{} :js-ffi
+            :generics $ [] 'T
         'expect-number $ %{} 'CodeEntry
           :doc "|Decode an opaque JavaScript value as Number after a runtime kind check. Null and undefined are reported as nullish; other mismatches raise a stable JS FFI contract violation."
           :code $ quote $ defn expect-number (label value)
             if (number? value) value $ raise $ str "|JS FFI contract violation: " label "| expected Number, got "
-              if (nil? value) |nullish $ js/typeof value
+              if (js-nullish? value) |nullish $ js/typeof value
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Number)
-            :args $ [] 'String 'Dynamic
+            :args $ [] 'String 'T
             :features $ #{} :js-ffi
+            :generics $ [] 'T
         'expect-object $ %{} 'CodeEntry
           :doc "|Validate that an opaque JavaScript value is a non-null host object and return it as JsObject. Calcit-owned values (lists, maps, structs, enums, refs and other runtime data) are rejected even though JavaScript reports them as objects, so a Calcit value cannot be mistaken for a host capability. This proves only the shallow host kind; decode or check members before exposing concrete data."
           :code $ quote $ defn expect-object (label value)
-            if (nil? value)
+            if (js-nullish? value)
               raise $ str "|JS FFI contract violation: " label "| expected Object, got nullish"
               &let
                 kind $ js/typeof value
@@ -2014,25 +2018,28 @@
                   raise $ str "|JS FFI contract violation: " label "| expected Object, got " kind
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'JsObject)
-            :args $ [] 'String 'Dynamic
+            :args $ [] 'String 'T
             :features $ #{} :js-ffi
+            :generics $ [] 'T
         'expect-string $ %{} 'CodeEntry
           :doc "|Decode an opaque JavaScript value as String after a runtime kind check. Null and undefined are reported as nullish; other mismatches raise a stable JS FFI contract violation."
           :code $ quote $ defn expect-string (label value)
             if (string? value) value $ raise $ str "|JS FFI contract violation: " label "| expected String, got "
-              if (nil? value) |nullish $ js/typeof value
+              if (js-nullish? value) |nullish $ js/typeof value
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'String)
-            :args $ [] 'String 'Dynamic
+            :args $ [] 'String 'T
             :features $ #{} :js-ffi
+            :generics $ [] 'T
         'object-field $ %{} 'CodeEntry
           :doc "|Read one named field from an opaque JavaScript object after checking the receiver. The result remains JsNullish<JsObject>; pass it through an expect primitive guard or explicitly normalize absence before returning concrete data."
           :code $ quote $ defn object-field (label object key)
             aget (expect-object label object) key
           :examples $ []
           :schema $ :: 'Fn $ {}
-            :args $ [] 'String 'Dynamic 'String
+            :args $ [] 'String 'T 'String
             :features $ #{} :js-ffi
+            :generics $ [] 'T
             :return $ :: 'JsNullish 'JsObject
         'valid-runtime? $ %{} 'CodeEntry
           :doc "|Compare two normalized Runtime values without relying on open String identifiers."
@@ -2547,7 +2554,7 @@
                   request .set-encoding! |utf8
                   request .on! |error $ fn (error) (reject error)
                   request .on! |data $ fn (data) (swap! chunks str data) &unit
-                  request .on! |end $ fn (_event)
+                  request .on! |end $ fn (& _args)
                     let
                         text @chunks
                       match callback
@@ -2581,7 +2588,7 @@
                 chunks $ atom |
               response .set-encoding! |utf8
               response .on! |data $ fn (chunk) (swap! chunks str chunk) &unit
-              response .on! |end $ fn (_event) (callback @chunks) &unit
+              response .on! |end $ fn (& _args) (callback @chunks) &unit
             , &unit
           :examples $ []
           :ffi $ {} (:backend :js) (:target :node)
@@ -3287,8 +3294,9 @@
               JsError :kind kind :name name :message message :stack $ Option :none
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'js-ffi.shared/JsError)
-            :args $ [] 'Dynamic
+            :args $ [] 'T
             :features $ #{} :js-ffi
+            :generics $ [] 'T
         'now-ms $ %{} 'CodeEntry
           :doc "|Read the native result through a checked primitive boundary. Invalid input may raise a host exception."
           :code $ quote $ defn now-ms ()
@@ -3379,7 +3387,7 @@
                     , &unit
         'promise? $ %{} 'CodeEntry (:doc "|检测任意类型的值是否符合 Promise 合约；泛型参数保留调用方的静态类型。")
           :code $ quote $ defn promise? (value)
-            if (nil? value) false $ let
+            if (js-nullish? value) false $ let
                 resolved $ js/Promise.resolve value
               and
                 fn? $ .-then value
@@ -4034,8 +4042,9 @@
               fn (error) |WebGPU.error-unprintable
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'String)
-            :args $ [] 'Dynamic
+            :args $ [] 'T
             :features $ #{} :js-ffi
+            :generics $ [] 'T
         'gpu-host $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn gpu-host (value)
             let
