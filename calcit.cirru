@@ -1514,7 +1514,7 @@
         'set-interval! $ %{} 'CodeEntry
           :doc "|Schedule a repeated browser callback and return the numeric timer identifier. The callback receives no arguments and returns Unit."
           :code $ quote $ defn set-interval! (callback delay)
-            unsafe-coerce (js/setInterval callback delay) Number
+            contract/expect-number |setInterval $ js/Number $ js/setInterval callback delay
           :examples $ [] $ quote
             set-interval!
               fn () $ console-log! |heartbeat
@@ -1528,7 +1528,7 @@
         'set-timeout! $ %{} 'CodeEntry
           :doc "|Schedule a Unit callback and return the browser numeric timer id. Node timer handles intentionally use a separate contract."
           :code $ quote $ defn set-timeout! (callback delay)
-            unsafe-coerce (js/setTimeout callback delay) Number
+            contract/expect-number |setTimeout $ js/Number $ js/setTimeout callback delay
           :examples $ [] $ quote
             set-timeout!
               fn () nil
@@ -1971,35 +1971,31 @@
         'expect-bool $ %{} 'CodeEntry
           :doc "|Decode an opaque JavaScript value as Bool after a runtime kind check. Null and undefined are reported as nullish; other mismatches raise a stable JS FFI contract violation."
           :code $ quote $ defn expect-bool (label value)
-            let
-                kind $ if (js-nullish? value) |nullish $ js/typeof value
-              if (= |boolean kind) (unsafe-coerce value Bool)
-                raise $ str "|JS FFI contract violation: " label "| expected Bool, got " kind
+            if (bool? value) value $ raise $ str "|JS FFI contract violation: " label "| expected Bool, got "
+              if (nil? value) |nullish $ js/typeof value
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Bool)
-            :args $ [] 'String $ :: 'JsNullish 'JsObject
+            :args $ [] 'String 'Dynamic
             :features $ #{} :js-ffi
         'expect-function $ %{} 'CodeEntry
           :doc "|Validate that an opaque JavaScript value is a non-null JavaScript function and return its opaque host identity. Use a small typed adapter for its call schema and receiver contract."
           :code $ quote $ defn expect-function (label value)
             let
-                kind $ if (js-nullish? value) |nullish $ js/typeof value
+                kind $ if (nil? value) |nullish $ js/typeof value
               if (= |function kind) (unsafe-coerce value JsObject)
                 raise $ str "|JS FFI contract violation: " label "| expected Function, got " kind
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'JsObject)
-            :args $ [] 'String $ :: 'JsNullish 'JsObject
+            :args $ [] 'String 'Dynamic
             :features $ #{} :js-ffi
         'expect-number $ %{} 'CodeEntry
           :doc "|Decode an opaque JavaScript value as Number after a runtime kind check. Null and undefined are reported as nullish; other mismatches raise a stable JS FFI contract violation."
           :code $ quote $ defn expect-number (label value)
-            let
-                kind $ if (js-nullish? value) |nullish $ js/typeof value
-              if (= |number kind) (unsafe-coerce value Number)
-                raise $ str "|JS FFI contract violation: " label "| expected Number, got " kind
+            if (number? value) value $ raise $ str "|JS FFI contract violation: " label "| expected Number, got "
+              if (nil? value) |nullish $ js/typeof value
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Number)
-            :args $ [] 'String $ :: 'JsNullish 'JsObject
+            :args $ [] 'String 'Dynamic
             :features $ #{} :js-ffi
         'expect-object $ %{} 'CodeEntry
           :doc "|Validate that an opaque JavaScript value is a non-null host object and return it as JsObject. Calcit-owned values (lists, maps, structs, enums, refs and other runtime data) are rejected even though JavaScript reports them as objects, so a Calcit value cannot be mistaken for a host capability. This proves only the shallow host kind; decode or check members before exposing concrete data."
@@ -2013,7 +2009,7 @@
                     calcit-kind $ type-of value
                     if
                       or (= calcit-kind :js-object) (= calcit-kind :buffer)
-                      js-cast value $ quote JsObject
+                      unsafe-coerce value 'JsObject
                       raise $ str "|JS FFI contract violation: " label "| expected host Object, got Calcit value " calcit-kind
                   raise $ str "|JS FFI contract violation: " label "| expected Object, got " kind
           :examples $ []
@@ -2023,13 +2019,11 @@
         'expect-string $ %{} 'CodeEntry
           :doc "|Decode an opaque JavaScript value as String after a runtime kind check. Null and undefined are reported as nullish; other mismatches raise a stable JS FFI contract violation."
           :code $ quote $ defn expect-string (label value)
-            let
-                kind $ if (js-nullish? value) |nullish $ js/typeof value
-              if (= |string kind) (unsafe-coerce value String)
-                raise $ str "|JS FFI contract violation: " label "| expected String, got " kind
+            if (string? value) value $ raise $ str "|JS FFI contract violation: " label "| expected String, got "
+              if (nil? value) |nullish $ js/typeof value
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'String)
-            :args $ [] 'String $ :: 'JsNullish 'JsObject
+            :args $ [] 'String 'Dynamic
             :features $ #{} :js-ffi
         'object-field $ %{} 'CodeEntry
           :doc "|Read one named field from an opaque JavaScript object after checking the receiver. The result remains JsNullish<JsObject>; pass it through an expect primitive guard or explicitly normalize absence before returning concrete data."
