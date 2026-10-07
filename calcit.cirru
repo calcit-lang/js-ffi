@@ -2031,7 +2031,7 @@
             aget (expect-object label object) key
           :examples $ []
           :schema $ :: 'Fn $ {}
-            :args $ [] 'String (:: 'JsNullish 'JsObject) 'String
+            :args $ [] 'String 'Dynamic 'String
             :features $ #{} :js-ffi
             :return $ :: 'JsNullish 'JsObject
         'valid-runtime? $ %{} 'CodeEntry
@@ -2546,13 +2546,14 @@
                     chunks $ atom |
                   request .set-encoding! |utf8
                   request .on! |error $ fn (error) (reject error)
-                  request .on! |data $ fn (data) (swap! chunks str data)
-                  request .on! |end $ fn () $ let
-                      text @chunks
-                    match callback
-                      (:some cb) (cb text)
-                      (:none) &unit
-                    resolve text
+                  request .on! |data $ fn (data) (swap! chunks str data) &unit
+                  request .on! |end $ fn (_event)
+                    let
+                        text @chunks
+                      match callback
+                        (:some cb) (cb text)
+                        (:none) &unit
+                      resolve text
               , 'js-ffi.shared/PromiseHost
           :examples $ []
           :ffi $ {} (:backend :js) (:target :node)
@@ -2579,8 +2580,8 @@
             let
                 chunks $ atom |
               response .set-encoding! |utf8
-              response .on! |data $ fn (chunk) (swap! chunks str chunk)
-              response .on! |end $ fn () $ callback @chunks
+              response .on! |data $ fn (chunk) (swap! chunks str chunk) &unit
+              response .on! |end $ fn (_event) (callback @chunks) &unit
             , &unit
           :examples $ []
           :ffi $ {} (:backend :js) (:target :node)
@@ -3286,7 +3287,7 @@
               JsError :kind kind :name name :message message :stack $ Option :none
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'js-ffi.shared/JsError)
-            :args $ [] $ :: 'JsNullish 'JsObject
+            :args $ [] 'Dynamic
             :features $ #{} :js-ffi
         'now-ms $ %{} 'CodeEntry
           :doc "|Read the native result through a checked primitive boundary. Invalid input may raise a host exception."
@@ -3481,7 +3482,7 @@
           :code $ quote $ defn search-params->map (value)
             let
                 result $ atom $ {}
-              value .for-each! $ fn (item key _parent) (swap! result assoc key item)
+              value .for-each! $ fn (item key _parent) (swap! result assoc key item) &unit
               deref result
           :examples $ []
           :schema $ :: 'Fn $ {}
@@ -3495,6 +3496,7 @@
                 result $ atom $ []
               value .for-each! $ fn (item key _parent)
                 swap! result append $ [] key item
+                , &unit
               deref result
           :examples $ []
           :schema $ :: 'Fn $ {}
@@ -4032,7 +4034,7 @@
               fn (error) |WebGPU.error-unprintable
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'String)
-            :args $ [] $ :: 'JsNullish 'JsObject
+            :args $ [] 'Dynamic
             :features $ #{} :js-ffi
         'gpu-host $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn gpu-host (value)
