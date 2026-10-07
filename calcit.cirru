@@ -2004,16 +2004,17 @@
         'expect-object $ %{} 'CodeEntry
           :doc "|Validate that an opaque JavaScript value is a non-null host object and return it as JsObject. Calcit-owned values (lists, maps, structs, enums, refs and other runtime data) are rejected even though JavaScript reports them as objects, so a Calcit value cannot be mistaken for a host capability. This proves only the shallow host kind; decode or check members before exposing concrete data."
           :code $ quote $ defn expect-object (label value)
-            let
-                kind $ if (js-nullish? value) |nullish $ js/typeof value
-              if (= |object kind)
-                let
+            if (js-present? value)
+              &let
+                kind $ js/typeof value
+                if (= |object kind)
+                  &let
                     calcit-kind $ type-of value
-                  if
-                    or (= calcit-kind :js-object) (= calcit-kind :buffer)
-                    unsafe-coerce value JsObject
-                    raise $ str "|JS FFI contract violation: " label "| expected host Object, got Calcit value " calcit-kind
-                raise $ str "|JS FFI contract violation: " label "| expected Object, got " kind
+                    if
+                      or (= calcit-kind :js-object) (= calcit-kind :buffer)
+                      , value $ raise $ str "|JS FFI contract violation: " label "| expected host Object, got Calcit value " calcit-kind
+                  raise $ str "|JS FFI contract violation: " label "| expected Object, got " kind
+              raise $ str "|JS FFI contract violation: " label "| expected Object, got nullish"
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'JsObject)
             :args $ [] 'String $ :: 'JsNullish 'JsObject
