@@ -16,21 +16,21 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@calcit/js-ffi@workspace:."
   dependencies:
-    "@calcit/procs": "npm:0.29.0-alpha.2"
+    "@calcit/procs": "npm:0.29.0-alpha.18"
     playwright: "npm:1.63.0"
     vite: "npm:^8.2.2"
   languageName: unknown
   linkType: soft
 
-"@calcit/procs@npm:0.29.0-alpha.2":
-  version: 0.29.0-alpha.2
-  resolution: "@calcit/procs@npm:0.29.0-alpha.2"
+"@calcit/procs@npm:0.29.0-alpha.18":
+  version: 0.29.0-alpha.18
+  resolution: "@calcit/procs@npm:0.29.0-alpha.18"
   dependencies:
     "@calcit/finger-vec": "npm:0.1.1"
     "@calcit/ternary-tree": "npm:0.0.26"
     "@cirru/parser.ts": "npm:0.0.10"
     "@cirru/writer.ts": "npm:^0.1.9"
-  checksum: 10c0/caced6885098fa5c8b9bcb7ef66ac07f1bebe247ad4fcb4bdc4cecb7b1fcb6c6db802ed70dabbf8002fba49d0e6ff942469b0a369070193d8cec9c3897224b2f
+  checksum: 10c0/1daf2a350d45aebcb9efe56a58ff0b00ca0227395876ad44b27c0385d7943db5bf008891e768f87628225729d33dfc87dd58dde339ee0889580455b120958720
   languageName: node
   linkType: hard
 
