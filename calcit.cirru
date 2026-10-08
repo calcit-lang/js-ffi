@@ -1130,8 +1130,9 @@
           :examples $ []
           :ffi $ {} (:backend :js) (:target :browser)
           :schema $ :: 'Fn $ {} (:return 'JsObject)
-            :args $ [] 'String 'String $ :: 'JsNullish 'JsObject
+            :args $ [] 'String 'String 'T
             :features $ #{} :js-ffi
+            :generics $ [] 'T
         'form-data-append! $ %{} 'CodeEntry
           :doc "|Append one String field to a FormData capability."
           :code $ quote $ defn form-data-append! (form name value) (form .append! name value) &unit
@@ -1514,7 +1515,7 @@
         'set-interval! $ %{} 'CodeEntry
           :doc "|Schedule a repeated browser callback and return the numeric timer identifier. The callback receives no arguments and returns Unit."
           :code $ quote $ defn set-interval! (callback delay)
-            unsafe-coerce (js/setInterval callback delay) Number
+            contract/expect-number |setInterval $ js/Number $ js/setInterval callback delay
           :examples $ [] $ quote
             set-interval!
               fn () $ console-log! |heartbeat
@@ -1528,7 +1529,7 @@
         'set-timeout! $ %{} 'CodeEntry
           :doc "|Schedule a Unit callback and return the browser numeric timer id. Node timer handles intentionally use a separate contract."
           :code $ quote $ defn set-timeout! (callback delay)
-            unsafe-coerce (js/setTimeout callback delay) Number
+            contract/expect-number |setTimeout $ js/Number $ js/setTimeout callback delay
           :examples $ [] $ quote
             set-timeout!
               fn () nil
@@ -1971,14 +1972,13 @@
         'expect-bool $ %{} 'CodeEntry
           :doc "|Decode an opaque JavaScript value as Bool after a runtime kind check. Null and undefined are reported as nullish; other mismatches raise a stable JS FFI contract violation."
           :code $ quote $ defn expect-bool (label value)
-            let
-                kind $ if (js-nullish? value) |nullish $ js/typeof value
-              if (= |boolean kind) (unsafe-coerce value Bool)
-                raise $ str "|JS FFI contract violation: " label "| expected Bool, got " kind
+            if (bool? value) value $ raise $ str "|JS FFI contract violation: " label "| expected Bool, got "
+              if (js-nullish? value) |nullish $ js/typeof value
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Bool)
-            :args $ [] 'String $ :: 'JsNullish 'JsObject
+            :args $ [] 'String 'T
             :features $ #{} :js-ffi
+            :generics $ [] 'T
         'expect-function $ %{} 'CodeEntry
           :doc "|Validate that an opaque JavaScript value is a non-null JavaScript function and return its opaque host identity. Use a small typed adapter for its call schema and receiver contract."
           :code $ quote $ defn expect-function (label value)
@@ -1988,55 +1988,58 @@
                 raise $ str "|JS FFI contract violation: " label "| expected Function, got " kind
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'JsObject)
-            :args $ [] 'String $ :: 'JsNullish 'JsObject
+            :args $ [] 'String 'T
             :features $ #{} :js-ffi
+            :generics $ [] 'T
         'expect-number $ %{} 'CodeEntry
           :doc "|Decode an opaque JavaScript value as Number after a runtime kind check. Null and undefined are reported as nullish; other mismatches raise a stable JS FFI contract violation."
           :code $ quote $ defn expect-number (label value)
-            let
-                kind $ if (js-nullish? value) |nullish $ js/typeof value
-              if (= |number kind) (unsafe-coerce value Number)
-                raise $ str "|JS FFI contract violation: " label "| expected Number, got " kind
+            if (number? value) value $ raise $ str "|JS FFI contract violation: " label "| expected Number, got "
+              if (js-nullish? value) |nullish $ js/typeof value
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Number)
-            :args $ [] 'String $ :: 'JsNullish 'JsObject
+            :args $ [] 'String 'T
             :features $ #{} :js-ffi
+            :generics $ [] 'T
         'expect-object $ %{} 'CodeEntry
           :doc "|Validate that an opaque JavaScript value is a non-null host object and return it as JsObject. Calcit-owned values (lists, maps, structs, enums, refs and other runtime data) are rejected even though JavaScript reports them as objects, so a Calcit value cannot be mistaken for a host capability. This proves only the shallow host kind; decode or check members before exposing concrete data."
           :code $ quote $ defn expect-object (label value)
-            let
-                kind $ if (js-nullish? value) |nullish $ js/typeof value
-              if (= |object kind)
-                let
+            if (js-nullish? value)
+              raise $ str "|JS FFI contract violation: " label "| expected Object, got nullish"
+              &let
+                kind $ js/typeof value
+                if (= |object kind)
+                  &let
                     calcit-kind $ type-of value
-                  if
-                    or (= calcit-kind :js-object) (= calcit-kind :buffer)
-                    unsafe-coerce value JsObject
-                    raise $ str "|JS FFI contract violation: " label "| expected host Object, got Calcit value " calcit-kind
-                raise $ str "|JS FFI contract violation: " label "| expected Object, got " kind
+                    if
+                      or (= calcit-kind :js-object) (= calcit-kind :buffer)
+                      unsafe-coerce value 'JsObject
+                      raise $ str "|JS FFI contract violation: " label "| expected host Object, got Calcit value " calcit-kind
+                  raise $ str "|JS FFI contract violation: " label "| expected Object, got " kind
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'JsObject)
-            :args $ [] 'String $ :: 'JsNullish 'JsObject
+            :args $ [] 'String 'T
             :features $ #{} :js-ffi
+            :generics $ [] 'T
         'expect-string $ %{} 'CodeEntry
           :doc "|Decode an opaque JavaScript value as String after a runtime kind check. Null and undefined are reported as nullish; other mismatches raise a stable JS FFI contract violation."
           :code $ quote $ defn expect-string (label value)
-            let
-                kind $ if (js-nullish? value) |nullish $ js/typeof value
-              if (= |string kind) (unsafe-coerce value String)
-                raise $ str "|JS FFI contract violation: " label "| expected String, got " kind
+            if (string? value) value $ raise $ str "|JS FFI contract violation: " label "| expected String, got "
+              if (js-nullish? value) |nullish $ js/typeof value
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'String)
-            :args $ [] 'String $ :: 'JsNullish 'JsObject
+            :args $ [] 'String 'T
             :features $ #{} :js-ffi
+            :generics $ [] 'T
         'object-field $ %{} 'CodeEntry
           :doc "|Read one named field from an opaque JavaScript object after checking the receiver. The result remains JsNullish<JsObject>; pass it through an expect primitive guard or explicitly normalize absence before returning concrete data."
           :code $ quote $ defn object-field (label object key)
             aget (expect-object label object) key
           :examples $ []
           :schema $ :: 'Fn $ {}
-            :args $ [] 'String (:: 'JsNullish 'JsObject) 'String
+            :args $ [] 'String 'T 'String
             :features $ #{} :js-ffi
+            :generics $ [] 'T
             :return $ :: 'JsNullish 'JsObject
         'valid-runtime? $ %{} 'CodeEntry
           :doc "|Compare two normalized Runtime values without relying on open String identifiers."
@@ -2550,13 +2553,14 @@
                     chunks $ atom |
                   request .set-encoding! |utf8
                   request .on! |error $ fn (error) (reject error)
-                  request .on! |data $ fn (data) (swap! chunks str data)
-                  request .on! |end $ fn () $ let
-                      text @chunks
-                    match callback
-                      (:some cb) (cb text)
-                      (:none) &unit
-                    resolve text
+                  request .on! |data $ fn (data) (swap! chunks str data) &unit
+                  request .on! |end $ fn (& _args)
+                    let
+                        text @chunks
+                      match callback
+                        (:some cb) (cb text)
+                        (:none) &unit
+                      resolve text
               , 'js-ffi.shared/PromiseHost
           :examples $ []
           :ffi $ {} (:backend :js) (:target :node)
@@ -2583,8 +2587,8 @@
             let
                 chunks $ atom |
               response .set-encoding! |utf8
-              response .on! |data $ fn (chunk) (swap! chunks str chunk)
-              response .on! |end $ fn () $ callback @chunks
+              response .on! |data $ fn (chunk) (swap! chunks str chunk) &unit
+              response .on! |end $ fn (& _args) (callback @chunks) &unit
             , &unit
           :examples $ []
           :ffi $ {} (:backend :js) (:target :node)
@@ -3290,8 +3294,9 @@
               JsError :kind kind :name name :message message :stack $ Option :none
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'js-ffi.shared/JsError)
-            :args $ [] $ :: 'JsNullish 'JsObject
+            :args $ [] 'T
             :features $ #{} :js-ffi
+            :generics $ [] 'T
         'now-ms $ %{} 'CodeEntry
           :doc "|Read the native result through a checked primitive boundary. Invalid input may raise a host exception."
           :code $ quote $ defn now-ms ()
@@ -3382,7 +3387,7 @@
                     , &unit
         'promise? $ %{} 'CodeEntry (:doc "|检测任意类型的值是否符合 Promise 合约；泛型参数保留调用方的静态类型。")
           :code $ quote $ defn promise? (value)
-            if (nil? value) false $ let
+            if (js-nullish? value) false $ let
                 resolved $ js/Promise.resolve value
               and
                 fn? $ .-then value
@@ -3485,7 +3490,7 @@
           :code $ quote $ defn search-params->map (value)
             let
                 result $ atom $ {}
-              value .for-each! $ fn (item key _parent) (swap! result assoc key item)
+              value .for-each! $ fn (item key _parent) (swap! result assoc key item) &unit
               deref result
           :examples $ []
           :schema $ :: 'Fn $ {}
@@ -3499,6 +3504,7 @@
                 result $ atom $ []
               value .for-each! $ fn (item key _parent)
                 swap! result append $ [] key item
+                , &unit
               deref result
           :examples $ []
           :schema $ :: 'Fn $ {}
@@ -4036,8 +4042,9 @@
               fn (error) |WebGPU.error-unprintable
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'String)
-            :args $ [] $ :: 'JsNullish 'JsObject
+            :args $ [] 'T
             :features $ #{} :js-ffi
+            :generics $ [] 'T
         'gpu-host $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn gpu-host (value)
             let
