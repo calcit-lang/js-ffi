@@ -2550,7 +2550,7 @@
             unsafe-coerce
               new js/Promise $ fn (resolve reject)
                 let
-                    chunks $ atom |
+                    chunks $ ref |
                   request .set-encoding! |utf8
                   request .on! |error $ fn (error) (reject error)
                   request .on! |data $ fn (data) (swap! chunks str data) &unit
@@ -2585,7 +2585,7 @@
           :doc "|Collect a Node response body as UTF-8 text and invoke the callback."
           :code $ quote $ defn response-body-text (response callback)
             let
-                chunks $ atom |
+                chunks $ ref |
               response .set-encoding! |utf8
               response .on! |data $ fn (chunk) (swap! chunks str chunk) &unit
               response .on! |end $ fn (& _args) (callback @chunks) &unit
@@ -3489,7 +3489,7 @@
           :doc "|Collect URLSearchParams entries into a Map<String, String>; duplicate keys keep the last value."
           :code $ quote $ defn search-params->map (value)
             let
-                result $ atom $ {}
+                result $ ref $ {}
               value .for-each! $ fn (item key _parent) (swap! result assoc key item) &unit
               deref result
           :examples $ []
@@ -3501,7 +3501,7 @@
           :doc "|Collect URLSearchParams entries as a list of [key value] pairs, preserving duplicates and order."
           :code $ quote $ defn search-params->pairs (value)
             let
-                result $ atom $ []
+                result $ ref $ []
               value .for-each! $ fn (item key _parent)
                 swap! result append $ [] key item
                 , &unit
