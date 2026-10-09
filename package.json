@@ -1,13 +1,13 @@
 {
   "name": "@calcit/js-ffi",
   "private": true,
-  "version": "0.2.1-alpha.15",
+  "version": "0.2.1-alpha.16",
   "exports": {
     "./*.mjs": "./*.mjs"
   },
   "packageManager": "yarn@4.18.0",
   "dependencies": {
-    "@calcit/procs": "0.29.0-alpha.18"
+    "@calcit/procs": "0.29.0-alpha.23"
   },
   "devDependencies": {
     "playwright": "1.63.0",

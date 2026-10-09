@@ -3,23 +3,29 @@
 Typed JavaScript FFI definitions for Calcit. This package is independent: it exists to make the boundary between Calcit and host
 JavaScript explicit, checkable, and reusable across Calcit projects.
 
-## 0.2.1-alpha.13：匹配 Calcit 0.29.0-alpha.2
+## 版本与工具链
 
-本版本准备将 Calcit CLI 与 npm `@calcit/procs` 一起对齐已发布的 **`0.29.0-alpha.2`**，使消费者能使用新的类型推导、EDN 边界和继承方法查询修复。模块 API 与宿主实现不变；具体升级顺序见 [alpha.13 说明](docs/releases/0.2.1-alpha.13.md)。等模块同名 tag/prerelease 发布后再更新应用依赖；现有 alpha.12 仍对应下面的 alpha.1 工具链。
+当前模块版本与 Calcit CLI 版本以 `deps.cirru` 为准，JS runtime 精确版本在 `package.json` 中声明；CLI 与 `@calcit/procs` 必须配对。下游固定已发布的模块 tag，安装后运行 `caps verify --toolchain`，再运行应用原有的类型检查、Node/浏览器测试和构建。main 上的新迁移不自动进入旧 tag。
 
-## 0.2.1-alpha.12：匹配 Calcit 0.29.0-alpha.1
+以下是历史版本的兼容说明，不是当前工具链安装指令。
+
+### 0.2.1-alpha.13：匹配 Calcit 0.29.0-alpha.2
+
+历史版本 alpha.13 将 Calcit CLI 与 npm `@calcit/procs` 对齐 **`0.29.0-alpha.2`**，使消费者能使用该版本的类型推导、EDN 边界和继承方法查询修复。模块 API 与宿主实现不变；对应升级顺序见 [alpha.13 说明](docs/releases/0.2.1-alpha.13.md)。alpha.12 对应下面的 alpha.1 工具链。
+
+### 0.2.1-alpha.12：匹配 Calcit 0.29.0-alpha.1
 
 已发布的 [0.2.1-alpha.12](https://github.com/calcit-lang/js-ffi/releases/tag/0.2.1-alpha.12) 要求 Calcit CLI 与 npm `@calcit/procs` **同时使用 `0.29.0-alpha.1`**。`KeyboardEventHost` 与 `MouseEventHost` 通过 `'requires EventHost` 继承事件共享成员，可直接传给要求 `EventHost` 的位置；`normalize-error` 补充 String 校验以满足新的 lowering 证明。同时包含 23 个增量宿主 API 与 Promise 合同收紧：executor 的 resolve/reject 都使用完整 Fn，观察 payload 经过 decoder 后再进入具体类型。验证和升级步骤见 [alpha.12 说明](docs/releases/0.2.1-alpha.12.md)。模块版本与 CLI/runtime 版本不同，升级时一起核对 `deps.cirru`、npm 精确版本和 `caps verify --toolchain`。
 
-## 0.2.1-alpha.11：匹配 Calcit 0.28 工具链
+### 0.2.1-alpha.11：匹配 Calcit 0.28 工具链
 
 历史版本 [0.2.1-alpha.11](https://github.com/calcit-lang/js-ffi/releases/tag/0.2.1-alpha.11) 要求 Calcit CLI 与 npm `@calcit/procs` **同时使用 `0.28.0-alpha.3`**。它包含 Option 方法迁移及浏览器 trait 类型引用修正，保持原有宿主、错误和异步语义。对应的验证和升级步骤见 [alpha.11 说明](docs/releases/0.2.1-alpha.11.md)；旧 tag 不会随 main 更新，也不包含 alpha.12 的 Promise 合同修正。
 
-## 0.2.1-alpha.10 类型化 Canvas 路径填充
+### 0.2.1-alpha.10 类型化 Canvas 路径填充
 
 `CanvasContextHost` 增加 `.fill!`、`.arc!` 与 `.bezier-curve-to!`，可在 Calcit 中直接组合原生路径填充和描边，不需要项目内 inline JS 适配。签名、浏览器像素验证和发布边界见 [alpha.10 说明](docs/releases/0.2.1-alpha.10.md)。下游须等 Git tag/prerelease 发布后再升级；Quamolit 的本地适配迁移仍单独验证。
 
-## 0.2.0 模块内 inline 与文件实现
+### 0.2.0 模块内 inline 与文件实现
 
 此版本要求 Calcit `0.22.0`。`js-ffi.browser/document-available?` 的实现位于模块根目录的 `js-ffi-assets/document-available.js`，仍带有 `Fn [] -> Bool` schema 与 `:js-ffi` 标记。`js-ffi.node/path-basename` 则使用模块内 inline JS 表达式和显式 `node:path` 注入，保持原有 `Fn(String) -> String` 契约。Calcit 把两种表达式嵌入各自的生成命名空间；下游继续通过普通 Calcit `:require` 调用，不需要单独引用 JS 文件或安装片段专用 npm 包。
 
@@ -41,7 +47,7 @@ JavaScript explicit, checkable, and reusable across Calcit projects.
 
 `js-ffi.node/path-basename` 使用同一个 `node:path` 模块的 inline 表达式，返回值仍由精确 `Fn(String) -> String` 声明约束；`js-ffi.node-test/path-label` 在 Calcit 代码中通过正常引用组合 inline 与 file 两个适配器。查看声明、来源和外部模块时分别运行 `calcit query def js-ffi.node/path-basename` 与 `calcit query context js-ffi.node/path-join --format edn`。这些查询不会执行 JavaScript；运行时参数/异常仍须由 `yarn test:node` 验证。
 
-Calcit [#1372](https://github.com/calcit-lang/calcit/pull/1372) 修复了同一 Snapshot 中 Node/browser entry 的异宿主构建隔离。本版本使用从 crates.io 干净安装的 Calcit `0.22.0` 和 npm 公开包验证。修改 JS 文件后显式重新构建；排错时用 `calcit query context js-ffi.node/path-join --format edn` 找到模块版本、来源文件和外部模块，再用 Node source map 定位原始行。
+Calcit [#1372](https://github.com/calcit-lang/calcit/pull/1372) 修复了同一 Snapshot 中 Node/browser entry 的异宿主构建隔离；这组能力最初使用从 crates.io 安装的 Calcit `0.22.0` 与匹配 npm 包验证。当前工具链以 `deps.cirru` 和 `package.json` 为准。修改 JS 文件后显式重新构建；排错时用 `calcit query context js-ffi.node/path-join --format edn` 找到模块版本、来源文件和外部模块，再用 Node source map 定位原始行。
 
 ## Design
 
