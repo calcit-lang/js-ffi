@@ -2550,13 +2550,13 @@
             unsafe-coerce
               new js/Promise $ fn (resolve reject)
                 let
-                    chunks $ ref |
+                    body-text-ref $ ref |
                   request .set-encoding! |utf8
                   request .on! |error $ fn (error) (reject error)
-                  request .on! |data $ fn (data) (swap! chunks str data) &unit
+                  request .on! |data $ fn (data) (swap! body-text-ref str data) &unit
                   request .on! |end $ fn (& _args)
                     let
-                        text @chunks
+                        text @body-text-ref
                       match callback
                         (:some cb) (cb text)
                         (:none) &unit
@@ -2585,10 +2585,10 @@
           :doc "|Collect a Node response body as UTF-8 text and invoke the callback."
           :code $ quote $ defn response-body-text (response callback)
             let
-                chunks $ ref |
+                body-text-ref $ ref |
               response .set-encoding! |utf8
-              response .on! |data $ fn (chunk) (swap! chunks str chunk) &unit
-              response .on! |end $ fn (& _args) (callback @chunks) &unit
+              response .on! |data $ fn (chunk) (swap! body-text-ref str chunk) &unit
+              response .on! |end $ fn (& _args) (callback @body-text-ref) &unit
             , &unit
           :examples $ []
           :ffi $ {} (:backend :js) (:target :node)
