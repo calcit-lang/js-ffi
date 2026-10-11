@@ -61,7 +61,7 @@ export function parsePublicCheckReport(runtime, namespaces, output) {
 export function checkPublic(runtime, snapshot = resolve(root, 'calcit.cirru')) {
   const namespaces = publicNamespacesForRuntime(runtime);
   const namespaceArgs = namespaces.flatMap(namespace => ['--ns', namespace]);
-  const output = calcit(['--entry', runtime, snapshot, 'analyze', 'check-public', ...namespaceArgs, '--format', 'json']);
+  const output = calcit(['--entry', runtime, snapshot, '--check-only', ...namespaceArgs, '--format', 'json']);
   return parsePublicCheckReport(runtime, namespaces, output);
 }
 

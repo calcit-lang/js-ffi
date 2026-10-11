@@ -37,7 +37,10 @@ jobs:
           restore-keys: |
             yarn-${{ runner.os }}-
 
-      - uses: calcit-lang/setup-calcit@v1.4.0
+      - uses: calcit-lang/setup-calcit@v1.5.0
+        with:
+          tools: calcit,caps
+          caps-version: "0.1.1"
 
       - name: Install dependencies
         run: |
