@@ -9,6 +9,10 @@ JavaScript explicit, checkable, and reusable across Calcit projects.
 
 以下是历史版本的兼容说明，不是当前工具链安装指令。
 
+### 0.2.1：稳定 Calcit 0.29.0
+
+当前候选将已有 alpha.17 的 API 与宿主实现配对到稳定 Calcit / `@calcit/procs` 0.29.0，不增加宿主接口或扩大类型信任。公开定义门禁使用 `--check-only --ns`，保留 Node/browser 分离、完整覆盖和原有质量预算及宿主测试。只有稳定 release tag 发布后，下游才应使用 `calcit-lang/js-ffi@0.2.1`；本地版本号或编译成功不代表发布完成。
+
 ### 0.2.1-alpha.13：匹配 Calcit 0.29.0-alpha.2
 
 历史版本 alpha.13 将 Calcit CLI 与 npm `@calcit/procs` 对齐 **`0.29.0-alpha.2`**，使消费者能使用该版本的类型推导、EDN 边界和继承方法查询修复。模块 API 与宿主实现不变；对应升级顺序见 [alpha.13 说明](docs/releases/0.2.1-alpha.13.md)。alpha.12 对应下面的 alpha.1 工具链。

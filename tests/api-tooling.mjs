@@ -114,7 +114,7 @@ test('API check discovers an unused new definition and rejects its invalid call'
     const namespaces = publicNamespacesForRuntime('node');
     const result = spawnSync(
       calcitBin,
-      ['--entry', 'node', snapshot, 'analyze', 'check-public', ...namespaces.flatMap(namespace => ['--ns', namespace]), '--format', 'json'],
+      ['--entry', 'node', snapshot, '--check-only', ...namespaces.flatMap(namespace => ['--ns', namespace]), '--format', 'json'],
       { cwd: root, encoding: 'utf8' },
     );
     assert.ifError(result.error);
@@ -138,7 +138,7 @@ test('target-aware API checks cover every admitted definition and data declarati
 
 test('public check rejects a wrong-target namespace before checking any definition', () => {
   const namespaces = ['js-ffi.browser'];
-  const args = ['--entry', 'node', join(root, 'calcit.cirru'), 'analyze', 'check-public', '--ns', namespaces[0], '--format', 'json'];
+  const args = ['--entry', 'node', join(root, 'calcit.cirru'), '--check-only', '--ns', namespaces[0], '--format', 'json'];
   const result = spawnSync(calcitBin, args, { cwd: root, encoding: 'utf8' });
   assert.ifError(result.error);
   assert.notEqual(result.status, 0);
