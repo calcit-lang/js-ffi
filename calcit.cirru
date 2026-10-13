@@ -1404,7 +1404,7 @@
         'random $ %{} 'CodeEntry
           :doc "|Return a browser-compatible random number in the range 0 inclusive to 1 exclusive. The concrete return type is Number. Example: (random) => 0.42"
           :code $ quote $ defn random ()
-            unsafe-coerce (js/Math.random) Number
+            js-ffi.contract/expect-number |Math.random $ js/Math.random
           :examples $ [] $ quote "(random)"
           :ffi $ {} (:backend :js) (:target :browser)
           :schema $ :: 'Fn $ {} (:return 'Number)
