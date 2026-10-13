@@ -9,6 +9,13 @@ JavaScript explicit, checkable, and reusable across Calcit projects.
 
 以下是历史版本的兼容说明，不是当前工具链安装指令。
 
+### 0.2.2：随机数边界检查与 Calcit 0.29.1
+
+发布准备：`browser/random` 复用现有 `contract/expect-number` 校验宿主返回值，
+替代未经检查的强转；正常数值与随机调用次数不变。CLI 与 `@calcit/procs`
+配对到正式 0.29.1。公开 API、Node 和 Chromium 测试保持原有入口，
+不增加单独校验脚本。只有正式 tag 发布后，下游才能使用 0.2.2。
+
 ### 0.2.1：稳定 Calcit 0.29.0
 
 当前候选将已有 alpha.17 的 API 与宿主实现配对到稳定 Calcit / `@calcit/procs` 0.29.0，不增加宿主接口或扩大类型信任。公开定义门禁使用 `--check-only --ns`，保留 Node/browser 分离、完整覆盖和原有质量预算及宿主测试。只有稳定 release tag 发布后，下游才应使用 `calcit-lang/js-ffi@0.2.1`；本地版本号或编译成功不代表发布完成。
