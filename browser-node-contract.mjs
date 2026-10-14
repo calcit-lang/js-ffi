@@ -279,4 +279,37 @@ try {
   const error = new Error('native-measure-failure');
   assert.throws(() => measureInk({ measureText() { throw error; } }, '字'), caught => caught === error);
 }
+// Browser-target Calcit adapters on explicit Node host doubles are contract
+// evidence only, not native PointerEvent/capture or Node-target support.
+const pointerApi = await import("./js-out/js-ffi.browser.mjs");
+let pointerOwner = null;
+const forwardedPointerCalls = [];
+const nativePointerFailure = new Error("native-capture-failure");
+const pointerSurface = Object.freeze({
+  getBoundingClientRect() { return { left: 2, top: 3, width: 4, height: 5 }; },
+  setPointerCapture(id) { if (id === 99) throw nativePointerFailure; pointerOwner = id; forwardedPointerCalls.push(["set", id]); },
+  releasePointerCapture(id) { pointerOwner = null; forwardedPointerCalls.push(["release", id]); },
+  hasPointerCapture(id) { return pointerOwner === id; },
+});
+assert.equal(pointerApi.pointer_capture_element_host(pointerSurface), pointerSurface);
+assert.equal(forwardedPointerCalls.length, 0);
+assert.equal(pointerApi.element_set_pointer_capture_$x_(pointerSurface, 7), undefined);
+assert.equal(pointerApi.element_has_pointer_capture_$q_(pointerSurface, 7), true);
+assert.equal(pointerApi.element_release_pointer_capture_$x_(pointerSurface, 7), undefined);
+assert.equal(pointerApi.element_release_pointer_capture_$x_(pointerSurface, 7), undefined);
+assert.equal(forwardedPointerCalls.filter(([kind]) => kind === "release").length, 2);
+assert.equal(pointerApi.element_has_pointer_capture_$q_(pointerSurface, 7), false);
+assert.throws(() => pointerApi.element_set_pointer_capture_$x_(pointerSurface, 99), error => error === nativePointerFailure);
+const pointerRect = pointerApi.element_bounding_client_rect(pointerSurface);
+assert.deepEqual([pointerRect.left, pointerRect.top, pointerRect.width, pointerRect.height], [2, 3, 4, 5]);
+for (const value of [null, 0, {}]) assert.throws(() => pointerApi.pointer_capture_element_host(value), TypeError);
+let coordinateReads = 0;
+const pointerDouble = Object.freeze({
+  type: "pointerdown", target: null, currentTarget: null, defaultPrevented: false, eventPhase: 2,
+  pointerId: 7, get clientX() { coordinateReads++; return 12; }, clientY: 34,
+  button: 0, buttons: 1, isPrimary: true, pointerType: "mouse", preventDefault() {}, stopPropagation() {},
+});
+assert.equal(pointerApi.pointer_input_event_host(pointerDouble), pointerDouble);
+assert.equal(coordinateReads, 0);
+assert.throws(() => pointerApi.pointer_input_event_host({}), TypeError);
 console.log("js-ffi-browser-node-contract-passed");
