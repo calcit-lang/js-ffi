@@ -1883,6 +1883,13 @@
           :code $ quote $ defstruct CanvasRect (:x 'Number) (:y 'Number) (:width 'Number) (:height 'Number)
           :examples $ []
           :schema $ :: 'StructDef
+        'CanvasTextInkMetricsHost $ %{} 'CodeEntry
+          :doc "|原生 TextMetrics 的墨迹边界只读字段，继承旧 width 能力。距离相对调用方当前 textAlign/textBaseline，保留原生符号和 CSS px 单位；不计算 Scene 命中、不管理字体 ready、DPR 或排版缓存。旧 CanvasTextMetricsHost 仍只要求 width。"
+          :code $ quote $ deftrait CanvasTextInkMetricsHost ('requires CanvasTextMetricsHost) (:actual-bounding-box-left 'Number) (:actual-bounding-box-right 'Number) (:actual-bounding-box-ascent 'Number) (:actual-bounding-box-descent 'Number)
+          :examples $ []
+          :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
+            :names $ {} (:actual-bounding-box-ascent |actualBoundingBoxAscent) (:actual-bounding-box-descent |actualBoundingBoxDescent) (:actual-bounding-box-left |actualBoundingBoxLeft) (:actual-bounding-box-right |actualBoundingBoxRight)
+          :schema $ :: 'Trait
         'CanvasTextMetricsHost $ %{} 'CodeEntry
           :doc "|浏览器原生 TextMetrics 的只读宽度投影；width 以 CSS 像素计。其余平台字段暂不纳入公共契约。"
           :code $ quote $ deftrait CanvasTextMetricsHost (:width 'Number)
@@ -1962,6 +1969,14 @@
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'js-ffi.canvas-batches/CanvasAffine2D 'js-ffi.canvas-batches/CanvasRect 'js-ffi.canvas-batches/CanvasRect 'String
+            :features $ #{} :js-ffi
+        'measure-text-ink $ %{} 'CodeEntry
+          :doc "|在当前原生 Canvas2D 状态下调用 measureText，并以受检 js-cast 暴露 width 与四个实际墨迹边界；不改变字体、对齐、基线、变换、当前路径或像素，保留返回对象身份和原生异常。缺少边界能力明确失败，不用近似宽度补齐。"
+          :code $ quote $ defn measure-text-ink (context text)
+            js-cast (context .measure-text text) CanvasTextInkMetricsHost
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.canvas-batches/CanvasTextInkMetricsHost)
+            :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'String
             :features $ #{} :js-ffi
       :ns $ %{} 'NsEntry
         :doc "|浏览器 Canvas2D 原生方法的 Calcit 类型化接口与基础组合；Quamolit 实例批量宿主循环已迁至 Quamolit，不再由本模块提供。"

@@ -11,6 +11,9 @@ execFileSync(calcitBin, ['test', '--tag', 'state-decoder', '--require-match'], {
 
 // Each invalid consumer uses a separate snapshot. Never mutate library sources.
 const cases = [
+  ['browser', 'canvas-batches/measure-text-ink (raise |context) 42', /W_FN_ARG_TYPE_MISMATCH/, undefined, true],
+  ['node', 'js-ffi.canvas-batches/measure-text-ink (raise |context) |text', /E_JS_FFI_TARGET_MISMATCH/],
+  ['browser', 'let ((metrics (canvas-batches/measure-text-ink (raise |context) |text))) (js-set metrics :actual-bounding-box-left 0)', /readonly|read.only|not writable/i, undefined, true],
   ['node', 'node/path-basename 42', /W_FN_ARG_TYPE_MISMATCH/],
   ['browser', 'node/path-basename |index.js', /E_JS_FFI_TARGET_MISMATCH/, 'js-ffi.node :as node'],
   ['node', 'node/path-join |src 42', /W_FN_ARG_TYPE_MISMATCH/],

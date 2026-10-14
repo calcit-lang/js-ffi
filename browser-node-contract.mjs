@@ -263,4 +263,20 @@ try {
   else Reflect.deleteProperty(globalThis, "sessionStorage");
 }
 
+{
+  const { measure_text_ink: measureInk } = await import('./js-out/js-ffi.canvas-batches.mjs');
+  const result = Object.freeze({ width: 3, actualBoundingBoxLeft: -1, actualBoundingBoxRight: 4, actualBoundingBoxAscent: 8, actualBoundingBoxDescent: 2 });
+  let calls = 0;
+  assert.equal(measureInk({ measureText(text) { calls++; assert.equal(text, '字'); return result; } }, '字'), result);
+  assert.equal(calls, 1);
+  for (const key of Object.keys(result)) {
+    const incomplete = { ...result };
+    delete incomplete[key];
+    assert.throws(() => measureInk({ measureText: () => incomplete }, '字'));
+  }
+  for (const invalid of [null, undefined, 4, 'text', { width: 3 }])
+    assert.throws(() => measureInk({ measureText: () => invalid }, '字'));
+  const error = new Error('native-measure-failure');
+  assert.throws(() => measureInk({ measureText() { throw error; } }, '字'), caught => caught === error);
+}
 console.log("js-ffi-browser-node-contract-passed");

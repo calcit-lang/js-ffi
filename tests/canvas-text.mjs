@@ -1,4 +1,6 @@
 import { canvas_text as drawText } from '../js-out/js-ffi.canvas-text-example.mjs';
+import { canvas_text_ink as textInk } from '../js-out/js-ffi.canvas-text-ink-example.mjs';
+import { to_js_data as plain } from '../js-out/calcit.core.mjs';
 
 // Compare the Calcit call path with the browser's native Canvas2D behavior.
 export function testCanvasText(a) {
@@ -40,4 +42,36 @@ export function testCanvasText(a) {
     a.equal(pixels.some(value => value !== 0), true);
     a.equal(pixels.every((value, index) => value === reference[index]), true);
   }
+  let differentFromAdvance = 0, alignedLeft = 0, negativeMetric = 0;
+  for (const scale of [1, 2])
+    for (const font of ['italic 28px serif', '24px sans-serif', '20px monospace'])
+      for (const text of ['WWWWiiii', 'jÁgy', '你好 Calcit', ''])
+        for (const align of ['left', 'center', 'right'])
+          for (const baseline of ['alphabetic', 'middle', 'top']) {
+            const ctx = createContext();
+            ctx.scale(scale, scale);
+            ctx.font = font;
+            ctx.textAlign = align;
+            ctx.textBaseline = baseline;
+            ctx.direction = 'ltr';
+            ctx.fillRect(0, 0, 8, 8);
+            ctx.beginPath();
+            ctx.rect(1, 1, 8, 8);
+            const before = state(ctx), pixels = ctx.getImageData(0, 0, 180, 52).data;
+            const pathBefore = ctx.isPointInPath(4 * scale, 4 * scale);
+            const native = ctx.measureText(text);
+            const expected = [native.width, native.actualBoundingBoxLeft, native.actualBoundingBoxRight, native.actualBoundingBoxAscent, native.actualBoundingBoxDescent];
+            const actual = plain(textInk(ctx, text));
+            a.equal(actual.length, 5);
+            for (let i = 0; i < 5; i++) a.equal(actual[i], expected[i]);
+            a.equal(state(ctx), before);
+            a.equal(ctx.isPointInPath(4 * scale, 4 * scale), pathBefore);
+            a.equal(ctx.getImageData(0, 0, 180, 52).data.every((value, i) => value === pixels[i]), true);
+            if (text && Math.abs(actual[0] - actual[1] - actual[2]) > 0.1) differentFromAdvance++;
+            if (text && align !== 'left' && actual[1] > 0) alignedLeft++;
+            if (actual.slice(1).some(value => value < 0)) negativeMetric++;
+          }
+  a.equal(differentFromAdvance > 0, true); // width不是墨迹宽度，不能悄悄替代。
+  a.equal(alignedLeft > 0, true);
+  a.equal(negativeMetric > 0, true); // 保留相对基线/对齐点的有符号距离。
 }

@@ -110,6 +110,37 @@ quote $ defn canvas-text (context text)
 
 Runtime verification: [tests/canvas-text.mjs](../tests/canvas-text.mjs).
 
+## 读取原生 TextMetrics 宽度及实际墨迹边界，不改变 Canvas 状态
+
+Runtime: browser.
+
+Imports:
+
+```text
+js-ffi.canvas-batches :as canvas
+```
+
+Schema:
+
+```text
+:: 'Fn $ {} (:args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'String) (:return $ :: 'List 'Number) (:features $ #{} :js-ffi)
+```
+
+Source: [examples/canvas-text-ink.cirru](../examples/canvas-text-ink.cirru)
+
+```text
+quote $ defn canvas-text-ink (context text)
+  hint-fn $ {}
+    :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'String
+    :return $ :: 'List 'Number
+    :features $ #{} :js-ffi
+  let
+      metrics $ canvas/measure-text-ink context text
+    [] (metrics :width) (metrics :actual-bounding-box-left) (metrics :actual-bounding-box-right) (metrics :actual-bounding-box-ascent) (metrics :actual-bounding-box-descent)
+```
+
+Runtime verification: [tests/canvas-text.mjs](../tests/canvas-text.mjs).
+
 ## 用 Calcit 原生方法绘制线帽、连接和闭合描边
 
 Runtime: browser.
