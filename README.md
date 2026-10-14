@@ -9,6 +9,16 @@ JavaScript explicit, checkable, and reusable across Calcit projects.
 
 以下是历史版本的兼容说明，不是当前工具链安装指令。
 
+### 0.2.3：请求体回调与 Calcit 0.29.3
+
+候选配对正式 Calcit 与 `@calcit/procs` 0.29.3。Node 请求体的 error/end
+监听器明确返回 Unit；URLSearchParams 的空 Ref 有实际 Map/List 类型上下文，
+保留重复键覆盖和 pairs 顺序。文件存在检查和 fetch 返回值复用已有边界检查。
+不新增宿主 API、强转、验证脚本或质量预算；只有正式 tag 发布后，下游才能使用。
+完整 `fix --workflow strict` 对 file-backed `path-join` 的备用 Cirru body 仍报告
+返回证明缺失，来源问题见 [Calcit #2056](https://github.com/calcit-lang/calcit/issues/2056)；
+不通过修改不会执行的备用代码来宣称实际 JS 已受检。
+
 ### 0.2.2：随机数边界检查与 Calcit 0.29.1
 
 发布准备：`browser/random` 复用现有 `contract/expect-number` 校验宿主返回值，

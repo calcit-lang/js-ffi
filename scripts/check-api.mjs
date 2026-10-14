@@ -38,9 +38,9 @@ for (const runtime of [compile]) {
       edit(['edit', 'add-import', `js-ffi.${runtime}-test`, '--code', 'quote $ js-ffi.webgpu-capabilities :as webgpu-capabilities']);
     }
     edit(['edit', 'add-import', `js-ffi.${runtime}-test`, '--code', 'quote $ js-ffi.typed-arrays :as typed-arrays']);
-    edit(['edit', 'def', target, '--code', `quote $ defn check-api! ()\n  do ${refs.join(' ')} &unit`]);
+    edit(['edit', 'def', target, '--code', `quote $ defn check-api! ()\n  ${refs.map(ref => `, ${ref}`).join('\n  ')}\n  , &unit`]);
     edit(['edit', 'schema', target, '--code', "quote $ :: 'Fn $ {} (:args $ []) (:return 'Unit)"]);
-    edit(['tree', 'insert-before', `js-ffi.${runtime}-test/main!`, '--path', '@3', '--code', 'quote $ check-api!']);
+    edit(['tree', 'insert', `js-ffi.${runtime}-test/main!`, '--path', '@3', '--at', 'before', '--code', 'quote $ check-api!']);
     // Recipes are normal Calcit consumers, injected only into the temporary build snapshot.
     for (const recipe of recipes.filter(recipe => recipe.runtimes.includes(runtime))) {
       edit(['edit', 'add-ns', recipe.namespace]);
@@ -48,7 +48,7 @@ for (const runtime of [compile]) {
       edit(['edit', 'def', `${recipe.namespace}/${recipe.name}`, '--file', join(root, recipe.source)]);
       edit(['edit', 'schema', `${recipe.namespace}/${recipe.name}`, '--code', `quote $ ${recipe.schema}`]);
       edit(['edit', 'add-import', `js-ffi.${runtime}-test`, '--code', `quote $ ${recipe.namespace} :refer $ ${recipe.name}`]);
-      edit(['tree', 'insert-before', `js-ffi.${runtime}-test/main!`, '--path', '@3', '--code', `quote ${recipe.name}`]);
+      edit(['tree', 'insert', `js-ffi.${runtime}-test/main!`, '--path', '@3', '--at', 'before', '--code', `quote ${recipe.name}`]);
     }
     mkdirSync(join(root, 'js-out'), { recursive: true });
     edit(['--entry', runtime, '--emit-path', join(root, 'js-out'), 'js']);
