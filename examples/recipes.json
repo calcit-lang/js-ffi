@@ -55,6 +55,17 @@
     "validation": "tests/canvas-text.mjs"
   },
   {
+    "name": "canvas-text-ink",
+    "namespace": "js-ffi.canvas-text-ink-example",
+    "title": "读取原生 TextMetrics 宽度及实际墨迹边界，不改变 Canvas 状态",
+    "runtimes": ["browser"],
+    "source": "examples/canvas-text-ink.cirru",
+    "imports": ["js-ffi.canvas-batches :as canvas"],
+    "schema": ":: 'Fn $ {} (:args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'String) (:return $ :: 'List 'Number) (:features $ #{} :js-ffi)",
+    "apis": ["js-ffi.canvas-batches/CanvasTextInkMetricsHost", "js-ffi.canvas-batches/measure-text-ink"],
+    "validation": "tests/canvas-text.mjs"
+  },
+  {
     "name": "canvas-path",
     "namespace": "js-ffi.canvas-path-example",
     "title": "用 Calcit 原生方法绘制线帽、连接和闭合描边",
