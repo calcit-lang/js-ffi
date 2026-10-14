@@ -17,7 +17,7 @@ export function calcit(args, cwd = root) {
 
 /** Discover every definition in the public namespaces using structured CLI output. */
 export function inventory(snapshot = resolve(root, 'calcit.cirru')) {
-  const report = JSON.parse(calcit([snapshot, 'analyze', 'check-types', '--format', 'json']));
+  const report = JSON.parse(calcit([snapshot, 'analyze', 'weak-types', '--only', 'coverage', '--format', 'json']));
   if (report.schema_version !== 2) throw new Error('Unsupported Calcit type report version');
   return report.data.definitions.filter(def => publicNamespaces.includes(def.namespace)).sort((a, b) => a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
 }

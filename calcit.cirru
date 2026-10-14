@@ -2277,7 +2277,8 @@
             :features $ #{} :js-ffi
         'file-exists? $ %{} 'CodeEntry
           :doc "|Return whether a local filesystem path exists as Bool. The fs module is kept behind the Node namespace. Example: (file-exists? |package.json) => true"
-          :code $ quote $ defn file-exists? (file-path) (fs/existsSync file-path)
+          :code $ quote $ defn file-exists? (file-path)
+            js-ffi.contract/expect-bool |fs.existsSync $ fs/existsSync file-path
           :examples $ [] $ quote "(file-exists? |package.json)"
           :ffi $ {} (:backend :js) (:target :node)
           :schema $ :: 'Fn $ {} (:return 'Bool)
@@ -2552,7 +2553,7 @@
                 let
                     body-text-ref $ ref |
                   request .set-encoding! |utf8
-                  request .on! |error $ fn (error) (reject error)
+                  request .on! |error $ fn (error) (reject error) &unit
                   request .on! |data $ fn (data) (swap! body-text-ref str data) &unit
                   request .on! |end $ fn (& _args)
                     let
@@ -2561,6 +2562,7 @@
                         (:some cb) (cb text)
                         (:none) &unit
                       resolve text
+                    , &unit
               , 'js-ffi.shared/PromiseHost
           :examples $ []
           :ffi $ {} (:backend :js) (:target :node)
@@ -3173,8 +3175,8 @@
             let
                 method-label $ http-method-label method
               try
-                %:: Result :ok $ response-host $ js-await
-                  if (body .some?)
+                %:: Result :ok $ response-host $ js-ffi.contract/expect-object |fetch.response
+                  js-await $ if (body .some?)
                     js/fetch url $ js-object (:method method-label) (:headers headers)
                       :body $ body .unwrap
                     js/fetch url $ js-object (:method method-label) (:headers headers)
@@ -3193,7 +3195,8 @@
               :features $ #{} :js-ffi
               :return $ :: 'Result 'js-ffi.shared/ResponseHost 'js-ffi.shared/JsError
             try
-              %:: Result :ok $ response-host $ js-await (js/fetch url)
+              %:: Result :ok $ response-host $ js-ffi.contract/expect-object |fetch.response
+                js-await $ js/fetch url
               fn (error)
                 %:: Result :err $ normalize-error error
           :examples $ []
@@ -3489,7 +3492,7 @@
           :doc "|Collect URLSearchParams entries into a Map<String, String>; duplicate keys keep the last value."
           :code $ quote $ defn search-params->map (value)
             let
-                result $ ref $ {}
+                result $ ref $ assert-type ({}) (:: 'Map 'String 'String)
               value .for-each! $ fn (item key _parent) (swap! result assoc key item) &unit
               deref result
           :examples $ []
@@ -3501,7 +3504,8 @@
           :doc "|Collect URLSearchParams entries as a list of [key value] pairs, preserving duplicates and order."
           :code $ quote $ defn search-params->pairs (value)
             let
-                result $ ref $ []
+                result $ ref $ assert-type ([])
+                  :: 'List $ :: 'List 'String
               value .for-each! $ fn (item key _parent)
                 swap! result append $ [] key item
                 , &unit
