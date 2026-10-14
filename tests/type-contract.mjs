@@ -160,6 +160,14 @@ const invalidCanvas = [
   'js-ffi.canvas-batches/draw-image-crop! context (js-ffi.browser/image-create) |x 0 1 1 0 0 1 1',
   'js-ffi.canvas-batches/draw-image-at! context (js-ffi.browser/image-create) |x 0',
   'js-ffi.canvas-batches/draw-image-sized! context (js-ffi.browser/image-create) 0 0 1',
+  'js-set context :global-alpha |half',
+  'js-ffi.canvas-batches/offscreen-canvas-create |wide 8',
+  'js-ffi.canvas-batches/dom-canvas-create 8 |high',
+  'js-ffi.canvas-batches/surface-2d-context 42',
+  'js-ffi.canvas-batches/clear-canvas! (js-ffi.canvas-batches/surface-2d-context (js-ffi.canvas-batches/dom-canvas-create 8 8)) 8 8',
+  'js-ffi.canvas-batches/draw-surface-at! context (js-ffi.browser/image-create) 0 0',
+  'js-ffi.canvas-batches/draw-surface-sized! context (js-ffi.canvas-batches/dom-canvas-create 8 8) 0 0 8',
+  'js-ffi.canvas-batches/draw-surface-crop! context (js-ffi.canvas-batches/dom-canvas-create 8 8) |x 0 8 8 0 0 8 8',
 ];
 for (const expression of invalidCanvas) {
   const dir = mkdtempSync(join(tmpdir(), 'js-ffi-canvas-types-'));

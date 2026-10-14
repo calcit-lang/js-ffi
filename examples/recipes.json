@@ -1,5 +1,16 @@
 [
   {
+    "name": "canvas-surface",
+    "namespace": "js-ffi.canvas-surface-example",
+    "title": "用类型化 Canvas surface 和 globalAlpha 组合原生绘制",
+    "runtimes": ["browser"],
+    "source": "examples/canvas-surface.cirru",
+    "imports": ["js-ffi.canvas-batches :as canvas"],
+    "schema": ":: 'Fn $ {} (:args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'Bool 'Number) (:return 'js-ffi.canvas-batches/CanvasSurfaceHost) (:features $ #{} :js-ffi)",
+    "apis": ["js-ffi.canvas-batches/CanvasSurfaceHost", "js-ffi.canvas-batches/surface-2d-context", "js-ffi.canvas-batches/dom-canvas-create", "js-ffi.canvas-batches/offscreen-canvas-create", "js-ffi.canvas-batches/draw-surface-at!", "js-ffi.canvas-batches/draw-surface-sized!", "js-ffi.canvas-batches/draw-surface-crop!"],
+    "validation": "tests/canvas-image.mjs"
+  },
+  {
     "name": "promise-string",
     "namespace": "js-ffi.promise-string-example",
     "title": "使用精确 resolve 与 reject callback 创建 Promise",

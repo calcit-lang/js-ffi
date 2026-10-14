@@ -144,34 +144,7 @@
       :typeNotFull 0
       :unresolved 0
       :unsafeCoerce 1
-    |js-ffi.browser/random $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 0
-      :unresolved 0
-      :unsafeCoerce 1
     |js-ffi.browser/selectable-element-host $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 0
-      :unresolved 0
-      :unsafeCoerce 1
-    |js-ffi.browser/set-interval! $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 0
-      :unresolved 0
-      :unsafeCoerce 1
-    |js-ffi.browser/set-timeout! $ {} (:codeDynamic 0)
       :codeNil 0
       :declaredOptional 0
       :deprecatedCalls 0
@@ -198,24 +171,6 @@
       :typeNotFull 0
       :unresolved 0
       :unsafeCoerce 1
-    |js-ffi.browser/window-local-storage $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 0
-      :unresolved 0
-      :unsafeCoerce 1
-    |js-ffi.contract/expect-bool $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 0
-      :unresolved 0
-      :unsafeCoerce 1
     |js-ffi.contract/expect-function $ {} (:codeDynamic 0)
       :codeNil 0
       :declaredOptional 0
@@ -225,25 +180,7 @@
       :typeNotFull 0
       :unresolved 0
       :unsafeCoerce 1
-    |js-ffi.contract/expect-number $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 0
-      :unresolved 0
-      :unsafeCoerce 1
     |js-ffi.contract/expect-object $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 0
-      :unresolved 0
-      :unsafeCoerce 1
-    |js-ffi.contract/expect-string $ {} (:codeDynamic 0)
       :codeNil 0
       :declaredOptional 0
       :deprecatedCalls 0
@@ -387,15 +324,6 @@
       :typeNotFull 0
       :unresolved 0
       :unsafeCoerce 1
-    |js-ffi.shared/search-params-create $ {} (:codeDynamic 0)
-      :codeNil 0
-      :declaredOptional 0
-      :deprecatedCalls 0
-      :schemaDynamic 0
-      :typeNone 0
-      :typeNotFull 0
-      :unresolved 0
-      :unsafeCoerce 1
     |js-ffi.shared/url-create $ {} (:codeDynamic 0)
       :codeNil 0
       :declaredOptional 0
@@ -512,7 +440,7 @@
     :typeNone 0
     :typeNotFull 0
     :unresolved 0
-    :unsafeCoerce 61
+    :unsafeCoerce 53
   :scope $ {} (:includeDependencies false)
     :namespace nil
     :namespacePrefix nil
