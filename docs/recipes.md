@@ -6,6 +6,50 @@ Each source is a quoted Calcit definition accepted by `calcit edit def --file`. 
 
 Run `yarn check:api`, `yarn test:node`, and `yarn test:browser`. Browser tests require Chromium (`yarn playwright install chromium`). Node file tests use a temporary directory and remove it in finally. The file recipe itself overwrites `example.txt` in the caller-provided directory.
 
+## 用类型化 Canvas surface 和 globalAlpha 组合原生绘制
+
+Runtime: browser.
+
+Imports:
+
+```text
+js-ffi.canvas-batches :as canvas
+```
+
+Schema:
+
+```text
+:: 'Fn $ {} (:args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'Bool 'Number) (:return 'js-ffi.canvas-batches/CanvasSurfaceHost) (:features $ #{} :js-ffi)
+```
+
+Source: [examples/canvas-surface.cirru](../examples/canvas-surface.cirru)
+
+```text
+quote $ defn canvas-surface (context offscreen? mode)
+  let
+      surface $ if offscreen? (canvas/offscreen-canvas-create 32 24) (canvas/dom-canvas-create 32 24)
+      source $ match (canvas/surface-2d-context surface)
+        (:some value) value
+        (:none) (raise |2d-context-unavailable)
+    js-set source :fill-style |#ff0000
+    source .fill-rect! 0 0 24 24
+    js-set source :fill-style |#0000ff
+    source .fill-rect! 16 0 16 24
+    context .save!
+    js-set context :global-alpha 0.5
+    case-default mode
+      do
+        context .restore!
+        raise |invalid-surface-mode
+      0 $ canvas/draw-surface-at! context surface 4 5
+      1 $ canvas/draw-surface-sized! context surface 4 5 40 30
+      2 $ canvas/draw-surface-crop! context surface 16 0 16 24 4 5 20 30
+    context .restore!
+    , surface
+```
+
+Runtime verification: [tests/canvas-image.mjs](../tests/canvas-image.mjs).
+
 ## 从原生PointerEvent读取client输入并显式申请元素捕获
 
 Runtime: browser.

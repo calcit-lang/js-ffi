@@ -1876,7 +1876,7 @@
           :examples $ []
           :schema $ :: 'StructDef
         'CanvasContextHost $ %{} 'CodeEntry
-          :doc "|浏览器 CanvasRenderingContext2D 的类型化原生能力：矩形、路径 fill/stroke、arc/bezier 曲线、仿射变换、裁剪、文字及图像绘制。图像方法接收 js-ffi.browser/ImageHost，公开三、五、九参数 drawImage 形式。fillStyle/strokeStyle 仅覆盖纯色 String；font、textAlign、textBaseline、direction 保留原生 String 值域，非法值按浏览器规则处理。measureText 仅暴露 TextMetrics 的 width。当前 path 不随 save/restore 恢复；调用方管理路径、合法值及异常时的状态恢复，不包含 Scene 或动画逻辑。"
+          :doc "|浏览器 CanvasRenderingContext2D 的类型化原生能力：矩形、路径 fill/stroke、arc/bezier 曲线、仿射变换、裁剪、文字及图像绘制。图像方法接收 js-ffi.browser/ImageHost，公开三、五、九参数 drawImage 形式。fillStyle/strokeStyle 仅覆盖纯色 String；font、textAlign、textBaseline、direction 保留原生 String 值域，非法值按浏览器规则处理。measureText 仅暴露 TextMetrics 的 width。当前 path 不随 save/restore 恢复；调用方管理路径、合法值及异常时的状态恢复，不包含 Scene 或动画逻辑。 global-alpha对应可写原生globalAlpha；三个draw-surface方法接受CanvasSurfaceHost，仅扩展canvas来源子集，不声称全部CanvasImageSource。"
           :code $ quote $ deftrait CanvasContextHost (:fill-style 'String)
             .save! $ :: 'Fn $ {}
               :args $ [] 'js-ffi.canvas-batches/CanvasContextHost
@@ -1950,16 +1950,37 @@
             .draw-image-sized! $ :: 'Fn $ {}
               :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'js-ffi.browser/ImageHost 'Number 'Number 'Number 'Number
               :return 'Unit
+            :global-alpha 'Number
+            .draw-surface-at! $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'js-ffi.canvas-batches/CanvasSurfaceHost 'Number 'Number
+              :return 'Unit
+            .draw-surface-sized! $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'js-ffi.canvas-batches/CanvasSurfaceHost 'Number 'Number 'Number 'Number
+              :return 'Unit
+            .draw-surface-crop! $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'js-ffi.canvas-batches/CanvasSurfaceHost 'Number 'Number 'Number 'Number 'Number 'Number 'Number 'Number
+              :return 'Unit
           :examples $ []
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
-            :names $ {} (:arc! |arc) (:begin-path! |beginPath) (:bezier-curve-to! |bezierCurveTo) (:clear-rect! |clearRect) (:clip! |clip) (:close-path! |closePath) (:direction |direction) (:draw-image-at! |drawImage) (:draw-image-sized! |drawImage) (:fill! |fill) (:fill-rect! |fillRect) (:fill-style |fillStyle) (:fill-text! |fillText) (:font |font) (:line-cap |lineCap) (:line-join |lineJoin) (:line-to! |lineTo) (:line-width |lineWidth) (:measure-text |measureText) (:miter-limit |miterLimit) (:move-to! |moveTo) (:rect! |rect) (:restore! |restore) (:save! |save) (:set-transform! |setTransform) (:stroke! |stroke) (:stroke-style |strokeStyle) (:text-align |textAlign) (:text-baseline |textBaseline) (:transform! |transform)
-            :writable $ #{} :direction :fill-style :font :line-cap :line-join :line-width :miter-limit :stroke-style :text-align :text-baseline
+            :names $ {} (:arc! |arc) (:begin-path! |beginPath) (:bezier-curve-to! |bezierCurveTo) (:clear-rect! |clearRect) (:clip! |clip) (:close-path! |closePath) (:direction |direction) (:draw-image-at! |drawImage) (:draw-image-sized! |drawImage) (:draw-surface-at! |drawImage) (:draw-surface-crop! |drawImage) (:draw-surface-sized! |drawImage) (:fill! |fill) (:fill-rect! |fillRect) (:fill-style |fillStyle) (:fill-text! |fillText) (:font |font) (:global-alpha |globalAlpha) (:line-cap |lineCap) (:line-join |lineJoin) (:line-to! |lineTo) (:line-width |lineWidth) (:measure-text |measureText) (:miter-limit |miterLimit) (:move-to! |moveTo) (:rect! |rect) (:restore! |restore) (:save! |save) (:set-transform! |setTransform) (:stroke! |stroke) (:stroke-style |strokeStyle) (:text-align |textAlign) (:text-baseline |textBaseline) (:transform! |transform)
+            :writable $ #{} :direction :fill-style :font :global-alpha :line-cap :line-join :line-width :miter-limit :stroke-style :text-align :text-baseline
           :schema $ :: 'Trait
         'CanvasRect $ %{} 'CodeEntry
           :doc "|Canvas2D 矩形的 x/y/width/height 基础数据，不绑定任何 Scene IR。"
           :code $ quote $ defstruct CanvasRect (:x 'Number) (:y 'Number) (:width 'Number) (:height 'Number)
           :examples $ []
           :schema $ :: 'StructDef
+        'CanvasSurfaceHost $ %{} 'CodeEntry
+          :doc "|原生 HTMLCanvasElement / OffscreenCanvas 的共同宽高与context能力；不含Scene或回退策略。get-context返回JsNullish<JsObject>，任意名称不承诺2D类型。"
+          :code $ quote $ deftrait CanvasSurfaceHost (:width 'Number) (:height 'Number)
+            .get-context $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.canvas-batches/CanvasSurfaceHost 'String
+              :return $ :: 'JsNullish 'JsObject
+          :examples $ []
+          :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
+            :names $ {} (:get-context |getContext) (:height |height) (:width |width)
+            :writable $ #{} :height :width
+          :schema $ :: 'Trait
         'CanvasTextMetricsHost $ %{} 'CodeEntry
           :doc "|浏览器原生 TextMetrics 的只读宽度投影；width 以 CSS 像素计。其余平台字段暂不纳入公共契约。"
           :code $ quote $ deftrait CanvasTextMetricsHost (:width 'Number)
@@ -1981,6 +2002,18 @@
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'Number 'Number
+            :features $ #{} :js-ffi
+        'dom-canvas-create $ %{} 'CodeEntry
+          :doc "|创建未挂载的HTMLCanvasElement并设置像素宽高；复用类型化DOM入口，不包含动画或隔离策略。"
+          :code $ quote $ defn dom-canvas-create (width height)
+            let
+                surface $ js-cast (js-ffi.browser/create-element |canvas) 'CanvasSurfaceHost
+              js-set surface :width width
+              js-set surface :height height
+              , surface
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.canvas-batches/CanvasSurfaceHost)
+            :args $ [] 'Number 'Number
             :features $ #{} :js-ffi
         'draw-image-at! $ %{} 'CodeEntry
           :doc "|按图像固有尺寸在 Canvas2D 的 (x,y) 绘制 ImageHost；图像须由调用方管理解码与加载。"
@@ -2004,6 +2037,29 @@
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'js-ffi.browser/ImageHost 'Number 'Number 'Number 'Number
+            :features $ #{} :js-ffi
+        'draw-surface-at! $ %{} 'CodeEntry
+          :doc "|原生drawImage三参数形式，来源是CanvasSurfaceHost；不拓宽已有ImageHost接口，不管理状态或组透明度。"
+          :code $ quote $ defn draw-surface-at! (context surface x y) (context .draw-surface-at! surface x y)
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'js-ffi.canvas-batches/CanvasSurfaceHost 'Number 'Number
+            :features $ #{} :js-ffi
+        'draw-surface-crop! $ %{} 'CodeEntry
+          :doc "|原生drawImage九参数形式，裁剪CanvasSurfaceHost并绘制到目标矩形；不含Scene遍历或图层政策。"
+          :code $ quote $ defn draw-surface-crop!
+            context surface sx sy sw sh dx dy dw dh
+            context .draw-surface-crop! surface sx sy sw sh dx dy dw dh
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'js-ffi.canvas-batches/CanvasSurfaceHost 'Number 'Number 'Number 'Number 'Number 'Number 'Number 'Number
+            :features $ #{} :js-ffi
+        'draw-surface-sized! $ %{} 'CodeEntry
+          :doc "|原生drawImage五参数形式，缩放CanvasSurfaceHost到目标矩形；值域和异常保持浏览器语义。"
+          :code $ quote $ defn draw-surface-sized! (context surface x y width height) (context .draw-surface-sized! surface x y width height)
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'js-ffi.canvas-batches/CanvasSurfaceHost 'Number 'Number 'Number 'Number
             :features $ #{} :js-ffi
         'fill-solid-rect! $ %{} 'CodeEntry (:doc "|通过 Calcit 类型化 Canvas2D 基础方法绘制一个纯色矩形，并恢复绘制状态。")
           :code $ quote $ defn fill-solid-rect! (context x y width height fill-style)
@@ -2040,6 +2096,27 @@
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'js-ffi.canvas-batches/CanvasAffine2D 'js-ffi.canvas-batches/CanvasRect 'js-ffi.canvas-batches/CanvasRect 'String
             :features $ #{} :js-ffi
+        'offscreen-canvas-create $ %{} 'CodeEntry
+          :doc "|创建原生OffscreenCanvas；宽高转换、异常及支持边界保持平台语义，不自动回退DOM。"
+          :code $ quote $ defn offscreen-canvas-create (width height)
+            js-cast (new js/OffscreenCanvas width height) 'CanvasSurfaceHost
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.canvas-batches/CanvasSurfaceHost)
+            :args $ [] 'Number 'Number
+            :features $ #{} :js-ffi
+        'surface-2d-context $ %{} 'CodeEntry
+          :doc "|固定请求getContext(\"2d\")，将null转换为Option.none；成功结果以js-cast校验原生2D成员后返回Option.some。不伪造已绑定其他context的2D能力，宿主异常原样传播。"
+          :code $ quote $ defn surface-2d-context (surface)
+            match
+              js-nullish->option $ surface .get-context |2d
+              (:some value)
+                Option :some $ js-cast value 'CanvasContextHost
+              (:none) (Option :none)
+          :examples $ []
+          :schema $ :: 'Fn $ {}
+            :args $ [] 'js-ffi.canvas-batches/CanvasSurfaceHost
+            :features $ #{} :js-ffi
+            :return $ :: 'Option 'js-ffi.canvas-batches/CanvasContextHost
       :ns $ %{} 'NsEntry
         :doc "|浏览器 Canvas2D 原生方法的 Calcit 类型化接口与基础组合；Quamolit 实例批量宿主循环已迁至 Quamolit，不再由本模块提供。"
         :code $ quote $ ns js-ffi.canvas-batches

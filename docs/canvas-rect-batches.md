@@ -1,5 +1,17 @@
 # Canvas2D 类型化基础接口与批次迁移
 
+## Canvas surface 候选（#147；尚未发布）
+
+独立候选增加 `CanvasSurfaceHost`，只表示 HTMLCanvasElement / OffscreenCanvas 的宽高与原生 context 能力，不包含 Scene、隔离策略或资源注册表。`offscreen-canvas-create` 和 `dom-canvas-create` 分别创建两类 surface；支持探测、选择 DOM 回退、尺寸有效性及复用策略由调用者决定，不偷偷替换后端。DOM 构造复用已有 `browser/create-element`，Offscreen 构造直接调用平台构造器；没有新增 JavaScript 文件或 renderer。
+
+`surface-2d-context(surface)` 固定请求原生 `getContext("2d")`，返回 `Option<CanvasContextHost>`，不能把已绑定其他 context 类型时的 null 伪装成可用 context。底层 `.get-context` 暴露 `JsNullish<JsObject>`，不对任意 context 名称承诺 2D 能力。成功结果通过`js-cast`检查2D成员后返回some，null明确返回none；构造/DOM/context异常保持原生语义。surface宽高修改仍会清空并重置原生Canvas状态。
+
+`CanvasContextHost :global-alpha` 可读写 Number，直接对应 `globalAlpha`；非法值的忽略行为由浏览器决定。`draw-surface-at!`、`draw-surface-sized!`、`draw-surface-crop!` 分别映射三个 drawImage 重载，来源仅接受 CanvasSurfaceHost。已有 ImageHost 绘制签名不变，不把 surface 子集冒充 video/ImageBitmap 等全部 CanvasImageSource。保存状态、单位矩阵回贴、alpha 与异常清理仍由 Calcit 调用者组合；库不实现 Quamolit 的整组透明度政策。
+
+独立Calcit消费例程`examples/canvas-surface.cirru`在原浏览器链路验证两类surface × 三个重载：完整RGBA逐通道零差异、非空画面、alpha/transform/clip恢复、宽度重设清空画布、已绑定bitmaprenderer时2D请求返回none，以及原生错误。错误2D返回对象/原始值被受检转换拒绝，原生方法异常不吞掉。类型门禁新增8项反例，错误source/尺寸/alpha、缺参及未解包Option均拒绝。生成例程索引沿既有`api:generate`，不新增runner/job；上游候选未合并、未发布，消费者不得仅据本地代码更新到不存在的tag。
+
+平台边界采用0.29.3的受检`js-cast`：DOM/Offscreen构造结果检查surface成员，固定2D请求的非null结果检查CanvasContextHost成员；检查不执行方法或读取字段getter，不等于深层数据校验。新增接口没有unsafe-coerce，也没有Dynamic/未知类型。存量quality ratchet同时清理主线已移除的8处旧预算（random、两个timer、localStorage、三个primitive decoder及URLSearchParams），整体unsafe预算从61收紧为53；数字本身不替代运行时证据。全CanvasImageSource（video/ImageBitmap）仍不在本切片范围。
+
 ## 图像绘制与裁剪（#141）
 
 `js-ffi.canvas-batches` 为 `CanvasContextHost` 与 `js-ffi.browser/ImageHost` 提供三个浏览器目标的类型化入口，分别对应原生 `drawImage` 的三、五、九参数形式：
