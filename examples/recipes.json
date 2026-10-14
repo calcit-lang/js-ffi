@@ -11,6 +11,17 @@
     "validation": "tests/canvas-image.mjs"
   },
   {
+    "name": "capture-from-event!",
+    "namespace": "js-ffi.pointer-capture-example",
+    "title": "从原生PointerEvent读取client输入并显式申请元素捕获",
+    "runtimes": ["browser"],
+    "source": "examples/pointer-capture.cirru",
+    "imports": ["js-ffi.browser :as browser"],
+    "schema": ":: 'Fn $ {} (:generics $ [] 'T 'E) (:args $ [] 'T 'E) (:return $ :: 'List 'Number) (:features $ #{} :js-ffi)",
+    "apis": ["js-ffi.browser/pointer-input-event-host", "js-ffi.browser/pointer-capture-element-host", "js-ffi.browser/element-bounding-client-rect", "js-ffi.browser/element-set-pointer-capture!"],
+    "validation": "tests/run-browser.mjs"
+  },
+  {
     "name": "promise-string",
     "namespace": "js-ffi.promise-string-example",
     "title": "使用精确 resolve 与 reject callback 创建 Promise",

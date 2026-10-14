@@ -64,6 +64,7 @@ export async function testCanvasImage(a) {
   a.throws(() => drawImageCrop(context, null, 0, 0, 1, 1, 0, 0, 1, 1), /TypeError/);
 }
 
+/** Compare surface overloads and verify that both success and rejection restore caller state. */
 function testCanvasSurface(a) {
   const pixels = context => [...context.getImageData(0, 0, 80, 70).data];
   const target = () => {
@@ -75,6 +76,20 @@ function testCanvasSurface(a) {
     context.beginPath(); context.rect(3, 2, 40, 40); context.clip();
     return context;
   };
+  const invalid = target(), unchanged = target();
+  a.throws(() => drawSurface(invalid, false, 3), /invalid-surface-mode/);
+  a.equal(invalid.globalAlpha, unchanged.globalAlpha);
+  a.equal(invalid.getTransform().e, unchanged.getTransform().e);
+  a.equal(invalid.getTransform().f, unchanged.getTransform().f);
+  a.equal(pixels(invalid).every(value => value === 0), true);
+  // With no caller save, restore must be a no-op: the recipe must not leave a stack entry.
+  invalid.globalAlpha = 0.9;
+  invalid.restore();
+  a.equal(invalid.globalAlpha, 0.9);
+  invalid.globalAlpha = unchanged.globalAlpha;
+  invalid.fillRect(-50, -50, 150, 150); unchanged.fillRect(-50, -50, 150, 150);
+  const unchangedPixels = pixels(unchanged);
+  a.equal(pixels(invalid).every((value, index) => value === unchangedPixels[index]), true);
   for (const offscreen of [false, true]) for (const mode of [0, 1, 2]) {
     const actual = target(), expected = target();
     const surface = drawSurface(actual, offscreen, mode);

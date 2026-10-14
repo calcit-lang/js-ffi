@@ -38,7 +38,9 @@ quote $ defn canvas-surface (context offscreen? mode)
     context .save!
     js-set context :global-alpha 0.5
     case-default mode
-      (raise |invalid-surface-mode)
+      do
+        context .restore!
+        raise |invalid-surface-mode
       0 $ canvas/draw-surface-at! context surface 4 5
       1 $ canvas/draw-surface-sized! context surface 4 5 40 30
       2 $ canvas/draw-surface-crop! context surface 16 0 16 24 4 5 20 30
@@ -47,6 +49,37 @@ quote $ defn canvas-surface (context offscreen? mode)
 ```
 
 Runtime verification: [tests/canvas-image.mjs](../tests/canvas-image.mjs).
+
+## 从原生PointerEvent读取client输入并显式申请元素捕获
+
+Runtime: browser.
+
+Imports:
+
+```text
+js-ffi.browser :as browser
+```
+
+Schema:
+
+```text
+:: 'Fn $ {} (:generics $ [] 'T 'E) (:args $ [] 'T 'E) (:return $ :: 'List 'Number) (:features $ #{} :js-ffi)
+```
+
+Source: [examples/pointer-capture.cirru](../examples/pointer-capture.cirru)
+
+```text
+quote $ defn capture-from-event! (element event)
+  let
+      surface $ browser/pointer-capture-element-host element
+      pointer $ browser/pointer-input-event-host event
+      bounds $ browser/element-bounding-client-rect surface
+    browser/element-set-pointer-capture! surface $ pointer :pointer-id
+    pointer .prevent-default!
+    [] (pointer :pointer-id) (pointer :client-x) (pointer :client-y) (bounds :left) (bounds :top) (bounds :width) (bounds :height)
+```
+
+Runtime verification: [tests/run-browser.mjs](../tests/run-browser.mjs).
 
 ## 使用精确 resolve 与 reject callback 创建 Promise
 

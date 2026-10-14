@@ -11,7 +11,9 @@ quote $ defn canvas-surface (context offscreen? mode)
     context .save!
     js-set context :global-alpha 0.5
     case-default mode
-      (raise |invalid-surface-mode)
+      do
+        context .restore!
+        raise |invalid-surface-mode
       0 $ canvas/draw-surface-at! context surface 4 5
       1 $ canvas/draw-surface-sized! context surface 4 5 40 30
       2 $ canvas/draw-surface-crop! context surface 16 0 16 24 4 5 20 30
