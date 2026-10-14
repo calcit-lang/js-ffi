@@ -285,6 +285,27 @@ export async function run() {
   const pointerHost = browser.pointer_event_host(pointerEvent);
   a.equal(typeof pointerHost.layerX, 'number');
   a.equal(typeof pointerHost.layerY, 'number');
+  const inputEvent = new PointerEvent('pointerdown', { pointerId: 7, clientX: 12, clientY: 34, button: 1, buttons: 3, isPrimary: true, pointerType: 'pen' });
+  a.equal(browser.pointer_input_event_host(inputEvent), inputEvent);
+  a.equal(browser.pointer_input_event_host(inputEvent).pointerId, 7);
+  a.equal(browser.pointer_input_event_host(inputEvent).pointerType, 'pen');
+  a.equal(browser.pointer_input_event_host(inputEvent).button, 1);
+  a.equal(browser.pointer_input_event_host(inputEvent).buttons, 3);
+  a.equal(browser.pointer_input_event_host(inputEvent).isPrimary, true);
+  for (const invalid of [null, undefined, 0, {}, new Event('pointerdown')]) a.throws(() => browser.pointer_input_event_host(invalid), /TypeError/);
+  const captureElement = document.createElement('div');
+  captureElement.style.cssText = 'position:fixed;left:12px;top:34px;width:56px;height:78px;';
+  document.body.append(captureElement);
+  try {
+    const captureHost = browser.pointer_capture_element_host(captureElement);
+    a.equal(captureHost, captureElement);
+    const bounds = browser.element_bounding_client_rect(captureHost), native = captureElement.getBoundingClientRect();
+    for (const key of ['left', 'top', 'width', 'height']) a.equal(bounds[key], native[key]);
+    a.equal(browser.element_has_pointer_capture_$q_(captureHost, 99999), false);
+    a.throws(() => browser.element_set_pointer_capture_$x_(captureHost, 99999), /NotFoundError/);
+    a.throws(() => browser.pointer_capture_element_host({}), /TypeError/);
+    a.throws(() => browser.element_bounding_client_rect({ getBoundingClientRect() { return {}; } }), /TypeError/);
+  } finally { captureElement.remove(); }
   const socket = browser.web_socket_create('ws://127.0.0.1:1/');
   a.equal(browser.web_socket_ready_state(socket), 0);
   browser.web_socket_on_open_$x_(socket, () => {});
