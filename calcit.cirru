@@ -35,6 +35,13 @@
           :examples $ [] $ quote
             &%{} BrowserProbe :runtime (%:: shared/Runtime :browser) :document? true :storage |ok :viewport $ &%{} Viewport :width 1024 :height 768 :device-pixel-ratio 2
           :schema $ :: 'Enum
+        'DOMRectHost $ %{} 'CodeEntry
+          :doc "|原生getBoundingClientRect结果的只读left/top/width/height能力，单位CSS px；不包含DPR缩放、逆矩阵或Scene几何。"
+          :code $ quote $ deftrait DOMRectHost (:left 'Number) (:top 'Number) (:width 'Number) (:height 'Number)
+          :examples $ []
+          :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
+            :names $ {} (:height |height) (:left |left) (:top |top) (:width |width)
+          :schema $ :: 'Trait
         'DocumentHost $ %{} 'CodeEntry
           :doc "|External Document capability with typed state, title, and small selector/creation surface."
           :code $ quote $ deftrait DocumentHost (:title 'String) (:ready-state 'String) (:visibility-state 'String)
@@ -292,6 +299,25 @@
             :names $ {} (:alt-key? |altKey) (:client-x |clientX) (:client-y |clientY) (:ctrl-key? |ctrlKey) (:meta-key? |metaKey) (:shift-key? |shiftKey)
           :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
+        'PointerCaptureElementHost $ %{} 'CodeEntry
+          :doc "|原生Element的pointer capture与client边界最小能力。不要求表单/focus属性，不在平台层维护所有权、重复释放或退出策略；缺失active pointer等异常按浏览器传播。"
+          :code $ quote $ deftrait PointerCaptureElementHost
+            .get-bounding-client-rect $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.browser/PointerCaptureElementHost
+              :return 'js-ffi.browser/DOMRectHost
+            .set-pointer-capture! $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.browser/PointerCaptureElementHost 'Number
+              :return 'Unit
+            .release-pointer-capture! $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.browser/PointerCaptureElementHost 'Number
+              :return 'Unit
+            .has-pointer-capture? $ :: 'Fn $ {}
+              :args $ [] 'js-ffi.browser/PointerCaptureElementHost 'Number
+              :return 'Bool
+          :examples $ []
+          :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
+            :names $ {} (:get-bounding-client-rect |getBoundingClientRect) (:has-pointer-capture? |hasPointerCapture) (:release-pointer-capture! |releasePointerCapture) (:set-pointer-capture! |setPointerCapture)
+          :schema $ :: 'Trait
         'PointerEventHost $ %{} 'CodeEntry
           :doc "|External PointerEvent capability exposing target-relative layer coordinates used by gesture code."
           :code $ quote $ deftrait PointerEventHost (:layer-x 'Number) (:layer-y 'Number)
@@ -300,6 +326,13 @@
             :names $ {} (:layer-x |layerX) (:layer-y |layerY)
           :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
+        'PointerInputEventHost $ %{} 'CodeEntry
+          :doc "|原生PointerEvent输入能力：pointerId、client坐标、button/buttons、isPrimary与pointerType，并继承EventHost。只暴露平台数据，不进行命中、坐标逆变换或捕获策略；旧layer坐标PointerEventHost保留。"
+          :code $ quote $ deftrait PointerInputEventHost ('requires EventHost) (:pointer-id 'Number) (:client-x 'Number) (:client-y 'Number) (:button 'Number) (:buttons 'Number) (:primary? 'Bool) (:pointer-type 'String)
+          :examples $ []
+          :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
+            :names $ {} (:button |button) (:buttons |buttons) (:client-x |clientX) (:client-y |clientY) (:pointer-id |pointerId) (:pointer-type |pointerType) (:primary? |isPrimary)
+          :schema $ :: 'Trait
         'PointerPosition $ %{} 'CodeEntry
           :doc "|Normalized pointer coordinates and button index copied from a MouseEvent-like object."
           :code $ quote $ defstruct PointerPosition (:client-x 'Number) (:client-y 'Number) (:button 'Number)
@@ -718,6 +751,13 @@
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'js-ffi.browser/DomElementHost
             :features $ #{} :js-ffi
+        'element-bounding-client-rect $ %{} 'CodeEntry (:doc "|读取原生client边界并受检为只读DOMRectHost；不缓存，不乘DPR，原生异常保留。")
+          :code $ quote $ defn element-bounding-client-rect (element)
+            js-cast (element .get-bounding-client-rect) 'DOMRectHost
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/DOMRectHost)
+            :args $ [] 'js-ffi.browser/PointerCaptureElementHost
+            :features $ #{} :js-ffi
         'element-bounding-rect $ %{} 'CodeEntry
           :doc "|Copy getBoundingClientRect into a normalized ElementRect; a non-object result or non-Number field raises a contract violation."
           :code $ quote $ defn element-bounding-rect (element)
@@ -868,6 +908,13 @@
           :schema $ :: 'Fn $ {} (:return 'Bool)
             :args $ [] 'js-ffi.browser/DomElementHost 'String
             :features $ #{} :js-ffi
+        'element-has-pointer-capture? $ %{} 'CodeEntry
+          :doc "|直接调用原生Element pointer capture方法；Number不保证pointer已active，值域/异常/隐式释放遵守浏览器语义。"
+          :code $ quote $ defn element-has-pointer-capture? (element pointer-id) (element .has-pointer-capture? pointer-id)
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Bool)
+            :args $ [] 'js-ffi.browser/PointerCaptureElementHost 'Number
+            :features $ #{} :js-ffi
         'element-host $ %{} 'CodeEntry
           :doc "|Validate an opaque host value as an object and expose the shared DOM element capability."
           :code $ quote $ defn element-host (value)
@@ -894,6 +941,13 @@
             :args $ [] 'js-ffi.browser/DomElementHost 'String
             :features $ #{} :js-ffi
             :return $ :: 'calcit.core/Option 'js-ffi.browser/DomElementHost
+        'element-release-pointer-capture! $ %{} 'CodeEntry
+          :doc "|直接调用原生Element pointer capture方法；Number不保证pointer已active，值域/异常/隐式释放遵守浏览器语义。"
+          :code $ quote $ defn element-release-pointer-capture! (element pointer-id) (element .release-pointer-capture! pointer-id)
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'js-ffi.browser/PointerCaptureElementHost 'Number
+            :features $ #{} :js-ffi
         'element-remove! $ %{} 'CodeEntry
           :doc "|Remove a DOM element from its current parent and return Unit."
           :code $ quote $ defn element-remove! (element) (.!remove element) &unit
@@ -993,6 +1047,13 @@
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'js-ffi.browser/DomElementHost 'String
+            :features $ #{} :js-ffi
+        'element-set-pointer-capture! $ %{} 'CodeEntry
+          :doc "|直接调用原生Element pointer capture方法；Number不保证pointer已active，值域/异常/隐式释放遵守浏览器语义。"
+          :code $ quote $ defn element-set-pointer-capture! (element pointer-id) (element .set-pointer-capture! pointer-id)
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'js-ffi.browser/PointerCaptureElementHost 'Number
             :features $ #{} :js-ffi
         'element-set-style! $ %{} 'CodeEntry
           :doc "|Set one inline CSS property on an element and return Unit."
@@ -1358,12 +1419,28 @@
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'String
             :features $ #{} :js-ffi
+        'pointer-capture-element-host $ %{} 'CodeEntry
+          :doc "|受检转换元素capture/getBoundingClientRect能力，检查最小方法形状，不安装监听或维护路由状态。"
+          :code $ quote $ defn pointer-capture-element-host (value) (js-cast value 'PointerCaptureElementHost)
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/PointerCaptureElementHost)
+            :args $ [] 'T
+            :features $ #{} :js-ffi
+            :generics $ [] 'T
         'pointer-event-host $ %{} 'CodeEntry
           :doc "|Validate an opaque host value as a PointerEvent capability (layerX/layerY)."
           :code $ quote $ defn pointer-event-host (value)
             unsafe-coerce (expect-host-kind |PointerEvent.host |pointer-event value) (quote js-ffi.browser/PointerEventHost)
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/PointerEventHost)
+            :args $ [] 'T
+            :features $ #{} :js-ffi
+            :generics $ [] 'T
+        'pointer-input-event-host $ %{} 'CodeEntry
+          :doc "|受检转换原生PointerEvent的client输入能力，检查成员存在/方法可调用并保持对象身份；不是字段值域的深层解码。"
+          :code $ quote $ defn pointer-input-event-host (value) (js-cast value 'PointerInputEventHost)
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/PointerInputEventHost)
             :args $ [] 'T
             :features $ #{} :js-ffi
             :generics $ [] 'T

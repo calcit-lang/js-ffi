@@ -74,6 +74,14 @@ adapter, reads the declared member, and validates it with `contract/expect-numbe
 
 ## Validation layers
 
+### 指针输入与元素捕获候选（#149；未发布）
+
+`browser/PointerInputEventHost`继承`EventHost`，暴露只读pointer-id/client-x/client-y/button/buttons/primary?/pointer-type；旧`PointerEventHost`的layer坐标入口保留，避免强迫旧手势调用者接受新字段。`pointer-input-event-host`通过受检`js-cast`检查成员形状，不复制事件、不读取字段getter，也不对字段值域或方法结果作深层解码。
+
+`PointerCaptureElementHost`只要求原生setPointerCapture/releasePointerCapture/hasPointerCapture/getBoundingClientRect，不混入表单或focus能力。对应三个capture适配直接转发，不加幂等、路由、退出或所有权策略；active pointer、断开元素与错误ID的行为遵从浏览器。`element-bounding-client-rect`返回受检的只读`DOMRectHost`视图（left/top/width/height），单位CSS px，不缓存、不乘DPR、不做逆矩阵。
+
+独立Calcit例程`examples/pointer-capture.cirru`演示显式申请捕获与读取client/bounds；测试JS只驱动真实Chromium输入。原browser runner验证实际按下、移到元素外仍投递、抬起释放、一次lostpointercapture，以及捕获时移除元素后的原生释放/重复release；synthetic PointerEvent与Node替身不冒充active pointer。原公共类型门禁拒绝错误surface、错误ID类型、缺参与DOMRect字段写入。原生NotFoundError及宿主异常保留；受检转换不代表native/WASM支持。未合并/发布的候选不能让Quamolit提前更新tag，发布后再替换本地trait，Scene/命中/捕获所有权仍归Quamolit。
+
 ### URLSearchParams 的受检转换
 
 `shared/search-params-create` 构造原生 URLSearchParams 后，通过 `js-cast` 与现有 `UrlSearchParamsHost` 声明检查 `size` 字段是否存在、映射后的 `get/has/set/delete/forEach/toString` 是否可调用。成功返回同一宿主对象，字段检查不读取 getter，也不调用方法来探测能力。普通 Calcit 模块继续通过 `:require` 调用现有入口及方法，不增加 JS 包或新的转换 API。
