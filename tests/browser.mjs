@@ -19,6 +19,21 @@ import { testCanvasImage } from './canvas-image.mjs';
 /** Exercise shared and browser adapters in a real page and return the test summary. */
 export async function run() {
   const a = assertions();
+  const scrollElement = document.createElement('div');
+  scrollElement.style.cssText = 'height:40px;overflow:auto;';
+  const scrollContent = document.createElement('div');
+  scrollContent.style.height = '320px';
+  scrollElement.appendChild(scrollContent);
+  document.body.appendChild(scrollElement);
+  try {
+    a.equal(browser.element_scroll_height(scrollElement), scrollElement.scrollHeight);
+    a.equal(scrollElement.scrollHeight > scrollElement.clientHeight, true);
+    a.equal(browser.element_scroll_to_bottom_$x_(scrollElement), undefined);
+    // scrollTop can retain subpixels while the height getters round to integers.
+    a.equal(Math.abs(scrollElement.scrollTop - (scrollElement.scrollHeight - scrollElement.clientHeight)) <= 1, true);
+  } finally {
+    scrollElement.remove();
+  }
   testCanvasPath(a);
   testCanvasFilledPath(a);
   testCanvasText(a);

@@ -89,16 +89,15 @@ retain the complete field and method AST. JSON consumers should check
   toolchain.
 - [Calcit #875](https://github.com/calcit-lang/calcit/issues/875) provides the
   versioned `query def --format json` envelope consumed by the catalog. Its
-  structured `data.ffi` field is lossless even for large host traits. Snapshot
-  parsing remains only for persisted `schemaData`, which is not part of the
-  definition-query contract.
+  structured `data.ffi` field is lossless even for large host traits. The catalog
+  obtains `schemaData` by parsing the canonical schema from the official
+  `query schema` view, without parsing the Snapshot.
 - [Calcit #1206](https://github.com/calcit-lang/calcit/issues/1206) adds
-  `--file`/stdin input to `cirru parse-edn`. The catalog now reads `calcit.cirru`
-  from the file instead of passing Snapshot source text as a command argument,
-  so it no longer hits platform command-line length limits.
+  `--file`/stdin input to `cirru parse-edn`. The catalog no longer transports or
+  parses the whole Snapshot; only one bounded schema view is parsed at a time.
 
 The tooling requires Calcit's query.def envelope v1 and fails closed on another
 schema version, command, definition ID, malformed JSON, or missing metadata.
-`calcit cirru parse-edn --file calcit.cirru` supplies `schemaData` from the
-Snapshot without platform argument-length limits. Generation
-fails on parser errors rather than emitting an incomplete catalog.
+The schema query envelope is also checked for version, command, definition ID
+and canonical schema text. Generation fails on query/parser errors rather than
+emitting an incomplete catalog; the tagged `schemaData` representation is retained.

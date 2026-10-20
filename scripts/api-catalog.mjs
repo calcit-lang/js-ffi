@@ -38,20 +38,19 @@ if (command === 'search') {
     readFileSync(join(root, recipe.source));
     readFileSync(join(root, recipe.validation));
   }
-  // Persisted schemaData is not part of query.def and remains sourced from the
-  // authoritative Snapshot. FFI metadata comes from the supported query envelope.
-  // Parse from the file to avoid platform command-line argument length limits.
-  const snapshot = JSON.parse(calcit(['cirru', 'parse-edn', '--file', join(root, 'calcit.cirru')]));
   const records = defs.map(def => {
     const metadata = definition(def.id);
     if (!metadata.schema || !metadata.doc) throw new Error(`Missing schema/documentation: ${def.id}`);
-    const source = snapshot[':files'][`'${def.namespace}`].defs[`'${def.name}`];
+    const schema = JSON.parse(calcit(['query', 'schema', def.id, '--format', 'json']));
+    if (schema.schema_version !== 1 || schema.command !== 'query.schema' || schema.data?.id !== def.id || typeof schema.data.canonical_schema !== 'string') throw new Error(`Invalid schema query for ${def.id}`);
+    const schemaText = typeof schema.data.tree === 'string' ? `do ${schema.data.canonical_schema}` : schema.data.canonical_schema;
+    const schemaData = JSON.parse(calcit(['cirru', 'parse-edn', schemaText]));
     return {
       id: def.id, namespace: def.namespace, name: def.name, kind: def.data_type ?? def.kind,
       runtimes: runtimes(def.namespace), import: `${def.namespace} :as ${def.namespace.split('.')[1]}`,
       schema: metadata.schema, doc: metadata.doc, tags: [...metadata.tags].sort(),
       ffi: metadata.ffi ? decodeEdnJson(metadata.ffi) : null,
-      schemaData: source.schema,
+      schemaData,
       // Data declarations retain all field and method schemas, including external traits.
       declaration: def.kind === 'data' ? metadata.code : null,
       examples: metadata.examples,

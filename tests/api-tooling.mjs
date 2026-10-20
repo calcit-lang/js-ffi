@@ -188,6 +188,10 @@ test('catalog builds on first search, refreshes stale data, and preserves host m
   assert.equal(element.ffi.names['text-content'], 'textContent');
   assert.equal(element.ffi.names['class-name'], 'className');
   assert.equal(element.declaration[0], 'deftrait');
+  assert.deepEqual(element.schemaData, { __edn_symbol: 'Trait' });
+  const scroll = catalog.definitions.find(def => def.id === 'js-ffi.browser/element-scroll-height');
+  assert.equal(scroll.schemaData.__edn_enum_variant, 'Fn');
+  assert.deepEqual(scroll.schemaData.__edn_enum_extra[0][':return'], { __edn_symbol: 'Number' });
   const result = spawnSync(process.execPath, [join(root, 'scripts/api-catalog.mjs'), 'search', 'storage', 'node'], { cwd: root, encoding: 'utf8' });
   assert.equal(result.status, 0, result.stderr);
   assert.deepEqual(JSON.parse(result.stdout), []);

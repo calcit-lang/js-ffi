@@ -9,6 +9,12 @@ JavaScript explicit, checkable, and reusable across Calcit projects.
 
 以下是历史版本的兼容说明，不是当前工具链安装指令。
 
+### 滚动能力候选（尚未发版）
+
+新增浏览器接口 `element-scroll-height` 和 `element-scroll-to-bottom!`，供 HN Reader 的展开高度及 Termina 的日志滚动复用；下游仍须等待正式 tag，不使用 main/hash 替代发布依赖。前者检查真实 scrollHeight 为 Number，后者立即将它赋给 scrollTop，由 DOM 自行限制范围；不平滑滚动、不改用 clientHeight、不吞掉 getter/setter 错误。既有 API 与 0.29.3 CLI/procs 配对不变，不新增 unsafe 或放宽质量预算。对应 [#179](https://github.com/calcit-lang/js-ffi/issues/179)。
+
+API 目录改从官方 `query schema` 的规范视图生成既有 tagged `schemaData`，不再自行解析整个 Snapshot；保留目录格式及失败退出行为。回归复用现有 Node 宿主合同、浏览器和 API 工具测试，不增加独立验证脚本。
+
 ### 0.2.3：请求体回调与 Calcit 0.29.3
 
 候选配对正式 Calcit 与 `@calcit/procs` 0.29.3。Node 请求体的 error/end
