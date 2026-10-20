@@ -154,10 +154,12 @@
             :children 'js-ffi.browser/DomChildrenHost
             :inner-html 'String
             :local-name 'String
+            :scroll-top 'Number
+            :scroll-height 'Number
           :examples $ [] $ quote DomElementHost
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
-            :names $ {} (:add-event-listener! |addEventListener) (:append-child! |appendChild) (:blur! |blur) (:child-element-count |childElementCount) (:class-name |className) (:client-height |clientHeight) (:client-width |clientWidth) (:clone-node |cloneNode) (:focus! |focus) (:get-attribute |getAttribute) (:hidden |hidden) (:inner-html |innerHTML) (:local-name |localName) (:matches? |matches) (:offset-left |offsetLeft) (:offset-top |offsetTop) (:parent-element |parentElement) (:placeholder |placeholder) (:query-selector |querySelector) (:remove! |remove) (:remove-attribute! |removeAttribute) (:remove-event-listener! |removeEventListener) (:request-fullscreen! |requestFullscreen) (:set-attribute! |setAttribute) (:text-content |textContent) (:value |value)
-            :writable $ #{} :class-name :hidden :inner-html :placeholder :text-content :value
+            :names $ {} (:add-event-listener! |addEventListener) (:append-child! |appendChild) (:blur! |blur) (:child-element-count |childElementCount) (:class-name |className) (:client-height |clientHeight) (:client-width |clientWidth) (:clone-node |cloneNode) (:focus! |focus) (:get-attribute |getAttribute) (:hidden |hidden) (:inner-html |innerHTML) (:local-name |localName) (:matches? |matches) (:offset-left |offsetLeft) (:offset-top |offsetTop) (:parent-element |parentElement) (:placeholder |placeholder) (:query-selector |querySelector) (:remove! |remove) (:remove-attribute! |removeAttribute) (:remove-event-listener! |removeEventListener) (:request-fullscreen! |requestFullscreen) (:scroll-height |scrollHeight) (:scroll-top |scrollTop) (:set-attribute! |setAttribute) (:text-content |textContent) (:value |value)
+            :writable $ #{} :class-name :hidden :inner-html :placeholder :scroll-top :text-content :value
           :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
         'DomInputHost $ %{} 'CodeEntry
@@ -977,12 +979,31 @@
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'js-ffi.browser/DomElementHost
             :features $ #{} :js-ffi
+        'element-scroll-height $ %{} 'CodeEntry
+          :doc "|Read DOM scrollHeight after a Number check; this is content height, not clientHeight. Host getter exceptions propagate."
+          :code $ quote $ defn element-scroll-height (element)
+            contract/expect-number |DOM.element.scrollHeight $ element :scroll-height
+          :examples $ []
+          :ffi $ {} (:backend :js) (:target :browser)
+          :schema $ :: 'Fn $ {} (:return 'Number)
+            :args $ [] 'js-ffi.browser/DomElementHost
+            :features $ #{} :js-ffi
         'element-scroll-into-view! $ %{} 'CodeEntry
           :doc "|Scroll an element into view with the default host options; host exceptions propagate."
           :code $ quote $ defn element-scroll-into-view! (element)
             js/Reflect.apply (js/Reflect.get element |scrollIntoView) element $ js/Array.of
             , &unit
           :examples $ [] $ quote (element-scroll-into-view! element)
+          :ffi $ {} (:backend :js) (:target :browser)
+          :schema $ :: 'Fn $ {} (:return 'Unit)
+            :args $ [] 'js-ffi.browser/DomElementHost
+            :features $ #{} :js-ffi
+        'element-scroll-to-bottom! $ %{} 'CodeEntry
+          :doc "|Assign checked scrollHeight to scrollTop immediately. Native DOM clamps the value; no smooth scrolling, viewport scroll or exception fallback."
+          :code $ quote $ defn element-scroll-to-bottom! (element)
+            js-set element :scroll-top $ element-scroll-height element
+            , &unit
+          :examples $ []
           :ffi $ {} (:backend :js) (:target :browser)
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'js-ffi.browser/DomElementHost

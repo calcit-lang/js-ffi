@@ -16,6 +16,8 @@ import {
   element_class_toggle_$x_,
   element_has_class_$q_,
   element_scroll_into_view_$x_,
+  element_scroll_height,
+  element_scroll_to_bottom_$x_,
   element_set_checked_$x_,
   element_value,
   event_target_value,
@@ -181,6 +183,14 @@ assert.throws(() => element_bounding_rect({ getBoundingClientRect: () => null })
 let scrolled = 0;
 assert.equal(element_scroll_into_view_$x_({ scrollIntoView(...args) { assert.equal(args.length, 0); scrolled += 1; } }), undefined);
 assert.equal(scrolled, 1);
+
+const scrollElement = { scrollHeight: 320, clientHeight: 40, scrollTop: 0 };
+assert.equal(element_scroll_height(scrollElement), 320);
+assert.equal(element_scroll_to_bottom_$x_(scrollElement), undefined);
+assert.equal(scrollElement.scrollTop, 320);
+assert.throws(() => element_scroll_height({ scrollHeight: "320" }), /scrollHeight expected Number, got string/);
+const scrollFailure = new Error("scroll getter failure");
+assert.throws(() => element_scroll_to_bottom_$x_({ get scrollHeight() { throw scrollFailure; } }), error => error === scrollFailure);
 
 const field = { value: "typed", checked: false };
 assert.equal(element_value(field), "typed");
