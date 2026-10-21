@@ -7,6 +7,12 @@ JavaScript explicit, checkable, and reusable across Calcit projects.
 
 当前模块版本与 Calcit CLI 版本以 `deps.cirru` 为准，JS runtime 精确版本在 `package.json` 中声明；CLI 与 `@calcit/procs` 必须配对。下游固定已发布的模块 tag，安装后运行 `caps verify --toolchain`，再运行应用原有的类型检查、Node/浏览器测试和构建。main 上的新迁移不自动进入旧 tag。
 
+### 0.2.5 候选：正式 Calcit 0.30.1 与旧构造写法迁移
+
+消费者需将 Calcit CLI 与 `@calcit/procs` 同时升级到正式 **0.30.1**，并固定发布后的模块 tag；本地候选或 main 不代表已发版。公开宿主 API、输入/输出类型、异步与错误行为不变；不发布 npm 包，也没有 Demo 或服务部署。
+
+将 28 处旧 Enum 构造和 1 处旧 Struct 构造迁移到命名构造器，原宿主实现、备用 Cirru body、断言边界及测试目的不变。完整 strict 纳入原工作流，Node/browser 公共定义仍按目标分别检查，原质量预算不放宽。旧版本对 file-backed `path-join` 未选中 body 的证明诊断见已关闭的 [Calcit #2056](https://github.com/calcit-lang/calcit/issues/2056)；不会通过修改未执行的 body 来制造“证明”。正式配对及运行验收以本次 CI 为准，宿主实现仍需运行时契约测试，不宣称编译器证明了 JavaScript。
+
 以下是历史版本的兼容说明，不是当前工具链安装指令。
 
 ### 0.2.4：共享滚动与浏览器宿主能力
@@ -325,7 +331,7 @@ shared/date-local-string $ shared/date-from-ms 0
 
 ; String
 
-shared/runtime-label $ %:: shared/Runtime :browser
+shared/runtime-label $ shared/Runtime :browser
 ```
 
 Host identity can be retained only when needed through contracts such as
@@ -389,6 +395,7 @@ yarn install
 caps --strict --ci
 caps verify --toolchain
 calcit calcit.cirru --check-only
+calcit fix --workflow strict --verify
 yarn check:quality
 yarn audit:unsafe
 yarn check:node
