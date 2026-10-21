@@ -61,7 +61,7 @@ if (command === 'search') {
   const catalog = { schemaVersion: 1, sourceFingerprint, calcitVersion: calcit(['--version']).trim(), packageVersion: JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')).version, publicNamespaces, definitions: records };
   let markdown = '# Public API catalog\n\nGenerated from Calcit definitions by `yarn api:generate`. Do not edit directly.\n\n';
   markdown += `${records.length} public definitions, including host traits and data types. Search (automatically refreshes a stale cache): \`yarn api:search storage browser\`. Machine-readable source: [api.json](api.json).\n\n`;
-  markdown += 'Runtime availability follows the four public namespaces. Schemas and host metadata are declarations, not proof of arbitrary host values. Recipe links show demonstrated use, not exhaustive API coverage. Exception and lifecycle details: [adapter reference](../../docs/standard-host-adapters.md).\n\n';
+  markdown += 'Runtime availability follows the public namespace policy in scripts/api-lib.mjs. Schemas and host metadata are declarations, not proof of arbitrary host values. Recipe links show demonstrated use, not exhaustive API coverage. Exception and lifecycle details: [adapter reference](../../docs/standard-host-adapters.md).\n\n';
   const esc = s => s.replaceAll('|', '\\|').replaceAll('\n', '<br>');
   for (const namespace of publicNamespaces) {
     markdown += `## ${namespace}\n\n`;

@@ -487,9 +487,9 @@
               :features $ #{} :js-ffi
               :return $ :: 'Result 'String 'js-ffi.shared/JsError
             try
-              %:: Result :ok $ contract/expect-string |blob.text $ js-await (blob .text)
+              Result :ok $ contract/expect-string |blob.text $ js-await (blob .text)
               fn (error)
-                %:: Result :err $ shared/normalize-error error
+                Result :err $ shared/normalize-error error
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] 'js-ffi.browser/BlobHost
@@ -536,9 +536,9 @@
               :features $ #{} :js-ffi
               :return $ :: 'Result 'String 'js-ffi.shared/JsError
             try
-              %:: Result :ok $ contract/expect-string |navigator.clipboard.readText $ js-await (js/navigator.clipboard.readText)
+              Result :ok $ contract/expect-string |navigator.clipboard.readText $ js-await (js/navigator.clipboard.readText)
               fn (error)
-                %:: Result :err $ shared/normalize-error error
+                Result :err $ shared/normalize-error error
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ []
@@ -765,11 +765,13 @@
           :code $ quote $ defn element-bounding-rect (element)
             let
                 rect $ contract/expect-object |element.getBoundingClientRect $ js/Reflect.apply (js/Reflect.get element |getBoundingClientRect) element (js/Array.of)
-              %{} ElementRect
-                :x $ contract/expect-number |rect.x $ js/Reflect.get rect |x
-                :y $ contract/expect-number |rect.y $ js/Reflect.get rect |y
-                :width $ contract/expect-number |rect.width $ js/Reflect.get rect |width
-                :height $ contract/expect-number |rect.height $ js/Reflect.get rect |height
+              ElementRect :x
+                contract/expect-number |rect.x $ js/Reflect.get rect |x
+                , :y
+                  contract/expect-number |rect.y $ js/Reflect.get rect |y
+                  , :width
+                    contract/expect-number |rect.width $ js/Reflect.get rect |width
+                    , :height $ contract/expect-number |rect.height $ js/Reflect.get rect |height
           :examples $ [] $ quote (element-bounding-rect element)
           :ffi $ {} (:backend :js) (:target :browser)
           :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/ElementRect)
@@ -1274,9 +1276,9 @@
             try
               do
                 js-await $ image .decode
-                %:: Result :ok &unit
+                Result :ok &unit
               fn (error)
-                %:: Result :err $ shared/normalize-error error
+                Result :err $ shared/normalize-error error
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] 'js-ffi.browser/ImageHost
@@ -1417,9 +1419,9 @@
               :features $ #{} :js-ffi
               :return $ :: 'Result 'String 'js-ffi.shared/JsError
             try
-              %:: Result :ok $ contract/expect-string |Notification.requestPermission $ js-await (js/Notification.requestPermission)
+              Result :ok $ contract/expect-string |Notification.requestPermission $ js-await (js/Notification.requestPermission)
               fn (error)
-                %:: Result :err $ shared/normalize-error error
+                Result :err $ shared/normalize-error error
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ []
@@ -2709,9 +2711,9 @@
               :features $ #{} :js-ffi
               :return $ :: 'Result 'String 'js-ffi.shared/JsError
             try
-              %:: Result :ok $ contract/expect-string |fs.promises.readFile $ js-await (fs-promises/readFile file-path |utf8)
+              Result :ok $ contract/expect-string |fs.promises.readFile $ js-await (fs-promises/readFile file-path |utf8)
               fn (error)
-                %:: Result :err $ shared/normalize-error error
+                Result :err $ shared/normalize-error error
           :examples $ []
           :ffi $ {} (:backend :js) (:target :node)
           :schema $ :: 'Fn $ {}
@@ -2916,9 +2918,9 @@
             try
               do
                 js-await $ fs-promises/writeFile file-path text |utf8
-                %:: Result :ok &unit
+                Result :ok &unit
               fn (error)
-                %:: Result :err $ shared/normalize-error error
+                Result :err $ shared/normalize-error error
           :examples $ []
           :ffi $ {} (:backend :js) (:target :node)
           :schema $ :: 'Fn $ {}
@@ -3365,13 +3367,13 @@
             let
                 method-label $ http-method-label method
               try
-                %:: Result :ok $ response-host $ js-ffi.contract/expect-object |fetch.response
+                Result :ok $ response-host $ js-ffi.contract/expect-object |fetch.response
                   js-await $ if (body .some?)
                     js/fetch url $ js-object (:method method-label) (:headers headers)
                       :body $ body .unwrap
                     js/fetch url $ js-object (:method method-label) (:headers headers)
                 fn (error)
-                  %:: Result :err $ normalize-error error
+                  Result :err $ normalize-error error
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] 'String 'js-ffi.shared/HttpMethod 'js-ffi.shared/HeadersHost $ :: 'calcit.core/Option 'String
@@ -3385,10 +3387,10 @@
               :features $ #{} :js-ffi
               :return $ :: 'Result 'js-ffi.shared/ResponseHost 'js-ffi.shared/JsError
             try
-              %:: Result :ok $ response-host $ js-ffi.contract/expect-object |fetch.response
+              Result :ok $ response-host $ js-ffi.contract/expect-object |fetch.response
                 js-await $ js/fetch url
               fn (error)
-                %:: Result :err $ normalize-error error
+                Result :err $ normalize-error error
           :examples $ []
           :ffi $ {} $ :backend :js
           :schema $ :: 'Fn $ {}
@@ -3476,14 +3478,14 @@
                   fn (_)
                     contract/expect-string |Error $ js/String error
                 kind $ match name
-                  |TypeError $ %:: JsErrorKind :type-error
-                  |RangeError $ %:: JsErrorKind :range-error
-                  |NotAllowedError $ %:: JsErrorKind :permission
-                  |SecurityError $ %:: JsErrorKind :permission
-                  |QuotaExceededError $ %:: JsErrorKind :quota
-                  |NetworkError $ %:: JsErrorKind :network
-                  |AbortError $ %:: JsErrorKind :abort
-                  _ $ %:: JsErrorKind :unknown name
+                  |TypeError $ JsErrorKind :type-error
+                  |RangeError $ JsErrorKind :range-error
+                  |NotAllowedError $ JsErrorKind :permission
+                  |SecurityError $ JsErrorKind :permission
+                  |QuotaExceededError $ JsErrorKind :quota
+                  |NetworkError $ JsErrorKind :network
+                  |AbortError $ JsErrorKind :abort
+                  _ $ JsErrorKind :unknown name
               JsError :kind kind :name name :message message :stack $ Option :none
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'js-ffi.shared/JsError)
@@ -3642,9 +3644,9 @@
             try
               let
                   text $ js-await $ response .text
-                %:: Result :ok $ contract/expect-object |response.json $ js/JSON.parse (contract/expect-string |response.text text)
+                Result :ok $ contract/expect-object |response.json $ js/JSON.parse (contract/expect-string |response.text text)
               fn (error)
-                %:: Result :err $ normalize-error error
+                Result :err $ normalize-error error
           :examples $ []
           :schema $ :: 'Fn $ {}
             :args $ [] 'js-ffi.shared/ResponseHost
@@ -3658,9 +3660,9 @@
               :features $ #{} :js-ffi
               :return $ :: 'Result 'String 'js-ffi.shared/JsError
             try
-              %:: Result :ok $ contract/expect-string |Response.text $ js-await (response .text)
+              Result :ok $ contract/expect-string |Response.text $ js-await (response .text)
               fn (error)
-                %:: Result :err $ normalize-error error
+                Result :err $ normalize-error error
           :examples $ []
           :ffi $ {} $ :backend :js
           :schema $ :: 'Fn $ {}

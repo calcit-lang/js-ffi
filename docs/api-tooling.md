@@ -16,7 +16,8 @@ Start with [executable recipes](recipes.md) or `yarn api:search`. Run
 `yarn api:generate` to build `.calcit/api/api.md` and `.calcit/api/api.json`
 locally. These full catalogs are reproducible caches, excluded by the existing
 `.calcit/` ignore rule. The catalog includes every definition in the
-five public namespaces: browser, WebGPU, node, shared and contract. Test namespaces are
+public namespaces in `scripts/api-lib.mjs`, including browser, canvas-batches,
+WebGPU, webgpu-capabilities, typed-arrays, node, shared and contract. Test namespaces are
 excluded. New definitions in those namespaces are discovered automatically;
 adding a new public namespace requires an explicit update to `publicNamespaces`
 and its runtime policy in `scripts/api-lib.mjs`.
@@ -47,11 +48,12 @@ and its runtime policy in `scripts/api-lib.mjs`.
 
 ## What the checks prove
 
-`yarn check:api` calls `calcit analyze check-public` separately for the Node and
-browser entries. Node checks node/shared/contract; browser checks
-browser/webgpu/shared/contract. The command discovers definitions directly, so
+`yarn check:api` calls `calcit --check-only --ns` separately for the Node and
+browser entries. The runtime policy admits shared/contract/typed-arrays for
+both targets and keeps Node-only and browser-only namespaces separate.
+The command discovers definitions directly, so
 new public functions require no symbol list or synthetic reference root. It
-checks 92 Node definitions and 137 browser definitions in the current snapshot,
+reports the complete selected definition count at runtime,
 including data definitions and external traits. Preprocessing validates bodies
 that normal smoke entries never use, no host effects execute, and the snapshot
 is not copied or rewritten.
@@ -84,9 +86,10 @@ retain the complete field and method AST. JSON consumers should check
   `write-text-async!` consume that contract; see the
   [checked async migration](checked-async-adapters.md).
 - [Calcit #874](https://github.com/calcit-lang/calcit/issues/874) provides the
-  supported target-aware all-public-definition check. This migration uses the
-  released [Calcit 0.14.5](https://github.com/calcit-lang/calcit/releases/tag/0.14.5)
-  toolchain.
+  supported target-aware all-public-definition check, initially validated on
+  [Calcit 0.14.5](https://github.com/calcit-lang/calcit/releases/tag/0.14.5).
+  Current installation uses the exact CLI/runtime pair in `deps.cirru` and
+  `package.json`; the 0.2.5 candidate uses formal 0.30.1.
 - [Calcit #875](https://github.com/calcit-lang/calcit/issues/875) provides the
   versioned `query def --format json` envelope consumed by the catalog. Its
   structured `data.ffi` field is lossless even for large host traits. The catalog

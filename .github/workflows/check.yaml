@@ -40,6 +40,7 @@ jobs:
       - uses: calcit-lang/setup-calcit@v1.5.0
         with:
           tools: calcit,caps
+          deps-file: deps.cirru
           caps-version: "0.1.1"
 
       - name: Install dependencies
@@ -53,6 +54,7 @@ jobs:
           calcit calcit.cirru edit format
           git diff --exit-code -- calcit.cirru
           calcit calcit.cirru --check-only
+          calcit fix --workflow strict --verify
           calcit calcit.cirru analyze quality --baseline config/calcit-quality.cirru --format json
           yarn audit:unsafe
 
@@ -70,9 +72,7 @@ jobs:
 
       - name: Check invalid FFI consumer types
         run: |
-          calcit test js-ffi.shared/promise-create --require-match
-          calcit test js-ffi.shared/promise-observe! --require-match
-          calcit test js-ffi.shared/search-params-create --require-match
+          calcit test --require-match
           yarn test:types
 
       - name: Compile Node smoke tests
