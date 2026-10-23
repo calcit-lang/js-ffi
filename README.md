@@ -7,7 +7,26 @@ JavaScript explicit, checkable, and reusable across Calcit projects.
 
 当前模块版本与 Calcit CLI 版本以 `deps.cirru` 为准，JS runtime 精确版本在 `package.json` 中声明；CLI 与 `@calcit/procs` 必须配对。下游固定已发布的模块 tag，安装后运行 `caps verify --toolchain`，再运行应用原有的类型检查、Node/浏览器测试和构建。main 上的新迁移不自动进入旧 tag。
 
-### 0.2.5 候选：正式 Calcit 0.30.1 与旧构造写法迁移
+### 0.2.6 稳定补丁候选：普通元素与输入能力分离
+
+使用者影响：仍配对正式 Calcit CLI/procs **0.30.1**，不回退或覆盖0.31主线。
+修复 [#187](https://github.com/calcit-lang/js-ffi/issues/187)：真实 div/canvas 不具备
+输入专属 value/placeholder，原通用 DomElementHost 会在 js-cast 时错误拒绝它们。
+本候选尚未发布，依赖该路径的项目不要只凭 CI 通过升级部署。
+
+DomElementHost 不再承诺这两个专属字段；直接读取这些成员的 Calcit 代码需要改用
+已有 element-value 或在真实输入边界使用 DomValueHost / DomPlaceholderHost。
+原 element-set-value! / element-set-placeholder! 参数接口保持，内部用最小受检
+能力再写入；不支持该属性的元素会提前拒绝，而非写入假 expando 字段。合法 input/
+textarea 的值、placeholder、对象身份与写入异常语义保留。不会给普通元素添加假属性、
+新增 unsafe 或放宽原质量预算。
+
+原完整门禁和宿主回归保留；只在既有 browser 测试 namespace 加一个真实 js-cast
+夹具，并扩展原 browser.mjs 验证 canvas/div/input/textarea。没有新框架或独立检查脚本。
+这仍是浅层成员存在/方法可调用检查，不证明任意 getter 的值或方法签名，也不承诺
+所有 SVG、移动浏览器或 WASM 宿主支持。正式 tag、实际消费者和运行验收须另行核实。
+
+### 已发布 0.2.5：正式 Calcit 0.30.1 与旧构造写法迁移
 
 消费者需将 Calcit CLI 与 `@calcit/procs` 同时升级到正式 **0.30.1**，并固定发布后的模块 tag；本地候选或 main 不代表已发版。公开宿主 API、输入/输出类型、异步与错误行为不变；不发布 npm 包，也没有 Demo 或服务部署。
 

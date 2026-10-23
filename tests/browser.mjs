@@ -15,10 +15,25 @@ import { testCanvasPath } from './canvas-path.mjs';
 import { testCanvasFilledPath } from './canvas-filled-path.mjs';
 import { testCanvasText } from './canvas-text.mjs';
 import { testCanvasImage } from './canvas-image.mjs';
+import { cast_element_host } from '../js-out/js-ffi.browser-test.mjs';
 
 /** Exercise shared and browser adapters in a real page and return the test summary. */
 export async function run() {
   const a = assertions();
+  // Exercise the actual Calcit js-cast lowering, not only unsafe host helpers.
+  for (const tag of ['canvas', 'div', 'input', 'textarea']) {
+    const element = document.createElement(tag);
+    a.equal(cast_element_host(element), element);
+    if (tag === 'input' || tag === 'textarea') {
+      a.equal(browser.element_set_value_$x_(element, 'typed value'), undefined);
+      a.equal(element.value, 'typed value');
+      a.equal(browser.element_set_placeholder_$x_(element, 'typed hint'), undefined);
+      a.equal(element.placeholder, 'typed hint');
+    } else {
+      a.equal('placeholder' in element, false);
+      a.equal('value' in element, false);
+    }
+  }
   const scrollElement = document.createElement('div');
   scrollElement.style.cssText = 'height:40px;overflow:auto;';
   const scrollContent = document.createElement('div');
