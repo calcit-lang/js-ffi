@@ -33,7 +33,7 @@ for(const [name,field] of [['DomValueHost',':value'],['DomPlaceholderHost',':pla
   schema(ns+name,"'Trait");
   operations.push(['edit','ffi',ns+name,'--code',`{} (:backend :js) (:kind :external-object) (:target :browser) (:writable $ #{} ${field})`]);
   operations.push(['edit','tags',ns+name,'ffi,js-host']);
-  operations.push(['edit','doc',ns+name,'--code',name==='DomValueHost'
+  operations.push(['edit','doc',ns+name,name==='DomValueHost'
     ? 'Minimal writable value capability shared by input, textarea and select elements; not required of ordinary DOM elements.'
     : 'Minimal writable placeholder capability shared by input and textarea; checked only at placeholder use.']);
 }
@@ -41,7 +41,7 @@ for(const [index,trait,field,arg] of [[0,'DomValueHost',':value','value'],[1,'Do
   const old=setters[index];
   assert.deepEqual(old.code.slice(0,3),['defn',old.code[1],['element',arg]]);
   def(old.id,['defn',old.code[1],['element',arg],['let',[['host',['js-cast','element',"'"+ns+trait]]],['js-set','host',field,arg],'&unit']],true);
-  operations.push(['edit','doc',old.id,'--code',`Set an input-like element ${field.slice(1)} through checked ${trait}; unsupported elements fail before writing.`]);
+  operations.push(['edit','doc',old.id,`Set an input-like element ${field.slice(1)} through checked ${trait}; unsupported elements fail before writing.`]);
 }
 const fixture='js-ffi.browser-test/cast-element-host';
 def(fixture,['defn','cast-element-host',['value'],['js-cast','value',"'"+ns+'DomElementHost']]);
