@@ -177,6 +177,11 @@ signatures and error semantics. The
 See [API tooling](docs/api-tooling.md) for the editing workflow and upstream
 Calcit requests. After API changes, run `yarn api:generate` before `yarn test`.
 
+定义查询与生成的目录使用定义本身的元类型：`defstruct` 为 `StructDef`，
+`defenum` 为 `EnumDef`，不要将它们当成运行时实例的 `Struct` / `Enum`。
+`Viewport`、`DateSnapshot` 等旧标记已在本次候选中对齐；这只修正查询元数据，
+不改变字段、构造写法或宿主运行行为。已有发布 tag 不随 main 自动更新。
+
 ## Method-style host access
 
 Every host capability is an external-object trait, so adapters that return one
