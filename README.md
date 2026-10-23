@@ -7,12 +7,12 @@ JavaScript explicit, checkable, and reusable across Calcit projects.
 
 当前模块版本与 Calcit CLI 版本以 `deps.cirru` 为准，JS runtime 精确版本在 `package.json` 中声明；CLI 与 `@calcit/procs` 必须配对。下游固定已发布的模块 tag，安装后运行 `caps verify --toolchain`，再运行应用原有的类型检查、Node/浏览器测试和构建。main 上的新迁移不自动进入旧 tag。
 
-### 0.2.6 稳定补丁候选：普通元素与输入能力分离
+### 0.2.6：普通元素与输入能力分离
 
 使用者影响：仍配对正式 Calcit CLI/procs **0.30.1**，不回退或覆盖0.31主线。
 修复 [#187](https://github.com/calcit-lang/js-ffi/issues/187)：真实 div/canvas 不具备
 输入专属 value/placeholder，原通用 DomElementHost 会在 js-cast 时错误拒绝它们。
-本候选尚未发布，依赖该路径的项目不要只凭 CI 通过升级部署。
+发布状态以同名正式 tag/Release 为准；依赖该路径的项目不要只凭 CI 通过升级部署。
 
 DomElementHost 不再承诺这两个专属字段；直接读取这些成员的 Calcit 代码需要改用
 已有 element-value 或在真实输入边界使用 DomValueHost / DomPlaceholderHost。
