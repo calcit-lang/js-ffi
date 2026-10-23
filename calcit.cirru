@@ -149,8 +149,6 @@
                   :args $ [] 'js-ffi.browser/EventHost
                   :return 'Unit
               :return 'Unit
-            :value $ :: 'JsNullish 'String
-            :placeholder $ :: 'JsNullish 'String
             :children 'js-ffi.browser/DomChildrenHost
             :inner-html 'String
             :local-name 'String
@@ -158,8 +156,8 @@
             :scroll-height 'Number
           :examples $ [] $ quote DomElementHost
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
-            :names $ {} (:add-event-listener! |addEventListener) (:append-child! |appendChild) (:blur! |blur) (:child-element-count |childElementCount) (:class-name |className) (:client-height |clientHeight) (:client-width |clientWidth) (:clone-node |cloneNode) (:focus! |focus) (:get-attribute |getAttribute) (:hidden |hidden) (:inner-html |innerHTML) (:local-name |localName) (:matches? |matches) (:offset-left |offsetLeft) (:offset-top |offsetTop) (:parent-element |parentElement) (:placeholder |placeholder) (:query-selector |querySelector) (:remove! |remove) (:remove-attribute! |removeAttribute) (:remove-event-listener! |removeEventListener) (:request-fullscreen! |requestFullscreen) (:scroll-height |scrollHeight) (:scroll-top |scrollTop) (:set-attribute! |setAttribute) (:text-content |textContent) (:value |value)
-            :writable $ #{} :class-name :hidden :inner-html :placeholder :scroll-top :text-content :value
+            :names $ {} (:add-event-listener! |addEventListener) (:append-child! |appendChild) (:blur! |blur) (:child-element-count |childElementCount) (:class-name |className) (:client-height |clientHeight) (:client-width |clientWidth) (:clone-node |cloneNode) (:focus! |focus) (:get-attribute |getAttribute) (:hidden |hidden) (:inner-html |innerHTML) (:local-name |localName) (:matches? |matches) (:offset-left |offsetLeft) (:offset-top |offsetTop) (:parent-element |parentElement) (:query-selector |querySelector) (:remove! |remove) (:remove-attribute! |removeAttribute) (:remove-event-listener! |removeEventListener) (:request-fullscreen! |requestFullscreen) (:scroll-height |scrollHeight) (:scroll-top |scrollTop) (:set-attribute! |setAttribute) (:text-content |textContent)
+            :writable $ #{} :class-name :hidden :inner-html :scroll-top :text-content
           :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
         'DomInputHost $ %{} 'CodeEntry
@@ -177,6 +175,14 @@
             :writable $ #{} :checked :disabled :input-type :name :value
           :schema $ :: 'Trait
           :tags $ #{} :ffi :js-host
+        'DomPlaceholderHost $ %{} 'CodeEntry
+          :doc "|Minimal writable placeholder capability shared by input and textarea; checked only at placeholder use."
+          :code $ quote $ deftrait DomPlaceholderHost (:placeholder 'String)
+          :examples $ []
+          :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
+            :writable $ #{} :placeholder
+          :schema $ :: 'Trait
+          :tags $ #{} :ffi :js-host
         'DomSelectableHost $ %{} 'CodeEntry
           :doc "|External selectable text-control capability shared by input and textarea elements."
           :code $ quote $ deftrait DomSelectableHost
@@ -187,6 +193,14 @@
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
             :names $ {} $ :select! |select
           :schema $ :: 'Trait
+        'DomValueHost $ %{} 'CodeEntry
+          :doc "|Minimal writable value capability shared by input, textarea and select elements; not required of ordinary DOM elements."
+          :code $ quote $ deftrait DomValueHost (:value 'String)
+          :examples $ []
+          :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
+            :writable $ #{} :value
+          :schema $ :: 'Trait
+          :tags $ #{} :ffi :js-host
         'ElementRect $ %{} 'CodeEntry
           :doc "|Normalized element bounding box in CSS pixels copied from getBoundingClientRect."
           :code $ quote $ defstruct ElementRect (:x 'Number) (:y 'Number) (:width 'Number) (:height 'Number)
@@ -1065,8 +1079,12 @@
             :args $ [] 'js-ffi.browser/DomElementHost 'String
             :features $ #{} :js-ffi
         'element-set-placeholder! $ %{} 'CodeEntry
-          :doc "|Set an input-like element placeholder through DomElementHost.placeholder."
-          :code $ quote $ defn element-set-placeholder! (element text) (js-set element :placeholder text) &unit
+          :doc "|Set an input-like element placeholder through checked DomPlaceholderHost; unsupported elements fail before writing."
+          :code $ quote $ defn element-set-placeholder! (element text)
+            let
+                host $ js-cast element 'js-ffi.browser/DomPlaceholderHost
+              js-set host :placeholder text
+              , &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'js-ffi.browser/DomElementHost 'String
@@ -1095,8 +1113,12 @@
             :args $ [] 'js-ffi.browser/DomElementHost 'String
             :features $ #{} :js-ffi
         'element-set-value! $ %{} 'CodeEntry
-          :doc "|Set an input-like element value through DomElementHost.value."
-          :code $ quote $ defn element-set-value! (element value) (js-set element :value value) &unit
+          :doc "|Set an input-like element value through checked DomValueHost; unsupported elements fail before writing."
+          :code $ quote $ defn element-set-value! (element value)
+            let
+                host $ js-cast element 'js-ffi.browser/DomValueHost
+              js-set host :value value
+              , &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ [] 'js-ffi.browser/DomElementHost 'String
@@ -1850,9 +1872,15 @@
           :require (js-ffi.shared :as shared) (js-ffi.contract :as contract)
     'js-ffi.browser-test $ %{} 'FileEntry
       :defs $ {}
+        'cast-element-host $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn cast-element-host (value) (js-cast value 'js-ffi.browser/DomElementHost)
+          :examples $ []
+          :schema $ :: 'Fn $ {} (:return 'js-ffi.browser/DomElementHost)
+            :args $ [] 'JsObject
+            :features $ #{} :js-ffi
         'main! $ %{} 'CodeEntry
           :doc "|Run the typed browser smoke probe and verify its Runtime enum."
-          :code $ quote $ defn main! ()
+          :code $ quote $ defn main! () cast-element-host
             let
                 result $ browser/probe
                 element $ browser/create-element |div

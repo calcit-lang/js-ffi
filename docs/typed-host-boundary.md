@@ -56,6 +56,15 @@ decode it through an `expect-*` guard when absence is itself a contract error.
 Do not translate a host nullish value into Calcit `nil`, and do not let opaque
 `JsObject` values flow into application state.
 
+`DomElementHost` describes the shared HTML element profile, not input-only
+properties. A nullable field still requires the member to exist during
+`js-cast`; marking `placeholder` nullish does not make a div or canvas an input.
+Use `element-value` to decode a value, or the minimal `DomValueHost` /
+`DomPlaceholderHost` capability at the actual input boundary. The existing
+setters perform that checked conversion without adding properties to ordinary
+elements. Capability checks preserve the host object and do not read field
+getters merely to test member existence.
+
 Any function containing a host operation or `unsafe-coerce` must declare
 `:features $ #{} :js-ffi`. The quality baseline records every reviewed
 assertion per definition, while runtime contract tests cover both accepted and
