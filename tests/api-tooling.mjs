@@ -189,6 +189,16 @@ test('catalog builds on first search, refreshes stale data, and preserves host m
   assert.equal(element.ffi.names['class-name'], 'className');
   assert.equal(element.declaration[0], 'deftrait');
   assert.deepEqual(element.schemaData, { __edn_symbol: 'Trait' });
+  const nominalMarkers = new Map([
+    ['defstruct', 'StructDef'], ['defenum', 'EnumDef'],
+    ['deftrait', 'Trait'], ['defimpl', 'Impl'],
+  ]);
+  for (const entry of catalog.definitions.filter(def => def.declaration)) {
+    const marker = nominalMarkers.get(entry.declaration[0]);
+    assert.ok(marker, `recognized nominal declaration: ${entry.id}`);
+    assert.equal(entry.schema, `'${marker}`, `${entry.id} definition metadata must match its declaration`);
+    assert.deepEqual(entry.schemaData, { __edn_symbol: marker }, `${entry.id} metadata must describe its definition, not a runtime value`);
+  }
   const scroll = catalog.definitions.find(def => def.id === 'js-ffi.browser/element-scroll-height');
   assert.equal(scroll.schemaData.__edn_enum_variant, 'Fn');
   assert.deepEqual(scroll.schemaData.__edn_enum_extra[0][':return'], { __edn_symbol: 'Number' });

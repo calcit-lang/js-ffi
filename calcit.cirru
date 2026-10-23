@@ -34,7 +34,7 @@
           :code $ quote $ defstruct BrowserProbe (:runtime 'js-ffi.shared/Runtime) (:document? 'Bool) (:storage 'String) (:viewport 'js-ffi.browser/Viewport)
           :examples $ [] $ quote
             &%{} BrowserProbe :runtime (%:: shared/Runtime :browser) :document? true :storage |ok :viewport $ &%{} Viewport :width 1024 :height 768 :device-pixel-ratio 2
-          :schema $ :: 'Enum
+          :schema $ :: 'StructDef
         'DOMRectHost $ %{} 'CodeEntry
           :doc "|原生getBoundingClientRect结果的只读left/top/width/height能力，单位CSS px；不包含DPR缩放、逆矩阵或Scene几何。"
           :code $ quote $ deftrait DOMRectHost (:left 'Number) (:top 'Number) (:width 'Number) (:height 'Number)
@@ -79,7 +79,7 @@
           :doc "|Typed document.readyState values with an unknown String variant for forward compatibility."
           :code $ quote $ defenum DocumentReadyState (:loading) (:interactive) (:complete) (:unknown 'String)
           :examples $ [] $ quote (%:: DocumentReadyState :complete)
-          :schema $ :: 'Enum
+          :schema $ :: 'EnumDef
         'DomChildrenHost $ %{} 'CodeEntry
           :doc "|External DOM children collection with typed length and nullable indexed element lookup."
           :code $ quote $ deftrait DomChildrenHost (:length 'Number)
@@ -200,7 +200,7 @@
             :child-count 'Number
           :examples $ [] $ quote
             ElementSnapshot :id |main :class-name |panel :text-content (Option :some |Ready) :child-count 1
-          :schema $ :: 'Enum
+          :schema $ :: 'StructDef
         'EventHost $ %{} 'CodeEntry
           :doc "|External Event capability. Targets stay nullable opaque objects unless a specific adapter narrows them."
           :code $ quote $ deftrait EventHost (:event-type 'String)
@@ -254,7 +254,7 @@
           :code $ quote $ defstruct KeyModifiers (:alt? 'Bool) (:ctrl? 'Bool) (:meta? 'Bool) (:shift? 'Bool)
           :examples $ [] $ quote
             &%{} KeyModifiers :alt? false :ctrl? true :meta? false :shift? false
-          :schema $ :: 'Enum
+          :schema $ :: 'StructDef
         'KeyboardEventHost $ %{} 'CodeEntry
           :doc "|External KeyboardEvent capability that requires EventHost, so a keyboard event also exposes the shared event members; adapters normalize keys and modifiers into Calcit data."
           :code $ quote $ deftrait KeyboardEventHost ('requires EventHost) (:key 'String) (:code 'String) (:key-code 'Number) (:repeat? 'Bool) (:alt-key? 'Bool) (:ctrl-key? 'Bool) (:meta-key? 'Bool) (:shift-key? 'Bool)
@@ -284,7 +284,7 @@
           :doc "|Typed copy of the stable browser Location URL fields."
           :code $ quote $ defstruct LocationSnapshot (:href 'String) (:origin 'String) (:protocol 'String) (:host 'String) (:hostname 'String) (:port 'String) (:pathname 'String) (:search 'String) (:hash 'String)
           :examples $ []
-          :schema $ :: 'Enum
+          :schema $ :: 'StructDef
         'MediaQueryListHost $ %{} 'CodeEntry
           :doc "|External matchMedia result with stable media and matches fields. Listener APIs remain adapter-specific."
           :code $ quote $ deftrait MediaQueryListHost (:media 'String) (:matches? 'Bool)
@@ -339,7 +339,7 @@
           :doc "|Normalized pointer coordinates and button index copied from a MouseEvent-like object."
           :code $ quote $ defstruct PointerPosition (:client-x 'Number) (:client-y 'Number) (:button 'Number)
           :examples $ [] $ quote (&%{} PointerPosition :client-x 20 :client-y 30 :button 0)
-          :schema $ :: 'Enum
+          :schema $ :: 'StructDef
         'StorageHost $ %{} 'CodeEntry
           :doc "|External Web Storage capability with nullish lookup and explicit String mutation methods."
           :code $ quote $ deftrait StorageHost (:length 'Number)
@@ -376,12 +376,12 @@
           :doc "|Normalized viewport dimensions and device pixel ratio copied from Window."
           :code $ quote $ defstruct Viewport (:width 'Number) (:height 'Number) (:device-pixel-ratio 'Number)
           :examples $ [] $ quote (&%{} Viewport :width 1024 :height 768 :device-pixel-ratio 2)
-          :schema $ :: 'Enum
+          :schema $ :: 'StructDef
         'VisibilityState $ %{} 'CodeEntry
           :doc "|Typed document.visibilityState values with an unknown String variant."
           :code $ quote $ defenum VisibilityState (:visible) (:hidden) (:prerender) (:unknown 'String)
           :examples $ [] $ quote (%:: VisibilityState :visible)
-          :schema $ :: 'Enum
+          :schema $ :: 'EnumDef
         'WebSocketHost $ %{} 'CodeEntry
           :doc "|External WebSocket capability with readyState, typed event callbacks, and String send/close effects."
           :code $ quote $ deftrait WebSocketHost (:ready-state 'Number)
@@ -2285,7 +2285,7 @@
           :code $ quote $ defstruct NodeProbe (:runtime 'js-ffi.shared/Runtime) (:cwd 'String) (:argv-count 'Number)
           :examples $ [] $ quote
             &%{} NodeProbe :runtime (%:: shared/Runtime :node) :cwd |/tmp :argv-count 2
-          :schema $ :: 'Enum
+          :schema $ :: 'StructDef
         'NodeRequestHost $ %{} 'CodeEntry
           :doc "|External Node IncomingMessage capability with request fields and an event hook."
           :code $ quote $ deftrait NodeRequestHost
@@ -3032,7 +3032,7 @@
           :doc "|Immutable normalized view of a host Date with epoch milliseconds and ISO text."
           :code $ quote $ defstruct DateSnapshot (:timestamp 'Number) (:iso 'String)
           :examples $ [] $ quote (&%{} DateSnapshot :timestamp 0 :iso |1970-01-01T00:00:00.000Z)
-          :schema $ :: 'Enum
+          :schema $ :: 'StructDef
         'HeadersHost $ %{} 'CodeEntry
           :doc "|External Headers capability with typed String keys and values; iteration is deliberately normalized elsewhere."
           :code $ quote $ deftrait HeadersHost
@@ -3062,21 +3062,21 @@
           :examples $ []
             quote $ %:: HttpMethod :get
             quote $ %:: HttpMethod :post
-          :schema $ :: 'Enum
+          :schema $ :: 'EnumDef
         'JsError $ %{} 'CodeEntry
           :doc "|Normalized JavaScript exception data. Stack is optional because hosts may omit it."
           :code $ quote $ defstruct JsError (:kind 'js-ffi.shared/JsErrorKind) (:name 'String) (:message 'String)
             :stack $ :: 'Option 'String
           :examples $ [] $ quote
             &%{} JsError :kind (%:: JsErrorKind :type-error) :name |TypeError :message |invalid
-          :schema $ :: 'Enum
+          :schema $ :: 'StructDef
         'JsErrorKind $ %{} 'CodeEntry
           :doc "|Stable error categories shared by browser and Node adapters; unknown host names retain their String payload."
           :code $ quote $ defenum JsErrorKind (:type-error) (:range-error) (:permission) (:quota) (:network) (:abort) (:unknown 'String)
           :examples $ []
             quote $ %:: JsErrorKind :network
             quote $ %:: JsErrorKind :unknown |DataCloneError
-          :schema $ :: 'Enum
+          :schema $ :: 'EnumDef
         'PromiseHost $ %{} 'CodeEntry
           :doc "|External Promise capability. Fulfillment and rejection callbacks receive opaque, potentially nullish host values and must decode them before concrete use."
           :code $ quote $ deftrait PromiseHost
@@ -3100,7 +3100,7 @@
             :body $ :: 'Option 'String
           :examples $ [] $ quote
             &%{} RequestOptions :method (%:: HttpMethod :get) :headers $ {}
-          :schema $ :: 'Enum
+          :schema $ :: 'StructDef
         'ResponseHost $ %{} 'CodeEntry
           :doc "|External Response capability with metadata and an opaque Promise-like text-body reader consumed by response-text."
           :code $ quote $ deftrait ResponseHost (:status 'Number) (:status-text 'String) (:ok? 'Bool) (:url 'String) (:redirected? 'Bool) (:headers 'js-ffi.shared/HeadersHost) (:body-used? 'Bool)
@@ -3118,14 +3118,14 @@
             :headers $ :: 'Map 'String 'String
           :examples $ [] $ quote
             &%{} ResponseSnapshot :status 200 :status-text |OK :ok? true :url |https://example.test :redirected? false :headers $ {}
-          :schema $ :: 'Enum
+          :schema $ :: 'StructDef
         'Runtime $ %{} 'CodeEntry
           :doc "|Runtime identity normalized as a Calcit enum instead of an open String."
           :code $ quote $ defenum Runtime (:browser) (:node) (:unknown 'String)
           :examples $ []
             quote $ %:: Runtime :browser
             quote $ %:: Runtime :unknown |worker
-          :schema $ :: 'Enum
+          :schema $ :: 'EnumDef
         'UrlHost $ %{} 'CodeEntry
           :doc "|External URL-like capability shared by URL and browser Location objects. Fields are read-only in this contract."
           :code $ quote $ deftrait UrlHost (:href 'String) (:protocol 'String) (:host 'String) (:hostname 'String) (:port 'String) (:pathname 'String) (:search 'String) (:hash 'String)
@@ -3171,7 +3171,7 @@
           :code $ quote $ defstruct UrlSnapshot (:href 'String) (:protocol 'String) (:host 'String) (:hostname 'String) (:port 'String) (:pathname 'String) (:search 'String) (:hash 'String)
           :examples $ [] $ quote
             &%{} UrlSnapshot :href |https://example.test/a :protocol |https: :host |example.test :hostname |example.test :port | :pathname |/a :search | :hash |
-          :schema $ :: 'Enum
+          :schema $ :: 'StructDef
         'abort! $ %{} 'CodeEntry (:doc "|Abort the controller. Repeated aborts are safe.")
           :code $ quote $ defn abort! (controller) (controller .abort!) &unit
           :examples $ []
@@ -4121,7 +4121,7 @@
         'DeviceProbe $ %{} 'CodeEntry (:doc "|能力探测的封闭分支；只有 ready 携带需显式释放的设备句柄。")
           :code $ quote $ defenum DeviceProbe (:ready 'js-ffi.webgpu-capabilities/ReadyDeviceHost) (:unavailable 'js-ffi.webgpu-capabilities/ProbeUnavailable) (:failed 'js-ffi.webgpu-capabilities/ProbeFailure)
           :examples $ []
-          :schema $ :: 'Enum
+          :schema $ :: 'EnumDef
         'NavigatorHost $ %{} 'CodeEntry (:doc "|浏览器 navigator 或测试宿主；gpu 访问异常由探测函数归入失败阶段。")
           :code $ quote $ deftrait NavigatorHost
             :gpu $ :: 'JsNullish 'JsObject
