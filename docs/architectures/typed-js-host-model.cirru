@@ -797,10 +797,11 @@
           :return 'js-ffi.browser/DocumentReadyState
       :code $ quote
         defn decode-document-ready-state (raw)
-          case-default raw (%:: DocumentReadyState :unknown raw)
+          match raw
             |loading $ %:: DocumentReadyState :loading
             |interactive $ %:: DocumentReadyState :interactive
             |complete $ %:: DocumentReadyState :complete
+            _ $ %:: DocumentReadyState :unknown raw
       :examples $ []
         quote $ decode-document-ready-state |complete
         quote $ decode-document-ready-state |future-state
@@ -815,10 +816,11 @@
           :return 'js-ffi.browser/VisibilityState
       :code $ quote
         defn decode-visibility-state (raw)
-          case-default raw (%:: VisibilityState :unknown raw)
+          match raw
             |visible $ %:: VisibilityState :visible
             |hidden $ %:: VisibilityState :hidden
             |prerender $ %:: VisibilityState :prerender
+            _ $ %:: VisibilityState :unknown raw
       :examples $ []
         quote $ decode-visibility-state |hidden
     'js-ffi.browser/document-ready-state $ {}
