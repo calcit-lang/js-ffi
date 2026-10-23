@@ -32,6 +32,8 @@ const cases = [
   ['browser', 'browser/decode-document-ready-state 42', /W_FN_ARG_TYPE_MISMATCH/],
   ['browser', 'browser/decode-visibility-state 42', /W_FN_ARG_TYPE_MISMATCH/],
   ['browser', 'js-set ((browser/create-element |div) :style) :css-text 42', /W_JS_FFI_FIELD_TYPE_MISMATCH/, undefined, true],
+  ['browser', 'js-set (browser/create-element |div) :value |not-an-input', /W_JS_FFI_UNKNOWN_FIELD/, undefined, true],
+  ['browser', 'js-set (browser/create-element |div) :placeholder |not-an-input', /W_JS_FFI_UNKNOWN_FIELD/, undefined, true],
   ['browser', 'browser/request-animation-frame! 42', /W_FN_ARG_TYPE_MISMATCH/],
   ['browser', 'browser/keyboard-event-key (browser/event-host (raise |event))', /W_FN_ARG_TYPE_MISMATCH/],
   ['browser', 'webgpu/destroy-device! 42', /W_FN_ARG_TYPE_MISMATCH/],
