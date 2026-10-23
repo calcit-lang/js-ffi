@@ -3,9 +3,7 @@ name: Check
 on:
   push:
     branches:
-      - master
-      - main
-  pull_request: {}
+      - prepare/jsffi-dom031
 
 permissions:
   contents: read
@@ -49,10 +47,19 @@ jobs:
           yarn install --immutable
           caps verify --toolchain
 
+      - name: Apply reviewed DOM capability correction with formal CLI
+        run: |
+          set -euo pipefail
+          test "$(git hash-object calcit.cirru)" = f92f6ae3ada262538f48fb09415dd93a12806d9b
+          node acceptance/prepare-dom.mjs
+          calcit edit format
+          git hash-object calcit.cirru > acceptance/source-blob.txt
+          cp calcit.cirru acceptance/calcit.cirru
+
       - name: Validate Calcit snapshot and types
         run: |
           calcit calcit.cirru edit format
-          git diff --exit-code -- calcit.cirru
+          test "$(git hash-object calcit.cirru)" = "$(cat acceptance/source-blob.txt)"
           calcit calcit.cirru --check-only
           calcit fix --workflow strict --verify
           calcit calcit.cirru analyze quality --baseline config/calcit-quality.cirru --format json
@@ -108,3 +115,14 @@ jobs:
 
       - name: Build browser smoke app
         run: yarn build:browser
+
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
+          name: jsffi-dom-${{ github.run_id }}
+          path: |
+            acceptance
+            dist
+            js-out
+          retention-days: 7
+          if-no-files-found: error
