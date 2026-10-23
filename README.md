@@ -7,7 +7,20 @@ JavaScript explicit, checkable, and reusable across Calcit projects.
 
 当前模块版本与 Calcit CLI 版本以 `deps.cirru` 为准，JS runtime 精确版本在 `package.json` 中声明；CLI 与 `@calcit/procs` 必须配对。下游固定已发布的模块 tag，安装后运行 `caps verify --toolchain`，再运行应用原有的类型检查、Node/浏览器测试和构建。main 上的新迁移不自动进入旧 tag。
 
-### 0.2.5 候选：正式 Calcit 0.30.1 与旧构造写法迁移
+### DOM 输入能力与主线修复
+
+维护分支正式 `0.2.6` 已修复 [#187](https://github.com/calcit-lang/js-ffi/issues/187)，
+当前 main 同步该修复，并保留此前的数据定义元类型与旧 API 迁移；本改动不创建新 tag，
+不改变 CLI/procs 配对，也不将 main 当作已发布依赖。
+
+普通 `div`/`canvas` 没有输入专属的 `value`/`placeholder`，`DomElementHost` 不再承诺这两个字段。
+直接访问这两个字段的 Calcit 代码需改用 `element-value` 或最小 `DomValueHost`/
+`DomPlaceholderHost`；原 setter 入口保持，先受检转换再写入。合法 `input`/`textarea`
+保持值、对象身份和写入异常；普通元素会在写入前拒绝，不增加假 expando 属性。
+这只检查所需成员存在及方法可调用，不保证 getter 值、任意 DOM/SVG 或所有浏览器。
+现有真实 Chromium 测试覆盖上述四种元素及拒绝路径，质量基线不变。
+
+### 已发布 0.2.5：正式 Calcit 0.30.1 与旧构造写法迁移
 
 消费者需将 Calcit CLI 与 `@calcit/procs` 同时升级到正式 **0.30.1**，并固定发布后的模块 tag；本地候选或 main 不代表已发版。公开宿主 API、输入/输出类型、异步与错误行为不变；不发布 npm 包，也没有 Demo 或服务部署。
 

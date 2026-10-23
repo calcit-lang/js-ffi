@@ -56,6 +56,13 @@ decode it through an `expect-*` guard when absence is itself a contract error.
 Do not translate a host nullish value into Calcit `nil`, and do not let opaque
 `JsObject` values flow into application state.
 
+`DomElementHost` 只声明通用元素能力，不混入输入专属的 `value`/`placeholder`。
+`JsNullish` 允许成员值为空，不表示该成员可以不存在；不能把普通 div/canvas 当成输入框。
+读取值用 `element-value`，专属字段访问使用最小 `DomValueHost`/`DomPlaceholderHost`。
+现有 setter 在实际写入位置执行受检转换，保留对象身份和宿主异常；成员存在性检查
+不读取 getter，不会为了通过转换给普通元素新增字段。这个修复已随维护分支正式
+`0.2.6` 发布，main 的同步仍须按后续正式 tag 安装，不用分支/hash 代替发布配对。
+
 Any function containing a host operation or `unsafe-coerce` must declare
 `:features $ #{} :js-ffi`. The quality baseline records every reviewed
 assertion per definition, while runtime contract tests cover both accepted and
