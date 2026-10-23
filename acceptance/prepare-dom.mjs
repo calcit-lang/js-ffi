@@ -51,7 +51,15 @@ const preview=JSON.parse(run(...args,'--dry-run'));
 writeFileSync('acceptance/preview.json',JSON.stringify(preview,null,2));
 writeFileSync('acceptance/applied.json',run(...args,'--expect-revision',preview.scoped_revision));
 const after=q(ns+'DomElementHost');
-assert.deepEqual(after,{...element,code:common,ffi:metadata,ffi_edn:after.ffi_edn});
+const normalize=x=>{
+  if(Array.isArray(x))return x.map(normalize);
+  if(x&&typeof x==='object'){
+    if(x.__edn_set)return {__edn_set:x.__edn_set.map(normalize).sort((a,b)=>JSON.stringify(a).localeCompare(JSON.stringify(b)))};
+    return Object.fromEntries(Object.entries(x).map(([k,v])=>[k,normalize(v)]));
+  }
+  return x;
+};
+assert.deepEqual(normalize(after),normalize({...element,code:common,ffi:metadata,ffi_edn:after.ffi_edn}));
 for(const old of setters)assert.deepEqual(q(old.id).schema,old.schema,'public setter API stays unchanged');
 writeFileSync('acceptance/after.json',JSON.stringify({element:after,setters:setters.map(x=>q(x.id)),fixture:q(fixture)},null,2));
 writeFileSync('acceptance/program-diff.json',run('analyze','program-diff','HEAD','--format','json'));
