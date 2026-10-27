@@ -5,6 +5,12 @@ JavaScript explicit, checkable, and reusable across Calcit projects.
 
 ## 版本与工具链
 
+当前候选将 CLI 与 `@calcit/procs` 同时升级到正式 `0.31.0`。宿主实现、Snapshot、公开合同与
+原质量预算保持；下游须协调工具链并重新生成 JS，原 Node/浏览器合同及完整 strict 继续验收。
+本轮不新增 API，不发布模块 tag/npm，不把静态检查当作 JavaScript 宿主运行保证。
+原 Node 测试的三处已删除 Option 导出改为公开 `nil->option`：固定非空文本和函数仍为 Some，
+无请求体的 null 为 None，保留原请求、回调和断言。
+
 当前模块版本与 Calcit CLI 版本以 `deps.cirru` 为准，JS runtime 精确版本在 `package.json` 中声明；CLI 与 `@calcit/procs` 必须配对。下游固定已发布的模块 tag，安装后运行 `caps verify --toolchain`，再运行应用原有的类型检查、Node/浏览器测试和构建。main 上的新迁移不自动进入旧 tag。
 
 ### DOM 输入能力与主线修复
