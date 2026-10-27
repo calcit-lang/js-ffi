@@ -7,10 +7,15 @@ import { syncBuiltinESMExports } from 'node:module';
 import * as node from '../js-out/js-ffi.node.mjs';
 import { path_label as pathLabel } from '../js-out/js-ffi.node-test.mjs';
 import * as shared from '../js-out/js-ffi.shared.mjs';
-import { result_$o_err_$q_ as isErr, result_$o_ok_$q_ as isOk, option_$o_unwrap as unwrap, option_$o_none_$q_ as isNone, option_$o_some_$q_ as isSome, _PCT_some, _PCT_none } from '../js-out/calcit.core.mjs';
+import { result_$o_err_$q_ as isErr, result_$o_ok_$q_ as isOk, option_$o_unwrap as unwrap, option_$o_none_$q_ as isNone, option_$o_some_$q_ as isSome, Option } from '../js-out/calcit.core.mjs';
 import * as procs from '@calcit/procs';
 import { assertions, testShared } from './shared.mjs';
 import { testWebGpuCapabilities } from './webgpu-capabilities.mjs';
+
+// Calcit 0.31.0 no longer exports `%some`/`%none`; build Option values from the core enum.
+const optionTags = procs.init_tags(['some', 'none']);
+const _PCT_some = (value) => procs._PCT__$o__$o_(Option, optionTags.some, value);
+const _PCT_none = () => procs._PCT__$o__$o_(Option, optionTags.none);
 
 const structField = (value, name) => value.values[value.fields.findIndex(field => field.value === name)];
 
