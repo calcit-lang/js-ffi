@@ -7,15 +7,10 @@ import { syncBuiltinESMExports } from 'node:module';
 import * as node from '../js-out/js-ffi.node.mjs';
 import { path_label as pathLabel } from '../js-out/js-ffi.node-test.mjs';
 import * as shared from '../js-out/js-ffi.shared.mjs';
-import { result_$o_err_$q_ as isErr, result_$o_ok_$q_ as isOk, option_$o_unwrap as unwrap, option_$o_none_$q_ as isNone, option_$o_some_$q_ as isSome, Option } from '../js-out/calcit.core.mjs';
+import { result_$o_err_$q_ as isErr, result_$o_ok_$q_ as isOk, option_$o_unwrap as unwrap, option_$o_none_$q_ as isNone, option_$o_some_$q_ as isSome, nil__GT_option as nilToOption } from '../js-out/calcit.core.mjs';
 import * as procs from '@calcit/procs';
 import { assertions, testShared } from './shared.mjs';
 import { testWebGpuCapabilities } from './webgpu-capabilities.mjs';
-
-// Calcit 0.31.0 no longer exports `%some`/`%none`; build Option values from the core enum.
-const optionTags = procs.init_tags(['some', 'none']);
-const _PCT_some = (value) => procs._PCT__$o__$o_(Option, optionTags.some, value);
-const _PCT_none = () => procs._PCT__$o__$o_(Option, optionTags.none);
 
 const structField = (value, name) => value.values[value.fields.findIndex(field => field.value === name)];
 
@@ -255,12 +250,12 @@ test('shared fetch-request sends method, headers and optional body', async () =>
     const url = `http://127.0.0.1:${server.address().port}/echo`;
     const headers = shared.headers_create();
     a.equal(shared.headers_set_$x_(headers, 'X-Test', 'yes'), undefined);
-    const withBody = await shared.fetch_request(url, postMethod, headers, _PCT_some('payload'));
+    const withBody = await shared.fetch_request(url, postMethod, headers, nilToOption('payload'));
     a.equal(isOk(withBody), true);
     const body = await shared.response_text(withBody.extra[0]);
     a.equal(isOk(body), true);
     a.equal(body.extra[0], 'POST:yes:payload');
-    const withoutBody = await shared.fetch_request(url, postMethod, headers, _PCT_none());
+    const withoutBody = await shared.fetch_request(url, postMethod, headers, nilToOption(null));
     a.equal(isOk(withoutBody), true);
     const empty = await shared.response_text(withoutBody.extra[0]);
     a.equal(empty.extra[0], 'POST:yes:');
@@ -315,7 +310,7 @@ test('Node HTTP server, request header and timers', async () => {
     node.server_close_$x_(server);
   }
   const echoServer = node.http_create_server((request, response) => {
-    node.request_body_text(request, _PCT_some((text) => response.end(`echo:${text}`)));
+    node.request_body_text(request, nilToOption((text) => response.end(`echo:${text}`)));
   });
   await new Promise((resolve) => node.server_listen_$x_(echoServer, 0, '127.0.0.1', () => resolve()));
   const echoPort = echoServer.address().port;
