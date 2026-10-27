@@ -5,9 +5,14 @@ JavaScript explicit, checkable, and reusable across Calcit projects.
 
 ## 版本与工具链
 
-当前候选将 CLI 与 `@calcit/procs` 同时升级到正式 `0.31.0`。宿主实现、Snapshot、公开合同与
-原质量预算保持；下游须协调工具链并重新生成 JS，原 Node/浏览器合同及完整 strict 继续验收。
-本轮不新增 API，不发布模块 tag/npm，不把静态检查当作 JavaScript 宿主运行保证。
+使用者影响：本候选为正式 Calcit CLI / `@calcit/procs` `0.31.0` 准备新的
+JS-FFI Git patch `0.2.7`。现有 `0.2.5` / `0.2.6` tag 均属于 0.30.1 维护线，
+不覆盖或移动；main 的 0.31 迁移不会自动进入这些旧 tag。下游须等 0.2.7 实际发布后，
+协调完整依赖图并重新生成 JS，不能把兼容编译等同于旧 tag 已声明配对新工具链。
+
+本次只修正 deps/package 的发布版本及当前说明，相对当前 main 不改 Snapshot、宿主
+实现、公开合同、测试、原质量预算或工作流；原 Node/真实浏览器合同和完整 strict 保留。
+仅发布 Git tag，不发布 npm，也没有 Demo 或服务部署。详见 [发布配对记录](https://github.com/calcit-lang/js-ffi/issues/195)。
 原 Node 测试的三处已删除 Option 导出改为公开 `nil->option`：固定非空文本和函数仍为 Some，
 无请求体的 null 为 None，保留原请求、回调和断言。
 
@@ -16,8 +21,8 @@ JavaScript explicit, checkable, and reusable across Calcit projects.
 ### DOM 输入能力与主线修复
 
 维护分支正式 `0.2.6` 已修复 [#187](https://github.com/calcit-lang/js-ffi/issues/187)，
-当前 main 同步该修复，并保留此前的数据定义元类型与旧 API 迁移；本改动不创建新 tag，
-不改变 CLI/procs 配对，也不将 main 当作已发布依赖。
+当前 main 已同步该修复，并保留此前的数据定义元类型与旧 API 迁移；本次将这些已合并实现
+配对正式 0.31 工具链准备 0.2.7。候选不等于已发布版本，旧 tag 的工具链合同保持。
 
 普通 `div`/`canvas` 没有输入专属的 `value`/`placeholder`，`DomElementHost` 不再承诺这两个字段。
 直接访问这两个字段的 Calcit 代码需改用 `element-value` 或最小 `DomValueHost`/
