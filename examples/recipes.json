@@ -6,7 +6,7 @@
     "runtimes": ["browser"],
     "source": "examples/canvas-surface.cirru",
     "imports": ["js-ffi.canvas-batches :as canvas"],
-    "schema": ":: 'Fn $ {} (:args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'Bool 'Number) (:return 'js-ffi.canvas-batches/CanvasSurfaceHost) (:features $ #{} :js-ffi)",
+    "schema": "Fn js-ffi.canvas-batches/CanvasContextHost Bool Number (-> js-ffi.canvas-batches/CanvasSurfaceHost) (:features :js-ffi)",
     "apis": ["js-ffi.canvas-batches/CanvasSurfaceHost", "js-ffi.canvas-batches/surface-2d-context", "js-ffi.canvas-batches/dom-canvas-create", "js-ffi.canvas-batches/offscreen-canvas-create", "js-ffi.canvas-batches/draw-surface-at!", "js-ffi.canvas-batches/draw-surface-sized!", "js-ffi.canvas-batches/draw-surface-crop!"],
     "validation": "tests/canvas-image.mjs"
   },
@@ -17,7 +17,7 @@
     "runtimes": ["browser"],
     "source": "examples/pointer-capture.cirru",
     "imports": ["js-ffi.browser :as browser"],
-    "schema": ":: 'Fn $ {} (:generics $ [] 'T 'E) (:args $ [] 'T 'E) (:return $ :: 'List 'Number) (:features $ #{} :js-ffi)",
+    "schema": "Fn T E (-> (List Number)) (:generics T E) (:features :js-ffi)",
     "apis": ["js-ffi.browser/pointer-input-event-host", "js-ffi.browser/pointer-capture-element-host", "js-ffi.browser/element-bounding-client-rect", "js-ffi.browser/element-set-pointer-capture!"],
     "validation": "tests/run-browser.mjs"
   },
@@ -28,7 +28,7 @@
     "runtimes": ["browser", "node"],
     "source": "examples/promise-string.cirru",
     "imports": ["js-ffi.shared :as shared"],
-    "schema": ":: 'Fn $ {} (:args ([] 'String)) (:return 'js-ffi.shared/PromiseHost) (:features (#{} :js-ffi))",
+    "schema": "Fn String (-> js-ffi.shared/PromiseHost) (:features :js-ffi)",
     "apis": ["js-ffi.shared/promise-create"],
     "validation": "tests/shared.mjs"
   },
@@ -39,7 +39,7 @@
     "runtimes": ["browser", "node"],
     "source": "examples/observe-string.cirru",
     "imports": ["js-ffi.shared :as shared", "js-ffi.contract :as contract"],
-    "schema": ":: 'Fn $ {} (:args ([] 'js-ffi.shared/PromiseHost (:: 'Fn ({} (:args ([] 'String)) (:return 'Unit))) (:: 'Fn ({} (:args ([] 'js-ffi.shared/JsError)) (:return 'Unit))))) (:return 'Unit) (:features (#{} :js-ffi))",
+    "schema": "Fn js-ffi.shared/PromiseHost (Fn String (-> Unit)) (Fn js-ffi.shared/JsError (-> Unit)) (-> Unit) (:features :js-ffi)",
     "apis": ["js-ffi.shared/promise-observe!", "js-ffi.contract/expect-string", "js-ffi.shared/normalize-error"],
     "validation": "tests/shared.mjs"
   },
@@ -50,7 +50,7 @@
     "runtimes": ["browser"],
     "source": "examples/canvas-text.cirru",
     "imports": ["js-ffi.canvas-batches :as canvas"],
-    "schema": ":: 'Fn $ {} (:args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'String) (:return 'Number) (:features $ #{} :js-ffi)",
+    "schema": "Fn js-ffi.canvas-batches/CanvasContextHost String (-> Number) (:features :js-ffi)",
     "apis": ["js-ffi.canvas-batches/CanvasContextHost", "js-ffi.canvas-batches/CanvasTextMetricsHost"],
     "validation": "tests/canvas-text.mjs"
   },
@@ -61,7 +61,7 @@
     "runtimes": ["browser"],
     "source": "examples/canvas-text-ink.cirru",
     "imports": ["js-ffi.canvas-batches :as canvas"],
-    "schema": ":: 'Fn $ {} (:args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'String) (:return $ :: 'List 'Number) (:features $ #{} :js-ffi)",
+    "schema": "Fn js-ffi.canvas-batches/CanvasContextHost String (-> (List Number)) (:features :js-ffi)",
     "apis": ["js-ffi.canvas-batches/CanvasTextInkMetricsHost", "js-ffi.canvas-batches/measure-text-ink"],
     "validation": "tests/canvas-text.mjs"
   },
@@ -72,7 +72,7 @@
     "runtimes": ["browser"],
     "source": "examples/canvas-path.cirru",
     "imports": ["js-ffi.canvas-batches :as canvas"],
-    "schema": ":: 'Fn $ {} (:args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'String 'String 'Bool) (:return 'Unit) (:features $ #{} :js-ffi)",
+    "schema": "Fn js-ffi.canvas-batches/CanvasContextHost String String Bool (-> Unit) (:features :js-ffi)",
     "apis": ["js-ffi.canvas-batches/CanvasContextHost"],
     "validation": "tests/canvas-path.mjs"
   },
@@ -83,7 +83,7 @@
     "runtimes": ["browser"],
     "source": "examples/canvas-filled-path.cirru",
     "imports": ["js-ffi.canvas-batches :as canvas"],
-    "schema": ":: 'Fn $ {} (:args $ [] 'js-ffi.canvas-batches/CanvasContextHost) (:return 'Unit) (:features $ #{} :js-ffi)",
+    "schema": "Fn js-ffi.canvas-batches/CanvasContextHost (-> Unit) (:features :js-ffi)",
     "apis": ["js-ffi.canvas-batches/CanvasContextHost"],
     "validation": "tests/canvas-filled-path.mjs"
   },
@@ -94,7 +94,7 @@
     "runtimes": ["browser"],
     "source": "examples/canvas-card.cirru",
     "imports": ["js-ffi.canvas-batches :as canvas"],
-    "schema": ":: 'Fn $ {} (:args $ [] 'js-ffi.canvas-batches/CanvasContextHost) (:return 'Unit) (:features $ #{} :js-ffi)",
+    "schema": "Fn js-ffi.canvas-batches/CanvasContextHost (-> Unit) (:features :js-ffi)",
     "apis": ["js-ffi.canvas-batches/CanvasContextHost", "js-ffi.canvas-batches/CanvasAffine2D", "js-ffi.canvas-batches/CanvasRect", "js-ffi.canvas-batches/fill-transformed-clipped-rect!"],
     "validation": "tests/browser.mjs"
   },
@@ -105,7 +105,7 @@
     "runtimes": ["browser"],
     "source": "examples/buffer-lifecycle.cirru",
     "imports": ["js-ffi.webgpu :as webgpu"],
-    "schema": ":: 'Fn $ {} (:args $ [] 'js-ffi.webgpu/DeviceHost) (:return 'Number) (:features $ #{} :js-ffi)",
+    "schema": "Fn js-ffi.webgpu/DeviceHost (-> Number) (:features :js-ffi)",
     "apis": ["js-ffi.webgpu/create-buffer", "js-ffi.webgpu/buffer-size", "js-ffi.webgpu/destroy-buffer!"],
     "validation": "tests/webgpu.mjs"
   },
@@ -116,7 +116,7 @@
     "runtimes": ["browser", "node"],
     "source": "examples/query-string.cirru",
     "imports": ["js-ffi.shared :as shared"],
-    "schema": ":: 'Fn $ {} (:args $ [] 'String) (:return 'String)",
+    "schema": "Fn String (-> String)",
     "apis": ["js-ffi.shared/search-params-create", "js-ffi.shared/search-params-set!", "js-ffi.shared/search-params-string"],
     "validation": "tests/recipes.mjs"
   },
@@ -127,7 +127,7 @@
     "runtimes": ["node"],
     "source": "examples/text-file.cirru",
     "imports": ["js-ffi.node :as node"],
-    "schema": ":: 'Fn $ {} (:args $ [] 'String 'String) (:return 'String)",
+    "schema": "Fn String String (-> String)",
     "apis": ["js-ffi.node/path-join", "js-ffi.node/write-text!", "js-ffi.node/read-text!"],
     "validation": "tests/recipes.mjs"
   },
@@ -138,7 +138,7 @@
     "runtimes": ["browser"],
     "source": "examples/listen.cirru",
     "imports": ["js-ffi.browser :as browser"],
-    "schema": ":: 'Fn $ {} (:args $ [] 'String (:: 'Fn ({} (:args $ [] 'js-ffi.browser/EventHost) (:return 'Unit)))) (:return $ :: 'Fn $ {} (:args $ []) (:return 'Unit))",
+    "schema": "Fn String (Fn js-ffi.browser/EventHost (-> Unit)) (-> (Fn (-> Unit)))",
     "apis": ["js-ffi.browser/add-event-listener!", "js-ffi.browser/remove-event-listener!"],
     "validation": "tests/browser.mjs"
   }

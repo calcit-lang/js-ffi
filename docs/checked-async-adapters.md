@@ -18,7 +18,7 @@ pending value as `T` fails with `E_ASYNC_INVOCATION_REQUIRES_AWAIT`.
 
 ```cirru
 defn fetch-text (url)
-  hint-fn $ {} (:async true)
+  hint-fn $ Fn String (-> (Result String js-ffi.shared/JsError)) (:async)
   match
       js-await $ shared/fetch-response url
     (:ok response)
@@ -31,7 +31,7 @@ Node text I/O follows the same rule:
 
 ```cirru
 defn replace-text! (path text)
-  hint-fn $ {} (:async true)
+  hint-fn $ Fn String String (-> (Result String js-ffi.shared/JsError)) (:async)
   match
       js-await $ node/write-text-async! path text
     (:ok _)

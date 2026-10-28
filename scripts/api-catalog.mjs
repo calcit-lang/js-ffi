@@ -21,7 +21,7 @@ if (command === 'search') {
   if (runtime && !['browser', 'node'].includes(runtime)) throw new Error('Runtime must be browser or node');
   let catalog;
   try { catalog = JSON.parse(readFileSync(jsonPath, 'utf8')); } catch { /* Rebuild missing or corrupt generated data. */ }
-  if (catalog?.schemaVersion !== 1 || !Array.isArray(catalog?.definitions) || catalog.sourceFingerprint !== sourceFingerprint) {
+  if (catalog?.schemaVersion !== 2 || !Array.isArray(catalog?.definitions) || catalog.sourceFingerprint !== sourceFingerprint) {
     // Keep search stdout JSON-only, including on a fresh checkout.
     execFileSync(process.execPath, [join(root, 'scripts/api-catalog.mjs'), 'cache'], { cwd: root, stdio: 'pipe' });
     catalog = JSON.parse(readFileSync(jsonPath, 'utf8'));
@@ -42,9 +42,9 @@ if (command === 'search') {
     const metadata = definition(def.id);
     if (!metadata.schema || !metadata.doc) throw new Error(`Missing schema/documentation: ${def.id}`);
     const schema = JSON.parse(calcit(['query', 'schema', def.id, '--format', 'json']));
-    if (schema.schema_version !== 1 || schema.command !== 'query.schema' || schema.data?.id !== def.id || typeof schema.data.canonical_schema !== 'string') throw new Error(`Invalid schema query for ${def.id}`);
-    const schemaText = typeof schema.data.tree === 'string' ? `do ${schema.data.canonical_schema}` : schema.data.canonical_schema;
-    const schemaData = JSON.parse(calcit(['cirru', 'parse-edn', schemaText]));
+    if (schema.schema_version !== 1 || schema.command !== 'query.schema' || schema.data?.id !== def.id || typeof schema.data.canonical_schema !== 'string' || !(typeof schema.data.tree === 'string' || Array.isArray(schema.data.tree))) throw new Error(`Invalid schema query for ${def.id}`);
+    // 0.32 schemas are type syntax, not EDN values; retain the official tree.
+    const schemaData = schema.data.tree;
     return {
       id: def.id, namespace: def.namespace, name: def.name, kind: def.data_type ?? def.kind,
       runtimes: runtimes(def.namespace), import: `${def.namespace} :as ${def.namespace.split('.')[1]}`,
@@ -58,7 +58,7 @@ if (command === 'search') {
       inspect: `calcit query def ${def.id} --format json`,
     };
   });
-  const catalog = { schemaVersion: 1, sourceFingerprint, calcitVersion: calcit(['--version']).trim(), packageVersion: JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')).version, publicNamespaces, definitions: records };
+  const catalog = { schemaVersion: 2, sourceFingerprint, calcitVersion: calcit(['--version']).trim(), packageVersion: JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')).version, publicNamespaces, definitions: records };
   let markdown = '# Public API catalog\n\nGenerated from Calcit definitions by `yarn api:generate`. Do not edit directly.\n\n';
   markdown += `${records.length} public definitions, including host traits and data types. Search (automatically refreshes a stale cache): \`yarn api:search storage browser\`. Machine-readable source: [api.json](api.json).\n\n`;
   markdown += 'Runtime availability follows the public namespace policy in scripts/api-lib.mjs. Schemas and host metadata are declarations, not proof of arbitrary host values. Recipe links show demonstrated use, not exhaustive API coverage. Exception and lifecycle details: [adapter reference](../../docs/standard-host-adapters.md).\n\n';

@@ -1,8 +1,5 @@
 quote $ defn promise-string (text)
   shared/promise-create $ fn (resolve reject)
-    hint-fn $ {} (:return 'Unit)
-      :args $ []
-        :: 'Fn $ {} (:return 'Unit) (:args ([] 'String))
-        :: 'Fn $ {} (:return 'Unit) (:args ([] 'String))
+    hint-fn $ Fn (Fn String (-> Unit)) (Fn String (-> Unit)) (-> Unit)
     resolve text
     , &unit

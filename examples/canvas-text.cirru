@@ -1,8 +1,5 @@
 quote $ defn canvas-text (context text)
-  hint-fn $ {}
-    :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'String
-    :return 'Number
-    :features $ #{} :js-ffi
+  hint-fn $ Fn js-ffi.canvas-batches/CanvasContextHost String (-> Number) (:features :js-ffi)
   context .save!
   js-set context :font "|20px monospace"
   js-set context :text-align |left

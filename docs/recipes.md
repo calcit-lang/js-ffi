@@ -19,7 +19,7 @@ js-ffi.canvas-batches :as canvas
 Schema:
 
 ```text
-:: 'Fn $ {} (:args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'Bool 'Number) (:return 'js-ffi.canvas-batches/CanvasSurfaceHost) (:features $ #{} :js-ffi)
+Fn js-ffi.canvas-batches/CanvasContextHost Bool Number (-> js-ffi.canvas-batches/CanvasSurfaceHost) (:features :js-ffi)
 ```
 
 Source: [examples/canvas-surface.cirru](../examples/canvas-surface.cirru)
@@ -63,7 +63,7 @@ js-ffi.browser :as browser
 Schema:
 
 ```text
-:: 'Fn $ {} (:generics $ [] 'T 'E) (:args $ [] 'T 'E) (:return $ :: 'List 'Number) (:features $ #{} :js-ffi)
+Fn T E (-> (List Number)) (:generics T E) (:features :js-ffi)
 ```
 
 Source: [examples/pointer-capture.cirru](../examples/pointer-capture.cirru)
@@ -94,7 +94,7 @@ js-ffi.shared :as shared
 Schema:
 
 ```text
-:: 'Fn $ {} (:args ([] 'String)) (:return 'js-ffi.shared/PromiseHost) (:features (#{} :js-ffi))
+Fn String (-> js-ffi.shared/PromiseHost) (:features :js-ffi)
 ```
 
 Source: [examples/promise-string.cirru](../examples/promise-string.cirru)
@@ -102,10 +102,7 @@ Source: [examples/promise-string.cirru](../examples/promise-string.cirru)
 ```text
 quote $ defn promise-string (text)
   shared/promise-create $ fn (resolve reject)
-    hint-fn $ {} (:return 'Unit)
-      :args $ []
-        :: 'Fn $ {} (:return 'Unit) (:args ([] 'String))
-        :: 'Fn $ {} (:return 'Unit) (:args ([] 'String))
+    hint-fn $ Fn (Fn String (-> Unit)) (Fn String (-> Unit)) (-> Unit)
     resolve text
     , &unit
 ```
@@ -126,7 +123,7 @@ js-ffi.contract :as contract
 Schema:
 
 ```text
-:: 'Fn $ {} (:args ([] 'js-ffi.shared/PromiseHost (:: 'Fn ({} (:args ([] 'String)) (:return 'Unit))) (:: 'Fn ({} (:args ([] 'js-ffi.shared/JsError)) (:return 'Unit))))) (:return 'Unit) (:features (#{} :js-ffi))
+Fn js-ffi.shared/PromiseHost (Fn String (-> Unit)) (Fn js-ffi.shared/JsError (-> Unit)) (-> Unit) (:features :js-ffi)
 ```
 
 Source: [examples/observe-string.cirru](../examples/observe-string.cirru)
@@ -135,12 +132,10 @@ Source: [examples/observe-string.cirru](../examples/observe-string.cirru)
 quote $ defn observe-string! (host ready! failed!)
   shared/promise-observe! host
     fn (raw)
-      hint-fn $ {} (:return 'Unit) (:features (#{} :js-ffi))
-        :args $ [] $ :: 'JsNullish 'JsObject
+      hint-fn $ Fn (JsNullish JsObject) (-> Unit) (:features :js-ffi)
       ready! $ contract/expect-string |Promise.payload raw
     fn (raw-error)
-      hint-fn $ {} (:return 'Unit) (:features (#{} :js-ffi))
-        :args $ [] $ :: 'JsNullish 'JsObject
+      hint-fn $ Fn (JsNullish JsObject) (-> Unit) (:features :js-ffi)
       failed! $ shared/normalize-error raw-error
 ```
 
@@ -159,17 +154,14 @@ js-ffi.canvas-batches :as canvas
 Schema:
 
 ```text
-:: 'Fn $ {} (:args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'String) (:return 'Number) (:features $ #{} :js-ffi)
+Fn js-ffi.canvas-batches/CanvasContextHost String (-> Number) (:features :js-ffi)
 ```
 
 Source: [examples/canvas-text.cirru](../examples/canvas-text.cirru)
 
 ```text
 quote $ defn canvas-text (context text)
-  hint-fn $ {}
-    :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'String
-    :return 'Number
-    :features $ #{} :js-ffi
+  hint-fn $ Fn js-ffi.canvas-batches/CanvasContextHost String (-> Number) (:features :js-ffi)
   context .save!
   js-set context :font "|20px monospace"
   js-set context :text-align |left
@@ -198,17 +190,14 @@ js-ffi.canvas-batches :as canvas
 Schema:
 
 ```text
-:: 'Fn $ {} (:args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'String) (:return $ :: 'List 'Number) (:features $ #{} :js-ffi)
+Fn js-ffi.canvas-batches/CanvasContextHost String (-> (List Number)) (:features :js-ffi)
 ```
 
 Source: [examples/canvas-text-ink.cirru](../examples/canvas-text-ink.cirru)
 
 ```text
 quote $ defn canvas-text-ink (context text)
-  hint-fn $ {}
-    :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'String
-    :return $ :: 'List 'Number
-    :features $ #{} :js-ffi
+  hint-fn $ Fn js-ffi.canvas-batches/CanvasContextHost String (-> (List Number)) (:features :js-ffi)
   let
       metrics $ canvas/measure-text-ink context text
     [] (metrics :width) (metrics :actual-bounding-box-left) (metrics :actual-bounding-box-right) (metrics :actual-bounding-box-ascent) (metrics :actual-bounding-box-descent)
@@ -229,17 +218,14 @@ js-ffi.canvas-batches :as canvas
 Schema:
 
 ```text
-:: 'Fn $ {} (:args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'String 'String 'Bool) (:return 'Unit) (:features $ #{} :js-ffi)
+Fn js-ffi.canvas-batches/CanvasContextHost String String Bool (-> Unit) (:features :js-ffi)
 ```
 
 Source: [examples/canvas-path.cirru](../examples/canvas-path.cirru)
 
 ```text
 quote $ defn canvas-path (context cap line-join closed)
-  hint-fn $ {}
-    :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'String 'String 'Bool
-    :return 'Unit
-    :features $ #{} :js-ffi
+  hint-fn $ Fn js-ffi.canvas-batches/CanvasContextHost String String Bool (-> Unit) (:features :js-ffi)
   context .save!
   context .transform! 1 0 0 1 7 9
   js-set context :stroke-style |#ea580c
@@ -272,17 +258,14 @@ js-ffi.canvas-batches :as canvas
 Schema:
 
 ```text
-:: 'Fn $ {} (:args $ [] 'js-ffi.canvas-batches/CanvasContextHost) (:return 'Unit) (:features $ #{} :js-ffi)
+Fn js-ffi.canvas-batches/CanvasContextHost (-> Unit) (:features :js-ffi)
 ```
 
 Source: [examples/canvas-filled-path.cirru](../examples/canvas-filled-path.cirru)
 
 ```text
 quote $ defn canvas-filled-path (context)
-  hint-fn $ {}
-    :args $ [] 'js-ffi.canvas-batches/CanvasContextHost
-    :return 'Unit
-    :features $ #{} :js-ffi
+  hint-fn $ Fn js-ffi.canvas-batches/CanvasContextHost (-> Unit) (:features :js-ffi)
   context .save!
   context .begin-path!
   context .move-to! 18 74
@@ -312,17 +295,14 @@ js-ffi.canvas-batches :as canvas
 Schema:
 
 ```text
-:: 'Fn $ {} (:args $ [] 'js-ffi.canvas-batches/CanvasContextHost) (:return 'Unit) (:features $ #{} :js-ffi)
+Fn js-ffi.canvas-batches/CanvasContextHost (-> Unit) (:features :js-ffi)
 ```
 
 Source: [examples/canvas-card.cirru](../examples/canvas-card.cirru)
 
 ```text
 quote $ defn canvas-card (context)
-  hint-fn $ {}
-    :args $ [] 'js-ffi.canvas-batches/CanvasContextHost
-    :return 'Unit
-    :features $ #{} :js-ffi
+  hint-fn $ Fn js-ffi.canvas-batches/CanvasContextHost (-> Unit) (:features :js-ffi)
   let
       transform $ canvas/CanvasAffine2D :a 1 :b 0 :c 0 :d 1 :e 5 :f 0
       clip $ canvas/CanvasRect :x 2 :y 2 :width 10 :height 10
@@ -345,7 +325,7 @@ js-ffi.webgpu :as webgpu
 Schema:
 
 ```text
-:: 'Fn $ {} (:args $ [] 'js-ffi.webgpu/DeviceHost) (:return 'Number) (:features $ #{} :js-ffi)
+Fn js-ffi.webgpu/DeviceHost (-> Number) (:features :js-ffi)
 ```
 
 Source: [examples/buffer-lifecycle.cirru](../examples/buffer-lifecycle.cirru)
@@ -377,7 +357,7 @@ js-ffi.shared :as shared
 Schema:
 
 ```text
-:: 'Fn $ {} (:args $ [] 'String) (:return 'String)
+Fn String (-> String)
 ```
 
 Source: [examples/query-string.cirru](../examples/query-string.cirru)
@@ -405,7 +385,7 @@ js-ffi.node :as node
 Schema:
 
 ```text
-:: 'Fn $ {} (:args $ [] 'String 'String) (:return 'String)
+Fn String String (-> String)
 ```
 
 Source: [examples/text-file.cirru](../examples/text-file.cirru)
@@ -433,7 +413,7 @@ js-ffi.browser :as browser
 Schema:
 
 ```text
-:: 'Fn $ {} (:args $ [] 'String (:: 'Fn ({} (:args $ [] 'js-ffi.browser/EventHost) (:return 'Unit)))) (:return $ :: 'Fn $ {} (:args $ []) (:return 'Unit))
+Fn String (Fn js-ffi.browser/EventHost (-> Unit)) (-> (Fn (-> Unit)))
 ```
 
 Source: [examples/listen.cirru](../examples/listen.cirru)
@@ -442,9 +422,7 @@ Source: [examples/listen.cirru](../examples/listen.cirru)
 quote $ defn listen (event-name callback)
   browser/add-event-listener! event-name callback
   fn ()
-    hint-fn $ {}
-      :args $ []
-      :return 'Unit
+    hint-fn $ Fn (-> Unit)
     browser/remove-event-listener! event-name callback
 ```
 
