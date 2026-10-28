@@ -5,24 +5,19 @@ JavaScript explicit, checkable, and reusable across Calcit projects.
 
 ## 版本与工具链
 
-使用者影响：本候选为正式 Calcit CLI / `@calcit/procs` `0.31.0` 准备新的
-JS-FFI Git patch `0.2.7`。现有 `0.2.5` / `0.2.6` tag 均属于 0.30.1 维护线，
-不覆盖或移动；main 的 0.31 迁移不会自动进入这些旧 tag。下游须等 0.2.7 实际发布后，
-协调完整依赖图并重新生成 JS，不能把兼容编译等同于旧 tag 已声明配对新工具链。
+使用者影响：本候选为正式 Calcit CLI / `@calcit/procs` `0.32.1` 准备新的
+JS-FFI Git patch `0.2.8`。0.32 拒绝旧的 `:: 'Fn` 类型写法（`E_LEGACY_TYPE_SYNTAX`），
+所以 `0.2.7` 及更早的 tag 无法在 0.32 下加载，下游须升级到 0.2.8 并重新生成 JS。
+`0.2.5` / `0.2.6` / `0.2.7` tag 不覆盖或移动。
 
-本次只修正 deps/package 的发布版本及当前说明，相对当前 main 不改 Snapshot、宿主
-实现、公开合同、测试、原质量预算或工作流；原 Node/真实浏览器合同和完整 strict 保留。
-仅发布 Git tag，不发布 npm，也没有 Demo 或服务部署。详见 [发布配对记录](https://github.com/calcit-lang/js-ffi/issues/195)。
-原 Node 测试的三处已删除 Option 导出改为公开 `nil->option`：固定非空文本和函数仍为 Some，
-无请求体的 null 为 None，保留原请求、回调和断言。
+本次由 `calcit calcit.cirru edit format` 把 Snapshot 迁移为精简类型写法，并更新
+deps/package 的工具链版本；公开合同、宿主实现和测试不变。仅发布 Git tag，不发布 npm。
 
 当前模块版本与 Calcit CLI 版本以 `deps.cirru` 为准，JS runtime 精确版本在 `package.json` 中声明；CLI 与 `@calcit/procs` 必须配对。下游固定已发布的模块 tag，安装后运行 `caps verify --toolchain`，再运行应用原有的类型检查、Node/浏览器测试和构建。main 上的新迁移不自动进入旧 tag。
 
 ### DOM 输入能力与主线修复
 
-维护分支正式 `0.2.6` 已修复 [#187](https://github.com/calcit-lang/js-ffi/issues/187)，
-当前 main 已同步该修复，并保留此前的数据定义元类型与旧 API 迁移；本次将这些已合并实现
-配对正式 0.31 工具链准备 0.2.7。候选不等于已发布版本，旧 tag 的工具链合同保持。
+正式 `0.2.6` 已修复 [#187](https://github.com/calcit-lang/js-ffi/issues/187)，当前 main 已同步该修复，并保留数据定义元类型与旧 API 迁移。
 
 普通 `div`/`canvas` 没有输入专属的 `value`/`placeholder`，`DomElementHost` 不再承诺这两个字段。
 直接访问这两个字段的 Calcit 代码需改用 `element-value` 或最小 `DomValueHost`/
