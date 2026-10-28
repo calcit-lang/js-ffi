@@ -1,8 +1,5 @@
 quote $ defn canvas-filled-path (context)
-  hint-fn $ {}
-    :args $ [] 'js-ffi.canvas-batches/CanvasContextHost
-    :return 'Unit
-    :features $ #{} :js-ffi
+  hint-fn $ Fn js-ffi.canvas-batches/CanvasContextHost (-> Unit) (:features :js-ffi)
   context .save!
   context .begin-path!
   context .move-to! 18 74

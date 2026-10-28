@@ -109,7 +109,7 @@ test('API check discovers an unused new definition and rejects its invalid call'
     copyFileSync(join(root, 'calcit.cirru'), snapshot);
     copyFileSync(join(root, 'deps.cirru'), join(dir, 'deps.cirru'));
     calcit([snapshot, 'edit', 'def', 'js-ffi.node/unused-invalid', '--code', 'quote $ defn unused-invalid () $ path-basename 42'], dir);
-    calcit([snapshot, 'edit', 'schema', 'js-ffi.node/unused-invalid', '--code', "quote $ :: 'Fn $ {} (:args $ []) (:return 'String)"], dir);
+    calcit([snapshot, 'edit', 'schema', 'js-ffi.node/unused-invalid', '--code', "quote $ Fn (-> String)"], dir);
     const before = readFileSync(snapshot, 'utf8');
     const namespaces = publicNamespacesForRuntime('node');
     const result = spawnSync(
@@ -188,7 +188,8 @@ test('catalog builds on first search, refreshes stale data, and preserves host m
   assert.equal(element.ffi.names['text-content'], 'textContent');
   assert.equal(element.ffi.names['class-name'], 'className');
   assert.equal(element.declaration[0], 'deftrait');
-  assert.deepEqual(element.schemaData, { __edn_symbol: 'Trait' });
+  assert.equal(catalog.schemaVersion, 2);
+  assert.equal(element.schemaData, 'Trait');
   const nominalMarkers = new Map([
     ['defstruct', 'StructDef'], ['defenum', 'EnumDef'],
     ['deftrait', 'Trait'], ['defimpl', 'Impl'],
@@ -197,11 +198,10 @@ test('catalog builds on first search, refreshes stale data, and preserves host m
     const marker = nominalMarkers.get(entry.declaration[0]);
     assert.ok(marker, `recognized nominal declaration: ${entry.id}`);
     assert.equal(entry.schema, `'${marker}`, `${entry.id} definition metadata must match its declaration`);
-    assert.deepEqual(entry.schemaData, { __edn_symbol: marker }, `${entry.id} metadata must describe its definition, not a runtime value`);
+    assert.equal(entry.schemaData, marker, `${entry.id} metadata must describe its definition, not a runtime value`);
   }
   const scroll = catalog.definitions.find(def => def.id === 'js-ffi.browser/element-scroll-height');
-  assert.equal(scroll.schemaData.__edn_enum_variant, 'Fn');
-  assert.deepEqual(scroll.schemaData.__edn_enum_extra[0][':return'], { __edn_symbol: 'Number' });
+  assert.deepEqual(scroll.schemaData, ['Fn', 'js-ffi.browser/DomElementHost', ['->', 'Number'], [':features', ':js-ffi']]);
   const result = spawnSync(process.execPath, [join(root, 'scripts/api-catalog.mjs'), 'search', 'storage', 'node'], { cwd: root, encoding: 'utf8' });
   assert.equal(result.status, 0, result.stderr);
   assert.deepEqual(JSON.parse(result.stdout), []);

@@ -1,8 +1,5 @@
 quote $ defn canvas-card (context)
-  hint-fn $ {}
-    :args $ [] 'js-ffi.canvas-batches/CanvasContextHost
-    :return 'Unit
-    :features $ #{} :js-ffi
+  hint-fn $ Fn js-ffi.canvas-batches/CanvasContextHost (-> Unit) (:features :js-ffi)
   let
       transform $ canvas/CanvasAffine2D :a 1 :b 0 :c 0 :d 1 :e 5 :f 0
       clip $ canvas/CanvasRect :x 2 :y 2 :width 10 :height 10
