@@ -39,7 +39,7 @@ for (const runtime of [compile]) {
     }
     edit(['edit', 'add-import', `js-ffi.${runtime}-test`, '--code', 'quote $ js-ffi.typed-arrays :as typed-arrays']);
     edit(['edit', 'def', target, '--code', `quote $ defn check-api! ()\n  ${refs.map(ref => `, ${ref}`).join('\n  ')}\n  , &unit`]);
-    edit(['edit', 'schema', target, '--code', "quote $ :: 'Fn $ {} (:args $ []) (:return 'Unit)"]);
+    edit(['edit', 'schema', target, '--code', "quote $ Fn (-> Unit)"]);
     edit(['tree', 'insert', `js-ffi.${runtime}-test/main!`, '--path', '@3', '--at', 'before', '--code', 'quote $ check-api!']);
     // Recipes are normal Calcit consumers, injected only into the temporary build snapshot.
     for (const recipe of recipes.filter(recipe => recipe.runtimes.includes(runtime))) {

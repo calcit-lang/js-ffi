@@ -59,8 +59,8 @@ for (const [runtime, expression, diagnostic, extraImport, hostFeature] of cases)
     if (runtime === 'browser') mutate(['edit', 'add-import', 'js-ffi.browser-test', '--code', 'quote $ js-ffi.canvas-batches :as canvas-batches']);
     if (extraImport) mutate(['edit', 'add-import', `js-ffi.${runtime}-test`, '--code', `quote $ ${extraImport}`]);
     mutate(['edit', 'def', target, '--code', `quote $ defn invalid-call! ()\n  do (${expression}) &unit`]);
-    const feature = hostFeature ? ' (:features $ #{} :js-ffi)' : '';
-    mutate(['edit', 'schema', target, '--code', `quote $ :: 'Fn $ {} (:args $ []) (:return 'Unit)${feature}`]);
+    const feature = hostFeature ? ' (:features :js-ffi)' : '';
+    mutate(['edit', 'schema', target, '--code', `quote $ Fn (-> Unit)${feature}`]);
     const result = spawnSync(calcitBin, [snapshot, '--entry', runtime, '--init-fn', target, '--check-only'], { cwd: dir, encoding: 'utf8' });
     assert.ifError(result.error);
     assert.notEqual(result.status, 0, `Invalid consumer unexpectedly passed: ${expression}`);
@@ -79,7 +79,7 @@ for (const [runtime, expression, diagnostic, extraImport, hostFeature] of cases)
     const target = 'js-ffi.node-test/generic-promise-calls?';
     const mutate = args => execFileSync(calcitBin, [snapshot, ...args], { cwd: dir, stdio: 'pipe' });
     mutate(['edit', 'def', target, '--code', 'quote $ defn generic-promise-calls? ()\n  and\n    not $ shared/promise? 42\n    not $ shared/promise? |text\n    not $ shared/promise? $ {} (:x 1)']);
-    mutate(['edit', 'schema', target, '--code', "quote $ :: 'Fn $ {} (:args $ []) (:return 'Bool)"]);
+    mutate(['edit', 'schema', target, '--code', "quote $ Fn (-> Bool)"]);
     const result = spawnSync(calcitBin, [snapshot, '--entry', 'node', '--init-fn', target, '--check-only'], { cwd: dir, encoding: 'utf8' });
     assert.ifError(result.error);
     assert.equal(result.status, 0, result.stdout + result.stderr);
@@ -87,21 +87,21 @@ for (const [runtime, expression, diagnostic, extraImport, hostFeature] of cases)
 }
 
 // Promise host handles do not prove the type of an awaited payload.
-const stringCallback = ":: 'Fn $ {} (:args ([] 'String)) (:return 'Unit)";
-const preciseExecutor = `shared/promise-create $ fn (resolve reject)\n    hint-fn $ {} (:args $ [] (${stringCallback}) (${stringCallback})) (:return 'Unit)\n    resolve |ok\n    , &unit`;
-const hostSetup = `let\n      host $ shared/promise-create $ fn (resolve reject)\n        hint-fn $ {} (:args $ [] (${stringCallback}) (${stringCallback})) (:return 'Unit)\n        resolve |ok\n        , &unit`;
+const stringCallback = "Fn String (-> Unit)";
+const preciseExecutor = `shared/promise-create $ fn (resolve reject)\n    hint-fn $ Fn (${stringCallback}) (${stringCallback}) (-> Unit)\n    resolve |ok\n    , &unit`;
+const hostSetup = `let\n      host $ shared/promise-create $ fn (resolve reject)\n        hint-fn $ Fn (${stringCallback}) (${stringCallback}) (-> Unit)\n        resolve |ok\n        , &unit`;
 const promiseCases = [
   [preciseExecutor + '\n  , &unit', true],
-  [preciseExecutor.replace(`(${stringCallback}) (${stringCallback})`, `(${stringCallback}) (:: 'Fn $ {} (:args $ [] (:: 'JsNullish 'JsObject)) (:return 'Unit))`) + '\n  , &unit', true],
+  [preciseExecutor.replace(`(${stringCallback}) (${stringCallback})`, `(${stringCallback}) (Fn (JsNullish JsObject) (-> Unit))`) + '\n  , &unit', true],
   [preciseExecutor.replace('resolve |ok', 'resolve 42') + '\n  , &unit', false],
   [preciseExecutor.replace('resolve |ok', 'reject 42') + '\n  , &unit', false],
-  [preciseExecutor.replace(`(${stringCallback}) (${stringCallback})`, `(${stringCallback}) 'DynFn`) + '\n  , &unit', false],
-  ["shared/promise-create $ fn (resolve)\n    hint-fn $ {} (:args $ [] (" + stringCallback + ")) (:return 'Unit)\n    resolve |ok\n    , &unit\n  , &unit", false],
-  ["fn (host)\n    hint-fn $ {} (:args ([] 'js-ffi.shared/PromiseHost)) (:return 'Unit) (:features (#{} :js-ffi))\n    shared/promise-observe! host\n      fn (value)\n        hint-fn $ {} (:args ([] 'js-ffi.shared/PromiseHost)) (:return 'Unit) (:features (#{} :js-ffi))\n        value .then! $ fn (item) &unit\n        , &unit\n      fn (error) &unit\n  , &unit", false],
-  ["shared/promise-observe! |ok\n    fn (value)\n      hint-fn $ {} (:args ([] 'String)) (:return 'Unit)\n      , &unit\n    fn (error) &unit", false],
-  ["shared/promise-observe! |ok\n    fn (value) &unit\n    fn (error)\n      hint-fn $ {} (:args ([] 'String)) (:return 'Unit)\n      , &unit", false],
-  [hostSetup + "\n    host .then! $ fn (value)\n      hint-fn $ {} (:args ([] 'String)) (:return 'Unit)\n      , &unit\n    , &unit", false, /Method `\.then!` arg 2 expects type `fn\(js-nullish<:js-object>\) -> :unit`/],
-  [hostSetup + "\n    host .catch! $ fn (error)\n      hint-fn $ {} (:args ([] 'String)) (:return 'Unit)\n      , &unit\n    , &unit", false, /Method `\.catch!` arg 2 expects type `fn\(js-nullish<:js-object>\) -> :unit`/],
+  [preciseExecutor.replace(`(${stringCallback}) (${stringCallback})`, `(${stringCallback}) DynFn`) + '\n  , &unit', false],
+  ["shared/promise-create $ fn (resolve)\n    hint-fn $ Fn (" + stringCallback + ") (-> Unit)\n    resolve |ok\n    , &unit\n  , &unit", false],
+  ["fn (host)\n    hint-fn $ Fn js-ffi.shared/PromiseHost (-> Unit) (:features :js-ffi)\n    shared/promise-observe! host\n      fn (value)\n        hint-fn $ Fn js-ffi.shared/PromiseHost (-> Unit) (:features :js-ffi)\n        value .then! $ fn (item) &unit\n        , &unit\n      fn (error) &unit\n  , &unit", false],
+  ["shared/promise-observe! |ok\n    fn (value)\n      hint-fn $ Fn String (-> Unit)\n      , &unit\n    fn (error) &unit", false],
+  ["shared/promise-observe! |ok\n    fn (value) &unit\n    fn (error)\n      hint-fn $ Fn String (-> Unit)\n      , &unit", false],
+  [hostSetup + "\n    host .then! $ fn (value)\n      hint-fn $ Fn String (-> Unit)\n      , &unit\n    , &unit", false, /Method `\.then!` arg 2 expects type `fn\(js-nullish<:js-object>\) -> :unit`/],
+  [hostSetup + "\n    host .catch! $ fn (error)\n      hint-fn $ Fn String (-> Unit)\n      , &unit\n    , &unit", false, /Method `\.catch!` arg 2 expects type `fn\(js-nullish<:js-object>\) -> :unit`/],
 ];
 for (const [body, accepted, diagnostic = /(?:TYPE_MISMATCH|ARITY_MISMATCH|CALL_ARGUMENT_UNPROVEN)/] of promiseCases) {
   const dir = mkdtempSync(join(tmpdir(), 'js-ffi-promise-contract-'));
@@ -112,7 +112,7 @@ for (const [body, accepted, diagnostic = /(?:TYPE_MISMATCH|ARITY_MISMATCH|CALL_A
     const target = 'js-ffi.node-test/promise-contract!';
     const mutate = args => execFileSync(calcitBin, [snapshot, ...args], { cwd: dir, stdio: 'pipe' });
     mutate(['edit', 'def', target, '--input-format', 'cirru', '--code', `quote $ defn promise-contract! ()\n  ${body}`]);
-    mutate(['edit', 'schema', target, '--code', "quote $ :: 'Fn $ {} (:args ([])) (:return 'Unit) (:features (#{} :js-ffi))"]);
+    mutate(['edit', 'schema', target, '--code', "quote $ Fn (-> Unit) (:features :js-ffi)"]);
     const result = spawnSync(calcitBin, [snapshot, '--entry', 'node', '--init-fn', target, '--check-only'], { cwd: dir, encoding: 'utf8' });
     assert.ifError(result.error);
     if (accepted) assert.equal(result.status, 0, result.stdout + result.stderr);
@@ -134,7 +134,7 @@ for (const [body, accepted, diagnostic = /(?:TYPE_MISMATCH|ARITY_MISMATCH|CALL_A
     const target = 'js-ffi.browser-test/event-upcast!';
     const mutate = args => execFileSync(calcitBin, [snapshot, ...args], { cwd: dir, stdio: 'pipe' });
     mutate(['edit', 'def', target, '--code', 'quote $ defn event-upcast! ()\n  do\n    browser/event-stop-propagation! $ browser/keyboard-event-host $ raise |keyboard\n    browser/event-stop-propagation! $ browser/mouse-event-host $ raise |mouse\n    , &unit']);
-    mutate(['edit', 'schema', target, '--code', "quote $ :: 'Fn $ {} (:args $ []) (:return 'Unit) (:features $ #{} :js-ffi)"]);
+    mutate(['edit', 'schema', target, '--code', "quote $ Fn (-> Unit) (:features :js-ffi)"]);
     const result = spawnSync(calcitBin, [snapshot, '--entry', 'browser', '--init-fn', target, '--check-only'], { cwd: dir, encoding: 'utf8' });
     assert.ifError(result.error);
     assert.equal(result.status, 0, result.stdout + result.stderr);
@@ -187,9 +187,9 @@ for (const expression of invalidCanvas) {
     const mutate = args => execFileSync(calcitBin, [snapshot, ...args], { cwd: dir, stdio: 'pipe' });
     const target = 'js-ffi.browser-test/invalid-canvas!';
     mutate(['edit', 'def', target, '--code', `quote $ defn invalid-canvas! (context)\n  do (${expression}) &unit`]);
-    mutate(['edit', 'schema', target, '--code', "quote $ :: 'Fn $ {} (:args $ [] 'js-ffi.canvas-batches/CanvasContextHost) (:return 'Unit) (:features $ #{} :js-ffi)"]);
+    mutate(['edit', 'schema', target, '--code', "quote $ Fn js-ffi.canvas-batches/CanvasContextHost (-> Unit) (:features :js-ffi)"]);
     mutate(['edit', 'def', 'js-ffi.browser-test/check-canvas!', '--code', 'quote $ defn check-canvas! ()\n  do invalid-canvas! &unit']);
-    mutate(['edit', 'schema', 'js-ffi.browser-test/check-canvas!', '--code', "quote $ :: 'Fn $ {} (:args $ []) (:return 'Unit)"]);
+    mutate(['edit', 'schema', 'js-ffi.browser-test/check-canvas!', '--code', "quote $ Fn (-> Unit)"]);
     const result = spawnSync(calcitBin, [snapshot, '--entry', 'browser', '--init-fn', 'js-ffi.browser-test/check-canvas!', '--check-only'], { cwd: dir, encoding: 'utf8' });
     assert.ifError(result.error);
     assert.notEqual(result.status, 0, `Invalid Canvas consumer passed: ${expression}`);
@@ -207,9 +207,9 @@ for (const expression of invalidCanvas) {
     copyFileSync(new URL('../deps.cirru', import.meta.url), join(dir, 'deps.cirru'));
     const mutate = args => execFileSync(calcitBin, [snapshot, ...args], { cwd: dir, stdio: 'pipe' });
     mutate(['edit', 'def', 'js-ffi.node-test/accept-sync-loader', '--code', 'quote $ defn accept-sync-loader (loader) &unit']);
-    mutate(['edit', 'schema', 'js-ffi.node-test/accept-sync-loader', '--code', "quote $ :: 'Fn $ {} (:args $ [] (:: 'Fn $ {} (:args $ [] 'String) (:return $ :: 'Result 'js-ffi.shared/ResponseHost 'js-ffi.shared/JsError))) (:return 'Unit)"]);
+    mutate(['edit', 'schema', 'js-ffi.node-test/accept-sync-loader', '--code', "quote $ Fn (Fn String (-> (Result js-ffi.shared/ResponseHost js-ffi.shared/JsError))) (-> Unit)"]);
     mutate(['edit', 'def', 'js-ffi.node-test/invalid-call!', '--code', 'quote $ defn invalid-call! ()\n  accept-sync-loader shared/fetch-response']);
-    mutate(['edit', 'schema', 'js-ffi.node-test/invalid-call!', '--code', "quote $ :: 'Fn $ {} (:args $ []) (:return 'Unit)"]);
+    mutate(['edit', 'schema', 'js-ffi.node-test/invalid-call!', '--code', "quote $ Fn (-> Unit)"]);
     const result = spawnSync(calcitBin, [snapshot, '--entry', 'node', '--init-fn', 'js-ffi.node-test/invalid-call!', '--check-only'], { cwd: dir, encoding: 'utf8' });
     assert.ifError(result.error);
     assert.notEqual(result.status, 0, 'Async callback unexpectedly passed a synchronous callback slot');
@@ -227,9 +227,9 @@ for (const expression of invalidCanvas) {
     copyFileSync(new URL('../deps.cirru', import.meta.url), join(dir, 'deps.cirru'));
     const mutate = args => execFileSync(calcitBin, [snapshot, ...args], { cwd: dir, stdio: 'pipe' });
     mutate(['edit', 'def', 'js-ffi.node-test/fake-response', '--code', 'quote $ defn fake-response ()\n  raise |not-executed']);
-    mutate(['edit', 'schema', 'js-ffi.node-test/fake-response', '--code', "quote $ :: 'Fn $ {} (:args $ []) (:return 'js-ffi.shared/ResponseHost)"]);
+    mutate(['edit', 'schema', 'js-ffi.node-test/fake-response', '--code', "quote $ Fn (-> js-ffi.shared/ResponseHost)"]);
     mutate(['edit', 'def', 'js-ffi.node-test/invalid-call!', '--code', 'quote $ defn invalid-call! ()\n  shared/normalize-error $ shared/response-text (fake-response)']);
-    mutate(['edit', 'schema', 'js-ffi.node-test/invalid-call!', '--code', "quote $ :: 'Fn $ {} (:args $ []) (:return 'js-ffi.shared/JsError)"]);
+    mutate(['edit', 'schema', 'js-ffi.node-test/invalid-call!', '--code', "quote $ Fn (-> js-ffi.shared/JsError)"]);
     const result = spawnSync(calcitBin, [snapshot, '--entry', 'node', '--init-fn', 'js-ffi.node-test/invalid-call!', '--check-only'], { cwd: dir, encoding: 'utf8' });
     assert.ifError(result.error);
     assert.notEqual(result.status, 0, 'Unawaited response-text unexpectedly passed');

@@ -72,7 +72,7 @@ executable recipe. A `recipes` link means the function is demonstrated by that
 recipe; its `validation` link names the test that exercises the compiled
 recipe. Existing host contract tests remain necessary.
 
-The `schemaData` field preserves the CLI's tagged EDN representation, while
+Catalog schemaVersion 2 stores the official compact type tree in `schemaData` (a type name or nested array), while
 `schema` is readable Calcit syntax. `ffi` uses plain keys and tag values;
 writable sets are sorted arrays for deterministic generation. Trait declarations
 retain the complete field and method AST. JSON consumers should check
@@ -93,14 +93,14 @@ retain the complete field and method AST. JSON consumers should check
 - [Calcit #875](https://github.com/calcit-lang/calcit/issues/875) provides the
   versioned `query def --format json` envelope consumed by the catalog. Its
   structured `data.ffi` field is lossless even for large host traits. The catalog
-  obtains `schemaData` by parsing the canonical schema from the official
-  `query schema` view, without parsing the Snapshot.
+  obtains `schemaData` directly from the official `query schema` tree, without
+  parsing the Snapshot or interpreting type syntax as EDN.
 - [Calcit #1206](https://github.com/calcit-lang/calcit/issues/1206) adds
   `--file`/stdin input to `cirru parse-edn`. The catalog no longer transports or
-  parses the whole Snapshot; only one bounded schema view is parsed at a time.
+  parses the whole Snapshot; with 0.32 it no longer needs the EDN parser for schemas.
 
 The tooling requires Calcit's query.def envelope v1 and fails closed on another
 schema version, command, definition ID, malformed JSON, or missing metadata.
 The schema query envelope is also checked for version, command, definition ID
-and canonical schema text. Generation fails on query/parser errors rather than
-emitting an incomplete catalog; the tagged `schemaData` representation is retained.
+and canonical schema text/tree. Generation fails on query errors rather than
+emitting an incomplete catalog; schemaVersion 1 consumers must migrate to the compact tree representation.

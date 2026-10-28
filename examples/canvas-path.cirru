@@ -1,8 +1,5 @@
 quote $ defn canvas-path (context cap line-join closed)
-  hint-fn $ {}
-    :args $ [] 'js-ffi.canvas-batches/CanvasContextHost 'String 'String 'Bool
-    :return 'Unit
-    :features $ #{} :js-ffi
+  hint-fn $ Fn js-ffi.canvas-batches/CanvasContextHost String String Bool (-> Unit) (:features :js-ffi)
   context .save!
   context .transform! 1 0 0 1 7 9
   js-set context :stroke-style |#ea580c

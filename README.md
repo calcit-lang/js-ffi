@@ -3,7 +3,23 @@
 Typed JavaScript FFI definitions for Calcit. This package is independent: it exists to make the boundary between Calcit and host
 JavaScript explicit, checkable, and reusable across Calcit projects.
 
-## 版本与工具链
+## 0.32.0 迁移准备（未发版）
+
+使用者注意：此候选将 CLI / `@calcit/procs` 配对到 0.32.0，并通过官方
+`edit format` 将 Snapshot 类型标注转换为紧凑语法；旧 CLI 不作为此候选的兼容目标。
+候选模块版本为 0.2.8，尚未发布，不移动已有 tag。
+
+已保存并对照迁移前后 377 个定义的官方查询视图；其中 71 个定义含类型位置的
+表示变化，CodeEntry schema 查询的语义值保持不变。原 Node 145 个、Browser 299 个
+公开定义检查及示例编译、两个原入口和原质量基线通过；原 81 个非法消费者仍被拒绝。
+独立只读评审已完成；运行验收结果如下。
+
+GitHub Release 与 npm runtime 0.32.0 均已发布，已按原一小时包龄门禁正常安装并生成 lock。
+本地完整 strict、81 个非法消费者拒绝、Node 原测试和 Chromium 2690 条断言通过；
+当前机器无 WebGPU adapter，原 GPU 项跳过，不作为 GPU 硬件验收证据。Linux 验收以本次 PR 精确提交的 CI 结果为准。
+以下为先前发布记录。
+
+## 0.31.0 历史版本与工具链
 
 使用者影响：本候选为正式 Calcit CLI / `@calcit/procs` `0.31.0` 准备新的
 JS-FFI Git patch `0.2.7`。现有 `0.2.5` / `0.2.6` tag 均属于 0.30.1 维护线，
@@ -458,6 +474,19 @@ Every function that performs a host operation or `unsafe-coerce` declares
 `:features $ #{} :js-ffi`. `JsNullish<T>` stays at the host trait boundary and
 is normalized with `js-nullish->option` or a checked `contract/expect-*`
 decoder before ordinary application code sees a concrete value.
+
+## Historical scaffold plans
+
+The six files in `docs/architectures/` are retained as historical design inputs
+from the implementation work. They contain legacy type syntax and are not
+supported as scaffold or replay inputs for Calcit 0.32.0. Current tooling and CI do not
+consume them; all definitions they describe already exist in the Snapshot.
+Some planned contracts have since changed, so merely updating their syntax
+would not make them authoritative.
+
+Use the current `calcit query schema` / `query def` views, generated API catalog,
+and runtime tests for the maintained API contract. These historical files do
+not establish that an implementation or consumer has passed validation.
 
 ## Design RFC
 
