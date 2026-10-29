@@ -3,20 +3,12 @@
 Typed JavaScript FFI definitions for Calcit. This package is independent: it exists to make the boundary between Calcit and host
 JavaScript explicit, checkable, and reusable across Calcit projects.
 
-## 0.32.0 迁移准备（未发版）
+## 0.2.9：配对 Calcit 0.32.1
 
-使用者注意：此候选将 CLI / `@calcit/procs` 配对到 0.32.0，并通过官方
-`edit format` 将 Snapshot 类型标注转换为紧凑语法；旧 CLI 不作为此候选的兼容目标。
-候选模块版本为 0.2.8，尚未发布，不移动已有 tag。
+使用者注意：0.2.8 已发布并配对 0.32.0，tag 不移动。0.2.9 把 CLI / `@calcit/procs` 升级到 0.32.1，
+Snapshot 与公开合同相对 0.2.8 不变。下游固定 0.2.9 后重新生成 JS，并运行
+`caps verify --toolchain`。以 PR 精确提交的 CI 结果为准。
 
-已保存并对照迁移前后 377 个定义的官方查询视图；其中 71 个定义含类型位置的
-表示变化，CodeEntry schema 查询的语义值保持不变。原 Node 145 个、Browser 299 个
-公开定义检查及示例编译、两个原入口和原质量基线通过；原 81 个非法消费者仍被拒绝。
-独立只读评审已完成；运行验收结果如下。
-
-GitHub Release 与 npm runtime 0.32.0 均已发布，已按原一小时包龄门禁正常安装并生成 lock。
-本地完整 strict、81 个非法消费者拒绝、Node 原测试和 Chromium 2690 条断言通过；
-当前机器无 WebGPU adapter，原 GPU 项跳过，不作为 GPU 硬件验收证据。Linux 验收以本次 PR 精确提交的 CI 结果为准。
 以下为先前发布记录。
 
 ## 0.31.0 历史版本与工具链
