@@ -29,7 +29,7 @@
           :tags $ #{} :ffi :js-host
         'BrowserProbe $ %{} 'CodeEntry
           :doc "|Typed browser smoke result replacing the former heterogeneous Map<Dynamic>."
-          :code $ quote $ defstruct BrowserProbe (:runtime 'js-ffi.shared/Runtime) (:document? 'Bool) (:storage 'String) (:viewport 'js-ffi.browser/Viewport)
+          :code $ quote $ defstruct BrowserProbe (:runtime js-ffi.shared/Runtime) (:document? Bool) (:storage String) (:viewport js-ffi.browser/Viewport)
           :examples $ [] $ quote
             &%{} BrowserProbe :runtime (%:: shared/Runtime :browser) :document? true :storage |ok :viewport $ &%{} Viewport :width 1024 :height 768 :device-pixel-ratio 2
           :schema $ quote StructDef
@@ -64,7 +64,7 @@
           :tags $ #{} :ffi :js-host
         'DocumentReadyState $ %{} 'CodeEntry
           :doc "|Typed document.readyState values with an unknown String variant for forward compatibility."
-          :code $ quote $ defenum DocumentReadyState (:loading) (:interactive) (:complete) (:unknown 'String)
+          :code $ quote $ defenum DocumentReadyState (:loading) (:interactive) (:complete) (:unknown String)
           :examples $ [] $ quote (%:: DocumentReadyState :complete)
           :schema $ quote EnumDef
         'DomChildrenHost $ %{} 'CodeEntry
@@ -156,15 +156,15 @@
           :tags $ #{} :ffi :js-host
         'ElementRect $ %{} 'CodeEntry
           :doc "|Normalized element bounding box in CSS pixels copied from getBoundingClientRect."
-          :code $ quote $ defstruct ElementRect (:x 'Number) (:y 'Number) (:width 'Number) (:height 'Number)
+          :code $ quote $ defstruct ElementRect (:x Number) (:y Number) (:width Number) (:height Number)
           :examples $ [] $ quote
             &%{} ElementRect :x 0 :y 0 :width 100 :height 50
           :schema $ quote StructDef
         'ElementSnapshot $ %{} 'CodeEntry
           :doc "|Calcit-owned subset of DOM element data suitable for business code without retaining host identity."
-          :code $ quote $ defstruct ElementSnapshot (:id 'String) (:class-name 'String)
+          :code $ quote $ defstruct ElementSnapshot (:id String) (:class-name String)
             :text-content $ quote $ Option String
-            :child-count 'Number
+            :child-count Number
           :examples $ [] $ quote
             ElementSnapshot :id |main :class-name |panel :text-content (Option :some |Ready) :child-count 1
           :schema $ quote StructDef
@@ -206,7 +206,7 @@
           :tags $ #{} :ffi :js-host
         'KeyModifiers $ %{} 'CodeEntry
           :doc "|Normalized keyboard or pointer modifier state shared by event adapters."
-          :code $ quote $ defstruct KeyModifiers (:alt? 'Bool) (:ctrl? 'Bool) (:meta? 'Bool) (:shift? 'Bool)
+          :code $ quote $ defstruct KeyModifiers (:alt? Bool) (:ctrl? Bool) (:meta? Bool) (:shift? Bool)
           :examples $ [] $ quote
             &%{} KeyModifiers :alt? false :ctrl? true :meta? false :shift? false
           :schema $ quote StructDef
@@ -231,7 +231,7 @@
           :tags $ #{} :ffi :js-host
         'LocationSnapshot $ %{} 'CodeEntry
           :doc "|Typed copy of the stable browser Location URL fields."
-          :code $ quote $ defstruct LocationSnapshot (:href 'String) (:origin 'String) (:protocol 'String) (:host 'String) (:hostname 'String) (:port 'String) (:pathname 'String) (:search 'String) (:hash 'String)
+          :code $ quote $ defstruct LocationSnapshot (:href String) (:origin String) (:protocol String) (:host String) (:hostname String) (:port String) (:pathname String) (:search String) (:hash String)
           :examples $ []
           :schema $ quote StructDef
         'MediaQueryListHost $ %{} 'CodeEntry
@@ -278,7 +278,7 @@
           :schema $ quote Trait
         'PointerPosition $ %{} 'CodeEntry
           :doc "|Normalized pointer coordinates and button index copied from a MouseEvent-like object."
-          :code $ quote $ defstruct PointerPosition (:client-x 'Number) (:client-y 'Number) (:button 'Number)
+          :code $ quote $ defstruct PointerPosition (:client-x Number) (:client-y Number) (:button Number)
           :examples $ [] $ quote (&%{} PointerPosition :client-x 20 :client-y 30 :button 0)
           :schema $ quote StructDef
         'StorageHost $ %{} 'CodeEntry
@@ -307,12 +307,12 @@
           :tags $ #{} :ffi :js-host
         'Viewport $ %{} 'CodeEntry
           :doc "|Normalized viewport dimensions and device pixel ratio copied from Window."
-          :code $ quote $ defstruct Viewport (:width 'Number) (:height 'Number) (:device-pixel-ratio 'Number)
+          :code $ quote $ defstruct Viewport (:width Number) (:height Number) (:device-pixel-ratio Number)
           :examples $ [] $ quote (&%{} Viewport :width 1024 :height 768 :device-pixel-ratio 2)
           :schema $ quote StructDef
         'VisibilityState $ %{} 'CodeEntry
           :doc "|Typed document.visibilityState values with an unknown String variant."
-          :code $ quote $ defenum VisibilityState (:visible) (:hidden) (:prerender) (:unknown 'String)
+          :code $ quote $ defenum VisibilityState (:visible) (:hidden) (:prerender) (:unknown String)
           :examples $ [] $ quote (%:: VisibilityState :visible)
           :schema $ quote EnumDef
         'WebSocketHost $ %{} 'CodeEntry
@@ -1549,7 +1549,7 @@
     'js-ffi.canvas-batches $ %{} 'FileEntry
       :defs $ {}
         'CanvasAffine2D $ %{} 'CodeEntry (:doc "|Canvas2D 六系数仿射矩阵；传给原生 transform，单位和坐标系由调用方决定。")
-          :code $ quote $ defstruct CanvasAffine2D (:a 'Number) (:b 'Number) (:c 'Number) (:d 'Number) (:e 'Number) (:f 'Number)
+          :code $ quote $ defstruct CanvasAffine2D (:a Number) (:b Number) (:c Number) (:d Number) (:e Number) (:f Number)
           :examples $ []
           :schema $ quote StructDef
         'CanvasContextHost $ %{} 'CodeEntry
@@ -1596,7 +1596,7 @@
           :schema $ quote Trait
         'CanvasRect $ %{} 'CodeEntry
           :doc "|Canvas2D 矩形的 x/y/width/height 基础数据，不绑定任何 Scene IR。"
-          :code $ quote $ defstruct CanvasRect (:x 'Number) (:y 'Number) (:width 'Number) (:height 'Number)
+          :code $ quote $ defstruct CanvasRect (:x Number) (:y Number) (:width Number) (:height Number)
           :examples $ []
           :schema $ quote StructDef
         'CanvasSurfaceHost $ %{} 'CodeEntry
@@ -1827,7 +1827,7 @@
           :tags $ #{} :ffi :js-host
         'NodeProbe $ %{} 'CodeEntry
           :doc "|Typed Node smoke result replacing the former heterogeneous Map<Dynamic>."
-          :code $ quote $ defstruct NodeProbe (:runtime 'js-ffi.shared/Runtime) (:cwd 'String) (:argv-count 'Number)
+          :code $ quote $ defstruct NodeProbe (:runtime js-ffi.shared/Runtime) (:cwd String) (:argv-count Number)
           :examples $ [] $ quote
             &%{} NodeProbe :runtime (%:: shared/Runtime :node) :cwd |/tmp :argv-count 2
           :schema $ quote StructDef
@@ -2439,7 +2439,7 @@
           :tags $ #{} :ffi :js-host
         'DateSnapshot $ %{} 'CodeEntry
           :doc "|Immutable normalized view of a host Date with epoch milliseconds and ISO text."
-          :code $ quote $ defstruct DateSnapshot (:timestamp 'Number) (:iso 'String)
+          :code $ quote $ defstruct DateSnapshot (:timestamp Number) (:iso String)
           :examples $ [] $ quote (&%{} DateSnapshot :timestamp 0 :iso |1970-01-01T00:00:00.000Z)
           :schema $ quote StructDef
         'HeadersHost $ %{} 'CodeEntry
@@ -2465,14 +2465,14 @@
           :schema $ quote EnumDef
         'JsError $ %{} 'CodeEntry
           :doc "|Normalized JavaScript exception data. Stack is optional because hosts may omit it."
-          :code $ quote $ defstruct JsError (:kind 'js-ffi.shared/JsErrorKind) (:name 'String) (:message 'String)
+          :code $ quote $ defstruct JsError (:kind js-ffi.shared/JsErrorKind) (:name String) (:message String)
             :stack $ quote $ Option String
           :examples $ [] $ quote
             &%{} JsError :kind (%:: JsErrorKind :type-error) :name |TypeError :message |invalid
           :schema $ quote StructDef
         'JsErrorKind $ %{} 'CodeEntry
           :doc "|Stable error categories shared by browser and Node adapters; unknown host names retain their String payload."
-          :code $ quote $ defenum JsErrorKind (:type-error) (:range-error) (:permission) (:quota) (:network) (:abort) (:unknown 'String)
+          :code $ quote $ defenum JsErrorKind (:type-error) (:range-error) (:permission) (:quota) (:network) (:abort) (:unknown String)
           :examples $ []
             quote $ %:: JsErrorKind :network
             quote $ %:: JsErrorKind :unknown |DataCloneError
@@ -2493,7 +2493,7 @@
           :tags $ #{} :ffi :js-host
         'RequestOptions $ %{} 'CodeEntry
           :doc "|Calcit-owned request configuration converted to a JavaScript object only inside an adapter."
-          :code $ quote $ defstruct RequestOptions (:method 'js-ffi.shared/HttpMethod)
+          :code $ quote $ defstruct RequestOptions (:method js-ffi.shared/HttpMethod)
             :headers $ quote $ Map String String
             :body $ quote $ Option String
           :examples $ [] $ quote
@@ -2510,14 +2510,14 @@
           :tags $ #{} :ffi :js-host
         'ResponseSnapshot $ %{} 'CodeEntry
           :doc "|Normalized response metadata after a host Response has been inspected and its headers copied."
-          :code $ quote $ defstruct ResponseSnapshot (:status 'Number) (:status-text 'String) (:ok? 'Bool) (:url 'String) (:redirected? 'Bool)
+          :code $ quote $ defstruct ResponseSnapshot (:status Number) (:status-text String) (:ok? Bool) (:url String) (:redirected? Bool)
             :headers $ quote $ Map String String
           :examples $ [] $ quote
             &%{} ResponseSnapshot :status 200 :status-text |OK :ok? true :url |https://example.test :redirected? false :headers $ {}
           :schema $ quote StructDef
         'Runtime $ %{} 'CodeEntry
           :doc "|Runtime identity normalized as a Calcit enum instead of an open String."
-          :code $ quote $ defenum Runtime (:browser) (:node) (:unknown 'String)
+          :code $ quote $ defenum Runtime (:browser) (:node) (:unknown String)
           :examples $ []
             quote $ %:: Runtime :browser
             quote $ %:: Runtime :unknown |worker
@@ -2550,7 +2550,7 @@
           :tags $ #{} :ffi :js-host
         'UrlSnapshot $ %{} 'CodeEntry
           :doc "|Immutable URL fields copied out of a host URL or Location object."
-          :code $ quote $ defstruct UrlSnapshot (:href 'String) (:protocol 'String) (:host 'String) (:hostname 'String) (:port 'String) (:pathname 'String) (:search 'String) (:hash 'String)
+          :code $ quote $ defstruct UrlSnapshot (:href String) (:protocol String) (:host String) (:hostname String) (:port String) (:pathname String) (:search String) (:hash String)
           :examples $ [] $ quote
             &%{} UrlSnapshot :href |https://example.test/a :protocol |https: :host |example.test :hostname |example.test :port | :pathname |/a :search | :hash |
           :schema $ quote StructDef
@@ -3178,7 +3178,7 @@
           :schema $ quote Trait
         'DeviceLost $ %{} 'CodeEntry
           :doc "|Copied device-loss reason and message. Unknown future reason strings are preserved."
-          :code $ quote $ defstruct DeviceLost (:reason 'String) (:message 'String)
+          :code $ quote $ defstruct DeviceLost (:reason String) (:message String)
           :examples $ []
           :schema $ quote StructDef
         'GpuHost $ %{} 'CodeEntry
@@ -3325,7 +3325,7 @@
     'js-ffi.webgpu-capabilities $ %{} 'FileEntry
       :defs $ {}
         'DeviceProbe $ %{} 'CodeEntry (:doc "|能力探测的封闭分支；只有 ready 携带需显式释放的设备句柄。")
-          :code $ quote $ defenum DeviceProbe (:ready 'js-ffi.webgpu-capabilities/ReadyDeviceHost) (:unavailable 'js-ffi.webgpu-capabilities/ProbeUnavailable) (:failed 'js-ffi.webgpu-capabilities/ProbeFailure)
+          :code $ quote $ defenum DeviceProbe (:ready js-ffi.webgpu-capabilities/ReadyDeviceHost) (:unavailable js-ffi.webgpu-capabilities/ProbeUnavailable) (:failed js-ffi.webgpu-capabilities/ProbeFailure)
           :examples $ []
           :schema $ quote EnumDef
         'NavigatorHost $ %{} 'CodeEntry (:doc "|浏览器 navigator 或测试宿主；gpu 访问异常由探测函数归入失败阶段。")
@@ -3335,11 +3335,11 @@
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
           :schema $ quote Trait
         'ProbeFailure $ %{} 'CodeEntry (:doc "|探测失败阶段和归一化错误消息。")
-          :code $ quote $ defstruct ProbeFailure (:stage 'String) (:message 'String)
+          :code $ quote $ defstruct ProbeFailure (:stage String) (:message String)
           :examples $ []
           :schema $ quote StructDef
         'ProbeUnavailable $ %{} 'CodeEntry (:doc "|宿主或 adapter 不可用的阶段。")
-          :code $ quote $ defstruct ProbeUnavailable (:stage 'String)
+          :code $ quote $ defstruct ProbeUnavailable (:stage String)
           :examples $ []
           :schema $ quote StructDef
         'ReadyDeviceHost $ %{} 'CodeEntry

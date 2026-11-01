@@ -3,6 +3,10 @@
 Typed JavaScript FFI definitions for Calcit. This package is independent: it exists to make the boundary between Calcit and host
 JavaScript explicit, checkable, and reusable across Calcit projects.
 
+## 0.2.10：配对 Calcit 0.34.0
+
+使用者注意：候选 0.2.10 要求 CLI 与 `@calcit/procs` 同时使用正式 0.34.0；下游固定已发布 Git tag 后重新生成 JS，并运行 `caps verify --toolchain`。本轮对齐工具链与规范类型写法，保留宿主接口、Node/browser 分离和原质量门禁；不发布 npm，不增加运行时信任。发布状态以同名 Git tag 为准。
+
 ## 0.2.9：配对 Calcit 0.32.1
 
 使用者注意：0.2.8 已发布并配对 0.32.0，tag 不移动。0.2.9 把 CLI / `@calcit/procs` 升级到 0.32.1，
