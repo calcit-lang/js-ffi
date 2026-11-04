@@ -12,7 +12,8 @@
     case "pointer-event":
       return typeof value.pointerId === "number" && typeof value.clientX === "number";
     case "selectable":
-      return typeof value.setSelectionRange === "function" && typeof value.value === "string";
+      return typeof value.setSelectionRange === "function" && typeof value.value === "string"
+        && typeof value.select === "function";
     default:
       return false;
   }

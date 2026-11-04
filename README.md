@@ -3,6 +3,14 @@
 Typed JavaScript FFI definitions for Calcit. This package is independent: it exists to make the boundary between Calcit and host
 JavaScript explicit, checkable, and reusable across Calcit projects.
 
+## 0.2.11：受检文本选中宿主与 Calcit 0.34.2
+
+使用者注意：候选 0.2.11 配对正式 CLI / `@calcit/procs` 0.34.2。`selectable-element-host` 现在会在入口拒绝缺失或不可调用 `select` 的对象，避免转换成功后才在 `.select!` 报 TypeError；正常 input/textarea、返回对象身份和选中文字行为保持。仍保留原 `setSelectionRange`/字符串 `value` 要求，不扩大可接受宿主范围。下游固定正式 Git tag 后重新生成 JS，旧 tag 不移动。
+
+本次修复共享 JS asset 的浅检查，与公开 `DomSelectableHost.select` 方法对齐，见 [#201](https://github.com/calcit-lang/js-ffi/issues/201)。不增加编译器规则、unsafe 或质量预算；检查不证明 DOM 来源、getter 或之后的调用不会抛错。原 API 目录、Node/browser 分离、真实浏览器与类型门禁保留；不发布 npm、不部署站点或服务。
+
+本地验收：363 个 API 目录记录、13 个 recipes、Node 145 / browser 299 个公共定义、完整 strict、原质量门禁、5 项附带测试、Node 扩展 21 项、真实 Chromium 2696 个断言及原生指针捕获通过；WebGPU 因无 adapter 跳过，不声称 GPU 运行验收。immutable 安装和浏览器构建通过，Snapshot、公开 schema、工作流与预算文件均未改。
+
 ## 0.2.10：配对 Calcit 0.34.0
 
 使用者注意：候选 0.2.10 要求 CLI 与 `@calcit/procs` 同时使用正式 0.34.0；下游固定已发布 Git tag 后重新生成 JS，并运行 `caps verify --toolchain`。本轮对齐工具链与规范类型写法，保留宿主接口、Node/browser 分离和原质量门禁；不发布 npm，不增加运行时信任。发布状态以同名 Git tag 为准。

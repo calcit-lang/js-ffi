@@ -136,6 +136,15 @@ export async function run() {
     a.equal(document.activeElement, input);
     input.value = 'select me';
     a.equal(browser.selectable_element_host(input), input);
+    for (const select of [undefined, 42]) {
+      a.throws(() => browser.selectable_element_host({ value: 'synthetic', setSelectionRange() {}, select }), /expected selectable host/);
+    }
+    const textarea = browser.create_element('textarea');
+    textarea.value = '中文 🐈';
+    a.equal(browser.selectable_element_host(textarea), textarea);
+    a.equal(browser.element_select_$x_(browser.selectable_element_host(textarea)), undefined);
+    a.equal(textarea.selectionStart, 0);
+    a.equal(textarea.selectionEnd, textarea.value.length);
     a.throws(() => browser.selectable_element_host(null), /DOM\.selectable-element-host expected Object, got nullish/);
     a.equal(browser.element_select_$x_(browser.selectable_element_host(input)), undefined);
     a.equal(input.selectionStart, 0);
