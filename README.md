@@ -3,6 +3,12 @@
 Typed JavaScript FFI definitions for Calcit. This package is independent: it exists to make the boundary between Calcit and host
 JavaScript explicit, checkable, and reusable across Calcit projects.
 
+## 0.2.12：配对正式 Calcit 0.35.0
+
+使用者注意：本候选要求 CLI、`deps.cirru :calcit-version` 和 `@calcit/procs` 同时使用 **0.35.0**。下游应在正式 Git tag 发布后固定 `calcit-lang/js-ffi@0.2.12`，重新安装依赖、运行 `caps verify --toolchain` 并重新生成 JS；旧 0.2.11 tag 保留原工具链合同。
+
+本次通过官方 `edit format` 迁移类型专用位置的复合类型写法，保留宿主实现、公开 API、回调合同、Node/browser 分离及原类型和质量门禁。源码检查和代码生成不能代替运行时验收；正式发布状态以同名 Git tag 为准。
+
 ## 0.2.11：受检文本选中宿主与 Calcit 0.34.2
 
 使用者注意：候选 0.2.11 配对正式 CLI / `@calcit/procs` 0.34.2。`selectable-element-host` 现在会在入口拒绝缺失或不可调用 `select` 的对象，避免转换成功后才在 `.select!` 报 TypeError；正常 input/textarea、返回对象身份和选中文字行为保持。仍保留原 `setSelectionRange`/字符串 `value` 要求，不扩大可接受宿主范围。下游固定正式 Git tag 后重新生成 JS，旧 tag 不移动。
