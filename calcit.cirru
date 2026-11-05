@@ -21,7 +21,7 @@
         'BlobHost $ %{} 'CodeEntry
           :doc "|External Blob capability exposing size, type, and an async UTF-8 text reader."
           :code $ quote $ deftrait BlobHost (:size 'Number) (:type 'String)
-            .text $ quote $ Fn js-ffi.browser/BlobHost (-> JsObject)
+            .text $ Fn js-ffi.browser/BlobHost $ -> JsObject
           :examples $ [] $ quote BlobHost
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
             :names $ {} $ :text |text
@@ -43,17 +43,16 @@
         'DocumentHost $ %{} 'CodeEntry
           :doc "|External Document capability with typed state, title, and small selector/creation surface."
           :code $ quote $ deftrait DocumentHost (:title 'String) (:ready-state 'String) (:visibility-state 'String)
-            :body $ quote $ JsNullish js-ffi.browser/DomElementHost
-            :document-element $ quote $ JsNullish js-ffi.browser/DomElementHost
-            :active-element $ quote $ JsNullish js-ffi.browser/DomElementHost
-            .query-selector $ quote $ Fn js-ffi.browser/DocumentHost String
-              -> $ JsNullish js-ffi.browser/DomElementHost
-            .create-element $ quote $ Fn js-ffi.browser/DocumentHost String (-> js-ffi.browser/DomElementHost)
-            .create-element-ns $ quote $ Fn js-ffi.browser/DocumentHost String String (-> js-ffi.browser/DomElementHost)
-            .add-event-listener! $ quote $ Fn js-ffi.browser/DocumentHost String
+            :body $ JsNullish js-ffi.browser/DomElementHost
+            :document-element $ JsNullish js-ffi.browser/DomElementHost
+            :active-element $ JsNullish js-ffi.browser/DomElementHost
+            .query-selector $ Fn js-ffi.browser/DocumentHost String $ -> (JsNullish js-ffi.browser/DomElementHost)
+            .create-element $ Fn js-ffi.browser/DocumentHost String $ -> js-ffi.browser/DomElementHost
+            .create-element-ns $ Fn js-ffi.browser/DocumentHost String String $ -> js-ffi.browser/DomElementHost
+            .add-event-listener! $ Fn js-ffi.browser/DocumentHost String
               Fn js-ffi.browser/EventHost $ -> Unit
               -> Unit
-            .remove-event-listener! $ quote $ Fn js-ffi.browser/DocumentHost String
+            .remove-event-listener! $ Fn js-ffi.browser/DocumentHost String
               Fn js-ffi.browser/EventHost $ -> Unit
               -> Unit
           :examples $ [] $ quote DocumentHost
@@ -70,8 +69,7 @@
         'DomChildrenHost $ %{} 'CodeEntry
           :doc "|External DOM children collection with typed length and nullable indexed element lookup."
           :code $ quote $ deftrait DomChildrenHost (:length 'Number)
-            .item $ quote $ Fn js-ffi.browser/DomChildrenHost Number
-              -> $ JsNullish js-ffi.browser/DomElementHost
+            .item $ Fn js-ffi.browser/DomChildrenHost Number $ -> (JsNullish js-ffi.browser/DomElementHost)
           :examples $ []
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
             :names $ {}
@@ -80,7 +78,7 @@
         'DomElementHost $ %{} 'CodeEntry
           :doc "|External DOM Element capability with stable fields, selector methods, attributes, and focus effects."
           :code $ quote $ deftrait DomElementHost (:id 'String) (:class-name 'String) (:hidden 'Bool)
-            :text-content $ quote $ JsNullish String
+            :text-content $ JsNullish String
             :child-element-count 'Number
             :offset-left 'Number
             :offset-top 'Number
@@ -88,24 +86,22 @@
             :client-height 'Number
             :dataset 'JsObject
             :style 'js-ffi.browser/StyleHost
-            :parent-element $ quote $ JsNullish js-ffi.browser/DomElementHost
-            .append-child! $ quote $ Fn T T (-> T) (:generics T)
-            .clone-node $ quote $ Fn js-ffi.browser/DomElementHost Bool (-> js-ffi.browser/DomElementHost)
-            .remove! $ quote $ Fn js-ffi.browser/DomElementHost (-> Unit)
-            .matches? $ quote $ Fn js-ffi.browser/DomElementHost String (-> Bool)
-            .query-selector $ quote $ Fn js-ffi.browser/DomElementHost String
-              -> $ JsNullish js-ffi.browser/DomElementHost
-            .get-attribute $ quote $ Fn js-ffi.browser/DomElementHost String
-              -> $ JsNullish String
-            .set-attribute! $ quote $ Fn js-ffi.browser/DomElementHost String String (-> Unit)
-            .remove-attribute! $ quote $ Fn js-ffi.browser/DomElementHost String (-> Unit)
-            .focus! $ quote $ Fn js-ffi.browser/DomElementHost (-> Unit)
-            .blur! $ quote $ Fn js-ffi.browser/DomElementHost (-> Unit)
-            .request-fullscreen! $ quote $ Fn js-ffi.browser/DomElementHost (-> Unit)
-            .add-event-listener! $ quote $ Fn js-ffi.browser/DomElementHost String
+            :parent-element $ JsNullish js-ffi.browser/DomElementHost
+            .append-child! $ Fn T T (-> T) (:generics T)
+            .clone-node $ Fn js-ffi.browser/DomElementHost Bool $ -> js-ffi.browser/DomElementHost
+            .remove! $ Fn js-ffi.browser/DomElementHost $ -> Unit
+            .matches? $ Fn js-ffi.browser/DomElementHost String $ -> Bool
+            .query-selector $ Fn js-ffi.browser/DomElementHost String $ -> (JsNullish js-ffi.browser/DomElementHost)
+            .get-attribute $ Fn js-ffi.browser/DomElementHost String $ -> (JsNullish String)
+            .set-attribute! $ Fn js-ffi.browser/DomElementHost String String $ -> Unit
+            .remove-attribute! $ Fn js-ffi.browser/DomElementHost String $ -> Unit
+            .focus! $ Fn js-ffi.browser/DomElementHost $ -> Unit
+            .blur! $ Fn js-ffi.browser/DomElementHost $ -> Unit
+            .request-fullscreen! $ Fn js-ffi.browser/DomElementHost $ -> Unit
+            .add-event-listener! $ Fn js-ffi.browser/DomElementHost String
               Fn js-ffi.browser/EventHost $ -> Unit
               -> Unit
-            .remove-event-listener! $ quote $ Fn js-ffi.browser/DomElementHost String
+            .remove-event-listener! $ Fn js-ffi.browser/DomElementHost String
               Fn js-ffi.browser/EventHost $ -> Unit
               -> Unit
             :children 'js-ffi.browser/DomChildrenHost
@@ -122,8 +118,8 @@
         'DomInputHost $ %{} 'CodeEntry
           :doc "|External HTML input capability. Mutable fields are declared in FFI metadata, not in the core trait type."
           :code $ quote $ deftrait DomInputHost (:value 'String) (:checked 'Bool) (:disabled 'Bool) (:name 'String) (:input-type 'String)
-            .focus! $ quote $ Fn js-ffi.browser/DomInputHost (-> Unit)
-            .blur! $ quote $ Fn js-ffi.browser/DomInputHost (-> Unit)
+            .focus! $ Fn js-ffi.browser/DomInputHost $ -> Unit
+            .blur! $ Fn js-ffi.browser/DomInputHost $ -> Unit
           :examples $ [] $ quote DomInputHost
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
             :names $ {} (:blur! |blur) (:focus! |focus) (:input-type |type)
@@ -141,7 +137,7 @@
         'DomSelectableHost $ %{} 'CodeEntry
           :doc "|External selectable text-control capability shared by input and textarea elements."
           :code $ quote $ deftrait DomSelectableHost
-            .select! $ quote $ Fn js-ffi.browser/DomSelectableHost (-> Unit)
+            .select! $ Fn js-ffi.browser/DomSelectableHost $ -> Unit
           :examples $ []
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
             :names $ {} $ :select! |select
@@ -163,7 +159,7 @@
         'ElementSnapshot $ %{} 'CodeEntry
           :doc "|Calcit-owned subset of DOM element data suitable for business code without retaining host identity."
           :code $ quote $ defstruct ElementSnapshot (:id String) (:class-name String)
-            :text-content $ quote $ Option String
+            :text-content $ Option String
             :child-count Number
           :examples $ [] $ quote
             ElementSnapshot :id |main :class-name |panel :text-content (Option :some |Ready) :child-count 1
@@ -171,12 +167,12 @@
         'EventHost $ %{} 'CodeEntry
           :doc "|External Event capability. Targets stay nullable opaque objects unless a specific adapter narrows them."
           :code $ quote $ deftrait EventHost (:event-type 'String)
-            :target $ quote $ JsNullish JsObject
-            :current-target $ quote $ JsNullish JsObject
+            :target $ JsNullish JsObject
+            :current-target $ JsNullish JsObject
             :default-prevented? 'Bool
             :event-phase 'Number
-            .prevent-default! $ quote $ Fn js-ffi.browser/EventHost (-> Unit)
-            .stop-propagation! $ quote $ Fn js-ffi.browser/EventHost (-> Unit)
+            .prevent-default! $ Fn js-ffi.browser/EventHost $ -> Unit
+            .stop-propagation! $ Fn js-ffi.browser/EventHost $ -> Unit
           :examples $ [] $ quote EventHost
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
             :names $ {} (:current-target |currentTarget) (:default-prevented? |defaultPrevented) (:event-phase |eventPhase) (:event-type |type) (:prevent-default! |preventDefault) (:stop-propagation! |stopPropagation)
@@ -185,9 +181,9 @@
         'FormDataHost $ %{} 'CodeEntry
           :doc "|External FormData capability for building multipart request bodies from String fields."
           :code $ quote $ deftrait FormDataHost
-            .append! $ quote $ Fn js-ffi.browser/FormDataHost String String (-> Unit)
-            .delete! $ quote $ Fn js-ffi.browser/FormDataHost String (-> Unit)
-            .has? $ quote $ Fn js-ffi.browser/FormDataHost String (-> Bool)
+            .append! $ Fn js-ffi.browser/FormDataHost String String $ -> Unit
+            .delete! $ Fn js-ffi.browser/FormDataHost String $ -> Unit
+            .has? $ Fn js-ffi.browser/FormDataHost String $ -> Bool
           :examples $ [] $ quote FormDataHost
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
             :names $ {} (:append! |append) (:delete! |delete) (:has? |has)
@@ -196,8 +192,8 @@
         'ImageHost $ %{} 'CodeEntry
           :doc "|External HTMLImageElement capability with source, natural size, and a decode promise."
           :code $ quote $ deftrait ImageHost (:natural-width 'Number) (:natural-height 'Number)
-            :src $ quote $ JsNullish String
-            .decode $ quote $ Fn js-ffi.browser/ImageHost (-> JsObject)
+            :src $ JsNullish String
+            .decode $ Fn js-ffi.browser/ImageHost $ -> JsObject
           :examples $ [] $ quote ImageHost
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
             :names $ {} (:decode |decode) (:natural-height |naturalHeight) (:natural-width |naturalWidth) (:src |src)
@@ -221,9 +217,9 @@
         'LocationHost $ %{} 'CodeEntry
           :doc "|External browser Location capability. Navigation methods are explicit effects; URL fields are readable."
           :code $ quote $ deftrait LocationHost (:href 'String) (:origin 'String) (:protocol 'String) (:host 'String) (:hostname 'String) (:port 'String) (:pathname 'String) (:search 'String) (:hash 'String)
-            .assign! $ quote $ Fn js-ffi.browser/LocationHost String (-> Unit)
-            .replace! $ quote $ Fn js-ffi.browser/LocationHost String (-> Unit)
-            .reload! $ quote $ Fn js-ffi.browser/LocationHost (-> Unit)
+            .assign! $ Fn js-ffi.browser/LocationHost String $ -> Unit
+            .replace! $ Fn js-ffi.browser/LocationHost String $ -> Unit
+            .reload! $ Fn js-ffi.browser/LocationHost $ -> Unit
           :examples $ [] $ quote LocationHost
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
             :names $ {} (:assign! |assign) (:origin |origin) (:reload! |reload) (:replace! |replace)
@@ -253,10 +249,10 @@
         'PointerCaptureElementHost $ %{} 'CodeEntry
           :doc "|原生Element的pointer capture与client边界最小能力。不要求表单/focus属性，不在平台层维护所有权、重复释放或退出策略；缺失active pointer等异常按浏览器传播。"
           :code $ quote $ deftrait PointerCaptureElementHost
-            .get-bounding-client-rect $ quote $ Fn js-ffi.browser/PointerCaptureElementHost (-> js-ffi.browser/DOMRectHost)
-            .set-pointer-capture! $ quote $ Fn js-ffi.browser/PointerCaptureElementHost Number (-> Unit)
-            .release-pointer-capture! $ quote $ Fn js-ffi.browser/PointerCaptureElementHost Number (-> Unit)
-            .has-pointer-capture? $ quote $ Fn js-ffi.browser/PointerCaptureElementHost Number (-> Bool)
+            .get-bounding-client-rect $ Fn js-ffi.browser/PointerCaptureElementHost $ -> js-ffi.browser/DOMRectHost
+            .set-pointer-capture! $ Fn js-ffi.browser/PointerCaptureElementHost Number $ -> Unit
+            .release-pointer-capture! $ Fn js-ffi.browser/PointerCaptureElementHost Number $ -> Unit
+            .has-pointer-capture? $ Fn js-ffi.browser/PointerCaptureElementHost Number $ -> Bool
           :examples $ []
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
             :names $ {} (:get-bounding-client-rect |getBoundingClientRect) (:has-pointer-capture? |hasPointerCapture) (:release-pointer-capture! |releasePointerCapture) (:set-pointer-capture! |setPointerCapture)
@@ -284,13 +280,11 @@
         'StorageHost $ %{} 'CodeEntry
           :doc "|External Web Storage capability with nullish lookup and explicit String mutation methods."
           :code $ quote $ deftrait StorageHost (:length 'Number)
-            .get-item $ quote $ Fn js-ffi.browser/StorageHost String
-              -> $ JsNullish String
-            .key-at $ quote $ Fn js-ffi.browser/StorageHost Number
-              -> $ JsNullish String
-            .set-item! $ quote $ Fn js-ffi.browser/StorageHost String String (-> Unit)
-            .remove-item! $ quote $ Fn js-ffi.browser/StorageHost String (-> Unit)
-            .clear! $ quote $ Fn js-ffi.browser/StorageHost (-> Unit)
+            .get-item $ Fn js-ffi.browser/StorageHost String $ -> (JsNullish String)
+            .key-at $ Fn js-ffi.browser/StorageHost Number $ -> (JsNullish String)
+            .set-item! $ Fn js-ffi.browser/StorageHost String String $ -> Unit
+            .remove-item! $ Fn js-ffi.browser/StorageHost String $ -> Unit
+            .clear! $ Fn js-ffi.browser/StorageHost $ -> Unit
           :examples $ [] $ quote StorageHost
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
             :names $ {} (:clear! |clear) (:get-item |getItem) (:key-at |key) (:remove-item! |removeItem) (:set-item! |setItem)
@@ -318,12 +312,12 @@
         'WebSocketHost $ %{} 'CodeEntry
           :doc "|External WebSocket capability with readyState, typed event callbacks, and String send/close effects."
           :code $ quote $ deftrait WebSocketHost (:ready-state 'Number)
-            :on-open $ quote $ Fn js-ffi.browser/EventHost (-> Unit)
-            :on-message $ quote $ Fn js-ffi.browser/EventHost (-> Unit)
-            :on-close $ quote $ Fn js-ffi.browser/EventHost (-> Unit)
-            :on-error $ quote $ Fn js-ffi.browser/EventHost (-> Unit)
-            .send! $ quote $ Fn js-ffi.browser/WebSocketHost String (-> Unit)
-            .close! $ quote $ Fn js-ffi.browser/WebSocketHost (-> Unit)
+            :on-open $ Fn js-ffi.browser/EventHost $ -> Unit
+            :on-message $ Fn js-ffi.browser/EventHost $ -> Unit
+            :on-close $ Fn js-ffi.browser/EventHost $ -> Unit
+            :on-error $ Fn js-ffi.browser/EventHost $ -> Unit
+            .send! $ Fn js-ffi.browser/WebSocketHost String $ -> Unit
+            .close! $ Fn js-ffi.browser/WebSocketHost $ -> Unit
           :examples $ [] $ quote WebSocketHost
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
             :names $ {} (:close! |close) (:on-close |onclose) (:on-error |onerror) (:on-message |onmessage) (:on-open |onopen) (:ready-state |readyState) (:send! |send)
@@ -333,17 +327,16 @@
         'WindowHost $ %{} 'CodeEntry
           :doc "|External browser Window capability restricted to stable viewport fields, matchMedia, and typed global event listeners."
           :code $ quote $ deftrait WindowHost (:inner-width 'Number) (:inner-height 'Number) (:device-pixel-ratio 'Number) (:document 'js-ffi.browser/DocumentHost)
-            :on-before-unload $ quote $ Fn js-ffi.browser/EventHost (-> Unit)
-            .match-media $ quote $ Fn js-ffi.browser/WindowHost String (-> js-ffi.browser/MediaQueryListHost)
-            .add-event-listener! $ quote $ Fn js-ffi.browser/WindowHost String
+            :on-before-unload $ Fn js-ffi.browser/EventHost $ -> Unit
+            .match-media $ Fn js-ffi.browser/WindowHost String $ -> js-ffi.browser/MediaQueryListHost
+            .add-event-listener! $ Fn js-ffi.browser/WindowHost String
               Fn js-ffi.browser/EventHost $ -> Unit
               -> Unit
-            .remove-event-listener! $ quote $ Fn js-ffi.browser/WindowHost String
+            .remove-event-listener! $ Fn js-ffi.browser/WindowHost String
               Fn js-ffi.browser/EventHost $ -> Unit
               -> Unit
-            .post-message! $ quote $ Fn js-ffi.browser/WindowHost Dynamic String (-> Unit)
-            .open $ quote $ Fn js-ffi.browser/WindowHost String
-              -> $ JsNullish js-ffi.browser/WindowHost
+            .post-message! $ Fn js-ffi.browser/WindowHost Dynamic String $ -> Unit
+            .open $ Fn js-ffi.browser/WindowHost String $ -> (JsNullish js-ffi.browser/WindowHost)
           :examples $ [] $ quote WindowHost
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
             :names $ {} (:add-event-listener! |addEventListener) (:device-pixel-ratio |devicePixelRatio) (:document |document) (:inner-height |innerHeight) (:inner-width |innerWidth) (:match-media |matchMedia) (:on-before-unload |onbeforeunload) (:open |open) (:post-message! |postMessage) (:remove-event-listener! |removeEventListener)
@@ -719,8 +712,7 @@
         'element-first-child $ %{} 'CodeEntry
           :doc "|Return the first child element as Option, normalizing a missing child."
           :code $ quote $ defn element-first-child (element)
-            js-nullish->option $ unsafe-coerce (.-firstElementChild element)
-              quote $ JsNullish js-ffi.browser/DomElementHost
+            js-nullish->option $ unsafe-coerce (.-firstElementChild element) (JsNullish js-ffi.browser/DomElementHost)
           :examples $ []
           :schema $ quote $ Fn js-ffi.browser/DomElementHost
             -> $ calcit.core/Option js-ffi.browser/DomElementHost
@@ -943,7 +935,7 @@
           :doc "|Validate an opaque host value as a browser Event listener callback."
           :code $ quote $ defn event-listener-host (value)
             unsafe-coerce (contract/expect-function |DOM.event-listener-host value)
-              quote $ Fn js-ffi.browser/EventHost $ -> Unit
+              Fn js-ffi.browser/EventHost $ -> Unit
           :examples $ []
           :schema $ quote $ Fn T
             -> $ Fn js-ffi.browser/EventHost $ -> Unit
@@ -958,8 +950,7 @@
           :doc "|Decode the event target as Option<DomElementHost>; non-element or absent targets yield none."
           :code $ quote $ defn event-target-element (event)
             let
-                target $ unsafe-coerce (js-get event |target)
-                  quote $ JsNullish JsObject
+                target $ unsafe-coerce (js-get event |target) (JsNullish JsObject)
               if (host-kind? |element target)
                 Option :some $ unsafe-coerce target $ quote js-ffi.browser/DomElementHost
                 Option :none
@@ -1555,40 +1546,40 @@
         'CanvasContextHost $ %{} 'CodeEntry
           :doc "|浏览器 CanvasRenderingContext2D 的类型化原生能力：矩形、路径 fill/stroke、arc/bezier 曲线、仿射变换、裁剪、文字及图像绘制。图像方法接收 js-ffi.browser/ImageHost，公开三、五、九参数 drawImage 形式。fillStyle/strokeStyle 仅覆盖纯色 String；font、textAlign、textBaseline、direction 保留原生 String 值域，非法值按浏览器规则处理。measureText 仅暴露 TextMetrics 的 width。当前 path 不随 save/restore 恢复；调用方管理路径、合法值及异常时的状态恢复，不包含 Scene 或动画逻辑。 global-alpha对应可写原生globalAlpha；三个draw-surface方法接受CanvasSurfaceHost，仅扩展canvas来源子集，不声称全部CanvasImageSource。"
           :code $ quote $ deftrait CanvasContextHost (:fill-style 'String)
-            .save! $ quote $ Fn js-ffi.canvas-batches/CanvasContextHost (-> Unit)
-            .restore! $ quote $ Fn js-ffi.canvas-batches/CanvasContextHost (-> Unit)
-            .fill-rect! $ quote $ Fn js-ffi.canvas-batches/CanvasContextHost Number Number Number Number (-> Unit)
-            .set-transform! $ quote $ Fn js-ffi.canvas-batches/CanvasContextHost Number Number Number Number Number Number (-> Unit)
-            .transform! $ quote $ Fn js-ffi.canvas-batches/CanvasContextHost Number Number Number Number Number Number (-> Unit)
-            .begin-path! $ quote $ Fn js-ffi.canvas-batches/CanvasContextHost (-> Unit)
-            .rect! $ quote $ Fn js-ffi.canvas-batches/CanvasContextHost Number Number Number Number (-> Unit)
-            .clip! $ quote $ Fn js-ffi.canvas-batches/CanvasContextHost (-> Unit)
-            .clear-rect! $ quote $ Fn js-ffi.canvas-batches/CanvasContextHost Number Number Number Number (-> Unit)
+            .save! $ Fn js-ffi.canvas-batches/CanvasContextHost $ -> Unit
+            .restore! $ Fn js-ffi.canvas-batches/CanvasContextHost $ -> Unit
+            .fill-rect! $ Fn js-ffi.canvas-batches/CanvasContextHost Number Number Number Number $ -> Unit
+            .set-transform! $ Fn js-ffi.canvas-batches/CanvasContextHost Number Number Number Number Number Number $ -> Unit
+            .transform! $ Fn js-ffi.canvas-batches/CanvasContextHost Number Number Number Number Number Number $ -> Unit
+            .begin-path! $ Fn js-ffi.canvas-batches/CanvasContextHost $ -> Unit
+            .rect! $ Fn js-ffi.canvas-batches/CanvasContextHost Number Number Number Number $ -> Unit
+            .clip! $ Fn js-ffi.canvas-batches/CanvasContextHost $ -> Unit
+            .clear-rect! $ Fn js-ffi.canvas-batches/CanvasContextHost Number Number Number Number $ -> Unit
             :stroke-style 'String
             :line-width 'Number
             :line-cap 'String
             :line-join 'String
             :miter-limit 'Number
-            .move-to! $ quote $ Fn js-ffi.canvas-batches/CanvasContextHost Number Number (-> Unit)
-            .line-to! $ quote $ Fn js-ffi.canvas-batches/CanvasContextHost Number Number (-> Unit)
-            .close-path! $ quote $ Fn js-ffi.canvas-batches/CanvasContextHost (-> Unit)
-            .stroke! $ quote $ Fn js-ffi.canvas-batches/CanvasContextHost (-> Unit)
-            .fill! $ quote $ Fn js-ffi.canvas-batches/CanvasContextHost (-> Unit)
-            .arc! $ quote $ Fn js-ffi.canvas-batches/CanvasContextHost Number Number Number Number Number Bool (-> Unit)
-            .bezier-curve-to! $ quote $ Fn js-ffi.canvas-batches/CanvasContextHost Number Number Number Number Number Number (-> Unit)
+            .move-to! $ Fn js-ffi.canvas-batches/CanvasContextHost Number Number $ -> Unit
+            .line-to! $ Fn js-ffi.canvas-batches/CanvasContextHost Number Number $ -> Unit
+            .close-path! $ Fn js-ffi.canvas-batches/CanvasContextHost $ -> Unit
+            .stroke! $ Fn js-ffi.canvas-batches/CanvasContextHost $ -> Unit
+            .fill! $ Fn js-ffi.canvas-batches/CanvasContextHost $ -> Unit
+            .arc! $ Fn js-ffi.canvas-batches/CanvasContextHost Number Number Number Number Number Bool $ -> Unit
+            .bezier-curve-to! $ Fn js-ffi.canvas-batches/CanvasContextHost Number Number Number Number Number Number $ -> Unit
             :font 'String
             :text-align 'String
             :text-baseline 'String
             :direction 'String
-            .fill-text! $ quote $ Fn js-ffi.canvas-batches/CanvasContextHost String Number Number (-> Unit)
-            .measure-text $ quote $ Fn js-ffi.canvas-batches/CanvasContextHost String (-> js-ffi.canvas-batches/CanvasTextMetricsHost)
-            .draw-image! $ quote $ Fn js-ffi.canvas-batches/CanvasContextHost js-ffi.browser/ImageHost Number Number Number Number Number Number Number Number (-> Unit)
-            .draw-image-at! $ quote $ Fn js-ffi.canvas-batches/CanvasContextHost js-ffi.browser/ImageHost Number Number (-> Unit)
-            .draw-image-sized! $ quote $ Fn js-ffi.canvas-batches/CanvasContextHost js-ffi.browser/ImageHost Number Number Number Number (-> Unit)
+            .fill-text! $ Fn js-ffi.canvas-batches/CanvasContextHost String Number Number $ -> Unit
+            .measure-text $ Fn js-ffi.canvas-batches/CanvasContextHost String $ -> js-ffi.canvas-batches/CanvasTextMetricsHost
+            .draw-image! $ Fn js-ffi.canvas-batches/CanvasContextHost js-ffi.browser/ImageHost Number Number Number Number Number Number Number Number $ -> Unit
+            .draw-image-at! $ Fn js-ffi.canvas-batches/CanvasContextHost js-ffi.browser/ImageHost Number Number $ -> Unit
+            .draw-image-sized! $ Fn js-ffi.canvas-batches/CanvasContextHost js-ffi.browser/ImageHost Number Number Number Number $ -> Unit
             :global-alpha 'Number
-            .draw-surface-at! $ quote $ Fn js-ffi.canvas-batches/CanvasContextHost js-ffi.canvas-batches/CanvasSurfaceHost Number Number (-> Unit)
-            .draw-surface-sized! $ quote $ Fn js-ffi.canvas-batches/CanvasContextHost js-ffi.canvas-batches/CanvasSurfaceHost Number Number Number Number (-> Unit)
-            .draw-surface-crop! $ quote $ Fn js-ffi.canvas-batches/CanvasContextHost js-ffi.canvas-batches/CanvasSurfaceHost Number Number Number Number Number Number Number Number (-> Unit)
+            .draw-surface-at! $ Fn js-ffi.canvas-batches/CanvasContextHost js-ffi.canvas-batches/CanvasSurfaceHost Number Number $ -> Unit
+            .draw-surface-sized! $ Fn js-ffi.canvas-batches/CanvasContextHost js-ffi.canvas-batches/CanvasSurfaceHost Number Number Number Number $ -> Unit
+            .draw-surface-crop! $ Fn js-ffi.canvas-batches/CanvasContextHost js-ffi.canvas-batches/CanvasSurfaceHost Number Number Number Number Number Number Number Number $ -> Unit
           :examples $ []
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
             :names $ {} (:arc! |arc) (:begin-path! |beginPath) (:bezier-curve-to! |bezierCurveTo) (:clear-rect! |clearRect) (:clip! |clip) (:close-path! |closePath) (:direction |direction) (:draw-image-at! |drawImage) (:draw-image-sized! |drawImage) (:draw-surface-at! |drawImage) (:draw-surface-crop! |drawImage) (:draw-surface-sized! |drawImage) (:fill! |fill) (:fill-rect! |fillRect) (:fill-style |fillStyle) (:fill-text! |fillText) (:font |font) (:global-alpha |globalAlpha) (:line-cap |lineCap) (:line-join |lineJoin) (:line-to! |lineTo) (:line-width |lineWidth) (:measure-text |measureText) (:miter-limit |miterLimit) (:move-to! |moveTo) (:rect! |rect) (:restore! |restore) (:save! |save) (:set-transform! |setTransform) (:stroke! |stroke) (:stroke-style |strokeStyle) (:text-align |textAlign) (:text-baseline |textBaseline) (:transform! |transform)
@@ -1602,8 +1593,7 @@
         'CanvasSurfaceHost $ %{} 'CodeEntry
           :doc "|原生 HTMLCanvasElement / OffscreenCanvas 的共同宽高与context能力；不含Scene或回退策略。get-context返回JsNullish<JsObject>，任意名称不承诺2D类型。"
           :code $ quote $ deftrait CanvasSurfaceHost (:width 'Number) (:height 'Number)
-            .get-context $ quote $ Fn js-ffi.canvas-batches/CanvasSurfaceHost String
-              -> $ JsNullish JsObject
+            .get-context $ Fn js-ffi.canvas-batches/CanvasSurfaceHost String $ -> (JsNullish JsObject)
           :examples $ []
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
             :names $ {} (:get-context |getContext) (:height |height) (:width |width)
@@ -1803,8 +1793,8 @@
         'BufferHost $ %{} 'CodeEntry
           :doc "|External Node Buffer capability exposing UTF-8 decoding and byte length."
           :code $ quote $ deftrait BufferHost
-            .to-string $ quote $ Fn js-ffi.node/BufferHost String (-> String)
-            .byte-length $ quote $ Fn js-ffi.node/BufferHost (-> Number)
+            .to-string $ Fn js-ffi.node/BufferHost String $ -> String
+            .byte-length $ Fn js-ffi.node/BufferHost $ -> Number
           :examples $ [] $ quote BufferHost
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :node)
             :names $ {} (:byte-length |length) (:to-string |toString)
@@ -1813,11 +1803,11 @@
         'NodeIncomingResponseHost $ %{} 'CodeEntry
           :doc "|External Node client IncomingMessage capability with status, headers and body hooks."
           :code $ quote $ deftrait NodeIncomingResponseHost
-            :status-code $ quote $ JsNullish Number
-            :status-message $ quote $ JsNullish String
+            :status-code $ JsNullish Number
+            :status-message $ JsNullish String
             :headers 'JsObject
-            .set-encoding! $ quote $ Fn js-ffi.node/NodeIncomingResponseHost String (-> Unit)
-            .on! $ quote $ Fn js-ffi.node/NodeIncomingResponseHost String
+            .set-encoding! $ Fn js-ffi.node/NodeIncomingResponseHost String $ -> Unit
+            .on! $ Fn js-ffi.node/NodeIncomingResponseHost String
               Fn JsObject $ -> Unit
               -> js-ffi.node/NodeIncomingResponseHost
           :examples $ [] $ quote NodeIncomingResponseHost
@@ -1834,11 +1824,11 @@
         'NodeRequestHost $ %{} 'CodeEntry
           :doc "|External Node IncomingMessage capability with request fields and an event hook."
           :code $ quote $ deftrait NodeRequestHost
-            :url $ quote $ JsNullish String
-            :method $ quote $ JsNullish String
+            :url $ JsNullish String
+            :method $ JsNullish String
             :headers 'JsObject
-            .set-encoding! $ quote $ Fn js-ffi.node/NodeRequestHost String (-> Unit)
-            .on! $ quote $ Fn js-ffi.node/NodeRequestHost String
+            .set-encoding! $ Fn js-ffi.node/NodeRequestHost String $ -> Unit
+            .on! $ Fn js-ffi.node/NodeRequestHost String
               Fn JsObject $ -> Unit
               -> js-ffi.node/NodeRequestHost
           :examples $ [] $ quote NodeRequestHost
@@ -1849,10 +1839,10 @@
         'NodeServerHost $ %{} 'CodeEntry
           :doc "|External Node HTTP server capability exposing listen and close."
           :code $ quote $ deftrait NodeServerHost
-            .listen! $ quote $ Fn js-ffi.node/NodeServerHost Number String
+            .listen! $ Fn js-ffi.node/NodeServerHost Number String
               Fn $ -> Unit
               -> js-ffi.node/NodeServerHost
-            .close! $ quote $ Fn js-ffi.node/NodeServerHost (-> Unit)
+            .close! $ Fn js-ffi.node/NodeServerHost $ -> Unit
           :examples $ [] $ quote NodeServerHost
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :node)
             :names $ {} (:close! |close) (:listen! |listen)
@@ -1861,10 +1851,10 @@
         'NodeServerResponseHost $ %{} 'CodeEntry
           :doc "|External Node ServerResponse capability with writable status and send helpers."
           :code $ quote $ deftrait NodeServerResponseHost
-            :status-code $ quote $ JsNullish Number
-            :status-message $ quote $ JsNullish String
-            .set-header! $ quote $ Fn js-ffi.node/NodeServerResponseHost String String (-> Unit)
-            .end! $ quote $ Fn js-ffi.node/NodeServerResponseHost String (-> Unit)
+            :status-code $ JsNullish Number
+            :status-message $ JsNullish String
+            .set-header! $ Fn js-ffi.node/NodeServerResponseHost String String $ -> Unit
+            .end! $ Fn js-ffi.node/NodeServerResponseHost String $ -> Unit
           :examples $ [] $ quote NodeServerResponseHost
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :node)
             :names $ {} (:end! |end) (:set-header! |setHeader) (:status-code |statusCode) (:status-message |statusMessage)
@@ -1881,7 +1871,7 @@
         'ProcessArgvHost $ %{} 'CodeEntry
           :doc "|External process.argv capability exposing only an opaque/nullish length that argv-count validates at runtime."
           :code $ quote $ deftrait ProcessArgvHost
-            :length $ quote $ JsNullish JsObject
+            :length $ JsNullish JsObject
           :examples $ [] $ quote ProcessArgvHost
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :node)
             :names $ {}
@@ -2397,7 +2387,7 @@
         'AbortControllerHost $ %{} 'CodeEntry
           :doc "|External AbortController capability with a typed signal and parameterless abort wrapper contract."
           :code $ quote $ deftrait AbortControllerHost (:signal 'js-ffi.shared/AbortSignalHost)
-            .abort! $ quote $ Fn js-ffi.shared/AbortControllerHost (-> Unit)
+            .abort! $ Fn js-ffi.shared/AbortControllerHost $ -> Unit
           :examples $ [] $ quote AbortControllerHost
           :ffi $ {} (:backend :js) (:kind :external-object)
             :names $ {} $ :abort! |abort
@@ -2406,8 +2396,8 @@
         'AbortSignalHost $ %{} 'CodeEntry
           :doc "|External AbortSignal capability. Reason stays an opaque nullable host object because JavaScript permits arbitrary values."
           :code $ quote $ deftrait AbortSignalHost (:aborted 'Bool)
-            :reason $ quote $ JsNullish JsObject
-            .throw-if-aborted! $ quote $ Fn js-ffi.shared/AbortSignalHost (-> Unit)
+            :reason $ JsNullish JsObject
+            .throw-if-aborted! $ Fn js-ffi.shared/AbortSignalHost $ -> Unit
           :examples $ [] $ quote AbortSignalHost
           :ffi $ {} (:backend :js) (:kind :external-object)
             :names $ {} $ :throw-if-aborted! |throwIfAborted
@@ -2416,11 +2406,11 @@
         'ConsoleHost $ %{} 'CodeEntry
           :doc "|External console capability shared by browser and Node. Methods intentionally accept one String to avoid modeling host varargs."
           :code $ quote $ deftrait ConsoleHost
-            .log! $ quote $ Fn js-ffi.shared/ConsoleHost String (-> Unit)
-            .info! $ quote $ Fn js-ffi.shared/ConsoleHost String (-> Unit)
-            .warn! $ quote $ Fn js-ffi.shared/ConsoleHost String (-> Unit)
-            .error! $ quote $ Fn js-ffi.shared/ConsoleHost String (-> Unit)
-            .clear! $ quote $ Fn js-ffi.shared/ConsoleHost (-> Unit)
+            .log! $ Fn js-ffi.shared/ConsoleHost String $ -> Unit
+            .info! $ Fn js-ffi.shared/ConsoleHost String $ -> Unit
+            .warn! $ Fn js-ffi.shared/ConsoleHost String $ -> Unit
+            .error! $ Fn js-ffi.shared/ConsoleHost String $ -> Unit
+            .clear! $ Fn js-ffi.shared/ConsoleHost $ -> Unit
           :examples $ [] $ quote ConsoleHost
           :ffi $ {} (:backend :js) (:kind :external-object)
             :names $ {} (:clear! |clear) (:error! |error) (:info! |info) (:log! |log) (:warn! |warn)
@@ -2429,9 +2419,9 @@
         'DateHost $ %{} 'CodeEntry
           :doc "|External JavaScript Date capability exposing only stable read methods needed for normalization."
           :code $ quote $ deftrait DateHost
-            .get-time $ quote $ Fn js-ffi.shared/DateHost (-> Number)
-            .to-iso-string $ quote $ Fn js-ffi.shared/DateHost (-> String)
-            .to-locale-string $ quote $ Fn js-ffi.shared/DateHost (-> String)
+            .get-time $ Fn js-ffi.shared/DateHost $ -> Number
+            .to-iso-string $ Fn js-ffi.shared/DateHost $ -> String
+            .to-locale-string $ Fn js-ffi.shared/DateHost $ -> String
           :examples $ [] $ quote DateHost
           :ffi $ {} (:backend :js) (:kind :external-object)
             :names $ {} (:get-time |getTime) (:to-iso-string |toISOString) (:to-locale-string |toLocaleString)
@@ -2445,12 +2435,11 @@
         'HeadersHost $ %{} 'CodeEntry
           :doc "|External Headers capability with typed String keys and values; iteration is deliberately normalized elsewhere."
           :code $ quote $ deftrait HeadersHost
-            .get $ quote $ Fn js-ffi.shared/HeadersHost String
-              -> $ JsNullish String
-            .has? $ quote $ Fn js-ffi.shared/HeadersHost String (-> Bool)
-            .set! $ quote $ Fn js-ffi.shared/HeadersHost String String (-> Unit)
-            .append! $ quote $ Fn js-ffi.shared/HeadersHost String String (-> Unit)
-            .delete! $ quote $ Fn js-ffi.shared/HeadersHost String (-> Unit)
+            .get $ Fn js-ffi.shared/HeadersHost String $ -> (JsNullish String)
+            .has? $ Fn js-ffi.shared/HeadersHost String $ -> Bool
+            .set! $ Fn js-ffi.shared/HeadersHost String String $ -> Unit
+            .append! $ Fn js-ffi.shared/HeadersHost String String $ -> Unit
+            .delete! $ Fn js-ffi.shared/HeadersHost String $ -> Unit
           :examples $ [] $ quote HeadersHost
           :ffi $ {} (:backend :js) (:kind :external-object)
             :names $ {} (:append! |append) (:delete! |delete) (:get |get) (:has? |has) (:set! |set)
@@ -2466,7 +2455,7 @@
         'JsError $ %{} 'CodeEntry
           :doc "|Normalized JavaScript exception data. Stack is optional because hosts may omit it."
           :code $ quote $ defstruct JsError (:kind js-ffi.shared/JsErrorKind) (:name String) (:message String)
-            :stack $ quote $ Option String
+            :stack $ Option String
           :examples $ [] $ quote
             &%{} JsError :kind (%:: JsErrorKind :type-error) :name |TypeError :message |invalid
           :schema $ quote StructDef
@@ -2480,10 +2469,10 @@
         'PromiseHost $ %{} 'CodeEntry
           :doc "|External Promise capability. Fulfillment and rejection callbacks receive opaque, potentially nullish host values and must decode them before concrete use."
           :code $ quote $ deftrait PromiseHost
-            .then! $ quote $ Fn js-ffi.shared/PromiseHost
+            .then! $ Fn js-ffi.shared/PromiseHost
               Fn (JsNullish JsObject) (-> Unit)
               -> js-ffi.shared/PromiseHost
-            .catch! $ quote $ Fn js-ffi.shared/PromiseHost
+            .catch! $ Fn js-ffi.shared/PromiseHost
               Fn (JsNullish JsObject) (-> Unit)
               -> js-ffi.shared/PromiseHost
           :examples $ []
@@ -2494,15 +2483,15 @@
         'RequestOptions $ %{} 'CodeEntry
           :doc "|Calcit-owned request configuration converted to a JavaScript object only inside an adapter."
           :code $ quote $ defstruct RequestOptions (:method js-ffi.shared/HttpMethod)
-            :headers $ quote $ Map String String
-            :body $ quote $ Option String
+            :headers $ Map String String
+            :body $ Option String
           :examples $ [] $ quote
             &%{} RequestOptions :method (%:: HttpMethod :get) :headers $ {}
           :schema $ quote StructDef
         'ResponseHost $ %{} 'CodeEntry
           :doc "|External Response capability with metadata and an opaque Promise-like text-body reader consumed by response-text."
           :code $ quote $ deftrait ResponseHost (:status 'Number) (:status-text 'String) (:ok? 'Bool) (:url 'String) (:redirected? 'Bool) (:headers 'js-ffi.shared/HeadersHost) (:body-used? 'Bool)
-            .text $ quote $ Fn js-ffi.shared/ResponseHost (-> JsObject)
+            .text $ Fn js-ffi.shared/ResponseHost $ -> JsObject
           :examples $ [] $ quote ResponseHost
           :ffi $ {} (:backend :js) (:kind :external-object)
             :names $ {} (:body-used? |bodyUsed) (:ok? |ok) (:redirected? |redirected) (:status-text |statusText)
@@ -2511,7 +2500,7 @@
         'ResponseSnapshot $ %{} 'CodeEntry
           :doc "|Normalized response metadata after a host Response has been inspected and its headers copied."
           :code $ quote $ defstruct ResponseSnapshot (:status Number) (:status-text String) (:ok? Bool) (:url String) (:redirected? Bool)
-            :headers $ quote $ Map String String
+            :headers $ Map String String
           :examples $ [] $ quote
             &%{} ResponseSnapshot :status 200 :status-text |OK :ok? true :url |https://example.test :redirected? false :headers $ {}
           :schema $ quote StructDef
@@ -2525,7 +2514,7 @@
         'UrlHost $ %{} 'CodeEntry
           :doc "|External URL-like capability shared by URL and browser Location objects. Fields are read-only in this contract."
           :code $ quote $ deftrait UrlHost (:href 'String) (:protocol 'String) (:host 'String) (:hostname 'String) (:port 'String) (:pathname 'String) (:search 'String) (:hash 'String)
-            .to-string $ quote $ Fn js-ffi.shared/UrlHost (-> String)
+            .to-string $ Fn js-ffi.shared/UrlHost $ -> String
           :examples $ [] $ quote UrlHost
           :ffi $ {} (:backend :js) (:kind :external-object)
             :names $ {} $ :to-string |toString
@@ -2534,15 +2523,14 @@
         'UrlSearchParamsHost $ %{} 'CodeEntry
           :doc "|External URLSearchParams capability. Nullable lookup remains JsNullish<String> until an adapter converts it to Option."
           :code $ quote $ deftrait UrlSearchParamsHost (:size 'Number)
-            .get $ quote $ Fn js-ffi.shared/UrlSearchParamsHost String
-              -> $ JsNullish String
-            .has? $ quote $ Fn js-ffi.shared/UrlSearchParamsHost String (-> Bool)
-            .set! $ quote $ Fn js-ffi.shared/UrlSearchParamsHost String String (-> Unit)
-            .delete! $ quote $ Fn js-ffi.shared/UrlSearchParamsHost String (-> Unit)
-            .for-each! $ quote $ Fn js-ffi.shared/UrlSearchParamsHost
+            .get $ Fn js-ffi.shared/UrlSearchParamsHost String $ -> (JsNullish String)
+            .has? $ Fn js-ffi.shared/UrlSearchParamsHost String $ -> Bool
+            .set! $ Fn js-ffi.shared/UrlSearchParamsHost String String $ -> Unit
+            .delete! $ Fn js-ffi.shared/UrlSearchParamsHost String $ -> Unit
+            .for-each! $ Fn js-ffi.shared/UrlSearchParamsHost
               Fn String String js-ffi.shared/UrlSearchParamsHost $ -> Unit
               -> Unit
-            .to-string $ quote $ Fn js-ffi.shared/UrlSearchParamsHost (-> String)
+            .to-string $ Fn js-ffi.shared/UrlSearchParamsHost $ -> String
           :examples $ [] $ quote UrlSearchParamsHost
           :ffi $ {} (:backend :js) (:kind :external-object)
             :names $ {} (:delete! |delete) (:for-each! |forEach) (:get |get) (:has? |has) (:set! |set) (:to-string |toString)
@@ -2980,8 +2968,7 @@
           :doc "|Collect URLSearchParams entries into a Map<String, String>; duplicate keys keep the last value."
           :code $ quote $ defn search-params->map (value)
             let
-                result $ ref $ assert-type ({})
-                  quote $ Map String String
+                result $ ref $ assert-type ({}) (Map String String)
               value .for-each! $ fn (item key _parent) (swap! result assoc key item) &unit
               deref result
           :examples $ []
@@ -2993,7 +2980,7 @@
           :code $ quote $ defn search-params->pairs (value)
             let
                 result $ ref $ assert-type ([])
-                  quote $ List $ List String
+                  List $ List String
               value .for-each! $ fn (item key _parent)
                 swap! result append $ [] key item
                 , &unit
@@ -3088,8 +3075,7 @@
           :code $ quote $ defn float32-at (snapshot index)
             hint-fn $ Fn js-ffi.typed-arrays/Float32SnapshotHost Number (-> Number) (:features :js-ffi)
             let
-                read-at $ unsafe-coerce float32At $ quote
-                  Fn js-ffi.typed-arrays/Float32SnapshotHost Number $ -> Number
+                read-at $ unsafe-coerce float32At $ Fn js-ffi.typed-arrays/Float32SnapshotHost Number (-> Number)
               read-at snapshot index
           :examples $ []
           :ffi $ {} $ :backend :js
@@ -3098,8 +3084,7 @@
           :code $ quote $ defn float32-byte-length (snapshot)
             hint-fn $ Fn js-ffi.typed-arrays/Float32SnapshotHost (-> Number) (:features :js-ffi)
             let
-                read-byte-length $ unsafe-coerce float32ByteLength $ quote
-                  Fn js-ffi.typed-arrays/Float32SnapshotHost $ -> Number
+                read-byte-length $ unsafe-coerce float32ByteLength $ Fn js-ffi.typed-arrays/Float32SnapshotHost (-> Number)
               read-byte-length snapshot
           :examples $ []
           :ffi $ {} $ :backend :js
@@ -3109,8 +3094,7 @@
           :code $ quote $ defn float32-copy-range (snapshot start amount)
             hint-fn $ Fn js-ffi.typed-arrays/Float32SnapshotHost Number Number (-> js-ffi.typed-arrays/Float32ArrayHost) (:features :js-ffi)
             let
-                copy-range $ unsafe-coerce float32CopyRange $ quote
-                  Fn js-ffi.typed-arrays/Float32SnapshotHost Number Number $ -> js-ffi.typed-arrays/Float32ArrayHost
+                copy-range $ unsafe-coerce float32CopyRange $ Fn js-ffi.typed-arrays/Float32SnapshotHost Number Number (-> js-ffi.typed-arrays/Float32ArrayHost)
               copy-range snapshot start amount
           :examples $ []
           :ffi $ {} $ :backend :js
@@ -3119,8 +3103,7 @@
           :code $ quote $ defn float32-length (snapshot)
             hint-fn $ Fn js-ffi.typed-arrays/Float32SnapshotHost (-> Number) (:features :js-ffi)
             let
-                read-length $ unsafe-coerce float32Length $ quote
-                  Fn js-ffi.typed-arrays/Float32SnapshotHost $ -> Number
+                read-length $ unsafe-coerce float32Length $ Fn js-ffi.typed-arrays/Float32SnapshotHost (-> Number)
               read-length snapshot
           :examples $ []
           :ffi $ {} $ :backend :js
@@ -3130,8 +3113,7 @@
           :code $ quote $ defn snapshot-float32 (source)
             hint-fn $ Fn js-ffi.typed-arrays/Float32ArrayHost (-> js-ffi.typed-arrays/Float32SnapshotHost) (:features :js-ffi)
             let
-                snapshot $ unsafe-coerce snapshotFloat32 $ quote
-                  Fn js-ffi.typed-arrays/Float32ArrayHost $ -> js-ffi.typed-arrays/Float32SnapshotHost
+                snapshot $ unsafe-coerce snapshotFloat32 $ Fn js-ffi.typed-arrays/Float32ArrayHost (-> js-ffi.typed-arrays/Float32SnapshotHost)
               snapshot source
           :examples $ []
           :ffi $ {} $ :backend :js
@@ -3145,8 +3127,7 @@
         'AdapterHost $ %{} 'CodeEntry
           :doc "|Small browser WebGPU host capability; use the checked public adapters to acquire it."
           :code $ quote $ deftrait AdapterHost
-            .request-device $ quote $ Fn js-ffi.webgpu/AdapterHost JsObject
-              -> $ JsNullish JsObject
+            .request-device $ Fn js-ffi.webgpu/AdapterHost JsObject $ -> (JsNullish JsObject)
           :examples $ []
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
             :names $ {} $ :request-device |requestDevice
@@ -3154,10 +3135,10 @@
         'BufferHost $ %{} 'CodeEntry
           :doc "|Small browser WebGPU host capability; use the checked public adapters to acquire it."
           :code $ quote $ deftrait BufferHost
-            :size $ quote $ JsNullish JsObject
-            :usage $ quote $ JsNullish JsObject
-            .destroy $ quote $ Fn js-ffi.webgpu/BufferHost (-> Unit)
-            .unmap $ quote $ Fn js-ffi.webgpu/BufferHost (-> Unit)
+            :size $ JsNullish JsObject
+            :usage $ JsNullish JsObject
+            .destroy $ Fn js-ffi.webgpu/BufferHost $ -> Unit
+            .unmap $ Fn js-ffi.webgpu/BufferHost $ -> Unit
           :examples $ []
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
             :names $ {}
@@ -3165,13 +3146,11 @@
         'DeviceHost $ %{} 'CodeEntry
           :doc "|Small browser WebGPU host capability; use the checked public adapters to acquire it."
           :code $ quote $ deftrait DeviceHost
-            :lost $ quote $ JsNullish JsObject
-            .destroy $ quote $ Fn js-ffi.webgpu/DeviceHost (-> Unit)
-            .create-buffer $ quote $ Fn js-ffi.webgpu/DeviceHost JsObject
-              -> $ JsNullish JsObject
-            .push-error-scope $ quote $ Fn js-ffi.webgpu/DeviceHost String (-> Unit)
-            .pop-error-scope $ quote $ Fn js-ffi.webgpu/DeviceHost
-              -> $ JsNullish JsObject
+            :lost $ JsNullish JsObject
+            .destroy $ Fn js-ffi.webgpu/DeviceHost $ -> Unit
+            .create-buffer $ Fn js-ffi.webgpu/DeviceHost JsObject $ -> (JsNullish JsObject)
+            .push-error-scope $ Fn js-ffi.webgpu/DeviceHost String $ -> Unit
+            .pop-error-scope $ Fn js-ffi.webgpu/DeviceHost $ -> (JsNullish JsObject)
           :examples $ []
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
             :names $ {} (:create-buffer |createBuffer) (:pop-error-scope |popErrorScope) (:push-error-scope |pushErrorScope)
@@ -3184,10 +3163,8 @@
         'GpuHost $ %{} 'CodeEntry
           :doc "|Small browser WebGPU host capability; use the checked public adapters to acquire it."
           :code $ quote $ deftrait GpuHost
-            .request-adapter $ quote $ Fn js-ffi.webgpu/GpuHost JsObject
-              -> $ JsNullish JsObject
-            .preferred-format $ quote $ Fn js-ffi.webgpu/GpuHost
-              -> $ JsNullish JsObject
+            .request-adapter $ Fn js-ffi.webgpu/GpuHost JsObject $ -> (JsNullish JsObject)
+            .preferred-format $ Fn js-ffi.webgpu/GpuHost $ -> (JsNullish JsObject)
           :examples $ []
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
             :names $ {} (:preferred-format |getPreferredCanvasFormat) (:request-adapter |requestAdapter)
@@ -3330,7 +3307,7 @@
           :schema $ quote EnumDef
         'NavigatorHost $ %{} 'CodeEntry (:doc "|浏览器 navigator 或测试宿主；gpu 访问异常由探测函数归入失败阶段。")
           :code $ quote $ deftrait NavigatorHost
-            :gpu $ quote $ JsNullish JsObject
+            :gpu $ JsNullish JsObject
           :examples $ []
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
           :schema $ quote Trait
@@ -3345,7 +3322,7 @@
         'ReadyDeviceHost $ %{} 'CodeEntry
           :doc "|持有 adapter/device 的 ready 句柄；release 幂等，lost 为诊断 Promise；设备生命周期不属于 Scene IR。"
           :code $ quote $ deftrait ReadyDeviceHost (:adapter 'js-ffi.webgpu/AdapterHost) (:device 'js-ffi.webgpu/DeviceHost) (:format 'String) (:state 'String) (:lost 'js-ffi.shared/PromiseHost)
-            .release $ quote $ Fn js-ffi.webgpu-capabilities/ReadyDeviceHost (-> Bool)
+            .release $ Fn js-ffi.webgpu-capabilities/ReadyDeviceHost $ -> Bool
           :examples $ []
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
           :schema $ quote Trait
@@ -3354,8 +3331,7 @@
           :code $ quote $ defn probe-device! (navigator-host)
             hint-fn $ Fn (JsNullish js-ffi.webgpu-capabilities/NavigatorHost) (-> js-ffi.webgpu-capabilities/DeviceProbe) (:features :js-ffi) (:async)
             let
-                probe $ unsafe-coerce probeWebGpuDevice $ quote
-                  Fn (JsNullish js-ffi.webgpu-capabilities/NavigatorHost) (-> JsObject) (:async)
+                probe $ unsafe-coerce probeWebGpuDevice $ Fn (JsNullish js-ffi.webgpu-capabilities/NavigatorHost) (-> JsObject) (:async)
                 result $ js-await $ probe navigator-host
                 kind $ contract/expect-string |WebGPU.probe.kind $ contract/object-field |WebGPU.probe result |kind
               if (= kind |ready)
@@ -3382,7 +3358,7 @@
       :defs $ {}
         'PromiseHost $ %{} 'CodeEntry (:doc |)
           :code $ quote $ deftrait PromiseHost
-            .then $ quote $ Fn js-ffi.webgpu-internal/PromiseHost
+            .then $ Fn js-ffi.webgpu-internal/PromiseHost
               Fn (JsNullish JsObject) (-> Unit)
               Fn (JsNullish JsObject) (-> Unit)
               -> JsObject
