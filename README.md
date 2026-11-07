@@ -3,7 +3,15 @@
 Typed JavaScript FFI definitions for Calcit. This package is independent: it exists to make the boundary between Calcit and host
 JavaScript explicit, checkable, and reusable across Calcit projects.
 
-## 0.2.13 候选：配对正式 Calcit 0.35.1
+## 0.2.14 候选：配对正式 Calcit 0.37.0
+
+使用者注意：CLI、`deps.cirru :calcit-version` 与 `@calcit/procs` 同步正式 **0.37.0**。
+Calcit 0.37.0 把旧类型写法（引号复合类型、`& T` 变长参数、字符串 type slot）和未绑定的 type slot
+改为载入错误，并且对依赖同样生效，所以下游升级到 0.37 前需要先固定本版本的 Git tag。
+本库源码在 0.37.0 下无需改写：`edit format` 无变化，宿主实现、公开 schema、Node/browser 分离、
+质量基线与测试保持不变。重新安装精确依赖图并重新生成 JS；候选不等于已发布。
+
+## 历史 0.2.13：配对正式 Calcit 0.35.1
 
 使用者注意：CLI、`deps.cirru :calcit-version` 与 `@calcit/procs` 同步正式 **0.35.1**；
 消费者固定已发布 Git tag 后，重新安装精确图、核验工具链并重新生成 JS。
