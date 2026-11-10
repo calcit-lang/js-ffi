@@ -1,0 +1,55 @@
+# Only the previously reviewed FFI boundary definitions may use unsafe-coerce.
+def limits: {
+  "js-ffi.browser/blob-create": 1,
+  "js-ffi.browser/document-host": 1,
+  "js-ffi.browser/element-first-child": 1,
+  "js-ffi.browser/element-host": 1,
+  "js-ffi.browser/event-host": 1,
+  "js-ffi.browser/event-listener-host": 1,
+  "js-ffi.browser/event-target-element": 2,
+  "js-ffi.browser/form-data-create": 1,
+  "js-ffi.browser/image-create": 1,
+  "js-ffi.browser/keyboard-event-host": 1,
+  "js-ffi.browser/location-host": 1,
+  "js-ffi.browser/mouse-event-from-event": 1,
+  "js-ffi.browser/mouse-event-host": 1,
+  "js-ffi.browser/pointer-event-host": 1,
+  "js-ffi.browser/selectable-element-host": 1,
+  "js-ffi.browser/web-socket-create": 1,
+  "js-ffi.browser/window-host": 1,
+  "js-ffi.contract/expect-function": 1,
+  "js-ffi.contract/expect-object": 1,
+  "js-ffi.node/argv-count": 1,
+  "js-ffi.node/buffer-from-string": 1,
+  "js-ffi.node/http-create-server": 3,
+  "js-ffi.node/http-get!": 2,
+  "js-ffi.node/request-body-text": 1,
+  "js-ffi.node/set-interval!": 1,
+  "js-ffi.node/set-timeout!": 1,
+  "js-ffi.shared/abort-controller-create": 1,
+  "js-ffi.shared/console-host": 1,
+  "js-ffi.shared/date-from-ms": 1,
+  "js-ffi.shared/date-now-snapshot": 1,
+  "js-ffi.shared/headers-create": 1,
+  "js-ffi.shared/promise-create": 1,
+  "js-ffi.shared/promise-observe!": 1,
+  "js-ffi.shared/response-host": 1,
+  "js-ffi.shared/url-create": 1,
+  "js-ffi.typed-arrays/float32-at": 1,
+  "js-ffi.typed-arrays/float32-byte-length": 1,
+  "js-ffi.typed-arrays/float32-copy-range": 1,
+  "js-ffi.typed-arrays/float32-length": 1,
+  "js-ffi.typed-arrays/snapshot-float32": 1,
+  "js-ffi.webgpu-capabilities/probe-device!": 2,
+  "js-ffi.webgpu-internal/adapter-host": 1,
+  "js-ffi.webgpu-internal/buffer-host": 1,
+  "js-ffi.webgpu-internal/device-host": 1,
+  "js-ffi.webgpu-internal/gpu-host": 1,
+  "js-ffi.webgpu-internal/promise-host": 1
+};
+
+length == 1
+and (.[0].data.definitions | type == "array")
+and (limits as $limits | all(.[0].data.definitions[];
+  ($limits[.id] // 0) as $limit
+  | (.occurrences | length <= $limit and all(.[]; .kind == "unsafe-coerce" and .intent == "explicit-unsafe"))))
