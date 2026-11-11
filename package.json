@@ -1,13 +1,13 @@
 {
   "name": "@calcit/js-ffi",
   "private": true,
-  "version": "0.2.16",
+  "version": "0.2.17",
   "exports": {
     "./*.mjs": "./*.mjs"
   },
   "packageManager": "yarn@4.18.0",
   "dependencies": {
-    "@calcit/procs": "0.40.0"
+    "@calcit/procs": "0.41.0"
   },
   "devDependencies": {
     "playwright": "1.63.0",
@@ -15,7 +15,7 @@
   },
   "scripts": {
     "check": "calcit calcit.cirru --check-only",
-    "check:quality": "calcit calcit.cirru analyze quality --baseline config/calcit-quality.cirru --format json",
+    "check:quality": "calcit analyze weak-types --format json | jq -es -f config/calcit-quality.jq && calcit analyze weak-types --only coverage --summary-only --format json | jq -es 'length == 1 and .[0].data.summary.levels == {full: .[0].data.summary.definitions, none: 0, partial: 0}' && calcit analyze weak-types --only deprecated-call --summary-only --format json | jq -es 'length == 1 and .[0].data.summary.calls == 0'",
     "audit:unsafe": "calcit calcit.cirru analyze weak-types --only unsafe-coerce --intent explicit-unsafe --format json",
     "check:node": "calcit --entry node calcit.cirru --check-only",
     "check:browser": "calcit --entry browser calcit.cirru --check-only",

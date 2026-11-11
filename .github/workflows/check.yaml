@@ -55,7 +55,7 @@ jobs:
           git diff --exit-code -- calcit.cirru
           calcit calcit.cirru --check-only
           calcit fix --workflow strict --verify
-          calcit calcit.cirru analyze quality --baseline config/calcit-quality.cirru --format json
+          yarn check:quality
           yarn audit:unsafe
 
       - name: Verify public API catalog and all definitions

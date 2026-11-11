@@ -201,7 +201,7 @@ test('catalog builds on first search, refreshes stale data, and preserves host m
     assert.equal(entry.schemaData, marker, `${entry.id} metadata must describe its definition, not a runtime value`);
   }
   const scroll = catalog.definitions.find(def => def.id === 'js-ffi.browser/element-scroll-height');
-  assert.deepEqual(scroll.schemaData, ['Fn', 'js-ffi.browser/DomElementHost', ['->', 'Number'], [':features', ':js-ffi']]);
+  assert.deepEqual(scroll.schemaData, ['Fn', 'DomElementHost', ['->', 'Number'], [':features', ':js-ffi']]);
   const result = spawnSync(process.execPath, [join(root, 'scripts/api-catalog.mjs'), 'search', 'storage', 'node'], { cwd: root, encoding: 'utf8' });
   assert.equal(result.status, 0, result.stderr);
   assert.deepEqual(JSON.parse(result.stdout), []);
