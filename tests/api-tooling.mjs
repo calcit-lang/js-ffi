@@ -120,7 +120,7 @@ test('API check discovers an unused new definition and rejects its invalid call'
     assert.ifError(result.error);
     assert.notEqual(result.status, 0);
     const report = JSON.parse(result.stdout);
-    assert.ok(report.diagnostics.some(diagnostic => diagnostic.code === 'W_FN_ARG_TYPE_MISMATCH'));
+    assert.ok(report.diagnostics.some(diagnostic => diagnostic.code === 'E_FN_ARG_TYPE_MISMATCH'));
     assert.match(JSON.stringify(report.diagnostics), /unused-invalid/);
     assert.equal(readFileSync(snapshot, 'utf8'), before, 'Checking must leave the input snapshot unchanged');
   } finally { rmSync(dir, { recursive: true, force: true }); }
