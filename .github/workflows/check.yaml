@@ -49,6 +49,24 @@ jobs:
           yarn install --immutable
           caps verify --toolchain
 
+      # Remove this backport when deps.cirru pins a release containing calcit#2749.
+      - name: Build Calcit 0.42.1 with the nested callback fix
+        uses: actions/checkout@v7.0.1
+        with:
+          repository: calcit-lang/calcit
+          ref: 8500bae675f4fe9d582328b73e06cfd1d04a0aad # 0.42.1 release source
+          path: .calcit/cli-backport
+          persist-credentials: false
+
+      - name: Apply the compiler fix
+        working-directory: .calcit/cli-backport
+        run: |
+          git apply --check "$GITHUB_WORKSPACE/.github/patches/calcit-0.42.1-nested-callback.patch"
+          git apply "$GITHUB_WORKSPACE/.github/patches/calcit-0.42.1-nested-callback.patch"
+          cargo build --locked --profile ci --bin calcit
+          test "$(target/ci/calcit -v)" = "0.42.1"
+          echo "$PWD/target/ci" >> "$GITHUB_PATH"
+
       - name: Validate Calcit snapshot and types
         run: |
           calcit calcit.cirru edit format
