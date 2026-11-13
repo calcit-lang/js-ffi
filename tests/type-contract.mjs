@@ -96,6 +96,7 @@ const promiseCases = [
   [preciseExecutor.replace('resolve |ok', 'resolve 42') + '\n  , &unit', false],
   [preciseExecutor.replace('resolve |ok', 'reject 42') + '\n  , &unit', false],
   [preciseExecutor.replace(`(${stringCallback}) (${stringCallback})`, `(${stringCallback}) AnyFn`) + '\n  , &unit', false],
+  [preciseExecutor.replace(`(${stringCallback}) (${stringCallback})`, `(${stringCallback}) (JsNullish AnyFn)`) + '\n  , &unit', false],
   ["shared/promise-create $ fn (resolve)\n    hint-fn $ Fn (" + stringCallback + ") (-> Unit)\n    resolve |ok\n    , &unit\n  , &unit", false],
   ["fn (host)\n    hint-fn $ Fn js-ffi.shared/PromiseHost (-> Unit) (:features :js-ffi)\n    shared/promise-observe! host\n      fn (value)\n        hint-fn $ Fn js-ffi.shared/PromiseHost (-> Unit) (:features :js-ffi)\n        value .then! $ fn (item) &unit\n        , &unit\n      fn (error) &unit\n  , &unit", false],
   ["shared/promise-observe! |ok\n    fn (value)\n      hint-fn $ Fn String (-> Unit)\n      , &unit\n    fn (error) &unit", false],

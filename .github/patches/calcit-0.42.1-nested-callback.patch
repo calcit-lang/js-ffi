@@ -1,20 +1,22 @@
 diff --git a/src/calcit/type_annotation.rs b/src/calcit/type_annotation.rs
-index df08944..797102e 100644
+index df08944..898475b 100644
 --- a/src/calcit/type_annotation.rs
 +++ b/src/calcit/type_annotation.rs
-@@ -11897,6 +11897,20 @@ impl CalcitFnTypeAnnotation {
+@@ -11897,6 +11897,22 @@ impl CalcitFnTypeAnnotation {
  
      let mut staged = bindings.clone();
      let mut result = TypeProof::Proven;
 +    let mut prove_parameter = |actual: &Arc<CalcitTypeAnnotation>, expected: &Arc<CalcitTypeAnnotation>| {
 +      // An erased callable parameter can be invoked without validating its
 +      // arguments. It cannot stand in for a parameter with a known signature.
-+      if matches!(
-+        CalcitTypeAnnotation::expand_schema_alias(actual).as_ref(),
-+        CalcitTypeAnnotation::DynFn
-+      ) && CalcitTypeAnnotation::expand_schema_alias(expected)
-+        .resolve_to_nonoptional_fn()
-+        .is_some()
++      let mut parameter = CalcitTypeAnnotation::expand_schema_alias(actual);
++      while let CalcitTypeAnnotation::Nullable(inner, _) = parameter.as_ref() {
++        parameter = CalcitTypeAnnotation::expand_schema_alias(inner);
++      }
++      if matches!(parameter.as_ref(), CalcitTypeAnnotation::DynFn)
++        && CalcitTypeAnnotation::expand_schema_alias(expected)
++          .resolve_to_nonoptional_fn()
++          .is_some()
 +      {
 +        return TypeProof::Mismatch;
 +      }
@@ -23,7 +25,7 @@ index df08944..797102e 100644
      for idx in 0..self.arg_types.len().max(other.arg_types.len()) {
        let Some(expected) = other.arg_types.get(idx).or(other.rest_type.as_ref()) else {
          continue;
-@@ -11904,11 +11918,11 @@ impl CalcitFnTypeAnnotation {
+@@ -11904,11 +11920,11 @@ impl CalcitFnTypeAnnotation {
        let Some(actual) = self.arg_types.get(idx).or(self.rest_type.as_ref()) else {
          return TypeProof::Mismatch;
        };

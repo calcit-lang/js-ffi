@@ -8,6 +8,11 @@ JavaScript explicit, checkable, and reusable across Calcit projects.
 升级时请同时使用正式 Calcit 和 `@calcit/procs` 0.42.1，安装依赖后重新生成 JS。
 Calcit 0.37.0 的项目继续使用已发布的 Git 标签 0.2.14。
 
+本仓库的完整类型回归使用 CI 从正式 0.42.1 源码构建的 CLI，其中包含嵌套回调检查补丁。
+本地复现 CI 时，按工作流从 Calcit 0.42.1 源码应用 `.github/patches/calcit-0.42.1-nested-callback.patch`，
+运行 `cargo build --locked --profile ci --bin calcit`，然后用 `CALCIT_BIN` 指向该二进制再运行 `yarn test:types`。
+正式 0.42.1 二进制会漏检这组负例。
+
 Node 和浏览器入口分别检查各自的宿主 API。DOM 克隆和 dataset 访问复用具名接口，
 逐定义 unsafe 预算收紧为 51 处。
 `WindowHost.postMessage` 的数据参数继续接受开放载荷，由浏览器的结构化克隆规则校验。
