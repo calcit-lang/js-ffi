@@ -1306,7 +1306,7 @@
               fn () $ console-log! |heartbeat
               , 60000
           :schema $ quote $ Fn
-            Fn $ -> Unit
+            Fn (-> Unit) (:features :io :state)
             , Number (-> Number) (:features :js-ffi)
         'set-timeout! $ %{} 'CodeEntry
           :doc "|Schedule a Unit callback and return the browser numeric timer id. Node timer handles intentionally use a separate contract."
@@ -2280,7 +2280,7 @@
               clear-interval! handle
           :ffi $ {} (:backend :js) (:target :node)
           :schema $ quote $ Fn
-            Fn $ -> Unit
+            Fn (-> Unit) (:features :io :state)
             , Number (-> NodeTimerHost) (:features :js-ffi)
         'set-timeout! $ %{} 'CodeEntry
           :doc "|安排 Node 定时器并返回不透明 NodeTimerHost；与浏览器数值 timer id 不同。"
