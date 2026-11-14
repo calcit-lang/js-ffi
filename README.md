@@ -3,15 +3,10 @@
 Typed JavaScript FFI definitions for Calcit. This package is independent: it exists to make the boundary between Calcit and host
 JavaScript explicit, checkable, and reusable across Calcit projects.
 
-## 0.2.17 候选（Calcit 0.42.1）
+## 0.2.17 候选
 
-升级时请同时使用正式 Calcit 和 `@calcit/procs` 0.42.1，安装依赖后重新生成 JS。
+此版本等待包含 Calcit #2749 嵌套回调检查修复的正式 Calcit，预期为 0.42.2 或后续包含该修复的版本。发布后请同步升级 Calcit CLI 和 `@calcit/procs`，安装依赖并重新生成 JS。
 Calcit 0.37.0 的项目继续使用已发布的 Git 标签 0.2.14。
-
-本仓库的完整类型回归使用 CI 从正式 0.42.1 源码构建的 CLI，其中包含嵌套回调检查补丁。
-本地复现 CI 时，按工作流从 Calcit 0.42.1 源码应用 `.github/patches/calcit-0.42.1-nested-callback.patch`，
-运行 `cargo build --locked --profile ci --bin calcit`，然后用 `CALCIT_BIN` 指向该二进制再运行 `yarn test:types`。
-正式 0.42.1 二进制会漏检这组负例。
 
 Node 和浏览器入口分别检查各自的宿主 API。DOM 克隆和 dataset 访问复用具名接口，
 逐定义 unsafe 预算收紧为 51 处。
