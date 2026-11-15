@@ -377,8 +377,8 @@
         'blob-text $ %{} 'CodeEntry
           :doc "|Await Blob.text once and decode the UTF-8 String or normalize a JsError."
           :code $ quote $ defn blob-text (blob)
-            hint-fn $ Fn js-ffi.browser/BlobHost
-              -> $ Result String js-ffi.shared/JsError
+            hint-fn $ Fn BlobHost
+              -> $ Result String shared/JsError
               :features :js-ffi
               :async
             try
@@ -419,7 +419,7 @@
           :doc "|Await navigator.clipboard.readText exactly once and normalize failures as Result.err<JsError>."
           :code $ quote $ defn clipboard-read-text! ()
             hint-fn $ Fn
-              -> $ Result String js-ffi.shared/JsError
+              -> $ Result String shared/JsError
               :features :js-ffi
               :async
             try
@@ -1019,8 +1019,8 @@
         'image-decode! $ %{} 'CodeEntry
           :doc "|Await image.decode once so the natural size is available, or normalize a JsError."
           :code $ quote $ defn image-decode! (image)
-            hint-fn $ Fn js-ffi.browser/ImageHost
-              -> $ Result Unit js-ffi.shared/JsError
+            hint-fn $ Fn ImageHost
+              -> $ Result Unit shared/JsError
               :features :js-ffi
               :async
             try
@@ -1136,7 +1136,7 @@
           :doc "|Await Notification.requestPermission once and normalize the String permission or JsError."
           :code $ quote $ defn notification-request-permission! ()
             hint-fn $ Fn
-              -> $ Result String js-ffi.shared/JsError
+              -> $ Result String shared/JsError
               :features :js-ffi
               :async
             try
@@ -1503,14 +1503,14 @@
                 result $ browser/probe
                 element $ browser/create-element |div
                 on-resize $ fn (event)
-                  hint-fn $ Fn js-ffi.browser/EventHost $ -> Unit
+                  hint-fn $ Fn browser/EventHost $ -> Unit
                   , &unit
-              assert-type result js-ffi.browser/BrowserProbe
-              assert-type element 'js-ffi.browser/DomElementHost
+              assert-type result browser/BrowserProbe
+              assert-type element browser/DomElementHost
               browser/add-event-listener! |resize on-resize
               browser/remove-event-listener! |resize on-resize
               browser/set-before-unload! $ fn (event)
-                hint-fn $ Fn js-ffi.browser/EventHost $ -> Unit
+                hint-fn $ Fn browser/EventHost $ -> Unit
                 , &unit
               shared/queue-microtask! $ fn ()
                 hint-fn $ Fn $ -> Unit
@@ -1608,7 +1608,7 @@
           :schema $ quote Trait
         'clear-canvas! $ %{} 'CodeEntry (:doc "|在单位变换下清除给定实际像素区域，再恢复 Canvas 绘制状态；调用方传入像素宽高。")
           :code $ quote $ defn clear-canvas! (context pixel-width pixel-height)
-            hint-fn $ Fn js-ffi.canvas-batches/CanvasContextHost Number Number (-> Unit) (:features :js-ffi)
+            hint-fn $ Fn CanvasContextHost Number Number (-> Unit) (:features :js-ffi)
             context .save!
             context .set-transform! 1 0 0 1 0 0
             context .clear-rect! 0 0 pixel-width pixel-height
@@ -1662,7 +1662,7 @@
           :schema $ quote $ Fn CanvasContextHost CanvasSurfaceHost Number Number Number Number (-> Unit) (:features :js-ffi)
         'fill-solid-rect! $ %{} 'CodeEntry (:doc "|通过 Calcit 类型化 Canvas2D 基础方法绘制一个纯色矩形，并恢复绘制状态。")
           :code $ quote $ defn fill-solid-rect! (context x y width height fill-style)
-            hint-fn $ Fn js-ffi.canvas-batches/CanvasContextHost Number Number Number Number String (-> Unit) (:features :js-ffi)
+            hint-fn $ Fn CanvasContextHost Number Number Number Number String (-> Unit) (:features :js-ffi)
             context .save!
             js-set context :fill-style fill-style
             context .fill-rect! x y width height
@@ -1673,7 +1673,7 @@
         'fill-transformed-clipped-rect! $ %{} 'CodeEntry
           :doc "|通用 Calcit 组合：在 save/restore 作用域内应用变换、矩形裁剪并绘制纯色矩形；当前路径不是 Canvas 保存状态的一部分，调用后路径会变更。"
           :code $ quote $ defn fill-transformed-clipped-rect! (context transform clip rect fill-style)
-            hint-fn $ Fn js-ffi.canvas-batches/CanvasContextHost js-ffi.canvas-batches/CanvasAffine2D js-ffi.canvas-batches/CanvasRect js-ffi.canvas-batches/CanvasRect String (-> Unit) (:features :js-ffi)
+            hint-fn $ Fn CanvasContextHost CanvasAffine2D CanvasRect CanvasRect String (-> Unit) (:features :js-ffi)
             context .save!
             context .transform! (:a transform) (:b transform) (:c transform) (:d transform) (:e transform) (:f transform)
             context .begin-path!
@@ -2154,7 +2154,7 @@
           :doc "|Await node:fs/promises.readFile exactly once and return UTF-8 text or normalized JsError."
           :code $ quote $ defn read-text-async! (file-path)
             hint-fn $ Fn String
-              -> $ Result String js-ffi.shared/JsError
+              -> $ Result String shared/JsError
               :features :js-ffi
               :async
             try
@@ -2325,7 +2325,7 @@
           :doc "|Await node:fs/promises.writeFile exactly once and return Unit or normalized JsError."
           :code $ quote $ defn write-text-async! (file-path text)
             hint-fn $ Fn String String
-              -> $ Result Unit js-ffi.shared/JsError
+              -> $ Result Unit shared/JsError
               :features :js-ffi
               :async
             try
@@ -2350,7 +2350,7 @@
           :code $ quote $ defn main! ()
             let
                 result $ node/probe
-              assert-type result js-ffi.node/NodeProbe
+              assert-type result node/NodeProbe
               shared/console-log! |js-ffi-node-smoke
               if
                 contract/valid-runtime? (shared/Runtime :node) (:runtime result)
@@ -2684,8 +2684,8 @@
         'fetch-request $ %{} 'CodeEntry
           :doc "|Await one fetch built from a typed HttpMethod, HeadersHost and optional String body; normalize throws and rejections as Result.err<JsError>."
           :code $ quote $ defn fetch-request (url method headers body)
-            hint-fn $ Fn String js-ffi.shared/HttpMethod js-ffi.shared/HeadersHost (calcit.core/Option String)
-              -> $ calcit.core/Result js-ffi.shared/ResponseHost js-ffi.shared/JsError
+            hint-fn $ Fn String HttpMethod HeadersHost (Option String)
+              -> $ Result ResponseHost JsError
               :features :js-ffi
               :async
             let
@@ -2706,7 +2706,7 @@
           :doc "|Await fetch exactly once and normalize synchronous throws or Promise rejections as Result.err."
           :code $ quote $ defn fetch-response (url)
             hint-fn $ Fn String
-              -> $ Result js-ffi.shared/ResponseHost js-ffi.shared/JsError
+              -> $ Result ResponseHost JsError
               :features :js-ffi
               :async
             try
@@ -2829,7 +2829,7 @@
           :tests $ [] $ %{} 'TestEntry (:name |precise-executor-contract)
             :code $ quote $ assert= true
               fn? $ fn ()
-                hint-fn $ Fn (-> js-ffi.shared/PromiseHost) (:features :js-ffi)
+                hint-fn $ Fn (-> PromiseHost) (:features :js-ffi)
                 promise-create $ fn (resolve reject)
                   hint-fn $ Fn
                     Fn String $ -> Unit
@@ -2855,7 +2855,7 @@
           :tests $ [] $ %{} 'TestEntry (:name |decoded-callback-contract)
             :code $ quote $ assert= true
               fn? $ fn (host)
-                hint-fn $ Fn js-ffi.shared/PromiseHost (-> Unit) (:features :js-ffi)
+                hint-fn $ Fn PromiseHost (-> Unit) (:features :js-ffi)
                 promise-observe! host
                   fn (raw)
                     hint-fn $ Fn (JsNullish JsObject) (-> Unit) (:features :js-ffi)
@@ -2914,8 +2914,8 @@
         'response-json $ %{} 'CodeEntry
           :doc "|Await one response text, parse JSON, and expose the resulting object as Result<JsObject, JsError>."
           :code $ quote $ defn response-json (response)
-            hint-fn $ Fn js-ffi.shared/ResponseHost
-              -> $ calcit.core/Result JsObject js-ffi.shared/JsError
+            hint-fn $ Fn ResponseHost
+              -> $ Result JsObject JsError
               :features :js-ffi
               :async
             try
@@ -2931,8 +2931,8 @@
         'response-text $ %{} 'CodeEntry
           :doc "|Await Response.text exactly once and normalize synchronous throws or Promise rejections as Result.err."
           :code $ quote $ defn response-text (response)
-            hint-fn $ Fn js-ffi.shared/ResponseHost
-              -> $ Result String js-ffi.shared/JsError
+            hint-fn $ Fn ResponseHost
+              -> $ Result String JsError
               :features :js-ffi
               :async
             try
@@ -3063,7 +3063,7 @@
           :schema $ quote Trait
         'float32-at $ %{} 'CodeEntry (:doc "|读取一个有界索引；索引必须为范围内非负安全整数。")
           :code $ quote $ defn float32-at (snapshot index)
-            hint-fn $ Fn js-ffi.typed-arrays/Float32SnapshotHost Number (-> Number) (:features :js-ffi)
+            hint-fn $ Fn Float32SnapshotHost Number (-> Number) (:features :js-ffi)
             let
                 read-at $ unsafe-coerce float32At $ Fn js-ffi.typed-arrays/Float32SnapshotHost Number (-> Number)
               read-at snapshot index
@@ -3072,7 +3072,7 @@
           :schema $ quote $ Fn Float32SnapshotHost Number (-> Number) (:features :js-ffi)
         'float32-byte-length $ %{} 'CodeEntry (:doc "|读取快照字节数；每个 Float32 元素为四字节。")
           :code $ quote $ defn float32-byte-length (snapshot)
-            hint-fn $ Fn js-ffi.typed-arrays/Float32SnapshotHost (-> Number) (:features :js-ffi)
+            hint-fn $ Fn Float32SnapshotHost (-> Number) (:features :js-ffi)
             let
                 read-byte-length $ unsafe-coerce float32ByteLength $ Fn js-ffi.typed-arrays/Float32SnapshotHost (-> Number)
               read-byte-length snapshot
@@ -3082,7 +3082,7 @@
         'float32-copy-range $ %{} 'CodeEntry
           :doc "|按元素范围复制快照为新的可变 Float32Array；调用方可缓存用于 Canvas/GPU 上传。"
           :code $ quote $ defn float32-copy-range (snapshot start amount)
-            hint-fn $ Fn js-ffi.typed-arrays/Float32SnapshotHost Number Number (-> js-ffi.typed-arrays/Float32ArrayHost) (:features :js-ffi)
+            hint-fn $ Fn Float32SnapshotHost Number Number (-> Float32ArrayHost) (:features :js-ffi)
             let
                 copy-range $ unsafe-coerce float32CopyRange $ Fn js-ffi.typed-arrays/Float32SnapshotHost Number Number (-> js-ffi.typed-arrays/Float32ArrayHost)
               copy-range snapshot start amount
@@ -3091,7 +3091,7 @@
           :schema $ quote $ Fn Float32SnapshotHost Number Number (-> Float32ArrayHost) (:features :js-ffi)
         'float32-length $ %{} 'CodeEntry (:doc "|读取快照的 Float32 元素数，不暴露原数组。")
           :code $ quote $ defn float32-length (snapshot)
-            hint-fn $ Fn js-ffi.typed-arrays/Float32SnapshotHost (-> Number) (:features :js-ffi)
+            hint-fn $ Fn Float32SnapshotHost (-> Number) (:features :js-ffi)
             let
                 read-length $ unsafe-coerce float32Length $ Fn js-ffi.typed-arrays/Float32SnapshotHost (-> Number)
               read-length snapshot
@@ -3101,7 +3101,7 @@
         'snapshot-float32 $ %{} 'CodeEntry
           :doc "|校验并复制 Float32Array 为不可变快照；拒绝非有限值和 SharedArrayBuffer。"
           :code $ quote $ defn snapshot-float32 (source)
-            hint-fn $ Fn js-ffi.typed-arrays/Float32ArrayHost (-> js-ffi.typed-arrays/Float32SnapshotHost) (:features :js-ffi)
+            hint-fn $ Fn Float32ArrayHost (-> Float32SnapshotHost) (:features :js-ffi)
             let
                 snapshot $ unsafe-coerce snapshotFloat32 $ Fn js-ffi.typed-arrays/Float32ArrayHost (-> js-ffi.typed-arrays/Float32SnapshotHost)
               snapshot source
@@ -3316,7 +3316,7 @@
         'probe-device! $ %{} 'CodeEntry
           :doc "|异步探测宿主 GPU，返回封闭的 ready/unavailable/failed 分支；ready 的设备由调用方释放。"
           :code $ quote $ defn probe-device! (navigator-host)
-            hint-fn $ Fn (JsNullish js-ffi.webgpu-capabilities/NavigatorHost) (-> js-ffi.webgpu-capabilities/DeviceProbe) (:features :js-ffi) (:async)
+            hint-fn $ Fn (JsNullish NavigatorHost) (-> DeviceProbe) (:features :js-ffi) (:async)
             let
                 probe $ unsafe-coerce probeWebGpuDevice $ Fn (JsNullish js-ffi.webgpu-capabilities/NavigatorHost) (-> JsObject) (:async)
                 result $ js-await $ probe navigator-host
