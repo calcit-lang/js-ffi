@@ -5,7 +5,7 @@ JavaScript explicit, checkable, and reusable across Calcit projects.
 
 ## 0.2.17 候选
 
-此版本等待包含 Calcit #2749 嵌套回调检查修复的正式 Calcit，预期为 0.42.2 或后续包含该修复的版本。发布后请同步升级 Calcit CLI 和 `@calcit/procs`，安装依赖并重新生成 JS。
+请配对使用正式 Calcit CLI 和 `@calcit/procs` 0.43.0，安装依赖后重新生成 Node 和浏览器 JS。
 Calcit 0.37.0 的项目继续使用已发布的 Git 标签 0.2.14。
 
 Node 和浏览器入口分别检查各自的宿主 API。DOM 克隆和 dataset 访问复用具名接口，
