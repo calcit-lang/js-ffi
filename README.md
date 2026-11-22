@@ -7,7 +7,7 @@ JavaScript explicit, checkable, and reusable across Calcit projects.
 
 Window、Document 和元素的类型化事件注册及移除接口现接受带 `:io` 和 `:state` 的 `EventHost` 回调；纯回调仍可使用。事件传递、回调身份和移除行为不变。使用正式 Calcit 0.44.0，固定正式 tag 后重新安装依赖并生成 JS。
 
-后续候选同时修正 `set-before-unload!` 的回调效果合同，使保存状态或执行 IO 的卸载处理器可以使用精确的 `EventHost` 类型；运行时赋值行为不变。
+后续候选同时修正 `set-before-unload!` 的回调效果合同，使保存状态或执行 IO 的卸载处理器可以使用精确的 `EventHost` 类型；运行时赋值行为不变。 浏览器 `set-timeout!`、`request-animation-frame!` 及 Node `set-timeout!` 的回调同样支持状态与 IO 效果；句柄及取消行为不变。
 
 ## 0.2.18
 
