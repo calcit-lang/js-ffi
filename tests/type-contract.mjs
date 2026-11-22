@@ -309,6 +309,8 @@ for (const [entry, calls] of [
         println timestamp
         , &unit
     ${calls}
+    shared/queue-microtask! timeout
+    shared/queue-microtask! pure-timeout
     , &unit`;
     mutate(['edit', 'def', target, '--code', body]);
     mutate(['edit', 'schema', target, '--code', 'quote $ Fn (-> Unit) (:features :io :state :js-ffi)']);

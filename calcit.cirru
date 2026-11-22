@@ -2879,7 +2879,7 @@
           :code $ quote $ defn queue-microtask! (callback) (js/queueMicrotask callback) &unit
           :examples $ []
           :schema $ quote $ Fn
-            Fn $ -> Unit
+            Fn (-> Unit) (:features :io :js-ffi :state)
             -> Unit
             :features :js-ffi
         'random-uuid $ %{} 'CodeEntry
