@@ -3,11 +3,13 @@
 Typed JavaScript FFI definitions for Calcit. This package is independent: it exists to make the boundary between Calcit and host
 JavaScript explicit, checkable, and reusable across Calcit projects.
 
+## 0.2.21：卸载和调度回调的效果合同
+
+`set-before-unload!`、浏览器 `set-timeout!`、`request-animation-frame!`、Node `set-timeout!` 和共享 `queue-microtask!` 的回调支持 `:io` 和 `:state` 效果。事件、句柄和取消行为不变；使用正式 Calcit 0.44.0，更新依赖后重新生成 JS。
+
 ## 0.2.20：浏览器事件回调的效果合同
 
 Window、Document 和元素的类型化事件注册及移除接口现接受带 `:io` 和 `:state` 的 `EventHost` 回调；纯回调仍可使用。事件传递、回调身份和移除行为不变。使用正式 Calcit 0.44.0，固定正式 tag 后重新安装依赖并生成 JS。
-
-后续候选同时修正 `set-before-unload!` 的回调效果合同，使保存状态或执行 IO 的卸载处理器可以使用精确的 `EventHost` 类型；运行时赋值行为不变。 浏览器 `set-timeout!`、`request-animation-frame!` Node `set-timeout!` 和共享 `queue-microtask!` 的回调同样支持状态与 IO 效果；句柄及取消行为不变。
 
 ## 0.2.18
 
