@@ -269,10 +269,13 @@ export async function run() {
   a.equal(browser.viewport_width(), window.innerWidth);
   a.equal(browser.viewport_height(), window.innerHeight);
   const priorBeforeUnload = window.onbeforeunload;
-  const beforeUnload = () => undefined;
+  let unloadCalls = 0;
+  const beforeUnload = () => { unloadCalls++; };
   try {
     a.equal(browser.set_before_unload_$x_(beforeUnload), undefined);
     a.equal(window.onbeforeunload, beforeUnload);
+    window.dispatchEvent(new Event("beforeunload"));
+    a.equal(unloadCalls, 1);
   } finally {
     window.onbeforeunload = priorBeforeUnload;
   }
