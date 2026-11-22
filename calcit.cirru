@@ -1230,7 +1230,7 @@
           :examples $ []
           :ffi $ {} (:backend :js) (:target :browser)
           :schema $ quote $ Fn
-            Fn Number $ -> Unit
+            Fn Number (-> Unit) (:features :io :js-ffi :state)
             -> Number
             :features :js-ffi
         'runtime $ %{} 'CodeEntry
@@ -1318,7 +1318,7 @@
               , 10
           :ffi $ {} (:backend :js) (:target :browser)
           :schema $ quote $ Fn
-            Fn $ -> Unit
+            Fn (-> Unit) (:features :io :js-ffi :state)
             , Number (-> Number) (:features :js-ffi)
         'speech-synthesis-cancel! $ %{} 'CodeEntry
           :doc "|Cancel all pending browser speech synthesis utterances."
@@ -2289,7 +2289,7 @@
           :examples $ []
           :ffi $ {} (:backend :js) (:target :node)
           :schema $ quote $ Fn
-            Fn $ -> Unit
+            Fn (-> Unit) (:features :io :js-ffi :state)
             , Number (-> NodeTimerHost) (:features :js-ffi)
         'stderr-write! $ %{} 'CodeEntry
           :doc "|Write one String to process.stderr without adding a newline and return Unit; host stream failures propagate."
@@ -2879,7 +2879,7 @@
           :code $ quote $ defn queue-microtask! (callback) (js/queueMicrotask callback) &unit
           :examples $ []
           :schema $ quote $ Fn
-            Fn $ -> Unit
+            Fn (-> Unit) (:features :io :js-ffi :state)
             -> Unit
             :features :js-ffi
         'random-uuid $ %{} 'CodeEntry

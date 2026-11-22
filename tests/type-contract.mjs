@@ -280,3 +280,42 @@ console.log(`Type contracts: ${cases.length + invalidCanvas.length + 2 + promise
     assert.equal(result.status, 0, result.stdout + result.stderr);
   } finally { rmSync(dir, { recursive: true, force: true }); }
 }
+
+// Scheduled callbacks can mutate state and perform IO while preserving the
+// browser numeric handles and the separate Node timer handle contract.
+for (const [entry, calls] of [
+  ['browser', 'browser/clear-timeout! $ browser/set-timeout! timeout 1\n    browser/cancel-animation-frame! $ browser/request-animation-frame! frame\n    browser/clear-timeout! $ browser/set-timeout! pure-timeout 1'],
+  ['node', 'node/clear-timeout! $ node/set-timeout! timeout 1\n    node/clear-timeout! $ node/set-timeout! pure-timeout 1'],
+]) {
+  const dir = mkdtempSync(join(tmpdir(), 'js-ffi-effectful-schedule-'));
+  try {
+    const snapshot = join(dir, 'calcit.cirru');
+    copyFileSync(new URL('../calcit.cirru', import.meta.url), snapshot);
+    copyFileSync(new URL('../deps.cirru', import.meta.url), join(dir, 'deps.cirru'));
+    const target = `js-ffi.${entry}-test/effectful-schedule-contract!`;
+    const mutate = args => execFileSync(calcitBin, [snapshot, ...args], { cwd: dir, stdio: 'pipe' });
+    const body = `quote $ defn effectful-schedule-contract! ()
+  let
+      *count $ ref 0
+      timeout $ fn ()
+        hint-fn $ Fn (-> Unit) (:features :io :state)
+        reset! *count $ + 1 @*count
+        println |timeout
+        , &unit
+      pure-timeout $ fn () &unit
+      frame $ fn (timestamp)
+        hint-fn $ Fn Number (-> Unit) (:features :io :state)
+        reset! *count $ + 1 @*count
+        println timestamp
+        , &unit
+    ${calls}
+    shared/queue-microtask! timeout
+    shared/queue-microtask! pure-timeout
+    , &unit`;
+    mutate(['edit', 'def', target, '--code', body]);
+    mutate(['edit', 'schema', target, '--code', 'quote $ Fn (-> Unit) (:features :io :state :js-ffi)']);
+    const result = spawnSync(calcitBin, [snapshot, '--entry', entry, '--init-fn', target, '--check-only'], { cwd: dir, encoding: 'utf8' });
+    assert.ifError(result.error);
+    assert.equal(result.status, 0, result.stdout + result.stderr);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+}
