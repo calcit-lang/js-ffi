@@ -270,6 +270,8 @@ console.log(`Type contracts: ${cases.length + invalidCanvas.length + 2 + promise
     browser/element-remove-event-listener! element |click handler
     browser/add-event-listener! |click pure-handler
     browser/remove-event-listener! |click pure-handler
+    browser/set-before-unload! handler
+    browser/set-before-unload! pure-handler
     , &unit`;
     mutate(['edit', 'def', target, '--code', body]);
     mutate(['edit', 'schema', target, '--code', 'quote $ Fn (-> Unit) (:features :io :state :js-ffi)']);

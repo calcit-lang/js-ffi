@@ -327,7 +327,7 @@
         'WindowHost $ %{} 'CodeEntry
           :doc "|External browser Window capability restricted to stable viewport fields, matchMedia, and typed global event listeners."
           :code $ quote $ deftrait WindowHost (:inner-width 'Number) (:inner-height 'Number) (:device-pixel-ratio 'Number) (:document 'js-ffi.browser/DocumentHost)
-            :on-before-unload $ Fn js-ffi.browser/EventHost $ -> Unit
+            :on-before-unload $ Fn js-ffi.browser/EventHost (-> Unit) (:features :io :state :js-ffi)
             .match-media $ Fn js-ffi.browser/WindowHost String $ -> js-ffi.browser/MediaQueryListHost
             .add-event-listener! $ Fn js-ffi.browser/WindowHost String
               Fn js-ffi.browser/EventHost (-> Unit) (:features :io :state :js-ffi)
@@ -1294,7 +1294,7 @@
               , &unit
           :examples $ []
           :schema $ quote $ Fn
-            Fn EventHost $ -> Unit
+            Fn EventHost (-> Unit) (:features :io :js-ffi :state)
             -> Unit
             :features :js-ffi
         'set-interval! $ %{} 'CodeEntry
