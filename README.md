@@ -3,6 +3,10 @@
 Typed JavaScript FFI definitions for Calcit. This package is independent: it exists to make the boundary between Calcit and host
 JavaScript explicit, checkable, and reusable across Calcit projects.
 
+## 0.2.20：浏览器事件回调的效果合同
+
+Window、Document 和元素的类型化事件注册及移除接口现接受带 `:io` 和 `:state` 的 `EventHost` 回调；纯回调仍可使用。事件传递、回调身份和移除行为不变。使用正式 Calcit 0.44.0，固定正式 tag 后重新安装依赖并生成 JS。
+
 ## 0.2.18
 
 请配对使用正式 Calcit CLI 和 `@calcit/procs` 0.43.0，安装依赖后重新生成 Node 和浏览器 JS。

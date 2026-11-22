@@ -239,3 +239,42 @@ for (const expression of invalidCanvas) {
 }
 
 console.log(`Type contracts: ${cases.length + invalidCanvas.length + 2 + promiseCases.filter(([, accepted]) => !accepted).length} invalid consumers rejected`);
+
+// Real event callbacks may update state and perform IO; removing them must
+// accept the same callback identity. Pure callbacks remain valid too.
+{
+  const dir = mkdtempSync(join(tmpdir(), 'js-ffi-effectful-listener-'));
+  try {
+    const snapshot = join(dir, 'calcit.cirru');
+    copyFileSync(new URL('../calcit.cirru', import.meta.url), snapshot);
+    copyFileSync(new URL('../deps.cirru', import.meta.url), join(dir, 'deps.cirru'));
+    const target = 'js-ffi.browser-test/effectful-listener-contract!';
+    const mutate = args => execFileSync(calcitBin, [snapshot, ...args], { cwd: dir, stdio: 'pipe' });
+    const body = `quote $ defn effectful-listener-contract! ()
+  let
+      *count $ ref 0
+      handler $ fn (event)
+        hint-fn $ Fn browser/EventHost (-> Unit) (:features :io :state :js-ffi)
+        reset! *count $ + 1 @*count
+        println |event
+        , &unit
+      pure-handler $ fn (event)
+        hint-fn $ Fn browser/EventHost (-> Unit)
+        , &unit
+      element $ browser/create-element |div
+    browser/add-event-listener! |click handler
+    browser/remove-event-listener! |click handler
+    browser/document-add-event-listener! |click handler
+    browser/document-remove-event-listener! |click handler
+    browser/element-add-event-listener! element |click handler
+    browser/element-remove-event-listener! element |click handler
+    browser/add-event-listener! |click pure-handler
+    browser/remove-event-listener! |click pure-handler
+    , &unit`;
+    mutate(['edit', 'def', target, '--code', body]);
+    mutate(['edit', 'schema', target, '--code', 'quote $ Fn (-> Unit) (:features :io :state :js-ffi)']);
+    const result = spawnSync(calcitBin, [snapshot, '--entry', 'browser', '--init-fn', target, '--check-only'], { cwd: dir, encoding: 'utf8' });
+    assert.ifError(result.error);
+    assert.equal(result.status, 0, result.stdout + result.stderr);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+}

@@ -50,10 +50,10 @@
             .create-element $ Fn js-ffi.browser/DocumentHost String $ -> js-ffi.browser/DomElementHost
             .create-element-ns $ Fn js-ffi.browser/DocumentHost String String $ -> js-ffi.browser/DomElementHost
             .add-event-listener! $ Fn js-ffi.browser/DocumentHost String
-              Fn js-ffi.browser/EventHost $ -> Unit
+              Fn js-ffi.browser/EventHost (-> Unit) (:features :io :state :js-ffi)
               -> Unit
             .remove-event-listener! $ Fn js-ffi.browser/DocumentHost String
-              Fn js-ffi.browser/EventHost $ -> Unit
+              Fn js-ffi.browser/EventHost (-> Unit) (:features :io :state :js-ffi)
               -> Unit
           :examples $ [] $ quote DocumentHost
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
@@ -99,10 +99,10 @@
             .blur! $ Fn js-ffi.browser/DomElementHost $ -> Unit
             .request-fullscreen! $ Fn js-ffi.browser/DomElementHost $ -> Unit
             .add-event-listener! $ Fn js-ffi.browser/DomElementHost String
-              Fn js-ffi.browser/EventHost $ -> Unit
+              Fn js-ffi.browser/EventHost (-> Unit) (:features :io :state :js-ffi)
               -> Unit
             .remove-event-listener! $ Fn js-ffi.browser/DomElementHost String
-              Fn js-ffi.browser/EventHost $ -> Unit
+              Fn js-ffi.browser/EventHost (-> Unit) (:features :io :state :js-ffi)
               -> Unit
             :children 'js-ffi.browser/DomChildrenHost
             :inner-html 'String
@@ -330,10 +330,10 @@
             :on-before-unload $ Fn js-ffi.browser/EventHost $ -> Unit
             .match-media $ Fn js-ffi.browser/WindowHost String $ -> js-ffi.browser/MediaQueryListHost
             .add-event-listener! $ Fn js-ffi.browser/WindowHost String
-              Fn js-ffi.browser/EventHost $ -> Unit
+              Fn js-ffi.browser/EventHost (-> Unit) (:features :io :state :js-ffi)
               -> Unit
             .remove-event-listener! $ Fn js-ffi.browser/WindowHost String
-              Fn js-ffi.browser/EventHost $ -> Unit
+              Fn js-ffi.browser/EventHost (-> Unit) (:features :io :state :js-ffi)
               -> Unit
             .post-message! $ Fn js-ffi.browser/WindowHost Dynamic String $ -> Unit
             .open $ Fn js-ffi.browser/WindowHost String $ -> (JsNullish js-ffi.browser/WindowHost)
@@ -353,7 +353,7 @@
             quote $ add-event-listener! |visibilitychange
             quote $ add-event-listener! |beforeunload $ fn (event) nil
           :schema $ quote $ Fn String
-            Fn EventHost $ -> Unit
+            Fn EventHost (-> Unit) (:features :io :js-ffi :state)
             -> Unit
             :features :js-ffi
         'alert! $ %{} 'CodeEntry
@@ -517,7 +517,7 @@
               document .add-event-listener! event-name callback
           :examples $ []
           :schema $ quote $ Fn String
-            Fn EventHost $ -> Unit
+            Fn EventHost (-> Unit) (:features :io :js-ffi :state)
             -> Unit
             :features :js-ffi
         'document-append-body! $ %{} 'CodeEntry
@@ -581,7 +581,7 @@
               document .remove-event-listener! event-name callback
           :examples $ []
           :schema $ quote $ Fn String
-            Fn EventHost $ -> Unit
+            Fn EventHost (-> Unit) (:features :io :js-ffi :state)
             -> Unit
             :features :js-ffi
         'document-title $ %{} 'CodeEntry
@@ -601,7 +601,7 @@
           :code $ quote $ defn element-add-event-listener! (element event-name callback) (element .add-event-listener! event-name callback) &unit
           :examples $ []
           :schema $ quote $ Fn DomElementHost String
-            Fn EventHost $ -> Unit
+            Fn EventHost (-> Unit) (:features :io :js-ffi :state)
             -> Unit
             :features :js-ffi
         'element-blur! $ %{} 'CodeEntry (:doc "|Blur an HTML element with blur capability.")
@@ -780,7 +780,7 @@
           :code $ quote $ defn element-remove-event-listener! (element event-name callback) (element .remove-event-listener! event-name callback) &unit
           :examples $ []
           :schema $ quote $ Fn DomElementHost String
-            Fn EventHost $ -> Unit
+            Fn EventHost (-> Unit) (:features :io :js-ffi :state)
             -> Unit
             :features :js-ffi
         'element-request-fullscreen! $ %{} 'CodeEntry
@@ -1220,7 +1220,7 @@
               , &unit
           :examples $ []
           :schema $ quote $ Fn String
-            Fn EventHost $ -> Unit
+            Fn EventHost (-> Unit) (:features :io :js-ffi :state)
             -> Unit
             :features :js-ffi
         'request-animation-frame! $ %{} 'CodeEntry
