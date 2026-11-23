@@ -10,9 +10,12 @@ JavaScript explicit, checkable, and reusable across Calcit projects.
 ```cirru
 let
     drag $ browser/drag-event-host native-event
-    transfer $ .unwrap $ js-nullish->option $ js-get drag :data-transfer
-    checked $ browser/data-transfer-host transfer
-  .set-data! checked |text/plain |hello
+  match (js-nullish->option (js-get drag :data-transfer))
+    (:some transfer)
+      let
+          checked $ browser/data-transfer-host transfer
+        .set-data! checked |text/plain |hello
+    (:none) &unit
 ```
 
 ## 0.2.21：卸载和调度回调的效果合同
