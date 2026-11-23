@@ -316,6 +316,23 @@
             :writable $ #{} :css-text
           :schema $ quote Trait
           :tags $ #{} :ffi :js-host
+        'TextSelection $ %{} 'CodeEntry (:doc "|文本选区快照；起止位置和文本长度均按浏览器 UTF-16 code unit 计数。")
+          :code $ quote $ defstruct TextSelection
+            :start $ Option Number
+            :end $ Option Number
+            :text-length Number
+          :examples $ []
+          :schema $ quote StructDef
+        'TextSelectionHost $ %{} 'CodeEntry
+          :doc "|输入控件的最小选区字段；selectionStart/End 可能为 null，读取时由 text-selection 逐项检查。"
+          :code $ quote $ deftrait TextSelectionHost (:value 'String)
+            :selection-start $ JsNullish Number
+            :selection-end $ JsNullish Number
+          :examples $ []
+          :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
+            :names $ {} (:selection-end |selectionEnd) (:selection-start |selectionStart)
+          :schema $ quote Trait
+          :tags $ #{} :ffi :js-host
         'Viewport $ %{} 'CodeEntry
           :doc "|Normalized viewport dimensions and device pixel ratio copied from Window."
           :code $ quote $ defstruct Viewport (:width Number) (:height Number) (:device-pixel-ratio Number)
@@ -1405,6 +1422,29 @@
             , &unit
           :examples $ [] $ quote (storage-set! |theme |dark)
           :schema $ quote $ Fn String String (-> Unit) (:features :js-ffi)
+        'text-selection $ %{} 'CodeEntry (:doc "|读取可空选区和文本 UTF-16 长度；字段类型无效时报告宿主合同错误。")
+          :code $ quote $ defn text-selection (host)
+            let
+                text $ contract/expect-string |text-selection.value $ js/Reflect.get host |value
+                start $ match
+                  js-nullish->option $ js/Reflect.get host |selectionStart
+                  (:some v)
+                    Some $ contract/expect-number |text-selection.selectionStart v
+                  (:none) None
+                end $ match
+                  js-nullish->option $ js/Reflect.get host |selectionEnd
+                  (:some v)
+                    Some $ contract/expect-number |text-selection.selectionEnd v
+                  (:none) None
+                length $ contract/expect-number |text-selection.length $ js/Reflect.get (js/Object text) |length
+              TextSelection :start start :end end :text-length length
+          :examples $ []
+          :schema $ quote $ Fn TextSelectionHost (-> TextSelection) (:features :js-ffi)
+        'text-selection-host $ %{} 'CodeEntry
+          :doc "|受检确认文本控件包含 value 和 selectionStart/End 字段，保留宿主对象身份。"
+          :code $ quote $ defn text-selection-host (value) (js-cast value 'TextSelectionHost)
+          :examples $ []
+          :schema $ quote $ Fn T (-> TextSelectionHost) (:generics T) (:features :js-ffi)
         'user-agent $ %{} 'CodeEntry
           :doc "|Read navigator.userAgent after a runtime String check."
           :code $ quote $ defn user-agent () (contract/expect-string |navigator.userAgent js/window.navigator.userAgent)

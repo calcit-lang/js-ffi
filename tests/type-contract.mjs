@@ -40,6 +40,7 @@ const cases = [
   ['browser', 'webgpu/buffer-size (option:unwrap (webgpu/gpu))', /E_FN_ARG_TYPE_MISMATCH/],
   ['browser', 'webgpu/request-adapter! (option:unwrap (webgpu/gpu)) 42 42', /E_FN_ARG_TYPE_MISMATCH/],
   ['browser', 'canvas-batches/clear-canvas! 42 40 30', /E_FN_ARG_TYPE_MISMATCH/],
+  ['browser', 'browser/text-selection 42', /E_FN_ARG_TYPE_MISMATCH/],
   ['browser', 'browser/element-set-pointer-capture! 42 1', /E_FN_ARG_TYPE_MISMATCH/],
   ['browser', 'browser/element-release-pointer-capture! (browser/pointer-capture-element-host (raise |surface)) |id', /E_FN_ARG_TYPE_MISMATCH/],
   ['browser', 'browser/element-has-pointer-capture? (browser/pointer-capture-element-host (raise |surface))', /ARITY_MISMATCH|expected 2 args/],
