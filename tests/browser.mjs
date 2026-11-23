@@ -145,6 +145,36 @@ export async function run() {
     a.equal(browser.element_select_$x_(browser.selectable_element_host(textarea)), undefined);
     a.equal(textarea.selectionStart, 0);
     a.equal(textarea.selectionEnd, textarea.value.length);
+    const selectionFields = snapshot => Object.fromEntries(snapshot.fields.map((field, i) => [field.value, snapshot.values[i]]));
+    textarea.value = '中🐈文';
+    textarea.setSelectionRange(1, 3);
+    a.equal(browser.text_selection_host(textarea), textarea);
+    const textareaSelection = selectionFields(browser.text_selection(browser.text_selection_host(textarea)));
+    a.equal(unwrap(textareaSelection.start), 1);
+    a.equal(unwrap(textareaSelection.end), 3);
+    a.equal(textareaSelection['text-length'], 4);
+    input.value = '🐈x';
+    input.setSelectionRange(2, 2);
+    const inputSelection = selectionFields(browser.text_selection(browser.text_selection_host(input)));
+    a.equal(unwrap(inputSelection.start), 2);
+    a.equal(inputSelection['text-length'], 3);
+    const numberInput = document.createElement('input');
+    numberInput.type = 'number';
+    const unavailable = selectionFields(browser.text_selection(browser.text_selection_host(numberInput)));
+    a.equal(isNone(unavailable.start), true);
+    a.equal(isNone(unavailable.end), true);
+    a.equal(unavailable['text-length'], 0);
+    a.throws(() => browser.text_selection_host({ value: 'x' }), /missing field/);
+    a.throws(() => browser.text_selection(browser.text_selection_host({value: 'x', selectionStart: 'bad', selectionEnd: 0})), /expected Number/);
+    const selectionFrame = document.createElement('iframe');
+    document.body.append(selectionFrame);
+    try {
+      const foreign = selectionFrame.contentDocument.createElement('textarea');
+      foreign.value = '🐈';
+      foreign.setSelectionRange(0, 2);
+      a.equal(browser.text_selection_host(foreign), foreign);
+      a.equal(selectionFields(browser.text_selection(browser.text_selection_host(foreign)))['text-length'], 2);
+    } finally { selectionFrame.remove(); }
     a.throws(() => browser.selectable_element_host(null), /DOM\.selectable-element-host expected Object, got nullish/);
     a.equal(browser.element_select_$x_(browser.selectable_element_host(input)), undefined);
     a.equal(input.selectionStart, 0);
