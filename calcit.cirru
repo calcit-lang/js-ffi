@@ -40,6 +40,15 @@
           :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
             :names $ {} (:height |height) (:left |left) (:top |top) (:width |width)
           :schema $ quote Trait
+        'DataTransferHost $ %{} 'CodeEntry
+          :doc "|浏览器拖放数据传输能力；使用前通过 data-transfer-host 检查 getData 与 setData 可调用。"
+          :code $ quote $ deftrait DataTransferHost
+            .get-data $ Fn DataTransferHost String $ -> String
+            .set-data! $ Fn DataTransferHost String String $ -> Unit
+          :examples $ []
+          :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
+            :names $ {} (:get-data |getData) (:set-data! |setData)
+          :schema $ quote Trait
         'DocumentHost $ %{} 'CodeEntry
           :doc "|External Document capability with typed state, title, and small selector/creation surface."
           :code $ quote $ deftrait DocumentHost (:title 'String) (:ready-state 'String) (:visibility-state 'String)
@@ -150,6 +159,14 @@
             :writable $ #{} :value
           :schema $ quote Trait
           :tags $ #{} :ffi :js-host
+        'DragEventHost $ %{} 'CodeEntry
+          :doc "|浏览器拖拽事件能力；dataTransfer 可能为空，非空值通过 data-transfer-host 受检。"
+          :code $ quote $ deftrait DragEventHost ('requires EventHost)
+            :data-transfer $ JsNullish JsObject
+          :examples $ []
+          :ffi $ {} (:backend :js) (:kind :external-object) (:target :browser)
+            :names $ {} $ :data-transfer |dataTransfer
+          :schema $ quote Trait
         'ElementRect $ %{} 'CodeEntry
           :doc "|Normalized element bounding box in CSS pixels copied from getBoundingClientRect."
           :code $ quote $ defstruct ElementRect (:x Number) (:y Number) (:width Number) (:height Number)
@@ -461,6 +478,10 @@
               host .create-element-ns namespace tag-name
           :examples $ []
           :schema $ quote $ Fn String String (-> DomElementHost) (:features :js-ffi)
+        'data-transfer-host $ %{} 'CodeEntry (:doc "|受检转换 DataTransfer 宿主能力，保持对象身份并检查方法可调用。")
+          :code $ quote $ defn data-transfer-host (value) (js-cast value 'DataTransferHost)
+          :examples $ []
+          :schema $ quote $ Fn T (-> DataTransferHost) (:generics T) (:features :js-ffi)
         'decode-document-ready-state $ %{} 'CodeEntry
           :doc "|Decode document.readyState String to DocumentReadyState while preserving unknown values."
           :code $ quote $ defn decode-document-ready-state (raw)
@@ -597,6 +618,10 @@
               , &unit
           :examples $ []
           :schema $ quote $ Fn String (-> Unit) (:features :js-ffi)
+        'drag-event-host $ %{} 'CodeEntry (:doc "|受检转换拖拽事件宿主能力；dataTransfer 允许为空。")
+          :code $ quote $ defn drag-event-host (value) (js-cast value 'DragEventHost)
+          :examples $ []
+          :schema $ quote $ Fn T (-> DragEventHost) (:generics T) (:features :js-ffi)
         'element-add-event-listener! $ %{} 'CodeEntry (:doc "|Register a typed event listener on one element.")
           :code $ quote $ defn element-add-event-listener! (element event-name callback) (element .add-event-listener! event-name callback) &unit
           :examples $ []

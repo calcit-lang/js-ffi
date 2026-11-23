@@ -325,6 +325,27 @@ export async function run() {
   a.equal(browser.image_natural_width(image), 1);
   a.equal(browser.image_natural_height(image), 1);
 
+  // Real DragEvent/DataTransfer retain identity, including across realms.
+  const transfer = new DataTransfer();
+  const drag = new DragEvent('dragstart', { dataTransfer: transfer });
+  a.equal(browser.drag_event_host(drag), drag);
+  a.equal(browser.data_transfer_host(drag.dataTransfer), transfer);
+  transfer.setData('text/plain', 'drag 🐈');
+  a.equal(browser.data_transfer_host(transfer).getData('text/plain'), 'drag 🐈');
+  a.equal(browser.drag_event_host(new DragEvent('dragstart')).dataTransfer, null);
+  a.throws(() => browser.drag_event_host(new Event('dragstart')), /TypeError/);
+  a.throws(() => browser.data_transfer_host({ getData() {} }), /TypeError/);
+  const dragFrame = document.createElement('iframe');
+  document.body.append(dragFrame);
+  try {
+    const foreignTransfer = new dragFrame.contentWindow.DataTransfer();
+    const foreignEvent = new dragFrame.contentWindow.DragEvent('dragstart', { dataTransfer: foreignTransfer });
+    a.equal(browser.drag_event_host(foreignEvent), foreignEvent);
+    a.equal(browser.data_transfer_host(foreignEvent.dataTransfer), foreignTransfer);
+  } finally {
+    dragFrame.remove();
+  }
+
   const pointerEvent = new PointerEvent('pointerdown', { clientX: 12, clientY: 34 });
   const pointerHost = browser.pointer_event_host(pointerEvent);
   a.equal(typeof pointerHost.layerX, 'number');
