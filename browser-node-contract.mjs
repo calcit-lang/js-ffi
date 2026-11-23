@@ -5,6 +5,8 @@ import {
   child_element_at,
   document_append_body_$x_,
   document_available_$q_,
+  drag_event_host,
+  data_transfer_host,
   element_host,
   event_host,
   event_target_element,
@@ -98,6 +100,18 @@ assert.equal(event_host(clickEvent), clickEvent);
 assert.throws(() => event_host(hostElement), /DOM\.event-host expected event host/);
 assert.equal(keyboard_event_host(keyEvent), keyEvent);
 assert.throws(() => keyboard_event_host(clickEvent), /DOM\.keyboard-event-host expected keyboard-event host/);
+
+// Drag and transfer adapters validate capabilities and retain the host object.
+const transfer = { getData(format) { return format; }, setData() {} };
+const drag = { type: "dragstart", target: null, currentTarget: null, defaultPrevented: false,
+  eventPhase: 2, preventDefault() {}, stopPropagation() {}, dataTransfer: transfer };
+assert.equal(drag_event_host(drag), drag);
+assert.equal(data_transfer_host(drag.dataTransfer), transfer);
+assert.equal(drag_event_host({ ...drag, dataTransfer: null }).dataTransfer, null);
+assert.throws(() => drag_event_host({ ...drag, dataTransfer: undefined, stopPropagation: null }));
+assert.throws(() => drag_event_host({ type: "dragstart" }));
+assert.throws(() => data_transfer_host({ getData() {}, setData: 1 }));
+assert.throws(() => data_transfer_host(calcitMap("text", "x")));
 
 // Only element targets become Some; text nodes and missing targets are none.
 assert.equal(option_$o_unwrap(event_target_element(clickEvent)), hostElement);

@@ -3,6 +3,21 @@
 Typed JavaScript FFI definitions for Calcit. This package is independent: it exists to make the boundary between Calcit and host
 JavaScript explicit, checkable, and reusable across Calcit projects.
 
+## 0.2.22：受检浏览器拖拽能力
+
+使用 `drag-event-host` 和 `data-transfer-host` 受检访问原生拖拽事件及读写数据的能力；`dataTransfer` 可能为 null，调用方应先处理缺失再校验传输对象。适配器保留原宿主对象身份，不依赖 `instanceof`，支持其他 frame 创建的事件。使用正式 Calcit 0.44.0，发布正式 tag 后更新依赖并重新生成 JS。
+
+```cirru
+let
+    drag $ browser/drag-event-host native-event
+  match (js-nullish->option (js-get drag :data-transfer))
+    (:some transfer)
+      let
+          checked $ browser/data-transfer-host transfer
+        .set-data! checked |text/plain |hello
+    (:none) &unit
+```
+
 ## 0.2.21：卸载和调度回调的效果合同
 
 `set-before-unload!`、浏览器 `set-timeout!`、`request-animation-frame!`、Node `set-timeout!` 和共享 `queue-microtask!` 的回调支持 `:io` 和 `:state` 效果。事件、句柄和取消行为不变；使用正式 Calcit 0.44.0，更新依赖后重新生成 JS。
