@@ -2190,7 +2190,8 @@
           :code $ quote $ defn read-dir! (dir-path)
             let
                 entries $ fs/readdirSync dir-path
-              if (js/Array.isArray entries)
+              if
+                contract/expect-bool |Array.isArray $ js/Array.isArray entries
                 map
                   range $ contract/expect-number |fs.readdirSync.length $ js/Reflect.get entries |length
                   fn (index)
@@ -3235,12 +3236,12 @@
           :code $ quote $ defn create-buffer (device size usage)
             when
               or
-                not $ js/Number.isSafeInteger size
+                not $ contract/expect-bool |Number.isSafeInteger $ js/Number.isSafeInteger size
                 < size 0
               raise |WebGPU.buffer.size-must-be-a-nonnegative-safe-integer
             when
               or
-                not $ js/Number.isSafeInteger usage
+                not $ contract/expect-bool |Number.isSafeInteger $ js/Number.isSafeInteger usage
                 <= usage 0
                 > usage 1023
               raise |WebGPU.buffer.usage-must-be-a-nonzero-known-bitmask
