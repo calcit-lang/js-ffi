@@ -3,6 +3,10 @@
 Typed JavaScript FFI definitions for Calcit. This package is independent: it exists to make the boundary between Calcit and host
 JavaScript explicit, checkable, and reusable across Calcit projects.
 
+## 0.2.24：配对 Calcit 0.45.1
+
+本候选配对正式 Calcit 和 `@calcit/procs` 0.45.1。下游需待正式 Git tag 发布后更新依赖、重新安装并生成 JS；现有宿主 API 和 Node/browser 合同保持不变。
+
 ## 0.2.23：文本控件的选区快照
 
 `text-selection-host` 检查宿主是否有文本值与选区字段，保留原对象身份；`text-selection` 检查字段值并返回 `TextSelection`。起止位置为 `Option Number`，不支持选区的 input 返回 `None`；文本长度及选区位置均使用浏览器的 UTF-16 code unit。错误字段类型会报错，不把空选区默认为 0。支持 input、textarea 和其他 frame 创建的控件；使用 Calcit 0.44.0，在正式 tag 发布后升级依赖并重新生成 JS。
