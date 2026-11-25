@@ -9,6 +9,11 @@ if (!['generate', 'check', 'search', 'cache'].includes(command)) throw new Error
 const cacheDir = join(root, '.calcit/api');
 const jsonPath = join(cacheDir, 'api.json');
 const recipes = JSON.parse(readFileSync(join(root, 'examples/recipes.json'), 'utf8'));
+const packageVersion = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')).version;
+const moduleVersions = [...readFileSync(join(root, 'deps.cirru'), 'utf8').matchAll(/:version \|([^\s)]+)/g)];
+if (moduleVersions.length !== 1 || moduleVersions[0][1] !== packageVersion) {
+  throw new Error('package.json and deps.cirru must declare the same package version');
+}
 // Cache identity includes every source that affects the generated records.
 const hash = createHash('sha256');
 for (const file of ['calcit.cirru', 'deps.cirru', 'package.json', 'scripts/api-lib.mjs', 'scripts/api-catalog.mjs', 'examples/recipes.json', ...recipes.map(recipe => recipe.source)]) {
@@ -58,7 +63,7 @@ if (command === 'search') {
       inspect: `calcit query def ${def.id} --format json`,
     };
   });
-  const catalog = { schemaVersion: 2, sourceFingerprint, calcitVersion: calcit(['--version']).trim(), packageVersion: JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')).version, publicNamespaces, definitions: records };
+  const catalog = { schemaVersion: 2, sourceFingerprint, calcitVersion: calcit(['--version']).trim(), packageVersion, publicNamespaces, definitions: records };
   let markdown = '# Public API catalog\n\nGenerated from Calcit definitions by `yarn api:generate`. Do not edit directly.\n\n';
   markdown += `${records.length} public definitions, including host traits and data types. Search (automatically refreshes a stale cache): \`yarn api:search storage browser\`. Machine-readable source: [api.json](api.json).\n\n`;
   markdown += 'Runtime availability follows the public namespace policy in scripts/api-lib.mjs. Schemas and host metadata are declarations, not proof of arbitrary host values. Recipe links show demonstrated use, not exhaustive API coverage. Exception and lifecycle details: [adapter reference](../../docs/standard-host-adapters.md).\n\n';
