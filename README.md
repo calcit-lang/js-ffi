@@ -3,9 +3,9 @@
 Typed JavaScript FFI definitions for Calcit. This package is independent: it exists to make the boundary between Calcit and host
 JavaScript explicit, checkable, and reusable across Calcit projects.
 
-## 0.2.24：配对 Calcit 0.45.1
+## 0.2.26 候选：配对 Calcit 0.46.0
 
-本候选配对正式 Calcit 和 `@calcit/procs` 0.45.1。下游需待正式 Git tag 发布后更新依赖、重新安装并生成 JS；现有宿主 API 和 Node/browser 合同保持不变。
+当前分支配对正式 Calcit 和 `@calcit/procs` 0.46.0，尚未发布对应 Git tag；已发布的 0.2.25 配对 Calcit 0.45.1。下游需待正式 tag 发布后更新依赖、重新安装并生成 JS；现有宿主 API 和 Node/browser 合同保持不变。
 
 ## 0.2.23：文本控件的选区快照
 
