@@ -1574,12 +1574,8 @@
               assert-type element browser/DomElementHost
               browser/add-event-listener! |resize on-resize
               browser/remove-event-listener! |resize on-resize
-              browser/set-before-unload! $ fn (event)
-                hint-fn $ Fn browser/EventHost $ -> Unit
-                , &unit
-              shared/queue-microtask! $ fn ()
-                hint-fn $ Fn $ -> Unit
-                shared/console-log! |js-ffi-browser-microtask-passed
+              browser/set-before-unload! $ fn (event) &unit
+              shared/queue-microtask! $ fn () $ shared/console-log! |js-ffi-browser-microtask-passed
               shared/console-log! |js-ffi-browser-smoke
               if
                 contract/valid-runtime? (shared/Runtime :browser) (:runtime result)
@@ -2936,7 +2932,7 @@
             if (js-nullish? value) false $ let
                 resolved $ js/Promise.resolve value
               and
-                fn? $ .-then value
+                = |function $ js/typeof $ .-then value
                 identical? value resolved
           :examples $ []
           :schema $ quote $ Fn T (-> Bool) (:generics T) (:features :js-ffi)
