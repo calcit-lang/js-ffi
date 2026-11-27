@@ -48,6 +48,8 @@ def current-directory $ fn ()
 
 Use `contract/expect-string`, `expect-number`, `expect-bool`, `expect-object`, `expect-function`, and `object-field` when adding a new adapter. A failed contract reports `JS FFI contract violation` at the boundary instead of allowing an incorrectly typed value into business code.
 
+`js-ffi.contract` 边界解码器有意保留 4 处运行时类型谓词（`expect-bool` 中的 `bool?`、`expect-number` 中的 `number?`、`expect-string` 中的 `string?` 和 `expect-object` 中的 `type-of`）：前三者依赖带 `:guard` 的基础谓词在不引入 `unsafe-coerce` 的前提下将不透明 JS 值收窄为具体 Calcit 类型，`expect-object` 则通过 `type-of` 排除在 JS 中同样具有 `typeof === "object"` 的 Calcit 自有值；因此默认质量门禁以 `calcit calcit.cirru --check-only` 和 `calcit analyze weak-types --only legacy-migration` 核对这 4 处受审阅的边界守卫，而不对本库强制开启 `--deny-migration-warnings`。
+
 Browser adapters that turn an opaque value into a DOM external trait check its kind first. `browser/host-kind?` reports whether a value has the documented shape of an element, event, keyboard event, mouse event, pointer event, or selectable text control, and `browser/expect-host-kind` raises a contract violation otherwise. `selectable-element-host` requires callable `setSelectionRange` and `select`, plus a string `value`, preserving the text-control boundary while checking the method promised by `DomSelectableHost`. These shallow checks do not prove DOM provenance or future method behavior.
 
 `element-host`, `event-host` and the other `*-host` adapters use it to reject values without the documented host shape at the boundary. Structurally matching JavaScript objects can pass; these checks do not establish DOM identity. `event-target-element` returns none when the event target does not match the documented element shape.

@@ -3,9 +3,13 @@
 Typed JavaScript FFI definitions for Calcit. This package is independent: it exists to make the boundary between Calcit and host
 JavaScript explicit, checkable, and reusable across Calcit projects.
 
-## 0.2.26 候选：配对 Calcit 0.46.0
+## 配对 Calcit 0.47.0
 
-当前分支配对正式 Calcit 和 `@calcit/procs` 0.46.0，尚未发布对应 Git tag；已发布的 0.2.25 配对 Calcit 0.45.1。下游需待正式 tag 发布后更新依赖、重新安装并生成 JS；现有宿主 API 和 Node/browser 合同保持不变。
+当前分支配对正式 Calcit 和 `@calcit/procs` `0.47.0`；已发布的 `0.2.26` tag 保留对 `0.46.0` 的配对。本次收敛了 `js-ffi.shared/promise?` 的函数检测写法（由 `fn?` 改为 `js/typeof`）并清理了浏览器冒烟测试中的冗余 `hint-fn`，现有公开宿主 API 与 Node/browser 合同保持不变。
+
+## 0.2.26：配对 Calcit 0.46.0
+
+已发布 `0.2.26` 配对正式 Calcit 和 `@calcit/procs` 0.46.0；已发布的 0.2.25 配对 Calcit 0.45.1。下游需待正式 tag 发布后更新依赖、重新安装并生成 JS；现有宿主 API 和 Node/browser 合同保持不变。
 
 ## 0.2.23：文本控件的选区快照
 
@@ -508,7 +512,7 @@ wrappers. Two assertions in `probe-device!` type this package's named async
 probe import and narrow its validated `ready` host result; the public return
 remains a closed Calcit enum rather than a nullable catch-all object.
 
-本地命令要求 `PATH` 中的 Calcit 与 `deps.cirru` 的精确 `:calcit-version` 一致，npm `@calcit/procs` 也使用同一版本，并安装 Node.js 24 和 Yarn。CI 也使用同一精确版本；main 的升级不代表已有模块 tag 被改写：
+本地命令要求 `PATH` 中的 Calcit 与 `deps.cirru` 的精确 `:calcit-version` 一致（当前为 `0.47.0`），npm `@calcit/procs` 也使用同一版本，并安装 Node.js 24 和 Yarn。CI 也使用同一精确版本；main 的升级不代表已有模块 tag 被改写：
 
 ```bash
 yarn install
@@ -544,6 +548,8 @@ launches real Chromium and verifies shared APIs, DOM, storage, events, timers
 and animation frames. `yarn test:types` verifies invalid consumers are rejected.
 
 `yarn format` applies Calcit's canonical formatting to `calcit.cirru`.
+
+`calcit analyze weak-types --only legacy-migration` 在 `js-ffi.contract` 保留 4 处受检的 JS 宿主边界谓词（`expect-bool` 的 `bool?`、`expect-number` 的 `number?`、`expect-string` 的 `string?` 和 `expect-object` 的 `type-of`），用于在不使用 `unsafe-coerce` 的情况下验证并收窄原始 JS 值或拒绝 Calcit 自有对象；因此 `calcit --deny-migration-warnings --check-only` 会在 `expect-string` 与 `expect-number` 处拦截，日常检查沿用工作流中的 `--check-only`、`calcit fix --workflow strict --verify` 与 `yarn check:quality`。
 
 Every function that performs a host operation or `unsafe-coerce` declares
 `:features $ #{} :js-ffi`. `JsNullish<T>` stays at the host trait boundary and
